@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: borders-workflow-engine
 spec:
-  replicas: 2
+  replicas: {{ .WORKFLOW_ENGINE_RELICAS }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
