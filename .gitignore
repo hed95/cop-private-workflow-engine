@@ -1,2 +1,5 @@
 .idea
 build
+.gradle
+borders-workflow-engine.iml
+out/
