@@ -34,6 +34,7 @@ pipeline:
       - WORKFLOW_ENGINE_RELICAS=2
       - KUBE_CPU_LIMIT=800m
       - KUBE_MEMORY_LIMIT=3072Mi
+      - KUBE_TOKEN=$${KUBE_TOKEN_DEV}
     commands:
       - cd kube
       - kd -f deployment.yml -f service.yml
