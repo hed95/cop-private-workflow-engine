@@ -20,6 +20,8 @@ compileJava {
     sourceCompatibility = '1.8'
 }
 
+buildDir = 'dist'
+
 dependencies {
     compile 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:2.3.0'
     compile 'org.codehaus.groovy:groovy-all:2.4.6'

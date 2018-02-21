@@ -1,0 +1,13 @@
+camunda:
+  bpm:
+    process-engine-name: borders
+    database:
+      type: postgres
+
+spring:
+  datasource:
+    url: ${engine.db.url}
+    username: ${engine.db.username}
+    password: ${engine.db.password}
+    name: ${engine.db.name}
+    driver-class-name: org.postgresql.Driver

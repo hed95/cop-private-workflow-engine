@@ -3,3 +3,4 @@ build
 .gradle
 borders-workflow-engine.iml
 out/
+dist/
