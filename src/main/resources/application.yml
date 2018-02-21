@@ -6,8 +6,8 @@ camunda:
 
 spring:
   datasource:
-    url: ${engine.db.url}
-    username: ${engine.db.username}
-    password: ${engine.db.password}
-    name: ${engine.db.name}
+    url: ${ENGINE_DB_URL}
+    username: ${ENGINE_DB_USERNAME}
+    password: ${ENGINE_BD_PASSWORD}
+    name: ${ENGINE_DB_NAME}
     driver-class-name: org.postgresql.Driver

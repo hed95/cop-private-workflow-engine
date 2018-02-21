@@ -24,4 +24,15 @@ pipeline:
     when:
       branch: master
       event: push
-    
+
+  deploy_to_dev:
+    image: quay.io/ukhomeofficedigital/kd:latest
+    environment:
+    commands:
+      - cd kube
+      - kd -f deployment.yml -f service.yml
+    secrets:
+      - kube_token_dev
+    when:
+      event: [deployment, push]
+      branch: master

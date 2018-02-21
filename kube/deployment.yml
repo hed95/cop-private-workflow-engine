@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: borders-workflow-engine
+spec:
+  replicas: {{ .WORKFLOW_ENGINE_REPLICAS }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        name: borders-workflow-engine
+      annotations:
+        owner: "amin.mohammed-coleman@digital.homeoffice.gov.uk"
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: borders-workflow-engine
+        image: quay.io/ukhomeofficedigital/borders-workflow-engine:latest
+        imagePullPolicy: Always
+        securityContext:
+          runAsNonRoot: true
+        resources:
+          limits:
+            cpu: {{ .KUBE_CPU_LIMIT }}
+            memory: {{ .KUBE_MEMORY_LIMIT }}
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 8080
+            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+        env:
+          - name: ENGINE_DB_URL
+            valueFrom:
+              secretKeyRef:
+                name: bfarch-dev-postgres-rds
+                key: endpoint
+          - name: ENGINE_DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: bfarch-dev-postgres-rds
+                key: username
+          - name: ENGINE_BD_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: bfarch-dev-postgres-rds
+                key: password
+          - name: ENGINE_DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: bfarch-dev-postgres-rds
+                key: db_name
