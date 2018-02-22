@@ -29,32 +29,32 @@ spec:
             memory: {{ .KUBE_MEMORY_LIMIT }}
         readinessProbe:
           httpGet:
-            path: /api/engine/readiness
+            path: /rest/engine
             port: 8080
             scheme: HTTP
         livenessProbe:
           httpGet:
-            path: /api/engine/healthz
+            path: /health
             port: 8080
             scheme: HTTP
         env:
           - name: ENGINE_DB_URL
             valueFrom:
               secretKeyRef:
-                name: bfarch-dev-postgres-rds
+                name: bfarch-{{.ENVIRONMENT }}-postgres-rds
                 key: endpoint
           - name: ENGINE_DB_USERNAME
             valueFrom:
               secretKeyRef:
-                name: bfarch-dev-postgres-rds
+                name: bfarch-{{.ENVIRONMENT }}-postgres-rds
                 key: username
           - name: ENGINE_BD_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: bfarch-dev-postgres-rds
+                name: bfarch-{{.ENVIRONMENT }}-postgres-rds
                 key: password
           - name: ENGINE_DB_NAME
             valueFrom:
               secretKeyRef:
-                name: bfarch-dev-postgres-rds
+                name: bfarch-{{.ENVIRONMENT }}-postgres-rds
                 key: db_name

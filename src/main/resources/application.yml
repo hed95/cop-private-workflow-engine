@@ -1,13 +1,35 @@
+endpoints:
+  enabled: false
+  health:
+    enabled: true
+
+---
+
+spring:
+  profiles: local
+
+camunda:
+  bpm:
+    process-engine-name: borders
+    database:
+      type: h2
+
+---
+
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:postgresql://${ENGINE_DB_URL}
+    username: ${ENGINE_DB_USERNAME}
+    password: ${ENGINE_BD_PASSWORD}
+    name: ${ENGINE_DB_NAME}
+    driver-class-name: org.postgresql.Driver
+
 camunda:
   bpm:
     process-engine-name: borders
     database:
       type: postgres
 
-spring:
-  datasource:
-    url: ${ENGINE_DB_URL}
-    username: ${ENGINE_DB_USERNAME}
-    password: ${ENGINE_BD_PASSWORD}
-    name: ${ENGINE_DB_NAME}
-    driver-class-name: org.postgresql.Driver
+
+

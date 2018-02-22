@@ -24,6 +24,9 @@ buildDir = 'dist'
 
 dependencies {
     compile 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:2.3.0'
+    compile('org.springframework.boot:spring-boot-configuration-processor')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
     compile 'org.codehaus.groovy:groovy-all:2.4.6'
     compile 'org.postgresql:postgresql:42.1.4'
     compile 'com.h2database:h2:1.4.196'
