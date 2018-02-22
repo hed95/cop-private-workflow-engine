@@ -19,7 +19,7 @@ camunda:
 spring:
   profiles: dev
   datasource:
-    url: jdbc:postgresql://${ENGINE_DB_URL}
+    url: jdbc:postgresql://${ENGINE_DB_URL}:${ENGINE_DB_PORT}
     username: ${ENGINE_DB_USERNAME}
     password: ${ENGINE_BD_PASSWORD}
     name: ${ENGINE_DB_NAME}

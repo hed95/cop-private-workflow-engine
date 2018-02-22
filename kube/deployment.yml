@@ -44,6 +44,11 @@ spec:
         env:
           - name: SPRING_PROFILES_ACTIVE
             value: {{ .ENVIRONMENT }}
+          - name: ENGINE_DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name: bfarch-{{ .ENVIRONMENT }}-postgres-rds
+                key: port
           - name: ENGINE_DB_URL
             valueFrom:
               secretKeyRef:
