@@ -19,4 +19,4 @@ USER ${USER}
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom" , "-Dspring.profiles.active=$ENVIRONMENT", "-jar","/app/dist/libs/borders-workflow-engine.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom" , "-jar","/app/dist/libs/borders-workflow-engine.jar"]

@@ -38,10 +38,12 @@ spec:
             port: 8080
             scheme: HTTP
         env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: {{ .ENVIRONMENT }}
           - name: ENGINE_DB_URL
             valueFrom:
               secretKeyRef:
-                name: bfarch-{{.ENVIRONMENT }}-postgres-rds
+                name: bfarch-{{ .ENVIRONMENT }}-postgres-rds
                 key: endpoint
           - name: ENGINE_DB_USERNAME
             valueFrom:
