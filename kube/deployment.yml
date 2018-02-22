@@ -33,14 +33,14 @@ spec:
             port: 8080
             scheme: HTTP
             initialDelaySeconds: 60
-            timeoutSeconds: 20
+            periodSeconds: 3
         livenessProbe:
           httpGet:
             path: /health
             port: 8080
             scheme: HTTP
             initialDelaySeconds: 60
-            timeoutSeconds: 20
+            periodSeconds: 3
         env:
           - name: SPRING_PROFILES_ACTIVE
             value: {{ .ENVIRONMENT }}
