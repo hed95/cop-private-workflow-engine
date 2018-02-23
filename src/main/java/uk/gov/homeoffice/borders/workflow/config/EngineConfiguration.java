@@ -15,7 +15,7 @@ public class EngineConfiguration {
 
 
     @Configuration
-    @Profile("local")
+    @Profile("!local")
     public static class S3EngineResourceConfiguration {
 
         @Value("${engine.resource.s3.bucketName}")
@@ -41,7 +41,7 @@ public class EngineConfiguration {
     }
 
     @Configuration
-    @Profile("!local")
+    @Profile("local")
     public static class ClassPathResourceConfiguration {
 
         @Value("${engine.resource.location}")
