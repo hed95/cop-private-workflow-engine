@@ -13,7 +13,7 @@ RUN groupadd -r ${GROUP} && \
 
 ADD . /app/
 
-RUN ./gradlew clean build
+RUN ./gradlew clean build -x test
 
 USER ${USER}
 

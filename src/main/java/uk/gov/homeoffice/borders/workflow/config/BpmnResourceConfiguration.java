@@ -23,7 +23,9 @@ public class BpmnResourceConfiguration extends AbstractCamundaConfiguration {
     @Override
     public void preInit(SpringProcessEngineConfiguration springProcessEngineConfiguration) {
         log.info("Loading process definitions from persistent store '{}'...", engineResourceLoader.storeType());
+
         List<ResourceContainer> resources = engineResourceLoader.getResources();
+
         log.info("Number of resources to load into engine '{}'", resources.size());
         resources.stream()
                 .forEach(resource -> {
@@ -37,6 +39,7 @@ public class BpmnResourceConfiguration extends AbstractCamundaConfiguration {
                          log.error("An exception occurred while trying to load '{}' to the engine", e);
                      }
                 });
+
         log.info("Process definitions loaded from persistent store '{}'", engineResourceLoader.storeType());
     }
 }
