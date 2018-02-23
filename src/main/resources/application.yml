@@ -14,6 +14,10 @@ camunda:
     database:
       type: h2
 
+engine:
+  resource:
+    location: src/test/resources
+
 ---
 
 spring:
@@ -30,5 +34,9 @@ camunda:
     database:
       type: postgres
 
-
-
+engine:
+  resource:
+    s3:
+      accessKey: ${AWS_BPMN_S3_ACCESS_KEY}
+      secretKey: ${AWS_BPMN_S3_SECRET_KEY}
+      bucketName: ${AWS_BPMN_S3_BUCKET_NAME}

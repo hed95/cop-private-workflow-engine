@@ -2,8 +2,10 @@ pipeline:
   workflow-engine-build:
     image: docker:17.09.1
     environment:
+      - GRADLE_USER_HOME=~/.gradle
       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
+      - ./gradlew test
       - docker build -t borders-workflow-engine .
     when:
       branch: master
