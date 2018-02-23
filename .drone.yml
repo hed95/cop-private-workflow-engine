@@ -1,11 +1,15 @@
 pipeline:
+  workflow-engine-test:
+    image: quay.io/ukhomeofficedigital/openjdk8:latest
+    environment:
+      - GRADLE_USER_HOME=~/.gradle
+    commands:
+      - ./gradlew test
   workflow-engine-build:
     image: docker:17.09.1
     environment:
-      - GRADLE_USER_HOME=~/.gradle
-      - DOCKER_HOST=tcp://172.17.0.1:2375
+       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
-      - ./gradlew test
       - docker build -t borders-workflow-engine .
     when:
       branch: master
