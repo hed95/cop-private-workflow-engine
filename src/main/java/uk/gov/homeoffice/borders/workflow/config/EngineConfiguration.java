@@ -30,6 +30,7 @@ public class EngineConfiguration {
         public AmazonS3 amazonS3Client() {
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
             return AmazonS3ClientBuilder.standard()
+                    .withRegion("eu-west-2")
                     .withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
         }
 
