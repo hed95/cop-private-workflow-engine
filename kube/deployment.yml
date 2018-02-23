@@ -29,7 +29,7 @@ spec:
             memory: {{ .KUBE_MEMORY_LIMIT }}
         readinessProbe:
           httpGet:
-            path: /rest/engine
+            path: /api/engine
             port: 8080
             scheme: HTTP
           initialDelaySeconds: 120
