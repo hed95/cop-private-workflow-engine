@@ -1,4 +1,4 @@
-package uk.gov.homeoffice.borders.workflow.config;
+package uk.gov.homeoffice.borders.workflow.resource;
 
 import lombok.Value;
 import org.springframework.core.io.Resource;

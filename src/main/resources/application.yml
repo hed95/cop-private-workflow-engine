@@ -3,10 +3,25 @@ endpoints:
   health:
     enabled: true
 
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_URL}
+  public-client: false
+  realm: ${KEYCLOAK_REALM}
+  resource: ${KEYCLOAK_CLIENT_ID}
+  bearer-only: true
+  ssl-required: external
+  use-resource-role-mappings: true
+  principal-attribute: preferred_username
+
+keycloak-management:
+  client-id: ${KEYCLOAK_MGMT_CLIENT-ID}
+  username: ${KEYCLOAK_MGMT_USERNAME}
+  password: ${KEYCLOAK_MGMT_PASSWORD}
+
 ---
 
 spring:
-  profiles: local
+  profiles: local,test
 
 camunda:
   bpm:
@@ -40,3 +55,4 @@ engine:
       accessKey: ${AWS_BPMN_S3_ACCESS_KEY}
       secretKey: ${AWS_BPMN_S3_SECRET_KEY}
       bucketName: ${AWS_BPMN_S3_BUCKET_NAME}
+

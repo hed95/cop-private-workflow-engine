@@ -1,26 +1,23 @@
 package uk.gov.homeoffice.borders.workflow;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class HealthControllerTest extends BaseTestClass {
 
-    @Autowired
-    private TestRestTemplate testRestTemplate;
-
 
     @Test
     public void canGetResponseForReadiness() {
         //when
-        String response = testRestTemplate.getForEntity("/api/engine", String.class).getBody();
+        Map response = testRestTemplate.getForEntity("/engine", Map.class).getBody();
 
         //then
-        assertThat(response, is("borders"));
+        assertThat(response.keySet().size(), is(1));
+        assertThat(response.get("engine"), is("borders"));
     }
 
 }

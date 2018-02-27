@@ -1,4 +1,4 @@
-package uk.gov.homeoffice.borders.workflow.config;
+package uk.gov.homeoffice.borders.workflow.resource;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 
 import java.util.ArrayList;
 import java.util.List;

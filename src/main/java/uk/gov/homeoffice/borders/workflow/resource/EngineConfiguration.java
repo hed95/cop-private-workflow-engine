@@ -1,8 +1,7 @@
-package uk.gov.homeoffice.borders.workflow.config;
+package uk.gov.homeoffice.borders.workflow.resource;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +14,7 @@ public class EngineConfiguration {
 
 
     @Configuration
-    @Profile("!local")
+    @Profile({"dev", "prod"})
     public static class S3EngineResourceConfiguration {
 
         @Value("${engine.resource.s3.bucketName}")
@@ -42,7 +41,7 @@ public class EngineConfiguration {
     }
 
     @Configuration
-    @Profile("local")
+    @Profile({"local", "test"})
     public static class ClassPathResourceConfiguration {
 
         @Value("${engine.resource.location}")

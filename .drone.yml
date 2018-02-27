@@ -41,7 +41,7 @@ pipeline:
       - export KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
       - export KUBE_NAMESPACE=bfarch-dev
       - export INSECURE_SKIP_TLS_VERIFY=true
-      - export WORKFLOW_ENGINE_RELICAS=2
+      - export WORKFLOW_ENGINE_RELICA_COUNT=2
       - export KUBE_CPU_LIMIT=800m
       - export KUBE_MEMORY_LIMIT=3072Mi
       - export KUBE_TOKEN=$${KUBE_TOKEN_DEV}
@@ -49,7 +49,8 @@ pipeline:
       - |
           cd kube
           kd --file deployment.yml \
-             --file service.yml
+             --file service.yml \
+             --file secrets.yml
     when:
       event: [deployment, push]
       branch: master
