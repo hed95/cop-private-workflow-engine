@@ -57,7 +57,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: workflow-engine-secrets
-                key: auth-resource
+                key: auth-client-id
           - name: KEYCLOAK_MGMT_CLIENT_ID
             valueFrom:
               secretKeyRef:
