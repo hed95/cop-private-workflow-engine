@@ -1,29 +1,22 @@
 package uk.gov.homeoffice.borders.workflow;
 
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.repository.Deployment;
+import com.tngtech.jgiven.annotation.As;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import uk.gov.homeoffice.borders.workflow.stage.EngineResourceStage;
 
 
-public class EngineResourceLoaderTest extends BaseTestClass {
+public class EngineResourceLoaderTest extends BaseTestClass<EngineResourceStage> {
 
-    @Autowired
-    private RepositoryService repositoryService;
 
     @Test
+    @As("workflow engine has correct process definitions loaded")
     public void canLoadResource() {
-
-        //when
-        List<Deployment> deployments = repositoryService.createDeploymentQuery().list();
-
-        //then
-        assertThat(deployments.size(), is(1));
-
+        when().listingAllProcessDefinitions()
+                .then()
+                .numberOfProcessDefinitionsShouldBe(1)
+                .and()
+                .hasDefinitions("test");
     }
+
+
 }

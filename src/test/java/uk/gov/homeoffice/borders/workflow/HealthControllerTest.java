@@ -1,23 +1,24 @@
 package uk.gov.homeoffice.borders.workflow;
 
+import com.tngtech.jgiven.annotation.As;
 import org.junit.Test;
-
-import java.util.Map;
+import org.springframework.http.HttpStatus;
+import uk.gov.homeoffice.borders.workflow.stage.HealthStage;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class HealthControllerTest extends BaseTestClass {
+public class HealthControllerTest extends BaseTestClass<HealthStage> {
 
 
     @Test
-    public void canGetResponseForReadiness() {
-        //when
-        Map response = testRestTemplate.getForEntity("/engine", Map.class).getBody();
-
-        //then
-        assertThat(response.keySet().size(), is(1));
-        assertThat(response.get("engine"), is("borders"));
+    @As("Engine endpoint returns correct engine name")
+    public void canGetResponseForReadiness() throws Exception {
+       when().gettingEngineEndpoint()
+               .then()
+               .statusIs(HttpStatus.OK)
+               .and()
+               .engineNameIs("borders");
     }
 
 }
