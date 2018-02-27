@@ -49,8 +49,7 @@ pipeline:
       - |
           cd kube
           kd --file deployment.yml \
-             --file service.yml \
-             --file secrets.yml
+             --file service.yml
     when:
       event: [deployment, push]
       branch: master
