@@ -20,9 +20,9 @@ public class ReadinessController {
 
     private ProcessEngineConfiguration processEngineConfiguration;
 
-    @GetMapping(path = "/api/engine", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String readiness() {
-        return processEngineConfiguration.getProcessEngineName();
+    @GetMapping(path = "/engine", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String,String> readiness() {
+        return Collections.singletonMap("engine", processEngineConfiguration.getProcessEngineName());
     }
 
 }
