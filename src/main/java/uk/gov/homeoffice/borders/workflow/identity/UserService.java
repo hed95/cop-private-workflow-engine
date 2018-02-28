@@ -7,6 +7,7 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class UserService {
     public User findByUserId(String userId) {
         UserRepresentation keycloakUser = keycloak.realm(realm).users().get(userId).toRepresentation();
 
-        List<String> groupsForUser = keycloakUser.getGroups();
+        List<String> groupsForUser = keycloakUser.getGroups() == null ? new ArrayList<>() : keycloakUser.getGroups();
         List<Group> groups = toGroups(groupsForUser);
         return toUser(keycloakUser, groups);
 
@@ -57,8 +58,9 @@ public class UserService {
                 .users()
                 .list()
                 .stream()
-                .map(u -> toUser(u, toGroups(u.getGroups()))).collect(toList());
+                .map(u -> toUser(u, toGroups(u.getGroups() == null ? new ArrayList<>() : u.getGroups()))).collect(toList());
 
 
     }
+    
 }

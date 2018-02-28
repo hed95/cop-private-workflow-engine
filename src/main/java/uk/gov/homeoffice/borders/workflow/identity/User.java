@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.identity;
 import org.springframework.util.CollectionUtils;
 import uk.gov.homeoffice.borders.workflow.identity.Group;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -13,7 +14,7 @@ public class User implements org.camunda.bpm.engine.identity.User {
     private String firstName;
     private String lastName;
     private String email;
-    private List<Group> groups;
+    private List<Group> groups = new ArrayList<>();
     private String username;
 
     @Override
