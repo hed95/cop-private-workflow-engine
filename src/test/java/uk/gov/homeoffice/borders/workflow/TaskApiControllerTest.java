@@ -25,4 +25,19 @@ public class TaskApiControllerTest extends BaseTestClass<TaskApiControllerStage>
                     .hasLastLink();
     }
 
+    @Test
+    public void canClaimTask() throws Exception {
+
+    }
+
+    @Test
+    public void canCompleteTask() throws Exception {
+
+    }
+
+    @Test
+    public void cannotClaimTaskAsUserDoesNotOwnTask() {
+
+    }
+
 }

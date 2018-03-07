@@ -12,10 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.ForbiddenException;
+import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
 
@@ -33,24 +33,36 @@ import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
 public class TaskApiController {
 
     private TaskApplicationService applicationService;
-    private IdentityService identityService;
     private TaskDtoResourceAssembler taskDtoResourceAssembler;
     private PagedResourcesAssembler pagedResourcesAssembler;
+    private RestApiUserExtractor restApiUserExtractor;
 
     @GetMapping
     public PagedResources<TaskDtoResource> tasks(Pageable pageable) {
-        Page<Task> page = applicationService.tasks(toUser(), pageable);
+        Page<Task> page = applicationService.tasks(restApiUserExtractor.toUser(), pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
+    }
+
+
+    @PostMapping("/api/engine/tasks/{taskId}/_claim")
+    public ResponseEntity<?> claim(@PathVariable String taskId) {
+        applicationService.claimTask(restApiUserExtractor.toUser(), taskId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/api/engine/tasks/{taskId}/_complete")
+    public ResponseEntity<?> complete(@PathVariable String taskId) {
+        applicationService.completeTask(restApiUserExtractor.toUser(), taskId);
+        return ResponseEntity.ok().build();
 
     }
 
-    private User toUser() {
-        WorkflowAuthentication currentAuthentication = (WorkflowAuthentication) identityService.getCurrentAuthentication();
-        if (currentAuthentication == null) {
-            throw new ForbiddenException("No current authentication detected.");
-        }
-        return currentAuthentication.getUser();
+    @PostMapping("/api/engine/tasks/{taskId}/_unclaim")
+    public ResponseEntity<?> unclaim(@PathVariable String taskId) {
+        applicationService.unclaim(restApiUserExtractor.toUser(), taskId);
+        return ResponseEntity.ok().build();
     }
+
 
 
 }

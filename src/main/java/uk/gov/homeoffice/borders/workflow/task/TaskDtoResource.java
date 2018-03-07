@@ -8,7 +8,7 @@ import org.springframework.hateoas.core.Relation;
 
 @Data
 @Relation(collectionRelation = "tasks")
-class TaskDtoResource extends ResourceSupport {
+public class TaskDtoResource extends ResourceSupport {
 
     @JsonProperty("task")
     private TaskDto taskDto;
