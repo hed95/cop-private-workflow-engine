@@ -33,6 +33,11 @@ engine:
   resource:
     location: src/test/resources
 
+team:
+  service:
+    api:
+      endpoint: http://localhost:9001/api/teams
+
 ---
 
 spring:

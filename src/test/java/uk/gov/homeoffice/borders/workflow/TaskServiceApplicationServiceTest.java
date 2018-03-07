@@ -14,7 +14,7 @@ public class TaskServiceApplicationServiceTest extends BaseTestClass<TaskApplica
                 .when()
                 .getTasksForUserIsRequested("username")
                 .then()
-                .numberOfTasksShouldBe(1)
+                .numberOfTasksShouldBe(1L)
                 .and()
                 .assignedTasksUsernameIs("username");
     }
@@ -28,6 +28,21 @@ public class TaskServiceApplicationServiceTest extends BaseTestClass<TaskApplica
                 .when()
                 .getTaskForCandidateGroups("testCandidateA")
                 .then()
-                .numberOfTasksShouldBe(1);
+                .numberOfTasksShouldBe(1L);
+    }
+
+    @Test
+    public void canGetPagedTasks() {
+        given()
+                .aTask()
+                .isCreated()
+                .and()
+                .withCandidateGroup("testCandidateC")
+                .when()
+                .getTaskForCandidateGroups("testCandidateC")
+                .then()
+                .numberOfPages(1)
+                .and()
+                .totalResultsIs(1L);
     }
 }

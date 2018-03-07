@@ -8,13 +8,13 @@ import org.camunda.bpm.engine.impl.interceptor.CommandExecutor;
 
 import java.util.List;
 
-public class KeycloakGroupQuery extends GroupQueryImpl {
+public class KeycloakRoleQuery extends GroupQueryImpl {
 
-    public KeycloakGroupQuery() {
+    KeycloakRoleQuery() {
         super();
     }
 
-    public KeycloakGroupQuery(CommandExecutor commandExecutor) {
+    KeycloakRoleQuery(CommandExecutor commandExecutor) {
         super(commandExecutor);
     }
 

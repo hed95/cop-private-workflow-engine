@@ -6,7 +6,6 @@ import org.camunda.bpm.engine.identity.*;
 import org.camunda.bpm.engine.impl.context.Context;
 import org.camunda.bpm.engine.impl.identity.ReadOnlyIdentityProvider;
 import org.camunda.bpm.engine.impl.interceptor.CommandContext;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 public class KeycloakIdentityProvider implements ReadOnlyIdentityProvider {
 
     private UserService userService;
-    private GroupService groupService;
+    private RoleService groupService;
 
     @Override
     public User findUserById(String userId) {
@@ -46,19 +45,19 @@ public class KeycloakIdentityProvider implements ReadOnlyIdentityProvider {
     }
 
     @Override
-    public Group findGroupById(String groupId) {
+    public Role findGroupById(String groupId) {
         return groupService.findById(groupId);
     }
 
     @Override
     public GroupQuery createGroupQuery() {
-        return new KeycloakGroupQuery(Context.getProcessEngineConfiguration().getCommandExecutorTxRequired());
+        return new KeycloakRoleQuery(Context.getProcessEngineConfiguration().getCommandExecutorTxRequired());
 
     }
 
     @Override
     public GroupQuery createGroupQuery(CommandContext commandContext) {
-        return new KeycloakGroupQuery();
+        return new KeycloakRoleQuery();
     }
 
     @Override
@@ -107,20 +106,20 @@ public class KeycloakIdentityProvider implements ReadOnlyIdentityProvider {
             users.removeIf(user -> !user.getEmail().equals(query.getEmail()));
         }
         if (query.getGroupId() != null) {
-            users.removeIf(user -> !user.hasGroup(query.getGroupId()));
+            users.removeIf(user -> !user.hasRole(query.getGroupId()));
         }
         return new ArrayList<>(users);
     }
 
-    public List<org.camunda.bpm.engine.identity.Group> findGroupByQueryCriteria(KeycloakGroupQuery query) {
-        return groupService.allGroups().stream()
+    public List<org.camunda.bpm.engine.identity.Group> findGroupByQueryCriteria(KeycloakRoleQuery query) {
+        return groupService.allRoles().stream()
                 .filter(group -> group.getId().equals(query.getId()))
                 .filter(group -> group.getName().equals(query.getName()))
                 .filter(group -> group.getType().equals(query.getType()))
                 .collect(Collectors.toList());
     }
 
-    public long findGroupCountByQueryCriteria(KeycloakGroupQuery keycloakGroupQuery) {
-        return findGroupByQueryCriteria(keycloakGroupQuery).size();
+    public long findGroupCountByQueryCriteria(KeycloakRoleQuery keycloakRoleQuery) {
+        return findGroupByQueryCriteria(keycloakRoleQuery).size();
     }
 }

@@ -10,11 +10,11 @@ import java.util.List;
 
 public class KeycloakUserQuery extends UserQueryImpl {
 
-    public KeycloakUserQuery() {
+    KeycloakUserQuery() {
         super();
     }
 
-    public KeycloakUserQuery(CommandExecutor commandExecutor) {
+    KeycloakUserQuery(CommandExecutor commandExecutor) {
         super(commandExecutor);
     }
 

@@ -18,6 +18,7 @@ repositories {
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 apply plugin: 'maven'
 apply plugin: "com.tngtech.jgiven.gradle-plugin"
 
@@ -47,14 +48,16 @@ dependencies {
     compile ('org.springframework.boot:spring-boot-configuration-processor')
     compile ('org.springframework.boot:spring-boot-starter-web')
     compile ('org.springframework.boot:spring-boot-starter-actuator')
+    compile ('org.springframework.boot:spring-boot-starter-security')
     compile ('org.springframework.boot:spring-boot-starter-hateoas')
+    compile('org.springframework.data:spring-data-commons:1.12.4.RELEASE')
+
 
     compile('org.keycloak:keycloak-spring-boot-starter')
     compile('org.keycloak:keycloak-admin-client:3.4.3.Final')
     compile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.5.0.Final'
     compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.5.0.Final'
 
-    compile ('org.springframework.boot:spring-boot-starter-security')
 
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.283'
     compile ('org.codehaus.groovy:groovy-all:2.4.6')

@@ -2,18 +2,17 @@ package uk.gov.homeoffice.borders.workflow.stage;
 
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.integration.spring.JGivenStage;
-import org.camunda.bpm.engine.ProcessEngineServices;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
-import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.Assert;
-import uk.gov.homeoffice.borders.workflow.identity.Group;
+import uk.gov.homeoffice.borders.workflow.identity.Role;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,13 +32,13 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
     private TaskApplicationService applicationService;
 
     private Task task;
-    private List<Task> tasks;
+    private Page<Task> tasks;
 
     public TaskApplicationServiceStage getTasksForUserIsRequested(String username) {
         Assert.notNull(task, "Task not initialised...call asTask()");
         User user = new User();
         user.setUsername(username);
-        tasks = applicationService.tasks(user);
+        tasks = applicationService.tasks(user, new PageRequest(0, 10));
         return this;
     }
 
@@ -47,22 +46,22 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
         Assert.notNull(task, "Task not initialised...call asTask()");
         User user = new User();
         user.setUsername(UUID.randomUUID().toString());
-        Group group = new Group();
+        Role group = new Role();
         group.setName(candidateGroup);
-        user.getGroups().add(group);
-        tasks = applicationService.tasks(user);
+        user.getRoles().add(group);
+        tasks = applicationService.tasks(user, new PageRequest(0, 10));
         return this;
     }
 
 
-    public TaskApplicationServiceStage numberOfTasksShouldBe(int numberOfTasks) {
-        assertThat(tasks.size(), is(numberOfTasks));
+    public TaskApplicationServiceStage numberOfTasksShouldBe(long numberOfTasks) {
+        assertThat(tasks.getTotalElements(), is(numberOfTasks));
         return this;
     }
 
     public TaskApplicationServiceStage assignedTasksUsernameIs(String username) {
         List<Task> tasks = this.
-                tasks
+                tasks.getContent()
                 .stream()
                 .filter(t -> t.getAssignee().
                         equalsIgnoreCase(username))
@@ -95,6 +94,17 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
     public TaskApplicationServiceStage withCandidateGroup(String candidateGroup) {
         Assert.notNull(task, "Task is null...please initialise with aTask()");
         taskService.addCandidateGroup(task.getId(), candidateGroup);
+        return this;
+    }
+
+
+    public TaskApplicationServiceStage numberOfPages(int numberOfPages) {
+        assertThat(tasks.getTotalPages(), is(numberOfPages));
+        return this;
+    }
+
+    public TaskApplicationServiceStage totalResultsIs(long totalResults) {
+        assertThat(tasks.getTotalElements(), is(totalResults));
         return this;
     }
 }
