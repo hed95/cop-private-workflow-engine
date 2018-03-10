@@ -45,7 +45,6 @@ public class UserService {
         user.setLastName(keycloakUser.getLastName());
         List<Team> teams = teamService.findByUser(user);
         user.setTeams(teams);
-
         return user;
     }
 

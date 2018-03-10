@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
+import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
 
+import javax.ws.rs.POST;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -29,12 +31,11 @@ import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
         produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-@SuppressWarnings("unchecked")
 public class TaskApiController {
 
     private TaskApplicationService applicationService;
     private TaskDtoResourceAssembler taskDtoResourceAssembler;
-    private PagedResourcesAssembler pagedResourcesAssembler;
+    private PagedResourcesAssembler<Task> pagedResourcesAssembler;
     private RestApiUserExtractor restApiUserExtractor;
 
     @GetMapping
@@ -43,6 +44,18 @@ public class TaskApiController {
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 
+    @GetMapping("/{taskId}")
+    public TaskDtoResource task(@PathVariable String taskId) {
+        Task task = applicationService.task(restApiUserExtractor.toUser(), taskId);
+        return taskDtoResourceAssembler.toResource(task);
+    }
+
+    @PostMapping
+    public PagedResources<TaskDtoResource> query(@RequestBody TaskQueryDto queryDto, Pageable pageable) {
+        Page<Task> page = applicationService.query(restApiUserExtractor.toUser(), queryDto, pageable);
+        return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
+
+    }
 
     @PostMapping("/api/engine/tasks/{taskId}/_claim")
     public ResponseEntity<?> claim(@PathVariable String taskId) {

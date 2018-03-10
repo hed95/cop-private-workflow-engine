@@ -52,6 +52,8 @@ dependencies {
     compile ('org.springframework.boot:spring-boot-starter-hateoas')
     compile('org.springframework.data:spring-data-commons:1.12.4.RELEASE')
 
+    compile('org.camunda.spin:camunda-spin-dataformat-json-jackson')
+    compile('org.camunda.bpm:camunda-engine-plugin-spin')
 
     compile('org.keycloak:keycloak-spring-boot-starter')
     compile('org.keycloak:keycloak-admin-client:3.4.3.Final')

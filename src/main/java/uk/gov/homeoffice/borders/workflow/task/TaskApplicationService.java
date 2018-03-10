@@ -3,8 +3,11 @@ package uk.gov.homeoffice.borders.workflow.task;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.IdentityService;
+import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
+import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
 import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
@@ -38,16 +41,18 @@ public class TaskApplicationService {
     private TaskService taskService;
     private TaskSortExecutor taskSortExecutor;
     private TaskChecker taskChecker;
+    private ProcessEngine processEngine;
 
     public Page<Task> tasks(@NotNull User user, Pageable pageable) {
         String taskAssignee = user.getUsername();
 
         TaskQuery taskQuery = taskService.createTaskQuery()
+                .processVariableValueNotEquals("type", "notifications")
                 .initializeFormKeys()
                 .or();
 
         if (!CollectionUtils.isEmpty(user.getRoles())) {
-            taskQuery.taskCandidateGroupIn(resolveCandidateGroups(user))
+            taskQuery = taskQuery.taskCandidateGroupIn(resolveCandidateGroups(user))
                     .includeAssignedTasks();
         }
 
@@ -99,8 +104,34 @@ public class TaskApplicationService {
     public void unclaim(User user, String taskId) {
         Task task = getTask(taskId);
         taskChecker.checkUserAuthorized(user, task);
-        taskService.setAssignee(task.getId(),  null);
+        taskService.setAssignee(task.getId(), null);
         log.info("Task '{}' unclaimed");
     }
 
+    public Page<Task> query(User user, TaskQueryDto queryDto, Pageable pageable) {
+        TaskQuery taskQuery = queryDto.toQuery(processEngine);
+
+        //filter results based on roles or tasks assigned to current user
+        taskQuery = taskQuery.taskCandidateGroupIn(resolveCandidateGroups(user))
+                .includeAssignedTasks()
+                .or()
+                .taskAssignee(user.getUsername())
+                .endOr();
+
+        long totalResults = taskQuery.count();
+        List<Task> tasks = taskQuery.listPage(pageable.getPageNumber(), pageable.getPageSize());
+
+        return new PageImpl<>(tasks, pageable, totalResults);
+    }
+
+    public Task task(User user, String taskId) {
+        Task task = taskService.createTaskQuery()
+                .taskId(taskId)
+                .singleResult();
+        if (task == null) {
+            throw new ResourceNotFound("Task not found");
+        }
+        taskChecker.checkUserAuthorized(user, task);
+        return task;
+    }
 }

@@ -6,4 +6,5 @@ import lombok.Data;
 public class Team {
     private String name;
     private String location;
+    private String region;
 }
