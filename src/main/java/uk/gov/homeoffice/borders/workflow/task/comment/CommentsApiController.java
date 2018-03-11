@@ -21,7 +21,7 @@ public class CommentsApiController {
     private CommentsApplicationService commentsApplicationService;
     private RestApiUserExtractor restApiUserExtractor;
 
-    @GetMapping(path = "/api/engine/tasks/{taskId}/comments")
+    @GetMapping(path = "/api/workflow/tasks/{taskId}/comments")
     public List<CommentDto> comments(@PathVariable String taskId) {
 
         return commentsApplicationService.comments(restApiUserExtractor.toUser(), taskId)

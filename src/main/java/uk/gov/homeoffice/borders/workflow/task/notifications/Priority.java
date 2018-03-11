@@ -35,9 +35,8 @@ public class Priority {
 
 
         @JsonCreator
-        public static Type fromValue(String type) {
-            return Arrays.asList(values()).stream().filter(t -> t.name().
-                    equalsIgnoreCase(type)).findFirst().orElseThrow(() -> new IllegalArgumentException("Invalid priority"));
+        public static Type fromValue(int type) {
+            return Arrays.stream(values()).filter(t -> t.value == type).findAny().orElseThrow(() -> new IllegalArgumentException("Invalid priority"));
         }
 
 

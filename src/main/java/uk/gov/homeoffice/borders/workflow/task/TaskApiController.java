@@ -57,20 +57,20 @@ public class TaskApiController {
 
     }
 
-    @PostMapping("/api/engine/tasks/{taskId}/_claim")
+    @PostMapping("/api/workflow/tasks/{taskId}/_claim")
     public ResponseEntity<?> claim(@PathVariable String taskId) {
         applicationService.claimTask(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/api/engine/tasks/{taskId}/_complete")
+    @PostMapping("/api/workflow/tasks/{taskId}/_complete")
     public ResponseEntity<?> complete(@PathVariable String taskId) {
         applicationService.completeTask(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();
 
     }
 
-    @PostMapping("/api/engine/tasks/{taskId}/_unclaim")
+    @PostMapping("/api/workflow/tasks/{taskId}/_unclaim")
     public ResponseEntity<?> unclaim(@PathVariable String taskId) {
         applicationService.unclaim(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();

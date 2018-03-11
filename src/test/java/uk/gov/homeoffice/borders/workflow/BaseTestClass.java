@@ -2,6 +2,7 @@ package uk.gov.homeoffice.borders.workflow;
 
 import com.tngtech.jgiven.integration.spring.EnableJGiven;
 import com.tngtech.jgiven.integration.spring.SimpleSpringScenarioTest;
+import org.camunda.bpm.engine.IdentityService;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.keycloak.KeycloakSecurityContext;
@@ -15,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.homeoffice.borders.workflow.identity.UserService;
 
 import javax.annotation.PostConstruct;
 
@@ -36,7 +38,15 @@ public abstract class BaseTestClass<T> extends SimpleSpringScenarioTest<T> {
     @MockBean
     protected KeycloakSecurityContext keycloakSecurityContext;
 
+
+    @MockBean
+    protected  UserService userService;
+
+
     @Autowired
     protected MockMvc mockMvc;
+
+    @MockBean
+    private IdentityService identityService;
 
 }

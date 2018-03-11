@@ -22,9 +22,9 @@ public class TaskServiceApplicationServiceTest extends BaseTestClass<TaskApplica
     @Test
     public void canGetTasksForCandidateGroups() {
         given().aTask()
+                .withCandidateGroup("testCandidateA")
                 .isCreated()
                 .and()
-                .withCandidateGroup("testCandidateA")
                 .when()
                 .getTaskForCandidateGroups("testCandidateA")
                 .then()
@@ -35,9 +35,9 @@ public class TaskServiceApplicationServiceTest extends BaseTestClass<TaskApplica
     public void canGetPagedTasks() {
         given()
                 .aTask()
+                .withCandidateGroup("testCandidateC")
                 .isCreated()
                 .and()
-                .withCandidateGroup("testCandidateC")
                 .when()
                 .getTaskForCandidateGroups("testCandidateC")
                 .then()

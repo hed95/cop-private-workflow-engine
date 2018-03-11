@@ -13,7 +13,7 @@ public class EngineResourceLoaderTest extends BaseTestClass<EngineResourceStage>
     public void canLoadResource() {
         when().listingAllProcessDefinitions()
                 .then()
-                .numberOfProcessDefinitionsShouldBe(1)
+                .numberOfProcessDefinitionsShouldBe(2)
                 .and()
                 .hasDefinitions("test");
     }

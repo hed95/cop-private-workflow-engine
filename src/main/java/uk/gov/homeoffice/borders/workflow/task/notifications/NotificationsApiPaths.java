@@ -6,5 +6,5 @@ public class NotificationsApiPaths {
 
     }
 
-    public static final String ROOT_PATH = "/api/engine/notifications";
+    public static final String ROOT_PATH = "/api/workflow/notifications";
 }

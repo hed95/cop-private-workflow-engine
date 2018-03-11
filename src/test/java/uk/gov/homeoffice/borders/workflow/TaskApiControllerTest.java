@@ -16,7 +16,7 @@ public class TaskApiControllerTest extends BaseTestClass<TaskApiControllerStage>
                 .then()
                     .statusIsOK()
                 .and()
-                    .totalResults(30)
+                    .resultSizeIsNotZero()
                 .and()
                     .hasNextLink()
                 .and()
@@ -26,18 +26,15 @@ public class TaskApiControllerTest extends BaseTestClass<TaskApiControllerStage>
     }
 
     @Test
-    public void canClaimTask() throws Exception {
-
-    }
-
-    @Test
-    public void canCompleteTask() throws Exception {
-
-    }
-
-    @Test
-    public void cannotClaimTaskAsUserDoesNotOwnTask() {
-
+    public void canQueryByTaskName() throws Exception {
+            given()
+                .aNumberOfTasksCreated(1)
+            .when()
+                .aQueryWithTaskName("Perform duty for test 0")
+            .then()
+                .responseIsOK()
+            .and()
+                .numberOfResultsShouldBe(1);
     }
 
 }

@@ -30,7 +30,7 @@ public class TaskChecker {
         List<String> roles = user.getRoles().stream().map(Role::getName).collect(toList());
         List<IdentityLink> identities = identityLinks.stream().filter(i -> roles.contains(i.getGroupId())).collect(toList());
 
-        if (!(taskAssignee.equalsIgnoreCase(task.getAssignee())) || identities.size() == 0) {
+        if (!taskAssignee.equalsIgnoreCase(task.getAssignee()) || identities.size() == 0) {
             throw new ForbiddenException("User not authorized to action task");
         }
     }

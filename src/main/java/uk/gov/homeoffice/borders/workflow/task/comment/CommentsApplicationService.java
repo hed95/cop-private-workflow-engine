@@ -28,7 +28,7 @@ public class CommentsApplicationService {
             throw new ResourceNotFound("Task does not exist");
         }
         taskChecker.checkUserAuthorized(user, task);
-        return taskService.getTaskComments(taskId);
+        return taskService.getTaskComments(task.getId());
     }
 
 }

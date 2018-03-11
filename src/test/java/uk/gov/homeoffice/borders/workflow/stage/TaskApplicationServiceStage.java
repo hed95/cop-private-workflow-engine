@@ -2,9 +2,13 @@ package uk.gov.homeoffice.borders.workflow.stage;
 
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.integration.spring.JGivenStage;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,8 +17,7 @@ import uk.gov.homeoffice.borders.workflow.identity.Role;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.core.Is.is;
@@ -31,8 +34,13 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
     @Autowired
     private TaskApplicationService applicationService;
 
-    private Task task;
+    @Autowired
+    private RuntimeService runtimeService;
+
     private Page<Task> tasks;
+    private ProcessInstance processInstance;
+    private TaskApiControllerStage.Data data;
+    private Task task;
 
     public TaskApplicationServiceStage getTasksForUserIsRequested(String username) {
         Assert.notNull(task, "Task not initialised...call asTask()");
@@ -72,28 +80,44 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
     }
 
     public TaskApplicationServiceStage aTask() {
-        task = new TaskEntity(UUID.randomUUID().toString());
-        task.setName("test-task");
-        task.setDescription("test-description");
+        data = new TaskApiControllerStage.Data();
+        data.setName("test-task");
+        data.setDescription("test-description");
+        data.setCandidateGroup("test-candidate");
         return this;
     }
 
     public TaskApplicationServiceStage withUsername(String username) {
-        Assert.notNull(task, "Task is null...please initialise with aTask()");
-        task.setAssignee(username);
+        Assert.notNull(data, "Data is null...please initialise with aTask()");
+        data.setAssignee(username);
         return this;
     }
 
+
     public TaskApplicationServiceStage isCreated() {
-        Assert.notNull(task, "Task is null...please initialise with aTask()");
-        taskService.saveTask(task);
-        task = taskService.createTaskQuery().taskId(task.getId()).singleResult();
+        Assert.notNull(data, "Task is null...please initialise with aTask()");
+
+        List<TaskApiControllerStage.Data> collectionOfData = Collections.singletonList(this.data);
+
+        ObjectValue dataObjectValue =
+                Variables.objectValue(collectionOfData)
+                        .serializationDataFormat("application/json")
+                        .create();
+
+        Map<String,Object> variables = new HashMap<>();
+        variables.put("collectionOfData", dataObjectValue);
+        variables.put("type" , "non-notification");
+
+        processInstance = runtimeService.startProcessInstanceByKey("test",
+                variables);
+
+        task = taskService.createTaskQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
         return this;
     }
 
     public TaskApplicationServiceStage withCandidateGroup(String candidateGroup) {
-        Assert.notNull(task, "Task is null...please initialise with aTask()");
-        taskService.addCandidateGroup(task.getId(), candidateGroup);
+        Assert.notNull(data, "Data is null...please initialise with aTask()");
+        data.setCandidateGroup(candidateGroup);
         return this;
     }
 

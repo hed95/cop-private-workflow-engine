@@ -51,7 +51,7 @@ public class NotificationService {
 
     public ProcessInstance create(Notification notification) {
 
-        List<User> candidateUsers = userService.allUsers(); //filter
+        List<User> candidateUsers = userService.allUsers(); //TODO: filter users based on region, location or team
 
         List<Notification> notifications = candidateUsers.stream().map(u -> {
             Notification updated = new Notification();
@@ -74,8 +74,6 @@ public class NotificationService {
 
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("notifications",
                 variables);
-
-
 
         return processInstance;
 

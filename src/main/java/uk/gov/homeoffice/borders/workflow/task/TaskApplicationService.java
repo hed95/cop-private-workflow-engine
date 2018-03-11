@@ -111,12 +111,11 @@ public class TaskApplicationService {
     public Page<Task> query(User user, TaskQueryDto queryDto, Pageable pageable) {
         TaskQuery taskQuery = queryDto.toQuery(processEngine);
 
-        //filter results based on roles or tasks assigned to current user
-        taskQuery = taskQuery.taskCandidateGroupIn(resolveCandidateGroups(user))
-                .includeAssignedTasks()
-                .or()
-                .taskAssignee(user.getUsername())
-                .endOr();
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            taskQuery = taskQuery.taskCandidateGroupIn(resolveCandidateGroups(user))
+                    .includeAssignedTasks();
+        }
+        taskQuery = taskQuery.taskAssignee(user.getUsername()).endOr();
 
         long totalResults = taskQuery.count();
         List<Task> tasks = taskQuery.listPage(pageable.getPageNumber(), pageable.getPageSize());

@@ -5,5 +5,5 @@ public class ProcessApiPaths {
     private ProcessApiPaths() {
     }
 
-    public static final String ROOT_PATH = "/api/engine/process";
+    public static final String ROOT_PATH = "/api/workflow/process";
 }
