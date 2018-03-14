@@ -51,12 +51,7 @@ public class TaskApplicationService {
                 .initializeFormKeys()
                 .or();
 
-        if (!CollectionUtils.isEmpty(user.getRoles())) {
-            taskQuery = taskQuery.taskCandidateGroupIn(resolveCandidateGroups(user))
-                    .includeAssignedTasks();
-        }
-
-        taskQuery = taskQuery.taskAssignee(taskAssignee).endOr();
+        taskQuery = applyCandidateGroupsFilter(user, taskQuery).taskAssignee(taskAssignee).endOr();
         Long totalResults = taskQuery.count();
         log.info("Total results for query '{}'", totalResults);
 
@@ -68,6 +63,14 @@ public class TaskApplicationService {
         List<Task> tasks = taskQuery.listPage(pageable.getPageNumber(), pageable.getPageSize());
 
         return new PageImpl<>(tasks, pageable, totalResults);
+    }
+
+    private TaskQuery applyCandidateGroupsFilter(@NotNull User user, TaskQuery taskQuery) {
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            taskQuery = taskQuery.taskCandidateGroupIn(resolveCandidateGroups(user))
+                    .includeAssignedTasks();
+        }
+        return taskQuery;
     }
 
 
@@ -111,11 +114,8 @@ public class TaskApplicationService {
     public Page<Task> query(User user, TaskQueryDto queryDto, Pageable pageable) {
         TaskQuery taskQuery = queryDto.toQuery(processEngine);
 
-        if (!CollectionUtils.isEmpty(user.getRoles())) {
-            taskQuery = taskQuery.taskCandidateGroupIn(resolveCandidateGroups(user))
-                    .includeAssignedTasks();
-        }
-        taskQuery = taskQuery.taskAssignee(user.getUsername()).endOr();
+        taskQuery = applyCandidateGroupsFilter(user, taskQuery)
+                .taskAssignee(user.getUsername()).endOr();
 
         long totalResults = taskQuery.count();
         List<Task> tasks = taskQuery.listPage(pageable.getPageNumber(), pageable.getPageSize());

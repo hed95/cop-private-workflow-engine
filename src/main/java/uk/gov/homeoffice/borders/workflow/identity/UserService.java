@@ -23,10 +23,14 @@ public class UserService {
     public User findByUserId(String userId) {
         UserRepresentation keycloakUser = keycloak.realm(realm).users().get(userId).toRepresentation();
 
-        List<String> groupsForUser = keycloakUser.getGroups() == null ? new ArrayList<>() : keycloakUser.getGroups();
+        List<String> groupsForUser = getGroupsForUser(keycloakUser);
         List<Role> groups = toGroups(groupsForUser);
         return toUser(keycloakUser, groups);
 
+    }
+
+    private List<String> getGroupsForUser(UserRepresentation keycloakUser) {
+        return keycloakUser.getGroups() == null ? new ArrayList<>() : keycloakUser.getGroups();
     }
 
     private List<Role> toGroups(List<String> groupsForUser) {
@@ -43,8 +47,11 @@ public class UserService {
         user.setEmail(keycloakUser.getEmail());
         user.setFirstName(keycloakUser.getFirstName());
         user.setLastName(keycloakUser.getLastName());
-        List<Team> teams = teamService.findByUser(user);
-        user.setTeams(teams);
+
+        UserDetailDto userDetailDto = teamService.userDetailDto(user.getEmail());
+        user.setMobile(userDetailDto.getMobile());
+        user.setGrade(userDetailDto.getGrade());
+        user.setTeams(userDetailDto.getTeams());
         return user;
     }
 
@@ -60,7 +67,7 @@ public class UserService {
                 .users()
                 .list()
                 .stream()
-                .map(u -> toUser(u, toGroups(u.getGroups() == null ? new ArrayList<>() : u.getGroups()))).collect(toList());
+                .map(u -> toUser(u, toGroups(getGroupsForUser(u)))).collect(toList());
 
 
     }

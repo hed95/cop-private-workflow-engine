@@ -5,7 +5,7 @@
       <bpmn:outgoing>SequenceFlow_0ov0ac1</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0ov0ac1" sourceRef="StartEvent_1" targetRef="Task_163er0m" />
-    <bpmn:userTask id="Task_163er0m" name="Review ${notification.name}" camunda:assignee="${notification.assignee}" camunda:dueDate="${now()}" camunda:priority="${notification.priority.type.value}">
+    <bpmn:userTask id="Task_163er0m" name="Review ${notification.subject}" camunda:assignee="${notification.assignee}" camunda:dueDate="${now()}" camunda:priority="${notification.priority.type.value}">
       <bpmn:documentation>${notification.payload}</bpmn:documentation>
       <bpmn:extensionElements>
         <camunda:inputOutput>

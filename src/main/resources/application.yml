@@ -15,9 +15,18 @@ keycloak:
   principal-attribute: preferred_username
 
 keycloak-management:
-  client-id: ${KEYCLOAK_MGMT_CLIENT-ID}
+  client-id: ${KEYCLOAK_MGMT_CLIENT_ID}
   username: ${KEYCLOAK_MGMT_USERNAME}
   password: ${KEYCLOAK_MGMT_PASSWORD}
+
+
+gov:
+  notify:
+    api:
+      key: ${GOV_NOTIFY_CLIENT_ID}
+      notification:
+        emailTemplateId: ${GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID}
+        smsTemplateId:  ${GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID}
 
 ---
 

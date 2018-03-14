@@ -9,7 +9,7 @@ public class NotificationApiControllerTest extends BaseTestClass<NotificationApi
     public void canCreateNotifications() throws Exception {
             given()
                 .aNotification()
-                    .withName("Alert")
+                    .withSubject("Alert")
                 .and()
                     .payloadOf("Some payload")
                 .and()
@@ -26,7 +26,7 @@ public class NotificationApiControllerTest extends BaseTestClass<NotificationApi
     public void canGetNotificationsForUser() throws Exception {
         given()
                 .aNotification()
-                    .withName("Alert")
+                    .withSubject("Alert")
                 .and()
                     .payloadOf("Some payload")
                 .and()

@@ -19,17 +19,9 @@ public class TeamService {
     private RestTemplate restTemplate;
     private String teamServiceEndpoint;
 
-    public List<Team> findByUser(User user) {
-        Map<String, String> variables = Collections.singletonMap("email", user.getEmail());
-
-        ResponseEntity<List<Team>> response = restTemplate
-                .exchange(teamServiceEndpoint + "/regions/teams?email={email}", HttpMethod.GET, null,
-                        new ParameterizedTypeReference<List<Team>>() {
-                        }, variables);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new IllegalStateException("Unable to find teams for user");
-        }
-        return response.getBody();
+    public UserDetailDto userDetailDto(String id) {
+        return restTemplate.getForEntity(teamServiceEndpoint + "/regions/users/{id}",
+                UserDetailDto.class, Collections.singletonMap("id", id)).getBody();
     }
 
 }

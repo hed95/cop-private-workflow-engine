@@ -13,20 +13,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
+import uk.gov.service.notify.NotificationClient;
 
 import javax.annotation.PostConstruct;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {"security.basic.enabled=false",
-                "keycloak.enabled=false"} )
+                "keycloak.enabled=false"})
 @ActiveProfiles("test")
 @EnableJGiven
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {"GOV_NOTIFY_CLIENT_ID = XXXX", "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX", "" +
+        "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX"})
 public abstract class BaseTestClass<T> extends SimpleSpringScenarioTest<T> {
 
     @Autowired
@@ -42,11 +46,13 @@ public abstract class BaseTestClass<T> extends SimpleSpringScenarioTest<T> {
     @MockBean
     protected  UserService userService;
 
-
     @Autowired
     protected MockMvc mockMvc;
 
     @MockBean
-    private IdentityService identityService;
+    protected IdentityService identityService;
+
+    @MockBean
+    protected NotificationClient notificationClient;
 
 }

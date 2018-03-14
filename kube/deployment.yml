@@ -73,6 +73,22 @@ spec:
               secretKeyRef:
                 name: workflow-engine-secrets
                 key: auth-mgmnt-password
+          - name: GOV_NOTIFY_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: workflow-engine-secrets
+                key: gov-notify-api-key
+          - name: GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
+            valueFrom:
+              secretKeyRef:
+                name: workflow-engine-secrets
+                key: gov-notify-notification-email-templateid
+          - name: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
+            valueFrom:
+              secretKeyRef:
+                name: workflow-engine-secrets
+                key: gov-notify-notification-sms-templateid
+
          # S3 Configuration
           - name: SPRING_PROFILES_ACTIVE
             value: {{ .ENVIRONMENT }}
