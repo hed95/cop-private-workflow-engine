@@ -1,42 +1,40 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.Data;
-import org.springframework.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @Data
 public class User implements org.camunda.bpm.engine.identity.User {
 
     private String id;
+    @JsonProperty("firstname")
     private String firstName;
+    @JsonProperty("lastname")
     private String lastName;
     private String email;
-    private String grade;
-    private String mobile;
-    private String username;
-    private List<Role> roles = new ArrayList<>();
-
-    private List<Team> teams = new ArrayList<>();
-    private Shift shift;
-
+    @JsonProperty("staffattributes")
+    private StaffAttributes staffAttributes;
+    private String phone;
+    private Team team;
 
     @Override
     public void setPassword(String password) {
         throw new UnsupportedOperationException("Not supported in this implementation");
     }
 
+
     @Override
     public String getPassword() {
         throw new UnsupportedOperationException("Not supported in this implementation");
     }
 
-    public boolean hasRole(String groupId) {
-        return this.roles != null
-                && !CollectionUtils.isEmpty(this.getRoles().stream().filter(g -> g.getId().equals(groupId)).collect(toList()));
+    public boolean isMemberOf(String teamId) {
+        long count = Team.flatten(this.getTeam())
+                .filter(t -> t.getName().equalsIgnoreCase(teamId)).count();
+        return count == 1;
     }
+
 
 }

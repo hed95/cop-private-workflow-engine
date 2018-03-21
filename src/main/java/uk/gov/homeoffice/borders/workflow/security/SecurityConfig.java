@@ -35,6 +35,13 @@ import javax.servlet.http.HttpServletRequest;
 @Profile("!test")
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs",
+            "/webjars/**"
+    };
+
     @Autowired
     private IdentityService identityService;
 
@@ -67,6 +74,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/engine").permitAll()
                 .antMatchers("/health").permitAll()
+                .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .anyRequest()
                 .fullyAuthenticated();
     }

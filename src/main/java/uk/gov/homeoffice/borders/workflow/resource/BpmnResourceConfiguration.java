@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.resource;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
@@ -27,11 +28,13 @@ public class BpmnResourceConfiguration extends AbstractCamundaConfiguration {
         List<ResourceContainer> resources = engineResourceLoader.getResources();
 
         log.info("Number of resources to load into engine '{}'", resources.size());
+        RepositoryService repositoryService = springProcessEngineConfiguration.getRepositoryService();
+
         resources.stream()
                 .forEach(resource -> {
                      try {
                          log.info("Loading '{}' to engine", resource.getName());
-                         springProcessEngineConfiguration.getRepositoryService()
+                         repositoryService
                                  .createDeployment()
                                  .addInputStream(resource.getName(), resource.getResource().getInputStream());
                          log.info("'{}' loaded into engine", resource.getName());

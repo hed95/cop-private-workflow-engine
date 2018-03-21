@@ -19,6 +19,7 @@ keycloak-management:
   username: ${KEYCLOAK_MGMT_USERNAME}
   password: ${KEYCLOAK_MGMT_PASSWORD}
 
+prest-url: ${PREST_ENDPOINT_URL}
 
 gov:
   notify:
@@ -42,11 +43,6 @@ camunda:
 engine:
   resource:
     location: src/test/resources
-
-team:
-  service:
-    api:
-      endpoint: http://localhost:8082/api/reference-data
 
 ---
 

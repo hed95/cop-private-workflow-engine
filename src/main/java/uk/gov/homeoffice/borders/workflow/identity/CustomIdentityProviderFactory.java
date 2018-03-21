@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-public class KeycloakIdentityProviderFactory implements SessionFactory {
+public class CustomIdentityProviderFactory implements SessionFactory {
 
-    private KeycloakIdentityProvider keycloakIdentityProvider;
+    private CustomIdentityProvider customIdentityProvider;
 
     @Override
     public Class<?> getSessionType() {
@@ -20,6 +20,6 @@ public class KeycloakIdentityProviderFactory implements SessionFactory {
 
     @Override
     public Session openSession() {
-        return keycloakIdentityProvider;
+        return customIdentityProvider;
     }
 }

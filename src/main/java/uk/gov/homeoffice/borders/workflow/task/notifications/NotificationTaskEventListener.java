@@ -29,7 +29,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
     private ExceptionHandler exceptionHandler;
 
     @Override
-    @Retryable(value = {NotifyFailureException.class}, backoff = @Backoff(
+    @Retryable(value = {NotifyFailureException.class},  backoff = @Backoff(
             delay = 1000L
     ))
     public void notify(DelegateTask delegateTask) {

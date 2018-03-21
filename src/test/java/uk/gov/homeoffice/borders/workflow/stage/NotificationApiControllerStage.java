@@ -88,11 +88,10 @@ public class NotificationApiControllerStage extends Stage<NotificationApiControl
     public NotificationApiControllerStage notificationIsPosted() throws Exception {
 
         User user = new User();
-        user.setUsername("test");
-        user.setEmail("test@test.com");
+        user.setEmail("test");
         Team team = new Team();
         team.setName("teamA");
-        user.setTeams(Collections.singletonList(team));
+        user.setTeam(team);
         WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
 
         Mockito.when(identityService.getCurrentAuthentication()).thenReturn(workflowAuthentication);
@@ -124,7 +123,10 @@ public class NotificationApiControllerStage extends Stage<NotificationApiControl
 
     public NotificationApiControllerStage aRequestForNotificationForUserIsMade() throws Exception {
         User user = new User();
-        user.setUsername("test");
+        user.setEmail("test");
+        Team team = new Team();
+        team.setName("teamA");
+        user.setTeam(team);
         WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
 
         Mockito.when(identityService.getCurrentAuthentication()).thenReturn(workflowAuthentication);

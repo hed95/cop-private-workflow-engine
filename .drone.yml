@@ -30,27 +30,3 @@ pipeline:
     when:
       branch: master
       event: push
-
-#  deploy_to_dev:
-#    image: quay.io/ukhomeofficedigital/kd:latest
-#    environment:
-#      - INSECURE_SKIP_TLS_VERIFY=true
-#    secrets:
-#      - KUBE_TOKEN_DEV
-#    commands:
-#      - export KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-#      - export KUBE_NAMESPACE=bfarch-dev
-#      - export INSECURE_SKIP_TLS_VERIFY=true
-#      - export WORKFLOW_ENGINE_RELICA_COUNT=2
-#      - export KUBE_CPU_LIMIT=800m
-#      - export KUBE_MEMORY_LIMIT=3072Mi
-#      - export KUBE_TOKEN=$${KUBE_TOKEN_DEV}
-#      - export ENVIRONMENT=dev
-#      - |
-#          cd kube
-#          kd --file deployment.yml \
-#             --file service.yml
-#    when:
-#      event: [deployment, push]
-#      branch: master
-

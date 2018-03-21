@@ -1,12 +1,10 @@
 package uk.gov.homeoffice.borders.workflow.security;
 
 import org.camunda.bpm.engine.impl.identity.Authentication;
-import uk.gov.homeoffice.borders.workflow.identity.Role;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -27,8 +25,8 @@ public class WorkflowAuthentication extends Authentication {
     }
 
     public WorkflowAuthentication(User user) {
-        super(user.getUsername(), user.getRoles().stream()
-                .map(Role::getName).collect(toList()), new ArrayList<>());
+//        super(user.getUsername(), user.getRoles().stream()
+//                .map(Role::getName).collect(toList()), new ArrayList<>());
         this.user = user;
     }
 

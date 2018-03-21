@@ -13,14 +13,15 @@ import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import uk.gov.homeoffice.borders.workflow.identity.TeamService;
+import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
+import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,20 +38,26 @@ public class NotificationService {
     private TaskService taskService;
     private RuntimeService runtimeService;
     private UserService userService;
+    private TaskApplicationService taskApplicationService;
 
     public Page<Task> notifications(User user, Pageable pageable) {
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(NOTIFICATIONS)
                 .processVariableValueEquals("type", NOTIFICATIONS)
-                .taskAssignee(user.getUsername())
+                .taskAssignee(user.getEmail())
                 .orderByTaskCreateTime()
                 .desc();
         Long totalCount = query.count();
-        List<Task> tasks = query
-                .listPage(pageable.getPageNumber(), pageable.getPageSize());
 
-        return new PageImpl<>(tasks, pageable, totalCount);
+        int pageNumber = taskApplicationService.calculatePageNumber(pageable);
+
+        List<Task> tasks = query
+                .listPage(pageNumber, pageable.getPageSize());
+
+
+        return new PageImpl<>(tasks, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), totalCount);
     }
+
 
     public ProcessInstance create(Notification notification) {
 
@@ -63,10 +70,9 @@ public class NotificationService {
             Notification updated = new Notification();
             updated.setPayload(notification.getPayload());
             updated.setSubject(notification.getSubject());
-            updated.setAssignee(u.getUsername());
             updated.setPriority(notification.getPriority());
             updated.setEmail(u.getEmail());
-            updated.setMobile(u.getMobile());
+            updated.setMobile(u.getPhone());
             return updated;
 
         }).collect(toList());
@@ -86,21 +92,31 @@ public class NotificationService {
     }
 
     private boolean filterByTeam(User user, String team) {
-        return team != null && user.getTeams().stream().filter(t -> team.equalsIgnoreCase(t.getName())).count() == 1;
+        return team != null && Team.flatten(user.getTeam()).filter(t -> team.equalsIgnoreCase(t.getName())).count() == 1;
 
     }
 
     private boolean filterByLocation(User user, String location) {
-        return location != null && user.getTeams().stream().filter(t -> location.equalsIgnoreCase(t.getLocation())).count() == 1;
+        return location != null && Team.flatten(user.getTeam()).filter(t -> location.equalsIgnoreCase(t.getLocation())).count() == 1;
 
     }
 
     private boolean filterByRegion(User user, String region) {
-        return region != null && user.getTeams().stream().filter(t -> region.equalsIgnoreCase(t.getRegion())).count() == 1;
+        return region != null && Team.flatten(user.getTeam()).filter(t -> region.equalsIgnoreCase(t.getRegion())).count() == 1;
 
     }
 
     public void cancel(String processInstanceId, String reason) {
-        runtimeService.deleteProcessInstance(processInstanceId, reason);
+        if (runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).count() != 0) {
+            runtimeService.deleteProcessInstance(processInstanceId, reason);
+        }
+    }
+
+    public String acknowledge(User user, String taskId) {
+        Task task = taskApplicationService.getTask(user, taskId);
+        taskService.claim(task.getId(), user.getEmail());
+        taskService.complete(task.getId());
+        log.info("Notification acknowledged.");
+        return task.getId();
     }
 }

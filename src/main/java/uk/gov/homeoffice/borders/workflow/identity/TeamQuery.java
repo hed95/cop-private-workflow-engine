@@ -8,19 +8,19 @@ import org.camunda.bpm.engine.impl.interceptor.CommandExecutor;
 
 import java.util.List;
 
-public class KeycloakRoleQuery extends GroupQueryImpl {
+public class TeamQuery extends GroupQueryImpl {
 
-    KeycloakRoleQuery() {
+    TeamQuery() {
         super();
     }
 
-    KeycloakRoleQuery(CommandExecutor commandExecutor) {
+    TeamQuery(CommandExecutor commandExecutor) {
         super(commandExecutor);
     }
 
     @Override
     public long executeCount(CommandContext commandContext) {
-        final KeycloakIdentityProvider provider = getIdentityProvider(commandContext);
+        final CustomIdentityProvider provider = getIdentityProvider(commandContext);
         return provider.findGroupCountByQueryCriteria(this);
     }
 
@@ -29,7 +29,7 @@ public class KeycloakRoleQuery extends GroupQueryImpl {
         return getIdentityProvider(commandContext).findGroupByQueryCriteria(this);
     }
 
-    private KeycloakIdentityProvider getIdentityProvider(CommandContext commandContext) {
-        return (KeycloakIdentityProvider) commandContext.getReadOnlyIdentityProvider();
+    private CustomIdentityProvider getIdentityProvider(CommandContext commandContext) {
+        return (CustomIdentityProvider) commandContext.getReadOnlyIdentityProvider();
     }
 }

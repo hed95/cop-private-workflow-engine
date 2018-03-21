@@ -8,19 +8,19 @@ import org.camunda.bpm.engine.impl.interceptor.CommandExecutor;
 
 import java.util.List;
 
-public class KeycloakUserQuery extends UserQueryImpl {
+public class UserQuery extends UserQueryImpl {
 
-    KeycloakUserQuery() {
+    UserQuery() {
         super();
     }
 
-    KeycloakUserQuery(CommandExecutor commandExecutor) {
+    UserQuery(CommandExecutor commandExecutor) {
         super(commandExecutor);
     }
 
     @Override
     public long executeCount(CommandContext commandContext) {
-        final KeycloakIdentityProvider provider = getIdentityProvider(commandContext);
+        final CustomIdentityProvider provider = getIdentityProvider(commandContext);
         return provider.findUserCountByQueryCriteria(this);
     }
 
@@ -29,7 +29,7 @@ public class KeycloakUserQuery extends UserQueryImpl {
         return getIdentityProvider(commandContext).findUserByQueryCriteria(this);
     }
 
-    private KeycloakIdentityProvider getIdentityProvider(CommandContext commandContext) {
-        return (KeycloakIdentityProvider) commandContext.getReadOnlyIdentityProvider();
+    private CustomIdentityProvider getIdentityProvider(CommandContext commandContext) {
+        return (CustomIdentityProvider) commandContext.getReadOnlyIdentityProvider();
     }
 }

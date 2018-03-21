@@ -4,8 +4,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Data;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 @Data
@@ -14,7 +24,8 @@ public class Priority {
     private Type type = Type.STANDARD;
     private boolean notificationBoost;
 
-    @JsonFormat(shape=JsonFormat.Shape.OBJECT)
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    @JsonDeserialize(using = Type.TypeDeserializer.class)
     public enum Type {
         STANDARD(50),
         URGENT(100),
@@ -26,8 +37,6 @@ public class Priority {
             this.value = value;
         }
 
-        @JsonValue
-        @JsonProperty("value")
         public int getValue() {
             return value;
         }
@@ -43,7 +52,23 @@ public class Priority {
             return Arrays.stream(values()).filter(t -> t.name().equalsIgnoreCase(type)).findAny().orElseThrow(() -> new IllegalArgumentException("Invalid priority"));
         }
 
+        public static class TypeDeserializer extends JsonDeserializer<Type> {
 
+            @Override
+            public Type deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                ObjectCodec oc = p.getCodec();
+                TreeNode treeNode = oc.readTree(p);
+                if (treeNode instanceof ObjectNode) {
+                    ObjectNode objectNode = (ObjectNode) treeNode;
+                    return Type.fromValue(objectNode.get("value").asInt());
+                } else {
+                    TextNode textNode = (TextNode)treeNode;
+                    return Type.fromType(textNode.textValue());
+                }
+
+
+            }
+        }
 
     }
 

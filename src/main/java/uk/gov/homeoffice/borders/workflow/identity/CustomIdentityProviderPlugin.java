@@ -11,9 +11,9 @@ import org.springframework.core.annotation.Order;
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @Order(Ordering.DEFAULT_ORDER + 2)
-public class KeycloakIdentityProviderPlugin extends AbstractCamundaConfiguration {
+public class CustomIdentityProviderPlugin extends AbstractCamundaConfiguration {
 
-    private KeycloakIdentityProviderFactory factory;
+    private CustomIdentityProviderFactory factory;
 
     @Override
     public void preInit(SpringProcessEngineConfiguration springProcessEngineConfiguration) {

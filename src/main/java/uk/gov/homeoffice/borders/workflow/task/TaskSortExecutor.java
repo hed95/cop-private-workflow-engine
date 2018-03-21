@@ -37,5 +37,13 @@ public class TaskSortExecutor {
                 taskQuery.orderByDueDate().desc();
             }
         });
+
+        ofNullable(sort.getOrderFor("created")).ifPresent(s -> {
+            if (s.isAscending()) {
+                taskQuery.orderByTaskCreateTime().asc();
+            } else {
+                taskQuery.orderByTaskCreateTime().desc();
+            }
+        });
     }
 }

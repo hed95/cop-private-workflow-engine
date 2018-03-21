@@ -1,29 +1,26 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.IdentityService;
-import org.camunda.bpm.engine.rest.dto.task.TaskDto;
+import org.camunda.bpm.engine.rest.dto.VariableValueDto;
+import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
 import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.homeoffice.borders.workflow.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 import uk.gov.homeoffice.borders.workflow.identity.User;
-import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
 
-import javax.ws.rs.POST;
-import java.util.List;
+import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
 import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
 
 @RestController
@@ -46,8 +43,14 @@ public class TaskApiController {
 
     @GetMapping("/{taskId}")
     public TaskDtoResource task(@PathVariable String taskId) {
-        Task task = applicationService.task(restApiUserExtractor.toUser(), taskId);
+        Task task = applicationService.getTask(restApiUserExtractor.toUser(), taskId);
         return taskDtoResourceAssembler.toResource(task);
+    }
+
+    @GetMapping("/{taskId}/variables")
+    public Map<String, VariableValueDto> variables(@PathVariable String taskId) {
+        VariableMap variables = applicationService.getVariables(restApiUserExtractor.toUser(), taskId);
+        return VariableValueDto.fromVariableMap(variables);
     }
 
     @PostMapping
@@ -64,8 +67,17 @@ public class TaskApiController {
     }
 
     @PostMapping("/api/workflow/tasks/{taskId}/_complete")
-    public ResponseEntity<?> complete(@PathVariable String taskId) {
-        applicationService.completeTask(restApiUserExtractor.toUser(), taskId);
+    public ResponseEntity<?> complete(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
+        User user = restApiUserExtractor.toUser();
+        applicationService.completeTask(user, taskId, completeTaskDto);
+        return ResponseEntity.ok().build();
+
+    }
+
+    @PostMapping("/api/workflow/tasks/{taskId}/form/_complete")
+    public ResponseEntity<?> completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
+        User user = restApiUserExtractor.toUser();
+        applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }
@@ -75,7 +87,6 @@ public class TaskApiController {
         applicationService.unclaim(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();
     }
-
 
 
 }

@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.stage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.integration.spring.JGivenStage;
+import org.assertj.core.api.Java6BDDAssertions;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
@@ -14,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import uk.gov.homeoffice.borders.workflow.identity.Role;
+import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
 
@@ -79,7 +80,10 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
 
     public TaskApiControllerStage aCallToGetTasksIsForUser(String username) throws Exception {
         User user = new User();
-        user.setUsername(username);
+        user.setEmail(username);
+        Team team = new Team();
+        team.setName("test");
+        user.setTeam(team);
         WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
 
         Mockito.when(identityService.getCurrentAuthentication()).thenReturn(workflowAuthentication);
@@ -114,10 +118,11 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
 
     public TaskApiControllerStage aQueryWithTaskName(String taskName) throws Exception {
         User user = new User();
-        user.setUsername("test");
-        Role role = new Role();
-        role.setName("test");
-        user.setRoles(Collections.singletonList(role));
+        user.setEmail("test");
+        Team team = new Team();
+        team.setName("test");
+        team.setId(UUID.randomUUID().toString());
+        user.setTeam(team);
         WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
 
         Mockito.when(identityService.getCurrentAuthentication()).thenReturn(workflowAuthentication);
@@ -145,6 +150,8 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
         mvcGetResults.andExpect(jsonPath("$.page['totalElements']", is(not(0))));
         return this;
     }
+
+
 
     public static class Data {
         private String assignee;

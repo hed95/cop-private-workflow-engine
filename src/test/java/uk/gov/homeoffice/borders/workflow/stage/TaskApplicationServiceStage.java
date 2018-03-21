@@ -4,7 +4,6 @@ import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.integration.spring.JGivenStage;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
-import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.variable.Variables;
@@ -13,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.Assert;
-import uk.gov.homeoffice.borders.workflow.identity.Role;
+import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
 
@@ -45,7 +44,11 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
     public TaskApplicationServiceStage getTasksForUserIsRequested(String username) {
         Assert.notNull(task, "Task not initialised...call asTask()");
         User user = new User();
-        user.setUsername(username);
+        user.setEmail(username);
+        user.setEmail(username);
+        Team team = new Team();
+        team.setName("abc");
+        user.setTeam(team);
         tasks = applicationService.tasks(user, new PageRequest(0, 10));
         return this;
     }
@@ -53,10 +56,11 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
     public TaskApplicationServiceStage getTaskForCandidateGroups(String candidateGroup) {
         Assert.notNull(task, "Task not initialised...call asTask()");
         User user = new User();
-        user.setUsername(UUID.randomUUID().toString());
-        Role group = new Role();
+        user.setEmail(UUID.randomUUID().toString());
+        Team group = new Team();
+        group.setId(candidateGroup);
         group.setName(candidateGroup);
-        user.getRoles().add(group);
+        user.setTeam(group);
         tasks = applicationService.tasks(user, new PageRequest(0, 10));
         return this;
     }

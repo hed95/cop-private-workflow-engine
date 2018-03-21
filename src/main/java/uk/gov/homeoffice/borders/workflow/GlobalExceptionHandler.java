@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 
     @ResponseStatus(NOT_FOUND)
@@ -19,6 +21,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode(NOT_FOUND.value());
         errorResponse.setMessage(e.getMessage());
+        errorResponse.setPayload(e.getMessage());
         return errorResponse;
 
     }
@@ -31,6 +34,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode(UNAUTHORIZED.value());
         errorResponse.setMessage(e.getMessage());
+        errorResponse.setPayload(e.getMessage());
         return errorResponse;
     }
 
@@ -41,6 +45,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode(BAD_REQUEST.value());
         errorResponse.setMessage(e.getMessage());
+        errorResponse.setPayload(e.getMessage());
         return errorResponse;
     }
 
@@ -51,6 +56,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode(INTERNAL_SERVER_ERROR.value());
         errorResponse.setMessage(e.getMessage());
+        errorResponse.setPayload(e.getMessage());
         return errorResponse;
     }
 }
