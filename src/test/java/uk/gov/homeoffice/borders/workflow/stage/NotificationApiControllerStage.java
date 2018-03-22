@@ -92,6 +92,8 @@ public class NotificationApiControllerStage extends Stage<NotificationApiControl
         Team team = new Team();
         team.setName("teamA");
         user.setTeam(team);
+
+
         WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
 
         Mockito.when(identityService.getCurrentAuthentication()).thenReturn(workflowAuthentication);

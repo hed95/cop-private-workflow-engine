@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_DEFINITION_ROOT_API;
 
@@ -27,9 +29,13 @@ public class ProcessDefinitionApiController {
     private RestApiUserExtractor restApiUserExtractor;
 
     @GetMapping
-    public PagedResources<ProcessDefinitionDto> processDefinitions(Pageable pageable) {
+    public List<ProcessDefinitionDto> processDefinitions() {
         List<ProcessDefinition> definitions = processApplicationService.processDefinitions(restApiUserExtractor.toUser());
+        return definitions.stream().map(ProcessDefinitionDto::fromProcessDefinition).collect(Collectors.toList());
+    }
 
-        return null;
+    @GetMapping("/{processDefinition}/form")
+    public String formKey(@PathVariable String processDefinition) {
+        return processApplicationService.formKey(processDefinition);
     }
 }

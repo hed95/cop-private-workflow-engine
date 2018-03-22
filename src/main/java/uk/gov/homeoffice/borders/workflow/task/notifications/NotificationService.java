@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NotificationService {
 
-    private static final String NOTIFICATIONS = "notifications";
+    public static final String NOTIFICATIONS = "notifications";
 
     private TaskService taskService;
     private RuntimeService runtimeService;
@@ -72,7 +72,7 @@ public class NotificationService {
             updated.setSubject(notification.getSubject());
             updated.setPriority(notification.getPriority());
             updated.setEmail(u.getEmail());
-            updated.setMobile(u.getPhone());
+            updated.setMobile(u.getStaffAttributes().getPhone());
             return updated;
 
         }).collect(toList());
