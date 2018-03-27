@@ -2,14 +2,16 @@ package uk.gov.homeoffice.borders.workflow.identity;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.identity.*;
+import org.camunda.bpm.engine.identity.GroupQuery;
+import org.camunda.bpm.engine.identity.NativeUserQuery;
+import org.camunda.bpm.engine.identity.Tenant;
+import org.camunda.bpm.engine.identity.TenantQuery;
 import org.camunda.bpm.engine.impl.context.Context;
 import org.camunda.bpm.engine.impl.identity.ReadOnlyIdentityProvider;
 import org.camunda.bpm.engine.impl.interceptor.CommandContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
