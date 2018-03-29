@@ -31,12 +31,11 @@ public class ProcessApplicationService {
                 .createProcessDefinitionQuery()
                 .list();
 
+        //TODO: Filter by team
         List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getName).collect(Collectors.toList());
 
-        return processDefinitions.stream().filter(p -> {
-            ProcessDefinitionEntity entity = (ProcessDefinitionEntity) p;
-            return entity.getIdentityLinks().stream().filter(i -> teamIds.contains(i.getGroupId())).count() >= 1;
-        }).filter(p -> !p.getKey().equalsIgnoreCase(NotificationService.NOTIFICATIONS)).collect(Collectors.toList());
+        return processDefinitions.stream().filter(p -> !p.getKey().equalsIgnoreCase(NotificationService.NOTIFICATIONS)
+                || !p.getKey().equalsIgnoreCase("session")).collect(Collectors.toList());
     }
 
     public String formKey(String processDefinitionKey) {
