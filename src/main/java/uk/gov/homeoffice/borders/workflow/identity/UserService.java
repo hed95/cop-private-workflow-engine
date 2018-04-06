@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
+import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +31,17 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
 
-    private RestTemplate restTemplate;
     private String referenceDataEndpoint;
     private ObjectMapper objectMapper;
+    private KeycloakRestTemplate keycloakRestTemplate;
 
 
     public User findByUserId(String userId) {
-        String response = restTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-user?email=%s",
+        String response = keycloakRestTemplate.getForEntity(String.format("%s/api/reference-data/_QUERIES/get-active-user?email=%s",
                 referenceDataEndpoint, userId), String.class).getBody();
         JSONArray o = new JSONArray(response);
         if (o.length() == 0) {
-            throw new ForbiddenException("No active user found in store");
+            return null;
         }
         if (o.length() > 1) {
             throw new ForbiddenException("Cannot have multiple active session for user");
@@ -54,7 +55,7 @@ public class UserService {
 
 
     public List<User> allUsers() {
-        String response = restTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-users", referenceDataEndpoint), String.class).getBody();
+        String response = keycloakRestTemplate.getForEntity(String.format("%s/_QUERIES/get-active-users", referenceDataEndpoint), String.class).getBody();
         JSONArray o = new JSONArray(response);
         try {
             return objectMapper.readValue(o.getJSONObject(0).get("array_to_json").toString(), new TypeReference<List<User>>() {});

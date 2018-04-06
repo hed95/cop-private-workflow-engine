@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.gov.homeoffice.borders.workflow.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 
+import java.util.ArrayList;
+
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class SecurityEventListener {
@@ -23,16 +25,19 @@ public class SecurityEventListener {
     @EventListener
     public void onSuccessfulAuthentication(InteractiveAuthenticationSuccessEvent successEvent) {
         KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) successEvent.getSource();
-        identityService.setAuthentication(new WorkflowAuthentication(toUser(keycloakAuthenticationToken)));
-    }
-
-    private User toUser(KeycloakAuthenticationToken keycloakAuthenticationToken) {
         String userId = ((SimpleKeycloakAccount) keycloakAuthenticationToken.getDetails()).getKeycloakSecurityContext()
                 .getToken().getEmail();
-        User user = (User) identityService.createUserQuery().userId(userId).singleResult();
+        User user = toUser(userId);
         if (user == null) {
-            throw new ForbiddenException("No user found from store");
+            log.warn("User does not have active session");
+            identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
+        } else {
+            log.info("User has active session");
+            identityService.setAuthentication(new WorkflowAuthentication(user));
         }
-        return user;
+    }
+
+    private User toUser(String userId) {
+        return (User) identityService.createUserQuery().userId(userId).singleResult();
     }
 }

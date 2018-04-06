@@ -12,10 +12,19 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+/**
+ * This REST API is responsible for creating an active session workflow.
+ * The workflow create a record in the ActiveSession in the reference data service
+ * and then goes to sleep. The end time of the active session then triggers the workflow to
+ * remove the record in the active session and remove the keycloak session
+ *
+ */
+
+
 @RestController
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-@RequestMapping(path = "/api/sessions")
+@RequestMapping(path = "/api/workflow/sessions")
 public class SessionApiController {
 
     private SessionApplicationService sessionApplicationService;
@@ -23,12 +32,18 @@ public class SessionApiController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createSession(@RequestBody ActiveSession activeSession, UriComponentsBuilder uriComponentsBuilder) {
         ProcessInstance session = sessionApplicationService.createSession(activeSession);
+        log.info("Session created '{}'", session.getProcessInstanceId());
         UriComponents uriComponents =
-                uriComponentsBuilder.path("/api/sessions/{processInstanceId}").buildAndExpand(session.getProcessInstanceId());
+                uriComponentsBuilder.path("/api/workflow/sessions/{sessionIdentifier}").buildAndExpand(activeSession.getSessionId());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{sessionIdentifier}")
+    public ActiveSession sessionInfo(@PathVariable String sessionIdentifier) {
+        return sessionApplicationService.getActiveSession(sessionIdentifier);
     }
 
     @DeleteMapping("/{sessionId}")

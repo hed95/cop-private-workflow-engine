@@ -15,6 +15,11 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * REST API for creating and getting comments associated with a given task
+ * Comments cannot be updated or removed. They are immutable.
+ */
+
 @RestController
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))

@@ -4,6 +4,7 @@ package uk.gov.homeoffice.borders.workflow.identity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.OAuth2Constants;
+import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +18,9 @@ import org.springframework.web.client.RestTemplate;
 @Profile("!test")
 public class IdentityConfig {
 
-    @Value("${keycloak.auth-server-url}")
-    private String authUrl;
-
-    @Value("${keycloak-management.client-id}")
-    private String keycloakManagementClientId;
-
-    @Value("${keycloak-management.username}")
-    private String keycloakManagementUsername;
-
-    @Value("${keycloak-management.password}")
-    private String keycloakManagementPassword;
-
-    @Value("${keycloak.realm}")
-    private String realm;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private KeycloakRestTemplate restTemplate;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -49,7 +36,7 @@ public class IdentityConfig {
 
     @Bean
     public UserService userService() {
-        return new UserService(restTemplate, prestUrl, objectMapper);
+        return new UserService(prestUrl, objectMapper, restTemplate);
     }
 
 
@@ -68,16 +55,4 @@ public class IdentityConfig {
         return new CustomIdentityProvider(userService(), teamService());
     }
 
-    @Bean
-    public Keycloak realmManagementKeycloak() {
-        return KeycloakBuilder.builder()
-                .clientId(keycloakManagementClientId)
-                .username(keycloakManagementUsername)
-                .password(keycloakManagementPassword)
-                .serverUrl(authUrl)
-                .realm(realm)
-                .grantType(OAuth2Constants.PASSWORD)
-                .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
-                .build();
-    }
 }

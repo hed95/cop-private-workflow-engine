@@ -5,3 +5,4 @@ borders-workflow-engine.iml
 out/
 dist/
 jgiven-reports/
+.DS_Store

@@ -14,10 +14,6 @@ keycloak:
   use-resource-role-mappings: true
   principal-attribute: preferred_username
 
-keycloak-management:
-  client-id: ${KEYCLOAK_MGMT_CLIENT_ID}
-  username: ${KEYCLOAK_MGMT_USERNAME}
-  password: ${KEYCLOAK_MGMT_PASSWORD}
 
 prest-url: ${PREST_ENDPOINT_URL}
 

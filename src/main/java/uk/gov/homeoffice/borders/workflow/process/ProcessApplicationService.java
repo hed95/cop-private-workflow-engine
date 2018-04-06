@@ -7,14 +7,20 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,4 +58,22 @@ public class ProcessApplicationService {
     }
 
 
+    public ProcessInstance createInstance(ProcessStartDto processStartDto, User user) {
+        ProcessDefinition processDefinition= repositoryService.createProcessDefinitionQuery().processDefinitionKey(processStartDto.getProcessKey()).singleResult();
+        if (processDefinition == null) {
+            throw new ResourceNotFound("Process definition with key '" + processStartDto.getProcessKey() + "'");
+        }
+        ObjectValue dataObject =
+                Variables.objectValue(processStartDto)
+                        .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
+                        .create();
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put(processStartDto.getVariableName(), dataObject);
+        variables.put("type", "non-notifications");
+
+        return runtimeService.startProcessInstanceByKey(processStartDto.getProcessKey(),
+                variables);
+
+    }
 }

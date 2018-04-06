@@ -22,6 +22,11 @@ import java.util.Map;
 
 import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
 
+/**
+ * REST API for interacting with tasks
+ * Tasks are human tasks that are created by a workflow
+ */
+
 @RestController
 @RequestMapping(path = ROOT_PATH,
         produces = MediaType.APPLICATION_JSON_VALUE)

@@ -3,6 +3,8 @@ package uk.gov.homeoffice.borders.workflow.process;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,10 @@ import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_INSTANCE_ROOT_API;
 
+/**
+ * REST API for creating a process instance and deleting
+ * More endpoints will be exposed over time.
+ */
 
 @RestController
 @RequestMapping(path = PROCESS_INSTANCE_ROOT_API,
@@ -28,5 +34,15 @@ public class ProcessInstanceApiController {
     public ResponseEntity<?> delete(@PathVariable String processInstanceId, @RequestParam String reason) {
         processApplicationService.delete(processInstanceId, reason);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createInstance(@RequestBody ProcessStartDto processStartDto) {
+
+        ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, restApiUserExtractor.toUser());
+        ProcessInstanceDto processInstanceDto = ProcessInstanceDto.fromProcessInstance(processInstance);
+
+        return ResponseEntity.ok(processInstanceDto);
+
     }
 }

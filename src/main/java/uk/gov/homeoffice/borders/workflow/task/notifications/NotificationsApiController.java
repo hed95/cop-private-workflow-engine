@@ -25,6 +25,12 @@ import uk.gov.homeoffice.borders.workflow.task.TaskReference;
 
 import static uk.gov.homeoffice.borders.workflow.task.notifications.NotificationsApiPaths.ROOT_PATH;
 
+/**
+ * Notifications are tasks that are created by a specific workflow
+ * Once a task is created a notification is sent to the end user
+ * This can be either a SMS or EMAIL or both
+ */
+
 @RestController
 @RequestMapping(path = ROOT_PATH)
 @Slf4j
