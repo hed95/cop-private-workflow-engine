@@ -25,6 +25,10 @@ gov:
         emailTemplateId: ${GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID}
         smsTemplateId:  ${GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID}
 
+spring:
+  jersey:
+    application-path: /api/workflow
+
 ---
 
 spring:

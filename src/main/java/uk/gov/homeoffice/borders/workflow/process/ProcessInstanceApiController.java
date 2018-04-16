@@ -3,13 +3,19 @@ package uk.gov.homeoffice.borders.workflow.process;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
+import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceWithVariablesDto;
+import org.camunda.bpm.engine.rest.dto.runtime.VariableInstanceDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
+
+import java.util.Map;
 
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_INSTANCE_ROOT_API;
 
@@ -44,5 +50,16 @@ public class ProcessInstanceApiController {
 
         return ResponseEntity.ok(processInstanceDto);
 
+    }
+
+    @GetMapping("/{processInstanceId}")
+    private ProcessInstanceDto processInstance(@PathVariable String processInstanceId) {
+        ProcessInstance processInstance = processApplicationService.getProcessInstance(processInstanceId, restApiUserExtractor.toUser());
+        return ProcessInstanceDto.fromProcessInstance(processInstance);
+    }
+    @GetMapping("/{processInstanceId}/variables")
+    private Map<String, VariableValueDto> variables(@PathVariable String processInstanceId) {
+        VariableMap variables = processApplicationService.variables(processInstanceId, restApiUserExtractor.toUser());
+        return VariableValueDto.fromVariableMap(variables);
     }
 }

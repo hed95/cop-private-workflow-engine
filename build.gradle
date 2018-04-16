@@ -43,6 +43,7 @@ test {
 
 dependencies {
     compile ('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:2.3.0')
+    compile ('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:2.3.0')
     compile ('org.camunda.bpm:camunda-engine-rest')
     compile('org.camunda.bpm.extension.reactor:camunda-bpm-reactor-spring-starter:2.1.1')
     compile('org.camunda.spin:camunda-spin-dataformat-json-jackson')

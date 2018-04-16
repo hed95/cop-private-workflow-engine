@@ -4,7 +4,7 @@ import org.junit.Test;
 import uk.gov.homeoffice.borders.workflow.stage.TaskApiControllerStage;
 
 
-public class TaskApiControllerTest extends BaseTestClass<TaskApiControllerStage> {
+public class TaskApiControllerTest extends JGivenBaseTestClass<TaskApiControllerStage> {
 
 
     @Test

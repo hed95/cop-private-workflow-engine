@@ -46,7 +46,7 @@ public class SessionApplicationService {
 
         if (existingSessionForPerson != null) {
             runtimeService.deleteProcessInstance(existingSessionForPerson.getProcessInstanceId(), "remove-active-session");
-            log.info("Removed previous workflow session");
+            log.info("Removed previous workflow session with id '{}'", activeSession.getSessionId());
         }
 
         ObjectValue notificationObjectValue =
@@ -60,7 +60,7 @@ public class SessionApplicationService {
 
         ProcessInstance processInstance = runtimeService
                 .startProcessInstanceByKey("activate-session", activeSession.getSessionId(), variables);
-        log.info("Active session process started '{}'", processInstance.getProcessInstanceId());
+        log.info("Active session with id '{}' has started '{}'", activeSession.getSessionId(), processInstance.getProcessInstanceId());
         return processInstance;
     }
 
@@ -112,4 +112,5 @@ public class SessionApplicationService {
 
         throw new ResourceNotFound("Active session could not be located");
     }
+
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.10.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.10.0">
   <bpmn:collaboration id="Collaboration_1kjx4nt">
     <bpmn:documentation>Store active session</bpmn:documentation>
     <bpmn:participant id="Participant_0mlpt32" name="Borders System" processRef="activate-session" />
@@ -8,18 +8,18 @@
     <bpmn:messageFlow id="MessageFlow_0mzbw92" name="Form submission" sourceRef="Participant_00gisla" targetRef="StartEvent_1" />
     <bpmn:messageFlow id="MessageFlow_1r3bp03" name="Remove user session&#10;&#10;" sourceRef="Task_1y8oyjy" targetRef="Participant_0tfi0ju" />
   </bpmn:collaboration>
-  <bpmn:process id="activate-session" name="Session" isExecutable="false">
+  <bpmn:process id="activate-session" name="Session" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1" name="Remove session request submitted">
       <bpmn:outgoing>SequenceFlow_08jcu12</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:serviceTask id="Task_1f7bevv" name="Store active session">
+    <bpmn:serviceTask id="Task_1f7bevv" name="Store active session" camunda:type="external" camunda:topic="session-create">
       <bpmn:incoming>SequenceFlow_1j57u59</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0927hu5</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_01356zx">
         <bpmn:targetRef>DataStoreReference_0qzm7dy</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:serviceTask>
-    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_1bpvsqo" name="Session Expiry">
+    <bpmn:intermediateCatchEvent id="expireActiveSession" name="Session Expiry">
       <bpmn:incoming>SequenceFlow_0927hu5</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1tivuep</bpmn:outgoing>
       <bpmn:timerEventDefinition>
@@ -37,7 +37,7 @@
       <bpmn:incoming>SequenceFlow_18lf1zg</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0hjuupb</bpmn:outgoing>
     </bpmn:parallelGateway>
-    <bpmn:serviceTask id="Task_1y8oyjy" name="Remove keycloak user session">
+    <bpmn:serviceTask id="Task_1y8oyjy" name="Remove keycloak user session" camunda:type="external" camunda:topic="keycloak-session-remove">
       <bpmn:incoming>SequenceFlow_0vw5fy7</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0n0uj4i</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -49,25 +49,25 @@
       <bpmn:outgoing>SequenceFlow_0vw5fy7</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_18lf1zg</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Task_0f5abt8" name="Remove active team session">
+    <bpmn:serviceTask id="Task_0f5abt8" name="Remove active team session" camunda:type="external" camunda:topic="session-remove">
       <bpmn:incoming>SequenceFlow_01bw0zx</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0d8vrvl</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_0fwhjkz">
         <bpmn:targetRef>DataStoreReference_0qzm7dy</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0927hu5" sourceRef="Task_1f7bevv" targetRef="IntermediateThrowEvent_1bpvsqo" />
-    <bpmn:sequenceFlow id="SequenceFlow_1tivuep" sourceRef="IntermediateThrowEvent_1bpvsqo" targetRef="ExclusiveGateway_078rz9s" />
+    <bpmn:sequenceFlow id="SequenceFlow_0927hu5" sourceRef="Task_1f7bevv" targetRef="expireActiveSession" />
+    <bpmn:sequenceFlow id="SequenceFlow_1tivuep" sourceRef="expireActiveSession" targetRef="ExclusiveGateway_078rz9s" />
     <bpmn:sequenceFlow id="SequenceFlow_01bw0zx" sourceRef="ExclusiveGateway_078rz9s" targetRef="Task_0f5abt8" />
     <bpmn:sequenceFlow id="SequenceFlow_0jojx69" sourceRef="ExclusiveGateway_078rz9s" targetRef="ExclusiveGateway_0z7d5un" />
     <bpmn:sequenceFlow id="SequenceFlow_0n0uj4i" sourceRef="Task_1y8oyjy" targetRef="ExclusiveGateway_0wabrgh" />
     <bpmn:sequenceFlow id="SequenceFlow_0d8vrvl" sourceRef="Task_0f5abt8" targetRef="ExclusiveGateway_0wabrgh" />
     <bpmn:sequenceFlow id="SequenceFlow_18lf1zg" name="no" sourceRef="ExclusiveGateway_0z7d5un" targetRef="ExclusiveGateway_0wabrgh">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${activeSession.sessiontype != 'workflow}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${activeSession.sessionType != 'workflow'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0hjuupb" sourceRef="ExclusiveGateway_0wabrgh" targetRef="EndEvent_0cjilnz" />
     <bpmn:sequenceFlow id="SequenceFlow_0vw5fy7" name="yes" sourceRef="ExclusiveGateway_0z7d5un" targetRef="Task_1y8oyjy">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${activeSession.sessiontype == 'workflow}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${activeSession.sessionType == 'workflow'}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_08jcu12" sourceRef="StartEvent_1" targetRef="ExclusiveGateway_00wv8pd" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_00wv8pd" name="person exists?">
@@ -76,12 +76,12 @@
       <bpmn:outgoing>SequenceFlow_1fcbicp</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1uwkwx0" name="no" sourceRef="ExclusiveGateway_00wv8pd" targetRef="Task_0wzgaj7">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${activeSession.personid == null}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${activeSession.personId == null}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1fcbicp" name="yes" sourceRef="ExclusiveGateway_00wv8pd" targetRef="ExclusiveGateway_0uf1jgp">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${activeSession.personid != null}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${activeSession.personId != null}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store">
+    <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store" camunda:type="external" camunda:topic="user-create">
       <bpmn:incoming>SequenceFlow_1uwkwx0</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0wrpwoe</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_01t9kc3">
@@ -98,7 +98,7 @@
     <bpmn:dataStoreReference id="DataStoreReference_0qzm7dy" name="Persistent reference store" />
     <bpmn:textAnnotation id="TextAnnotation_03yyvyg">    <bpmn:text>Remove session after specified time</bpmn:text>
 </bpmn:textAnnotation>
-    <bpmn:association id="Association_14dh0bf" sourceRef="IntermediateThrowEvent_1bpvsqo" targetRef="TextAnnotation_03yyvyg" />
+    <bpmn:association id="Association_14dh0bf" sourceRef="expireActiveSession" targetRef="TextAnnotation_03yyvyg" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1kjx4nt">
@@ -132,7 +132,7 @@
           <dc:Bounds x="586" y="312" width="90" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="IntermediateCatchEvent_05hwa8g_di" bpmnElement="IntermediateThrowEvent_1bpvsqo">
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_05hwa8g_di" bpmnElement="expireActiveSession">
         <dc:Bounds x="651" y="315" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="634" y="354" width="73" height="13" />

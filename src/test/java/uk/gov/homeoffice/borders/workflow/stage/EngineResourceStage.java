@@ -5,6 +5,7 @@ import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.integration.spring.JGivenStage;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.hamcrest.Matchers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class EngineResourceStage extends Stage<EngineResourceStage> {
     }
 
     public EngineResourceStage numberOfProcessDefinitionsShouldBe(int numberOfDeployments) {
-        assertThat(processDefinitions.size(), is(numberOfDeployments));
+        assertThat(processDefinitions.size(), Matchers.greaterThanOrEqualTo(numberOfDeployments));
         return this;
     }
 

@@ -41,6 +41,12 @@ public class TaskApplicationService {
     private FormService formService;
     private ObjectMapper objectMapper;
 
+    /**
+     * Returns paged result of tasks
+     * @param user  user that is returned from active session look up
+     * @param pageable page object
+     * @return paged result
+     */
     public Page<Task> tasks(@NotNull User user, Pageable pageable) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", "notifications")
@@ -83,13 +89,24 @@ public class TaskApplicationService {
         return Team.flatten(user.getTeam()).map(Team::getId).collect(toList());
     }
 
-
+    /**
+     * Claims ownership of the task
+     * @param user
+     * @param taskId
+     */
     public void claimTask(User user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.claim(task.getId(), user.getEmail());
         log.info("Task '{}' claimed", taskId);
     }
 
+    /**
+     * Completes the task. Once complete it cannot be re-opened. You will need
+     * to create another task with the same data in order to do a 'reopen'
+     * @param user
+     * @param taskId
+     * @param completeTaskDto
+     */
     public void completeTask(User user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = validateTaskCanBeCompletedByUser(user, getTask(user, taskId));
 
@@ -102,6 +119,12 @@ public class TaskApplicationService {
         }
     }
 
+    /**
+     * Complete task with form data
+     * @param user
+     * @param taskId
+     * @param completeTaskDto
+     */
     public void completeTaskWithForm(User user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = validateTaskCanBeCompletedByUser(user, getTask(user, taskId));
         VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
@@ -115,6 +138,12 @@ public class TaskApplicationService {
         return task;
     }
 
+    /**
+     * Get a single task
+     * @param user
+     * @param taskId
+     * @return
+     */
     public Task getTask(User user, String taskId) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .initializeFormKeys()
@@ -124,13 +153,27 @@ public class TaskApplicationService {
         return task;
     }
 
-
+    /**
+     * Return task back into the pool of work that belongs to a candidate group
+     * @param user
+     * @param taskId
+     */
     public void unclaim(User user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.setAssignee(task.getId(), null);
         log.info("Task '{}' unclaimed");
     }
 
+    /**
+     * Perform a task query based on a set of criterias
+     * @param user
+     * @param queryDto
+     * @param pageable
+     * @return
+     *
+     * @see TaskQueryDto
+     * @see User
+     */
     public Page<Task> query(User user, TaskQueryDto queryDto, Pageable pageable) {
         TaskQuery taskQuery = queryDto.toQuery(processEngine);
 
@@ -146,10 +189,16 @@ public class TaskApplicationService {
         return new PageImpl<>(tasks, pageable, totalResults);
     }
 
+    /**
+     * Return variables associated with task
+     * @param user
+     * @param taskId
+     * @return
+     */
     public VariableMap getVariables(User user, String taskId) {
         Task task = getTask(user, taskId);
         taskExistsCheck(taskId, task);
-        return taskService.getVariablesTyped(task.getId(), true);
+        return taskService.getVariablesTyped(task.getId(), false);
     }
 
     private void taskExistsCheck(String taskId, Task task) {

@@ -3,7 +3,7 @@ package uk.gov.homeoffice.borders.workflow;
 import org.junit.Test;
 import uk.gov.homeoffice.borders.workflow.stage.TaskApplicationServiceStage;
 
-public class TaskServiceApplicationServiceTest extends BaseTestClass<TaskApplicationServiceStage> {
+public class TaskServiceApplicationServiceTest extends JGivenBaseTestClass<TaskApplicationServiceStage> {
 
 
     @Test

@@ -31,7 +31,7 @@ import javax.annotation.PostConstruct;
 @AutoConfigureMockMvc
 @TestPropertySource(properties = {"GOV_NOTIFY_CLIENT_ID = XXXX", "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX", "" +
         "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX"})
-public abstract class BaseTestClass<T> extends SimpleSpringScenarioTest<T> {
+public abstract class JGivenBaseTestClass<T> extends SimpleSpringScenarioTest<T> {
 
     @Autowired
     protected TestRestTemplate testRestTemplate;

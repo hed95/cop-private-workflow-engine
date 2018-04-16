@@ -8,6 +8,8 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
+import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +61,7 @@ public class ProcessApplicationService {
 
 
     public ProcessInstance createInstance(ProcessStartDto processStartDto, User user) {
-        ProcessDefinition processDefinition= repositoryService.createProcessDefinitionQuery().processDefinitionKey(processStartDto.getProcessKey()).singleResult();
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(processStartDto.getProcessKey()).singleResult();
         if (processDefinition == null) {
             throw new ResourceNotFound("Process definition with key '" + processStartDto.getProcessKey() + "'");
         }
@@ -75,5 +77,14 @@ public class ProcessApplicationService {
         return runtimeService.startProcessInstanceByKey(processStartDto.getProcessKey(),
                 variables);
 
+    }
+
+    public ProcessInstance getProcessInstance(String processInstanceId, User user) {
+        return runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+    }
+
+    public VariableMap variables(String processInstanceId, User user) {
+        VariableMap variables = runtimeService.getVariablesTyped(processInstanceId, false);
+        return variables;
     }
 }

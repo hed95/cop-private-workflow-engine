@@ -5,7 +5,7 @@ import org.junit.Test;
 import uk.gov.homeoffice.borders.workflow.stage.EngineResourceStage;
 
 
-public class EngineResourceLoaderTest extends BaseTestClass<EngineResourceStage> {
+public class EngineResourceLoaderTest extends JGivenBaseTestClass<EngineResourceStage> {
 
 
     @Test

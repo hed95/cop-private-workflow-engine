@@ -8,7 +8,7 @@ import uk.gov.homeoffice.borders.workflow.stage.HealthStage;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class HealthControllerTest extends BaseTestClass<HealthStage> {
+public class HealthControllerTest extends JGivenBaseTestClass<HealthStage> {
 
 
     @Test

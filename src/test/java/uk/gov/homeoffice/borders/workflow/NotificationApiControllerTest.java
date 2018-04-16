@@ -3,7 +3,7 @@ package uk.gov.homeoffice.borders.workflow;
 import org.junit.Test;
 import uk.gov.homeoffice.borders.workflow.stage.NotificationApiControllerStage;
 
-public class NotificationApiControllerTest extends BaseTestClass<NotificationApiControllerStage> {
+public class NotificationApiControllerTest extends JGivenBaseTestClass<NotificationApiControllerStage> {
 
     @Test
     public void canCreateNotifications() throws Exception {
