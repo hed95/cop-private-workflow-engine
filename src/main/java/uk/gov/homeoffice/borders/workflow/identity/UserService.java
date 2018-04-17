@@ -31,14 +31,14 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
 
-    private String referenceDataEndpoint;
+    private String prestUrl;
     private ObjectMapper objectMapper;
     private KeycloakRestTemplate keycloakRestTemplate;
 
 
     public User findByUserId(String userId) {
-        String response = keycloakRestTemplate.getForEntity(String.format("%s/api/reference-data/_QUERIES/get-active-user?email=%s",
-                referenceDataEndpoint, userId), String.class).getBody();
+        String response = keycloakRestTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-user?email=%s",
+                prestUrl, userId), String.class).getBody();
         JSONArray o = new JSONArray(response);
         if (o.length() == 0) {
             return null;
@@ -55,7 +55,7 @@ public class UserService {
 
 
     public List<User> allUsers() {
-        String response = keycloakRestTemplate.getForEntity(String.format("%s/_QUERIES/get-active-users", referenceDataEndpoint), String.class).getBody();
+        String response = keycloakRestTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-users", prestUrl), String.class).getBody();
         JSONArray o = new JSONArray(response);
         try {
             return objectMapper.readValue(o.getJSONObject(0).get("array_to_json").toString(), new TypeReference<List<User>>() {});

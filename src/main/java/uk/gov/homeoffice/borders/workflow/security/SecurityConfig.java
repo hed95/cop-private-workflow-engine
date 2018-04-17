@@ -86,6 +86,9 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/engine").permitAll()
                 .antMatchers("/health").permitAll()
+                .antMatchers("/api/workflow/external-task/**").permitAll()
+                .antMatchers("/api/workflow/execution/**").permitAll()
+
                 .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .anyRequest()
                 .fullyAuthenticated();

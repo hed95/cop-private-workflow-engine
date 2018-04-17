@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.rest.ExecutionRestService;
 import org.camunda.bpm.engine.rest.ExternalTaskRestService;
 import org.camunda.bpm.engine.rest.impl.AbstractProcessEngineRestServiceImpl;
 import org.camunda.bpm.engine.rest.impl.CamundaRestResources;
@@ -41,6 +42,11 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
         @Path(ExternalTaskRestService.PATH)
         public ExternalTaskRestService getExternalTaskRestService() {
             return super.getExternalTaskRestService(processEngineName);
+        }
+
+        @Path(ExecutionRestService.PATH)
+        public ExecutionRestService getExecutionRestService() {
+            return super.getExecutionService(processEngineName);
         }
 
         @Override
