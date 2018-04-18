@@ -1,15 +1,11 @@
 FROM quay.io/ukhomeofficedigital/openjdk8:latest
 
-ENV USER user-borders-workflow-engine
-ENV GROUP group-borders-workflow-engine
-ENV NAME borders-workflow-engine
-
 WORKDIR /app
 
-RUN groupadd -r ${GROUP} && \
-    useradd -r -g ${GROUP} ${USER} -d /app && \
+RUN groupadd -g 1000 -r engine && \
+    useradd -r -g engine -u 1000 engine -d /app && \
     mkdir -p /app && \
-    chown -R ${USER}:${GROUP} /app
+    chown -R engine:engine /app
 
 ADD . /app/
 
