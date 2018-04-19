@@ -66,5 +66,5 @@ engine:
       accessKey: ${S3_ACCESS_KEY}
       secretKey: ${S3_SECRET_KEY}
       bucketName: ${S3_BUCKET_NAME}
-      endpoint: ${S3_ENDPOINT}
-      region: ${S3_REGION}
+      endpoint: ${S3_ENDPOINT:default}
+      region: ${S3_REGION:eu-west-2}

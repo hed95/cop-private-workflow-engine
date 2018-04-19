@@ -27,6 +27,7 @@ compileJava {
 }
 
 buildDir = 'dist'
+jar.baseName = 'workflow-engine'
 
 dependencyManagement {
     imports {

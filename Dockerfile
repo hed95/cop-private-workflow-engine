@@ -15,4 +15,5 @@ USER ${USER}
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", " ${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom" , "-jar","/app/dist/libs/borders-workflow-engine.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/dist/libs/workflow-engine.jar
+
