@@ -4,28 +4,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.ForbiddenException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -33,11 +21,11 @@ public class UserService {
 
     private String prestUrl;
     private ObjectMapper objectMapper;
-    private KeycloakRestTemplate keycloakRestTemplate;
+    private KeycloakRestTemplate restTemplate;
 
 
     public User findByUserId(String userId) {
-        String response = keycloakRestTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-user?email=%s",
+        String response = restTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-user?email=%s",
                 prestUrl, userId), String.class).getBody();
         JSONArray o = new JSONArray(response);
         if (o.length() == 0) {
@@ -55,7 +43,7 @@ public class UserService {
 
 
     public List<User> allUsers() {
-        String response = keycloakRestTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-users", prestUrl), String.class).getBody();
+        String response = restTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-users", prestUrl), String.class).getBody();
         JSONArray o = new JSONArray(response);
         try {
             return objectMapper.readValue(o.getJSONObject(0).get("array_to_json").toString(), new TypeReference<List<User>>() {});
