@@ -1,17 +1,16 @@
 FROM quay.io/digitalpatterns/jdk:latest
 
+ADD . /app/
+
 WORKDIR /app
 
-RUN mkdir -p /app && \
-    chown -R java:java /app
-
-ADD . /app/
+USER root
 
 RUN ./gradlew clean build -x test
 
-USER java
-
 EXPOSE 8080
+
+USER java
 
 ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/dist/libs/workflow-engine.jar
 
