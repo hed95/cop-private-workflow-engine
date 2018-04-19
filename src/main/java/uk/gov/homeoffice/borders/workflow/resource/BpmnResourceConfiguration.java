@@ -22,7 +22,7 @@ public class BpmnResourceConfiguration extends AbstractCamundaConfiguration {
     public EngineResourceLoader engineResourceLoader;
 
     @Override
-    public void preInit(SpringProcessEngineConfiguration springProcessEngineConfiguration) {
+    public void postInit(SpringProcessEngineConfiguration springProcessEngineConfiguration) {
         log.info("Loading process definitions from persistent store '{}'...", engineResourceLoader.storeType());
 
         List<ResourceContainer> resources = engineResourceLoader.getResources();
