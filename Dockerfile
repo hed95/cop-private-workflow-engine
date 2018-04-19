@@ -1,4 +1,4 @@
-FROM quay.io/digitialpatterns/jdk:latest
+FROM quay.io/digitalpatterns/jdk:latest
 
 WORKDIR /app
 
