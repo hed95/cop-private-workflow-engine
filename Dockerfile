@@ -1,17 +1,15 @@
-FROM quay.io/ukhomeofficedigital/openjdk8:latest
+FROM quay.io/digitialpatterns/jdk:latest
 
 WORKDIR /app
 
-RUN groupadd -g 1000 -r engine && \
-    useradd -r -g engine -u 1000 engine -d /app && \
-    mkdir -p /app && \
-    chown -R engine:engine /app
+RUN mkdir -p /app && \
+    chown -R java:java /app
 
 ADD . /app/
 
 RUN ./gradlew clean build -x test
 
-USER ${USER}
+USER java
 
 EXPOSE 8080
 
