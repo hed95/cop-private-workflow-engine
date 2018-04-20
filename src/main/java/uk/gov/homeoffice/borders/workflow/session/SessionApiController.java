@@ -31,6 +31,7 @@ public class SessionApiController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createSession(@RequestBody ActiveSession activeSession, UriComponentsBuilder uriComponentsBuilder) {
+        log.info("Active session request created for session id '{}'", activeSession.getSessionId());
         ProcessInstance session = sessionApplicationService.createSession(activeSession);
         log.info("Session created '{}'", session.getProcessInstanceId());
         UriComponents uriComponents =

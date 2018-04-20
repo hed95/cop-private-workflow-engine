@@ -39,6 +39,7 @@ public class SessionApplicationService {
      */
     public ProcessInstance createSession(@NotNull ActiveSession activeSession) {
 
+        log.info("Starting an active session request");
 
         ProcessInstance existingSessionForPerson = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(activeSession.getSessionId())

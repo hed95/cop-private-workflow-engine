@@ -81,7 +81,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_1fcbicp" name="yes" sourceRef="ExclusiveGateway_00wv8pd" targetRef="ExclusiveGateway_0uf1jgp">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${activeSession.personId != null}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store" camunda:type="external" camunda:topic="create-user">
+    <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store" camunda:type="external" camunda:topic="create-user-from-active-session">
       <bpmn:incoming>SequenceFlow_1uwkwx0</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0wrpwoe</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_01t9kc3">
