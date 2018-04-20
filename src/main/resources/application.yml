@@ -13,9 +13,9 @@ keycloak:
   ssl-required: external
   use-resource-role-mappings: true
   principal-attribute: preferred_username
-#  enable-basic-auth: true
-#  credentials:
-#    secret: ${KEYCLOAK_AUTH_SECRET}
+  enable-basic-auth: true
+  credentials:
+    secret: ${KEYCLOAK_AUTH_SECRET}
 
 
 

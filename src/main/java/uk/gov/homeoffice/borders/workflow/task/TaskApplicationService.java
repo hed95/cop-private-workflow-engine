@@ -86,7 +86,7 @@ public class TaskApplicationService {
 
 
     private List<String> resolveCandidateGroups(User user) {
-        return Team.flatten(user.getTeam()).map(Team::getId).collect(toList());
+        return Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(toList());
     }
 
     /**

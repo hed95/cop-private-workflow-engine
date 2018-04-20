@@ -40,7 +40,7 @@ public class ProcessApplicationService {
                 .list();
 
         //TODO: Filter by team
-        List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getName).collect(Collectors.toList());
+        List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(Collectors.toList());
 
         return processDefinitions.stream().filter(p -> !p.getKey().equalsIgnoreCase(NotificationService.NOTIFICATIONS)
                 || !p.getKey().equalsIgnoreCase("session")).collect(Collectors.toList());

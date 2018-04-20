@@ -25,7 +25,7 @@ public class TaskChecker {
     public void checkUserAuthorized(User user, Task task) {
         List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(task.getId());
 
-        List<String> teams = Team.flatten(user.getTeam()).map(Team::getId).collect(toList());
+        List<String> teams = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(toList());
         List<IdentityLink> identities = identityLinks.stream().filter(i -> teams.contains(i.getGroupId())).collect(toList());
 
         if (!user.getEmail().equalsIgnoreCase(task.getAssignee()) || identities.size() == 0) {

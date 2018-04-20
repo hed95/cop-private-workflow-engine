@@ -48,6 +48,7 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
         user.setEmail(username);
         Team team = new Team();
         team.setName("abc");
+        team.setTeamCode("test-candidate");
         user.setTeam(team);
         tasks = applicationService.tasks(user, new PageRequest(0, 10));
         return this;
@@ -59,6 +60,7 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
         user.setEmail(UUID.randomUUID().toString());
         Team group = new Team();
         group.setId(candidateGroup);
+        group.setTeamCode(candidateGroup);
         group.setName(candidateGroup);
         user.setTeam(group);
         tasks = applicationService.tasks(user, new PageRequest(0, 10));
