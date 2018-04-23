@@ -19,6 +19,7 @@ keycloak:
 
 
 prest-url: ${PREST_ENDPOINT_URL}
+: ${TX_DB_NAME}
 
 gov:
   notify:

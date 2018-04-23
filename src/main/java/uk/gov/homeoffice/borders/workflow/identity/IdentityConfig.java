@@ -28,6 +28,9 @@ public class IdentityConfig {
     @Value("${prest-url}")
     private String prestUrl;
 
+    @Value("${prest-db}")
+    private String prestDBName;
+
     @Bean
     public CustomIdentityProviderPlugin identityProviderPlugin() {
         return new CustomIdentityProviderPlugin(customIdentityProviderFactory());
@@ -35,7 +38,7 @@ public class IdentityConfig {
 
     @Bean
     public UserService userService() {
-        return new UserService(prestUrl,objectMapper, restTemplate);
+        return new UserService(prestUrl,prestDBName,objectMapper, restTemplate);
     }
 
 
