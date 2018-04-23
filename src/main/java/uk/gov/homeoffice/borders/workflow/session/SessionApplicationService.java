@@ -81,7 +81,7 @@ public class SessionApplicationService {
             log.warn("Process instance does not exist based on session identifier '{}'", sessionId);
             throw new ResourceNotFound("Session does not exist for '" + sessionId + "'");
         }
-        runtimeService.deleteProcessInstance(existingSessionForPerson.getCaseInstanceId(), deleteReason);
+        runtimeService.deleteProcessInstance(existingSessionForPerson.getProcessInstanceId(), deleteReason);
         log.info("Session process deleted '{}'", sessionId);
     }
 
@@ -104,7 +104,6 @@ public class SessionApplicationService {
 
         VariableInstance variableInstance = runtimeService.createVariableInstanceQuery()
                 .processInstanceIdIn(session.getProcessInstanceId())
-                .disableCustomObjectDeserialization()
                 .variableName("activeSession").singleResult();
 
         if (variableInstance != null) {

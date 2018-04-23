@@ -11,12 +11,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.homeoffice.borders.workflow.BaseIntClass;
+import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 
 public class SessionApplicationServiceTest extends BaseIntClass {
 
@@ -28,7 +31,7 @@ public class SessionApplicationServiceTest extends BaseIntClass {
 
 
     @Test
-    public void canCreateAnActiveSession() throws Exception {
+    public void canCreateAnActiveSession()  {
         //given
         ActiveSession activeSession = new ActiveSession();
         activeSession.setEmail("testEmail");
@@ -45,5 +48,48 @@ public class SessionApplicationServiceTest extends BaseIntClass {
         //then
         Assert.assertThat(session, is(notNullValue()));
         Assert.assertThat(externalTasks.size(), is(Matchers.not(0)));
+    }
+
+    @Test
+    public void canGetActiveSession() {
+        //given
+        ActiveSession activeSession = new ActiveSession();
+        activeSession.setEmail("testEmail");
+        activeSession.setSessionId("sessionId");
+        activeSession.setEndTime(LocalDateTime.now().plusMinutes(10).toDate());
+        activeSession.setPersonId(null);
+        activeSession.setSessionId(UUID.randomUUID().toString());
+        activeSession.setSessionType("workflow");
+
+        //and
+        sessionApplicationService.createSession(activeSession);
+
+        //when
+        ActiveSession loaded = sessionApplicationService.getActiveSession(activeSession.getSessionId());
+
+        //then
+        assertThat(loaded, is(notNullValue()));
+    }
+
+    @Test(expected = ResourceNotFound.class)
+    public void canDeleteActiveSession() {
+        //given
+        ActiveSession activeSession = new ActiveSession();
+        activeSession.setEmail("testEmail");
+        activeSession.setSessionId("sessionId");
+        activeSession.setEndTime(LocalDateTime.now().plusMinutes(10).toDate());
+        activeSession.setPersonId(null);
+        activeSession.setSessionId(UUID.randomUUID().toString());
+        activeSession.setSessionType("workflow");
+
+        //and
+        sessionApplicationService.createSession(activeSession);
+
+        //when
+        sessionApplicationService.deleteSession(activeSession.getSessionId(), "no need");
+
+        //then
+        sessionApplicationService.getActiveSession(activeSession.getSessionId());
+
     }
 }
