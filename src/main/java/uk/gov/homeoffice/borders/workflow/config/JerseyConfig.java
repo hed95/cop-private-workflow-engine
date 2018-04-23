@@ -15,7 +15,7 @@ import javax.ws.rs.Path;
 import java.net.URI;
 
 @Component
-@ApplicationPath("/api/workflow")
+@ApplicationPath("/rest/camunda")
 @Slf4j
 public class JerseyConfig extends CamundaJerseyResourceConfig {
 

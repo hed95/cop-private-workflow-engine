@@ -25,7 +25,7 @@ public class UserService {
 
 
     public User findByUserId(String userId) {
-        String response = restTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-user?email=%s",
+        String response = restTemplate.getForEntity(String.format("%s/api/reference-data/_QUERIES/get-active-user?email=%s",
                 prestUrl, userId), String.class).getBody();
         JSONArray o = new JSONArray(response);
         if (o.length() == 0) {
@@ -43,7 +43,7 @@ public class UserService {
 
 
     public List<User> allUsers() {
-        String response = restTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-users", prestUrl), String.class).getBody();
+        String response = restTemplate.getForEntity(String.format("%s/api/reference-data/_QUERIES/get-active-users", prestUrl), String.class).getBody();
         JSONArray o = new JSONArray(response);
         try {
             return objectMapper.readValue(o.getJSONObject(0).get("array_to_json").toString(), new TypeReference<List<User>>() {});

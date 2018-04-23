@@ -37,4 +37,6 @@ public class ActiveSession {
     private Integer shiftInHours;
     @JsonProperty("shiftinminutes")
     private Integer shiftInMinutes;
+    private String firstName;
+    private String lastName;
 }

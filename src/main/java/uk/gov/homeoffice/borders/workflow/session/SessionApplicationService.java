@@ -55,7 +55,7 @@ public class SessionApplicationService {
                         .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
                         .create();
 
-        Map<String, Object> variables = new HashMap<>();
+            Map<String, Object> variables = new HashMap<>();
         variables.put("activeSession", notificationObjectValue);
         variables.put("type", "non-notification");
 

@@ -24,12 +24,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-@RequestMapping(path = "/api/workflow/sessions")
+@RequestMapping(path = "/api/workflow/sessions", produces = MediaType.APPLICATION_JSON_VALUE,
+        consumes = MediaType.APPLICATION_JSON_VALUE)
 public class SessionApiController {
 
     private SessionApplicationService sessionApplicationService;
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public ResponseEntity<?> createSession(@RequestBody ActiveSession activeSession, UriComponentsBuilder uriComponentsBuilder) {
         log.info("Active session request created for session id '{}'", activeSession.getSessionId());
         ProcessInstance session = sessionApplicationService.createSession(activeSession);

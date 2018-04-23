@@ -84,8 +84,6 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         super.configure(http);
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/workflow/external-tasks/**").hasRole("platform_admin")
-                .antMatchers("/api/workflow/execution/**").hasRole("platform_admin")
                 .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .antMatchers("/engine").permitAll()
                 .antMatchers("/health").permitAll()
