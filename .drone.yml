@@ -10,7 +10,7 @@ pipeline:
     environment:
        - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
-      - docker build -t borders-workflow-engine .
+      - docker build --no-cache -t borders-workflow-engine .
     when:
       branch: master
       event: push  
