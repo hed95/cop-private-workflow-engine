@@ -17,10 +17,21 @@ public class ActiveSession {
     @JsonProperty("teamid")
     @NotNull
     private String teamId;
-    @JsonProperty("endtime")
+    @JsonProperty("starttime")
     @NotNull
+    private Date startTime;
+    @JsonProperty("endtime")
     private Date endTime;
     private String phone;
+    @JsonProperty("sessiontype")
+    private String sessionType = "workflow";
+    @JsonProperty("shifthours")
+    private Integer shiftHours;
+    @JsonProperty("shiftminutes")
+    private Integer shiftMinutes;
+
+
+    //optional
     @JsonProperty("locationid")
     private String locationId;
     @JsonProperty("regionid")
@@ -31,13 +42,10 @@ public class ActiveSession {
     private String setLocationAsDefault;
     @JsonProperty("setteamasdefault")
     private String setTeamAsDefault;
-    @JsonProperty("sessiontype")
-    private String sessionType = "workflow";
-    @JsonProperty("shiftinhours")
-    private Integer shiftInHours;
-    @JsonProperty("shiftinminutes")
-    private Integer shiftInMinutes;
     private String firstName;
     private String lastName;
     private String grade;
+    @JsonProperty("securitycleareddate")
+    private Date securityClearedDate;
+
 }

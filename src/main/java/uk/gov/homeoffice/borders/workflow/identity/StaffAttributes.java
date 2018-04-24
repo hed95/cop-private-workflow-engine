@@ -11,7 +11,6 @@ public class StaffAttributes {
     @JsonProperty("staffattributesid")
     private String id;
     private String grade;
-    private Integer departmentCode;
     @JsonProperty("securitycleared")
     private Boolean securityCleared;
     private String email;
@@ -20,4 +19,10 @@ public class StaffAttributes {
     private Date securityClearedDate;
     @JsonProperty("personid")
     private String userId;
+    @JsonProperty("defaultteamid")
+    private String defaultTeamId;
+    @JsonProperty("defaultlocationid")
+    private String defaultLocationId;
+    @JsonProperty("defaultregionid")
+    private String defaultRegionId;
 }
