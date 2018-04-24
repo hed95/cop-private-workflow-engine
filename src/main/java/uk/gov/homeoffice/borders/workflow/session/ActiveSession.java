@@ -39,4 +39,5 @@ public class ActiveSession {
     private Integer shiftInMinutes;
     private String firstName;
     private String lastName;
+    private String grade;
 }
