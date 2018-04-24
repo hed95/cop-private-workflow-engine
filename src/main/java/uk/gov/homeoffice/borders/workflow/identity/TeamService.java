@@ -35,7 +35,9 @@ public class TeamService {
 
     public Team findById(String teamId) {
 
-        List<Team> filteredTeam = allTeams().stream().filter(t -> t.getId().equalsIgnoreCase(teamId) || t.getName().equalsIgnoreCase(teamId)).collect(toList());
+        List<Team> filteredTeam = allTeams().stream().filter(t -> t.getTeamCode().equalsIgnoreCase(teamId)
+                || t.getName().equalsIgnoreCase(teamId)
+                || t.getId().equalsIgnoreCase(teamId)).collect(toList());
         if (CollectionUtils.isEmpty(filteredTeam)) {
             throw new ResourceNotFound("Team with id '" + teamId + "' could not be found");
         }

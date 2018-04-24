@@ -1,0 +1,12 @@
+[
+  {
+    "row_to_json": {
+      "personid" : "personid",
+      "firstname" : "firstname",
+      "lastname" : "lastname",
+      "email" : "email",
+      "staffattributes" : {},
+      "team" : {}
+    }
+  }
+]

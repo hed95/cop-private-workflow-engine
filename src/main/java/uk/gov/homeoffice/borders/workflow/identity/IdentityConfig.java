@@ -15,12 +15,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@Profile("!test")
 public class IdentityConfig {
 
 
     @Autowired
-    private KeycloakRestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Autowired
     private ObjectMapper objectMapper;

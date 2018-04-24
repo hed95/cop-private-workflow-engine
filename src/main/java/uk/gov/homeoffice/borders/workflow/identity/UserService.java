@@ -21,7 +21,7 @@ public class UserService {
 
     private String prestUrl;
     private ObjectMapper objectMapper;
-    private KeycloakRestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
 
     public User findByUserId(String userId) {
