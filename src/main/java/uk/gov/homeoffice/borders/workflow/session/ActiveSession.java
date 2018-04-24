@@ -1,11 +1,13 @@
 package uk.gov.homeoffice.borders.workflow.session;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 @Data
+@JsonIgnoreProperties
 public class ActiveSession {
 
     @JsonProperty("sessionid")
@@ -47,5 +49,7 @@ public class ActiveSession {
     private String grade;
     @JsonProperty("securitycleareddate")
     private Date securityClearedDate;
+    @JsonProperty("securitycleared")
+    private boolean securityCleared;
 
 }
