@@ -84,11 +84,10 @@ public class SessionApplicationService {
         Integer shiftHours = activeSession.getShiftHours();
         Integer shiftMinutes = activeSession.getShiftMinutes();
         Date startTime = activeSession.getStartTime();
-
-        DateTime dateTime = new DateTime(startTime);
-        dateTime.plusHours(shiftHours);
-        dateTime.plusMinutes(shiftMinutes);
-        activeSession.setEndTime(dateTime.toDate());
+        activeSession.setEndTime(new DateTime(startTime)
+                .plusHours(shiftHours)
+                .plusMinutes(shiftMinutes)
+        .toDate());
     }
 
     /**
