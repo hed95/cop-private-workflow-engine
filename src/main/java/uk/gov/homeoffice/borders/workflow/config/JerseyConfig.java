@@ -1,8 +1,8 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.rest.ExecutionRestService;
-import org.camunda.bpm.engine.rest.ExternalTaskRestService;
+import org.camunda.bpm.engine.rest.*;
+import org.camunda.bpm.engine.rest.history.HistoryRestService;
 import org.camunda.bpm.engine.rest.impl.AbstractProcessEngineRestServiceImpl;
 import org.camunda.bpm.engine.rest.impl.CamundaRestResources;
 import org.camunda.bpm.spring.boot.starter.rest.CamundaJerseyResourceConfig;
@@ -47,6 +47,31 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
         @Path(ExecutionRestService.PATH)
         public ExecutionRestService getExecutionRestService() {
             return super.getExecutionService(processEngineName);
+        }
+
+        @Path(IncidentRestService.PATH)
+        public IncidentRestService getIncidentRestService() {
+            return super.getIncidentService(processEngineName);
+        }
+
+        @Path(HistoryRestService.PATH)
+        public HistoryRestService getHistoryRestService() {
+            return super.getHistoryRestService(processEngineName);
+        }
+
+        @Path(DeploymentRestService.PATH)
+        public DeploymentRestService getDeploymentRestService() {
+            return super.getDeploymentRestService(processEngineName);
+        }
+
+        @Path(JobDefinitionRestService.PATH)
+        public JobDefinitionRestService getJobDefinitionRestService() {
+            return super.getJobDefinitionRestService(processEngineName);
+        }
+
+        @Path(JobRestService.PATH)
+        public JobRestService getJobRestService() {
+            return super.getJobRestService(processEngineName);
         }
 
         @Override

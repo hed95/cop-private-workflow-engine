@@ -16,6 +16,7 @@ import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 import java.util.List;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -31,15 +32,24 @@ public class SessionApplicationServiceTest extends BaseIntClass {
 
 
     @Test
-    public void canCreateAnActiveSession()  {
+    public void canCreateAnActiveSession() {
         //given
-        ActiveSession activeSession = new ActiveSession();
-        activeSession.setEmail("testEmail");
-        activeSession.setSessionId("sessionId");
-        activeSession.setEndTime(LocalDateTime.now().plusSeconds(10).toDate());
-        activeSession.setPersonId(null);
-        activeSession.setSessionId(UUID.randomUUID().toString());
-        activeSession.setSessionType("workflow");
+        ActiveSession activeSession = createActiveSession();
+
+        //when
+        ProcessInstance session = sessionApplicationService.createSession(activeSession);
+        List<ExternalTask> externalTasks = externalTaskService.createExternalTaskQuery().list();
+
+        //then
+        Assert.assertThat(session, is(notNullValue()));
+        Assert.assertThat(externalTasks.size(), is(Matchers.not(0)));
+    }
+
+    @Test
+    public void canCreateActiveSessionWithPerson() {
+        //given
+        ActiveSession activeSession = createActiveSession();
+        activeSession.setPersonId("person");
 
         //when
         ProcessInstance session = sessionApplicationService.createSession(activeSession);
@@ -53,13 +63,7 @@ public class SessionApplicationServiceTest extends BaseIntClass {
     @Test
     public void canGetActiveSession() {
         //given
-        ActiveSession activeSession = new ActiveSession();
-        activeSession.setEmail("testEmail");
-        activeSession.setSessionId("sessionId");
-        activeSession.setEndTime(LocalDateTime.now().plusMinutes(10).toDate());
-        activeSession.setPersonId(null);
-        activeSession.setSessionId(UUID.randomUUID().toString());
-        activeSession.setSessionType("workflow");
+        ActiveSession activeSession = createActiveSession();
 
         //and
         sessionApplicationService.createSession(activeSession);
@@ -71,16 +75,17 @@ public class SessionApplicationServiceTest extends BaseIntClass {
         assertThat(loaded, is(notNullValue()));
     }
 
+
     @Test(expected = ResourceNotFound.class)
     public void canDeleteActiveSession() {
+
         //given
-        ActiveSession activeSession = new ActiveSession();
-        activeSession.setEmail("testEmail");
-        activeSession.setSessionId("sessionId");
-        activeSession.setEndTime(LocalDateTime.now().plusMinutes(10).toDate());
-        activeSession.setPersonId(null);
-        activeSession.setSessionId(UUID.randomUUID().toString());
-        activeSession.setSessionType("workflow");
+        ActiveSession activeSession = createActiveSession();
+
+        wireMockRule.stubFor(delete(urlEqualTo("/DB/public/activesession?sessionid=" + activeSession.getSessionId()))
+                .willReturn(aResponse().withHeader(
+                        "Content-Type", "application/json"
+                ).withStatus(200)));
 
         //and
         sessionApplicationService.createSession(activeSession);
@@ -91,5 +96,18 @@ public class SessionApplicationServiceTest extends BaseIntClass {
         //then
         sessionApplicationService.getActiveSession(activeSession.getSessionId());
 
+    }
+
+    private ActiveSession createActiveSession() {
+        ActiveSession activeSession = new ActiveSession();
+        activeSession.setEmail("testEmail");
+        activeSession.setSessionId("sessionId");
+        activeSession.setStartTime(LocalDateTime.now().toDate());
+        activeSession.setPersonId(null);
+        activeSession.setSessionId(UUID.randomUUID().toString());
+        activeSession.setSessionType("workflow");
+        activeSession.setShiftHours(1);
+        activeSession.setShiftMinutes(0);
+        return activeSession;
     }
 }

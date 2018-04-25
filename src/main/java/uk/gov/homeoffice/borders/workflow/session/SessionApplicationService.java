@@ -1,18 +1,22 @@
 package uk.gov.homeoffice.borders.workflow.session;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,10 +27,16 @@ import java.util.Map;
 
 @Service
 @Slf4j
-@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class SessionApplicationService {
 
+    @Autowired
     private RuntimeService runtimeService;
+    @Autowired
+    private RestTemplate restTemplate;
+    @Value("${prest-url}")
+    private String prestUrl;
+    @Value("${prest-db}")
+    private String prestDB;
 
     /**
      * Initiates a workflow for an active session
@@ -45,10 +55,15 @@ public class SessionApplicationService {
                 .processInstanceBusinessKey(activeSession.getSessionId())
                 .singleResult();
 
+
         if (existingSessionForPerson != null) {
+            restTemplate.delete(String.format("%s/%s/public/activesession?sessionid=%s", prestUrl, prestDB, activeSession.getSessionId()));
+            log.info("active session deleted from store.");
             runtimeService.deleteProcessInstance(existingSessionForPerson.getProcessInstanceId(), "remove-active-session");
             log.info("Removed previous workflow session with id '{}'", activeSession.getSessionId());
         }
+
+        setEndTime(activeSession);
 
         ObjectValue notificationObjectValue =
                 Variables.objectValue(activeSession)
@@ -63,6 +78,17 @@ public class SessionApplicationService {
                 .startProcessInstanceByKey("activate-session", activeSession.getSessionId(), variables);
         log.info("Active session with id '{}' has started '{}'", activeSession.getSessionId(), processInstance.getProcessInstanceId());
         return processInstance;
+    }
+
+    private void setEndTime(ActiveSession activeSession) {
+        Integer shiftHours = activeSession.getShiftHours();
+        Integer shiftMinutes = activeSession.getShiftMinutes();
+        Date startTime = activeSession.getStartTime();
+
+        DateTime dateTime = new DateTime(startTime);
+        dateTime.plusHours(shiftHours);
+        dateTime.plusMinutes(shiftMinutes);
+        activeSession.setEndTime(dateTime.toDate());
     }
 
     /**
@@ -81,6 +107,8 @@ public class SessionApplicationService {
             log.warn("Process instance does not exist based on session identifier '{}'", sessionId);
             throw new ResourceNotFound("Session does not exist for '" + sessionId + "'");
         }
+        restTemplate.delete(String.format("%s/%s/public/activesession?sessionid=%s", prestUrl, prestDB, sessionId));
+        log.info("active session deleted from store");
         runtimeService.deleteProcessInstance(existingSessionForPerson.getProcessInstanceId(), deleteReason);
         log.info("Session process deleted '{}'", sessionId);
     }

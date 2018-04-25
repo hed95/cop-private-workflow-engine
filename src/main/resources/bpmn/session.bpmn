@@ -76,10 +76,20 @@
       <bpmn:outgoing>SequenceFlow_1fcbicp</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1uwkwx0" name="no" sourceRef="ExclusiveGateway_00wv8pd" targetRef="Task_0wzgaj7">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${activeSession.personId == null}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <camunda:executionListener event="take">
+          <camunda:script scriptFormat="javascript"><![CDATA[print("Person not found...moving to create person record..." + execution.getVariable('activeSession'));]]></camunda:script>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${activeSession.personId == null || activeSession.personId ==''}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1fcbicp" name="yes" sourceRef="ExclusiveGateway_00wv8pd" targetRef="ExclusiveGateway_0uf1jgp">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${activeSession.personId != null}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <camunda:executionListener event="take">
+          <camunda:script scriptFormat="javascript"><![CDATA[print("Person found...moving to create active session" + execution.getVariable('activeSession'));]]></camunda:script>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${activeSession.personId != null && activeSession.personId !=''}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store" camunda:type="external" camunda:topic="create-user-from-active-session">
       <bpmn:incoming>SequenceFlow_1uwkwx0</bpmn:incoming>

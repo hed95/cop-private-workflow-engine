@@ -44,7 +44,8 @@ import static org.mockito.Mockito.when;
 @TestPropertySource(properties = {"GOV_NOTIFY_CLIENT_ID = XXXX", "" +
         "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX", "" +
         "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
-        "PREST_ENDPOINT_URL = http://localhost:8000"})
+        "PREST_ENDPOINT_URL = http://localhost:8000",
+        "TX_DB_NAME = DB"})
 public abstract class BaseIntClass {
 
 
