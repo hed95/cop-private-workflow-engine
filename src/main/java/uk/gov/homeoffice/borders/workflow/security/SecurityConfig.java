@@ -85,6 +85,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         super.configure(http);
         http.csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/rest/camunda").hasAnyRole("platform_admin", "service_role")
                 .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .antMatchers("/engine").permitAll()
                 .antMatchers("/health").permitAll()

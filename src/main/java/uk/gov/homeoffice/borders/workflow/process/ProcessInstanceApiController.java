@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 
+import java.util.List;
 import java.util.Map;
 
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_INSTANCE_ROOT_API;

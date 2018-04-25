@@ -87,4 +87,5 @@ public class ProcessApplicationService {
         VariableMap variables = runtimeService.getVariablesTyped(processInstanceId, false);
         return variables;
     }
+
 }
