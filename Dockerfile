@@ -12,5 +12,5 @@ EXPOSE 8080
 
 USER java
 
-ENTRYPOINT exec /bin/run.sh java -cp "$GITREPO/*" $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/dist/libs/workflow-engine.jar
+ENTRYPOINT exec /bin/run.sh java -cp "$GITREPO" $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/dist/libs/workflow-engine.jar
 
