@@ -91,6 +91,7 @@ public class NotificationApiControllerStage extends Stage<NotificationApiControl
         user.setEmail("test");
         Team team = new Team();
         team.setName("teamA");
+        team.setTeamCode("teamA");
         user.setTeam(team);
 
 
@@ -128,6 +129,7 @@ public class NotificationApiControllerStage extends Stage<NotificationApiControl
         user.setEmail("test");
         Team team = new Team();
         team.setName("teamA");
+        team.setTeamCode("teamA");
         user.setTeam(team);
         WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
 

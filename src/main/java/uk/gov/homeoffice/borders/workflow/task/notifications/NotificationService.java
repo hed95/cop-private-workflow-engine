@@ -77,6 +77,10 @@ public class NotificationService {
 
         }).collect(toList());
 
+        if (notifications.isEmpty()) {
+            throw new IllegalStateException("Unable to find any people to notify. Please check region/location/team");
+        }
+
         ObjectValue notificationObjectValue =
                 Variables.objectValue(notifications)
                         .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
@@ -92,17 +96,17 @@ public class NotificationService {
     }
 
     private boolean filterByTeam(User user, String team) {
-        return team != null && Team.flatten(user.getTeam()).filter(t -> team.equalsIgnoreCase(t.getName())).count() == 1;
+        return team != null && Team.flatten(user.getTeam()).filter(t -> team.equalsIgnoreCase(t.getTeamCode())).count() >= 1;
 
     }
 
     private boolean filterByLocation(User user, String location) {
-        return location != null && Team.flatten(user.getTeam()).filter(t -> location.equalsIgnoreCase(t.getLocation())).count() == 1;
+        return location != null && Team.flatten(user.getTeam()).filter(t -> location.equalsIgnoreCase(t.getLocation())).count() >=1;
 
     }
 
     private boolean filterByRegion(User user, String region) {
-        return region != null && Team.flatten(user.getTeam()).filter(t -> region.equalsIgnoreCase(t.getRegion())).count() == 1;
+        return region != null && Team.flatten(user.getTeam()).filter(t -> region.equalsIgnoreCase(t.getRegion())).count() >= 1;
 
     }
 
