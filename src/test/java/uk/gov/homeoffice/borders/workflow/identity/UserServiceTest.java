@@ -1,10 +1,8 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
-import org.junit.*;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.homeoffice.borders.workflow.BaseIntClass;
 

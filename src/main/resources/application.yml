@@ -29,6 +29,21 @@ gov:
         emailTemplateId: ${GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID}
         smsTemplateId:  ${GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID}
 
+camunda:
+  bpm:
+    deployment-resource-pattern:
+        - classpath*:**/*.bpmn
+        - classpath*:**/*.bpmn20.xml
+        - classpath*:**/*.dmn
+        - classpath*:**/*.dmn11.xml
+        - classpath*:**/*.cmmn
+        - classpath*:**/*.cmmn10.xml
+        - classpath*:**/*.cmmn11.xml
+        - file:///workflow-resources/bpmn/**/*.bpmn
+        - file:///workflow-resources/cmmn/**/*.cmmn
+        - file:///workflow-resources/dmn/**/*.dmn
+
+
 
 ---
 
@@ -44,7 +59,7 @@ camunda:
 ---
 
 spring:
-  profiles: dev
+  profiles: dev,prod
   datasource:
     url: jdbc:postgresql://${ENGINE_DB_URL}:${ENGINE_DB_PORT}/${ENGINE_DB_NAME}
     username: ${ENGINE_DB_USERNAME}

@@ -13,6 +13,10 @@ import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
@@ -34,16 +38,21 @@ public class ProcessApplicationService {
     private RuntimeService runtimeService;
     private FormService formService;
 
-    public List<ProcessDefinition> processDefinitions(User user) {
+    public Page<ProcessDefinition> processDefinitions(User user, Pageable pageable) {
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
                 .list();
 
+//        formService
         //TODO: Filter by team
-        List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(Collectors.toList());
+//        List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(Collectors.toList());
+        List<ProcessDefinition> definitions = processDefinitions.stream()
+                .filter(p -> !p.getKey().equalsIgnoreCase("activate-session")
+                        && !p.getKey().equalsIgnoreCase("notifications")).collect(Collectors.toList());
 
-        return processDefinitions.stream().filter(p -> !p.getKey().equalsIgnoreCase(NotificationService.NOTIFICATIONS)
-                || !p.getKey().equalsIgnoreCase("session")).collect(Collectors.toList());
+        return new PageImpl<>(definitions, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), definitions.size());
+
+
     }
 
     public String formKey(String processDefinitionKey) {
@@ -88,4 +97,13 @@ public class ProcessApplicationService {
         return variables;
     }
 
+    public ProcessDefinition getDefinition(String processKey) {
+        ProcessDefinition processDefinition = repositoryService
+                .createProcessDefinitionQuery()
+                .processDefinitionKey(processKey).singleResult();
+        if (processDefinition == null) {
+            throw new ResourceNotFound("Definition does nto exist");
+        }
+        return processDefinition;
+    }
 }

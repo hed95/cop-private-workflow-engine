@@ -40,7 +40,7 @@ public class SecurityEventListener {
 
         if (serviceRoleCount == 0) {
             String userId = keycloakSecurityContext.getToken().getEmail();
-            User user = toUser(userId);
+            User user = null;
             if (user == null) {
                 log.warn("User does not have active session");
                 identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
