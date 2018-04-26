@@ -42,7 +42,7 @@ public class ProcessDefinitionApiController {
 
     @GetMapping(value = PROCESS_DEFINITION_ROOT_API, produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedResources<ProcessDefinitionDtoResource> processDefinitions(Pageable  pageable) {
-        Page<ProcessDefinition> page = processApplicationService.processDefinitions(null, pageable);
+        Page<ProcessDefinition> page = processApplicationService.processDefinitions(restApiUserExtractor.toUser(), pageable);
         return pagedResourcesAssembler.toResource(page, processDefinitionDtoResourceAssembler);
     }
 

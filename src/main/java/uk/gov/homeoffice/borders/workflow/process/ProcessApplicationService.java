@@ -43,7 +43,6 @@ public class ProcessApplicationService {
                 .createProcessDefinitionQuery()
                 .list();
 
-//        formService
         //TODO: Filter by team
 //        List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(Collectors.toList());
         List<ProcessDefinition> definitions = processDefinitions.stream()
@@ -55,10 +54,10 @@ public class ProcessApplicationService {
 
     }
 
-    public String formKey(String processDefinitionKey) {
-        String startFormKey = formService.getStartFormKey(processDefinitionKey);
+    public String formKey(String processDefinitionId) {
+        String startFormKey = formService.getStartFormKey(processDefinitionId);
         if (startFormKey == null) {
-            throw new ResourceNotFound(String.format("Process definition %s does not have a start form", processDefinitionKey));
+            throw new ResourceNotFound(String.format("Process definition %s does not have a start form", processDefinitionId));
         }
         return startFormKey;
     }
