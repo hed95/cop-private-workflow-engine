@@ -54,14 +54,14 @@ public class NotificationsApiController {
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/process-instance/{processInstanceId}")
+    @DeleteMapping("/{processInstanceId}")
     public ResponseEntity<?> cancel(@PathVariable String processInstanceId, @RequestParam String reason) {
         notificationService.cancel(processInstanceId, reason);
         return ResponseEntity.ok().build();
     }
 
 
-    @DeleteMapping("/{taskId}")
+    @DeleteMapping("/task/{taskId}")
     public ResponseEntity<TaskReference> acknowledge(@PathVariable String taskId) {
         String id = notificationService.acknowledge(restApiUserExtractor.toUser(), taskId);
         TaskReference taskReference = new TaskReference();

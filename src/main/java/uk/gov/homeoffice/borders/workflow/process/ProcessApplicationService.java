@@ -41,10 +41,11 @@ public class ProcessApplicationService {
     public Page<ProcessDefinition> processDefinitions(User user, Pageable pageable) {
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
+                .latestVersion()
                 .list();
 
         //TODO: Filter by team
-//        List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(Collectors.toList());
+        //List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(Collectors.toList());
         List<ProcessDefinition> definitions = processDefinitions.stream()
                 .filter(p -> !p.getKey().equalsIgnoreCase("activate-session")
                         && !p.getKey().equalsIgnoreCase("notifications")).collect(Collectors.toList());
@@ -92,13 +93,13 @@ public class ProcessApplicationService {
     }
 
     public VariableMap variables(String processInstanceId, User user) {
-        VariableMap variables = runtimeService.getVariablesTyped(processInstanceId, false);
-        return variables;
+        return runtimeService.getVariablesTyped(processInstanceId, false);
     }
 
     public ProcessDefinition getDefinition(String processKey) {
         ProcessDefinition processDefinition = repositoryService
                 .createProcessDefinitionQuery()
+                .latestVersion()
                 .processDefinitionKey(processKey).singleResult();
         if (processDefinition == null) {
             throw new ResourceNotFound("Definition does nto exist");

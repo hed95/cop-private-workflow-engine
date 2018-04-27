@@ -43,7 +43,8 @@ public class TaskApplicationService {
 
     /**
      * Returns paged result of tasks
-     * @param user  user that is returned from active session look up
+     *
+     * @param user     user that is returned from active session look up
      * @param pageable page object
      * @return paged result
      */
@@ -91,6 +92,7 @@ public class TaskApplicationService {
 
     /**
      * Claims ownership of the task
+     *
      * @param user
      * @param taskId
      */
@@ -103,12 +105,14 @@ public class TaskApplicationService {
     /**
      * Completes the task. Once complete it cannot be re-opened. You will need
      * to create another task with the same data in order to do a 'reopen'
+     *
      * @param user
      * @param taskId
      * @param completeTaskDto
      */
     public void completeTask(User user, String taskId, CompleteTaskDto completeTaskDto) {
-        Task task = validateTaskCanBeCompletedByUser(user, getTask(user, taskId));
+        Task task = getTask(user, taskId);
+        validateTaskCanBeCompletedByUser(user, task);
 
         if (completeTaskDto == null) {
             taskService.complete(task.getId());
@@ -121,25 +125,27 @@ public class TaskApplicationService {
 
     /**
      * Complete task with form data
+     *
      * @param user
      * @param taskId
      * @param completeTaskDto
      */
     public void completeTaskWithForm(User user, String taskId, CompleteTaskDto completeTaskDto) {
-        Task task = validateTaskCanBeCompletedByUser(user, getTask(user, taskId));
+        Task task = getTask(user, taskId);
+        validateTaskCanBeCompletedByUser(user, task);
         VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
         formService.submitTaskForm(task.getId(), variables);
     }
 
-    private Task validateTaskCanBeCompletedByUser(User user, Task task) {
+    private void validateTaskCanBeCompletedByUser(User user, Task task) {
         if (!task.getAssignee().equalsIgnoreCase(user.getEmail())) {
             throw new ForbiddenException("Task cannot be completed by user");
         }
-        return task;
     }
 
     /**
      * Get a single task
+     *
      * @param user
      * @param taskId
      * @return
@@ -155,6 +161,7 @@ public class TaskApplicationService {
 
     /**
      * Return task back into the pool of work that belongs to a candidate group
+     *
      * @param user
      * @param taskId
      */
@@ -166,19 +173,17 @@ public class TaskApplicationService {
 
     /**
      * Perform a task query based on a set of criterias
+     *
      * @param user
      * @param queryDto
      * @param pageable
      * @return
-     *
      * @see TaskQueryDto
      * @see User
      */
     public Page<Task> query(User user, TaskQueryDto queryDto, Pageable pageable) {
         TaskQuery taskQuery = queryDto.toQuery(processEngine);
-
         taskQuery = applyUserFilters(user, taskQuery);
-
         long totalResults = taskQuery.count();
 
         int pageNumber = calculatePageNumber(pageable);
@@ -191,6 +196,7 @@ public class TaskApplicationService {
 
     /**
      * Return variables associated with task
+     *
      * @param user
      * @param taskId
      * @return
