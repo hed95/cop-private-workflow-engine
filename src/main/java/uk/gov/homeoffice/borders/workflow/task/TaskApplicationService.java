@@ -45,14 +45,18 @@ public class TaskApplicationService {
      * Returns paged result of tasks
      *
      * @param user     user that is returned from active session look up
+     * @param assignedToMeOnly used to indicate to just return tasks assigned to user
      * @param pageable page object
+     *
      * @return paged result
      */
-    public Page<Task> tasks(@NotNull User user, Pageable pageable) {
+    public Page<Task> tasks(@NotNull User user, Boolean assignedToMeOnly,Pageable pageable) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", "notifications")
                 .initializeFormKeys();
-        taskQuery = applyUserFilters(user, taskQuery);
+
+        taskQuery = assignedToMeOnly ? taskQuery.taskAssignee(user.getEmail()) : applyUserFilters(user, taskQuery);
+
         Long totalResults = taskQuery.count();
         log.info("Total results for query '{}'", totalResults);
 
@@ -60,11 +64,8 @@ public class TaskApplicationService {
             log.info("Sort defined...applying");
             taskSortExecutor.applySort(taskQuery, pageable.getSort());
         }
-
-        int pageNumber = calculatePageNumber(pageable);
-
         List<Task> tasks = taskQuery
-                .listPage(pageNumber, pageable.getPageSize());
+                .listPage(calculatePageNumber(pageable), pageable.getPageSize());
 
         return new PageImpl<>(tasks, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
     }

@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.task.CommentDto;
 import org.camunda.bpm.engine.task.Comment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 
 import java.util.List;
@@ -36,8 +33,8 @@ public class CommentsApiController {
                 .collect(toList());
     }
 
-    @PostMapping(path = "/api/workflow/tasks/comments")
-    public CommentDto create(CommentDto commentDto) {
+    @PostMapping(path = "/api/workflow/tasks/comments", produces = "application/json", consumes = "application/json")
+    public CommentDto create(@RequestBody CommentDto commentDto) {
         Comment comment = commentsApplicationService.create(restApiUserExtractor.toUser(), commentDto);
         return CommentDto.fromComment(comment);
     }

@@ -40,8 +40,8 @@ public class TaskApiController {
     private RestApiUserExtractor restApiUserExtractor;
 
     @GetMapping
-    public PagedResources<TaskDtoResource> tasks(Pageable pageable) {
-        Page<Task> page = applicationService.tasks(restApiUserExtractor.toUser(), pageable);
+    public PagedResources<TaskDtoResource> tasks(@RequestParam(required = false, defaultValue = "false") Boolean assignedToMeOnly, Pageable pageable) {
+        Page<Task> page = applicationService.tasks(restApiUserExtractor.toUser(), assignedToMeOnly, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 

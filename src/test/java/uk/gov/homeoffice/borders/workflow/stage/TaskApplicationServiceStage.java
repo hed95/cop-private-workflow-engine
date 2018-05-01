@@ -50,7 +50,7 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
         team.setName("abc");
         team.setTeamCode("test-candidate");
         user.setTeam(team);
-        tasks = applicationService.tasks(user, new PageRequest(0, 10));
+        tasks = applicationService.tasks(user, false, new PageRequest(0, 10));
         return this;
     }
 
@@ -63,7 +63,7 @@ public class TaskApplicationServiceStage extends Stage<TaskApplicationServiceSta
         group.setTeamCode(candidateGroup);
         group.setName(candidateGroup);
         user.setTeam(group);
-        tasks = applicationService.tasks(user, new PageRequest(0, 10));
+        tasks = applicationService.tasks(user, false, new PageRequest(0, 10));
         return this;
     }
 

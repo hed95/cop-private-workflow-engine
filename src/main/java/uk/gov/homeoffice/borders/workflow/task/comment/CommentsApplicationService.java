@@ -14,7 +14,9 @@ import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.task.TaskChecker;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -27,7 +29,8 @@ public class CommentsApplicationService {
     public List<Comment> comments(User user, String taskId) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         applyTaskCheck(user, task);
-        return taskService.getTaskComments(task.getId());
+        return taskService.getTaskComments(task.getId()).stream()
+                .sorted(Comparator.comparing(Comment::getTime)).collect(Collectors.toList());
     }
 
     public Comment create(User user, CommentDto commentDto) {
