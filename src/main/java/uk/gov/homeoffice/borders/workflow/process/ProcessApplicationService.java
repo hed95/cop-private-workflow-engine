@@ -83,8 +83,11 @@ public class ProcessApplicationService {
         variables.put(processStartDto.getVariableName(), dataObject);
         variables.put("type", "non-notifications");
 
-        return runtimeService.startProcessInstanceByKey(processStartDto.getProcessKey(),
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processStartDto.getProcessKey(),
                 variables);
+        log.info("'{}' was successfully started with id '{}'", processStartDto.getProcessKey(), processInstance.getProcessInstanceId());
+
+        return processInstance;
 
     }
 
