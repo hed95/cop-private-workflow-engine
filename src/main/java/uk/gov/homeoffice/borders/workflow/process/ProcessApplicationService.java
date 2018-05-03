@@ -70,10 +70,7 @@ public class ProcessApplicationService {
 
 
     public ProcessInstance createInstance(ProcessStartDto processStartDto, User user) {
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(processStartDto.getProcessKey()).singleResult();
-        if (processDefinition == null) {
-            throw new ResourceNotFound("Process definition with key '" + processStartDto.getProcessKey() + "'");
-        }
+        ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
         ObjectValue dataObject =
                 Variables.objectValue(processStartDto)
                         .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
@@ -83,7 +80,7 @@ public class ProcessApplicationService {
         variables.put(processStartDto.getVariableName(), dataObject);
         variables.put("type", "non-notifications");
 
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processStartDto.getProcessKey(),
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
                 variables);
         log.info("'{}' was successfully started with id '{}'", processStartDto.getProcessKey(), processInstance.getProcessInstanceId());
 
