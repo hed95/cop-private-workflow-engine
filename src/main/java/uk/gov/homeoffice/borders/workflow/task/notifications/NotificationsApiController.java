@@ -4,6 +4,7 @@ package uk.gov.homeoffice.borders.workflow.task.notifications;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.TaskListener;
+import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +46,12 @@ public class NotificationsApiController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> notifications(@RequestBody Notification notification, UriComponentsBuilder uriComponentsBuilder) {
         ProcessInstance processInstance = notificationService.create(notification);
-
         UriComponents uriComponents =
                 uriComponentsBuilder.path(ROOT_PATH + "/process-instance/{processInstanceId}").buildAndExpand(processInstance.getProcessInstanceId());
+        return  ResponseEntity
+                    .created(uriComponents.toUri())
+                    .body(ProcessInstanceDto.fromProcessInstance(processInstance));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{processInstanceId}")
