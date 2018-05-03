@@ -41,32 +41,35 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
             Map<String, String> variables = new HashMap<>();
             variables.put("subject", notification.getSubject());
             variables.put("payload", notification.getPayload().toString());
-
-            String reference = String.format("/api/workflow/notifications/%s", delegateTask.getProcessInstanceId());
-            switch (priority.getType()) {
-                case STANDARD:
-                    log.info("Standard Priority defined");
-                    if (notificationBoost) {
-                        log.info("Standard Priority with Boost enabled (sendEmail)");
-                        sendEmail(notification, variables, reference);
-                    }
-                    break;
-                case URGENT:
-                    log.info("Urgent Priority defined");
-                    variables.put("subject", "URGENT: " + notification.getSubject());
-                    if (!notificationBoost) {
-                        sendEmail(notification, variables, reference);
-                    } else {
-                        log.info("Urgent Priority with Boost enabled (sendSMS and sendEmail)");
+            try {
+                String reference = String.format("/api/workflow/notifications/%s", delegateTask.getProcessInstanceId());
+                switch (priority.getType()) {
+                    case STANDARD:
+                        log.info("Standard Priority defined");
+                        if (notificationBoost) {
+                            log.info("Standard Priority with Boost enabled (sendEmail)");
+                            sendEmail(notification, variables, reference);
+                        }
+                        break;
+                    case URGENT:
+                        log.info("Urgent Priority defined");
+                        variables.put("subject", "URGENT: " + notification.getSubject());
+                        if (!notificationBoost) {
+                            sendEmail(notification, variables, reference);
+                        } else {
+                            log.info("Urgent Priority with Boost enabled (sendSMS and sendEmail)");
+                            sendEmail(notification, variables, reference);
+                            sendSMS(notification, variables, reference);
+                        }
+                        break;
+                    default:
+                        log.info("Emergency Priority defined..applying default boost (sendSMS and sendEmail)");
+                        variables.put("subject", "EMERGENCY: " + notification.getSubject());
                         sendEmail(notification, variables, reference);
                         sendSMS(notification, variables, reference);
-                    }
-                    break;
-                default:
-                    log.info("Emergency Priority defined..applying default boost (sendSMS and sendEmail)");
-                    variables.put("subject", "EMERGENCY: " + notification.getSubject());
-                    sendEmail(notification, variables, reference);
-                    sendSMS(notification, variables, reference);
+                }
+            } catch (Exception e) {
+                log.error("Unable to create notification ", e);
             }
         }
     }

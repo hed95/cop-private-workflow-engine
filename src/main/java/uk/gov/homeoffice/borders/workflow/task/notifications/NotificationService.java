@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
@@ -117,7 +118,10 @@ public class NotificationService {
     }
 
     public String acknowledge(User user, String taskId) {
-        Task task = taskApplicationService.getTask(user, taskId);
+        Task task = taskService.createTaskQuery().taskAssignee(user.getEmail()).singleResult();
+        if (task == null) {
+            throw new ResourceNotFound("Task id " + taskId + " does not exist");
+        }
         taskService.claim(task.getId(), user.getEmail());
         taskService.complete(task.getId());
         log.info("Notification acknowledged.");
