@@ -9,6 +9,7 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
+import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.engine.variable.VariableMap;
@@ -157,6 +158,8 @@ public class TaskApplicationService {
                 .taskId(taskId);
         Task task = applyUserFilters(user, taskQuery).singleResult();
         taskExistsCheck(taskId, task);
+
+
         return task;
     }
 
@@ -213,4 +216,10 @@ public class TaskApplicationService {
             throw new ResourceNotFound(String.format("Task with id %s does not exist.", taskId));
         }
     }
+
+    public List<IdentityLink> getIdentityLinksForTask(String id) {
+        return taskService.getIdentityLinksForTask(id);
+    }
+
+
 }

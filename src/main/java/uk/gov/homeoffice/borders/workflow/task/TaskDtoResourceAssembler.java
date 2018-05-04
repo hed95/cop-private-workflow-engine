@@ -16,21 +16,6 @@ public class TaskDtoResourceAssembler implements ResourceAssembler<Task, TaskDto
         TaskDto taskDto = TaskDto.fromEntity(entity);
         TaskDtoResource resource = new TaskDtoResource();
         resource.setTaskDto(taskDto);
-//        resource.add(createProcessLink(taskDto));
-//        resource.add(createCommentsLink(taskDto));
-//        resource.add(createFormsLink(taskDto));
         return resource;
-    }
-
-    private Link createFormsLink(TaskDto entity) {
-        return null;
-    }
-
-    private Link createCommentsLink(TaskDto entity) {
-        return null;
-    }
-
-    private Link createProcessLink(TaskDto entity) {
-        return null;
     }
 }

@@ -72,7 +72,7 @@ public class ProcessApplicationService {
     public ProcessInstance createInstance(ProcessStartDto processStartDto, User user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
         ObjectValue dataObject =
-                Variables.objectValue(processStartDto)
+                Variables.objectValue(processStartDto.getData())
                         .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
                         .create();
 

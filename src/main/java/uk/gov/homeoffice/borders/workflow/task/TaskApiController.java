@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
+import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
 
@@ -47,8 +50,14 @@ public class TaskApiController {
 
     @GetMapping("/{taskId}")
     public TaskDtoResource task(@PathVariable String taskId) {
-        Task task = applicationService.getTask(restApiUserExtractor.toUser(), taskId);
-        return taskDtoResourceAssembler.toResource(task);
+        User user = restApiUserExtractor.toUser();
+        Task task = applicationService.getTask(user, taskId);
+        TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(task);
+        List<String> identityLinks = applicationService.getIdentityLinksForTask(task.getId())
+                .stream().map(IdentityLink::getGroupId).collect(Collectors.toList());
+
+        taskDtoResource.setCandidateGroups(identityLinks);
+        return taskDtoResource;
     }
 
     @GetMapping("/{taskId}/variables")
