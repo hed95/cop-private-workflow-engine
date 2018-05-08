@@ -43,8 +43,10 @@ public class TaskApiController {
     private RestApiUserExtractor restApiUserExtractor;
 
     @GetMapping
-    public PagedResources<TaskDtoResource> tasks(@RequestParam(required = false, defaultValue = "false") Boolean assignedToMeOnly, Pageable pageable) {
-        Page<Task> page = applicationService.tasks(restApiUserExtractor.toUser(), assignedToMeOnly, pageable);
+    public PagedResources<TaskDtoResource> tasks(@RequestParam(required = false, defaultValue = "false") Boolean assignedToMeOnly,
+                                                 @RequestParam(required = false, defaultValue = "false") Boolean unassignedOnly,
+                                                 Pageable pageable) {
+        Page<Task> page = applicationService.tasks(restApiUserExtractor.toUser(), assignedToMeOnly, unassignedOnly, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 
@@ -99,6 +101,11 @@ public class TaskApiController {
     public ResponseEntity<?> unclaim(@PathVariable String taskId) {
         applicationService.unclaim(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/task-counts")
+    public TasksCountDto taskCounts() {
+        return applicationService.taskCounts(restApiUserExtractor.toUser());
     }
 
 

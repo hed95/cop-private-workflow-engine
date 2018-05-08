@@ -51,12 +51,19 @@ public class TaskApplicationService {
      *
      * @return paged result
      */
-    public Page<Task> tasks(@NotNull User user, Boolean assignedToMeOnly,Pageable pageable) {
+    public Page<Task> tasks(@NotNull User user, Boolean assignedToMeOnly, Boolean unassignedOnly,Pageable pageable) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", "notifications")
                 .initializeFormKeys();
 
-        taskQuery = assignedToMeOnly ? taskQuery.taskAssignee(user.getEmail()) : applyUserFilters(user, taskQuery);
+        if (assignedToMeOnly) {
+            taskQuery = taskQuery.taskAssignee(user.getEmail());
+        } else if (unassignedOnly) {
+            taskQuery = taskQuery.taskCandidateGroupIn(Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(toList()))
+                    .taskUnassigned();
+        } else {
+            taskQuery = applyUserFilters(user, taskQuery);
+        }
 
         Long totalResults = taskQuery.count();
         log.info("Total results for query '{}'", totalResults);
@@ -222,4 +229,26 @@ public class TaskApplicationService {
     }
 
 
+    public TasksCountDto taskCounts(User user) {
+        TasksCountDto tasksCountDto = new TasksCountDto();
+
+        List<String> teamCodes = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(toList());
+
+        Long tasksAssignedToUser = taskService.createTaskQuery().taskAssignee(user.getEmail()).count();
+        tasksCountDto.setTasksAssignedToUser(tasksAssignedToUser);
+
+
+        Long unassignedTasks = taskService.createTaskQuery().taskCandidateGroupIn(teamCodes)
+                .taskUnassigned().count();
+
+        tasksCountDto.setTasksUnassigned(unassignedTasks);
+
+        Long totalTasksAllocatedToTeam = taskService.createTaskQuery().taskCandidateGroupIn(teamCodes)
+                    .includeAssignedTasks()
+                    .count();
+
+        tasksCountDto.setTotalTasksAllocatedToTeam(totalTasksAllocatedToTeam);
+
+        return tasksCountDto;
+    }
 }

@@ -7,6 +7,7 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.repository.ResourceDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.camunda.bpm.engine.variable.VariableMap;
@@ -24,6 +25,7 @@ import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationService;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +50,9 @@ public class ProcessApplicationService {
         //List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(Collectors.toList());
         List<ProcessDefinition> definitions = processDefinitions.stream()
                 .filter(p -> !p.getKey().equalsIgnoreCase("activate-session")
-                        && !p.getKey().equalsIgnoreCase("notifications")).collect(Collectors.toList());
+                        && !p.getKey().equalsIgnoreCase("notifications"))
+                .sorted(Comparator.comparing(ResourceDefinition::getName))
+                .collect(Collectors.toList());
 
         return new PageImpl<>(definitions, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), definitions.size());
 
