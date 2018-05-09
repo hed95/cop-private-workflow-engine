@@ -103,7 +103,7 @@ public class TaskApiController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/task-counts")
+    @GetMapping("/_task-counts")
     public TasksCountDto taskCounts() {
         return applicationService.taskCounts(restApiUserExtractor.toUser());
     }
