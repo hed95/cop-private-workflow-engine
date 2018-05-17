@@ -61,7 +61,7 @@ camunda:
 spring:
   profiles: dev,prod
   datasource:
-    url: jdbc:postgresql://${ENGINE_DB_URL}:${ENGINE_DB_PORT}/${ENGINE_DB_NAME}
+    url: ${ENGINE_DB_URL}
     username: ${ENGINE_DB_USERNAME}
     password: ${ENGINE_BD_PASSWORD}
     driver-class-name: org.postgresql.Driver
