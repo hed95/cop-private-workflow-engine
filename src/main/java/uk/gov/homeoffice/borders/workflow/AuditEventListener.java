@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.impl.identity.Authentication;
 import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
 import org.camunda.bpm.extension.reactor.spring.listener.ReactorExecutionListener;
@@ -15,7 +14,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-
+/**
+ * Used to log all events within the workflow engine.
+ */
 @Slf4j
 @Component
 @CamundaSelector

@@ -6,7 +6,7 @@
     <bpmn:participant id="Participant_00gisla" name="UI " />
     <bpmn:messageFlow id="MessageFlow_0mzbw92" name="Form submission" sourceRef="Participant_00gisla" targetRef="StartEvent_1" />
   </bpmn:collaboration>
-  <bpmn:process id="activate-shift" name="Session" isExecutable="true">
+  <bpmn:process id="activate-shift" name="Activate Shift" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1" name="Shift start initiated">
       <bpmn:outgoing>SequenceFlow_08jcu12</bpmn:outgoing>
     </bpmn:startEvent>

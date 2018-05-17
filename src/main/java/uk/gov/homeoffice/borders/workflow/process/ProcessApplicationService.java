@@ -40,6 +40,13 @@ public class ProcessApplicationService {
     private RuntimeService runtimeService;
     private FormService formService;
 
+    /**
+     * Returns the process definitions based on user qualifications and grades.
+     *
+     * @param user
+     * @param pageable
+     * @return paged result
+     */
     public Page<ProcessDefinition> processDefinitions(User user, Pageable pageable) {
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
@@ -47,10 +54,10 @@ public class ProcessApplicationService {
                 .list();
 
         //TODO: Filter by team
-        //List<String> teamIds = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(Collectors.toList());
         List<ProcessDefinition> definitions = processDefinitions.stream()
-                .filter(p -> !p.getKey().equalsIgnoreCase("activate-session")
+                .filter(p -> !p.getKey().equalsIgnoreCase("activate-shift")
                         && !p.getKey().equalsIgnoreCase("notifications"))
+                .filter(ProcessDefinition::hasStartFormKey)
                 .sorted(Comparator.comparing(ResourceDefinition::getName))
                 .collect(Collectors.toList());
 
@@ -59,6 +66,11 @@ public class ProcessApplicationService {
 
     }
 
+    /**
+     * Get form key for given process definition key
+     * @param processDefinitionId
+     * @return
+     */
     public String formKey(String processDefinitionId) {
         String startFormKey = formService.getStartFormKey(processDefinitionId);
         if (startFormKey == null) {

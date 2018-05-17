@@ -25,10 +25,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class SecurityEventListener {
 
-
-
     private IdentityService identityService;
-
 
     @EventListener
     public void onSuccessfulAuthentication(InteractiveAuthenticationSuccessEvent successEvent) {
