@@ -69,14 +69,15 @@ public class NotificationService {
         }
         UserQuery userQuery = new UserQuery();
 
-        if (notification.getLocationId() != null) {
+
+        if (notification.getTeamId() != null) {
+            userQuery.memberOfGroup(notification.getTeamId());
+        } else if (notification.getLocationId() != null) {
             userQuery.location(notification.getLocationId());
-        } else if (notification.getCommandId() != null) {
-            userQuery.command(notification.getCommandId());
         } else if (notification.getSubCommandId() != null) {
             userQuery.subCommand(notification.getSubCommandId());
         } else {
-            userQuery.memberOfGroup(notification.getTeamId());
+            userQuery.command(notification.getCommandId());
         }
 
         List<User> candidateUsers = userService.findByQuery(userQuery);
