@@ -4,6 +4,7 @@ package uk.gov.homeoffice.borders.workflow;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.camunda.bpm.engine.IdentityService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.keycloak.KeycloakSecurityContext;
@@ -28,8 +29,8 @@ import uk.gov.service.notify.NotificationClient;
 @TestPropertySource(properties = {"GOV_NOTIFY_CLIENT_ID = XXXX", "" +
         "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX", "" +
         "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
-        "PREST_ENDPOINT_URL = http://localhost:8000",
-        "TX_DB_NAME = DB"})
+        "PLATFORM_DATA_ENDPOINT_URL = http://localhost:8000",
+        "PLATFORM_DATA_TOKEN = DB"})
 public abstract class BaseIntClass {
 
 
@@ -55,6 +56,9 @@ public abstract class BaseIntClass {
 
     @MockBean
     protected NotificationClient notificationClient;
+
+    @Autowired
+    protected RuntimeService runtimeService;
 
 
 

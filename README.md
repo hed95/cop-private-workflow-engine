@@ -19,7 +19,7 @@ based on the user who is currently logged in.
 1. Tasks
 2. Process Definitions
 3. Notifications
-4. Sessions
+4. Shift
 5. Process Instances
 
 

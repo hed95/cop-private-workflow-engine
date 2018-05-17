@@ -21,7 +21,7 @@ public class RestApiUserExtractor {
             throw new ForbiddenException("No current authentication detected.");
         }
         if (currentAuthentication.getUser() == null) {
-            throw new ForbiddenException("No active session detected for user.");
+            throw new ForbiddenException("No active shift detected for user.");
         }
         return currentAuthentication.getUser();
     }

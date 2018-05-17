@@ -10,7 +10,11 @@ import java.util.List;
 
 public class UserQuery extends UserQueryImpl {
 
-    UserQuery() {
+    private String location;
+    private String command;
+    private String subCommand;
+
+    public UserQuery() {
         super();
     }
 
@@ -31,5 +35,32 @@ public class UserQuery extends UserQueryImpl {
 
     private CustomIdentityProvider getIdentityProvider(CommandContext commandContext) {
         return (CustomIdentityProvider) commandContext.getReadOnlyIdentityProvider();
+    }
+
+    public UserQuery location (String location) {
+        this.location = location;
+        return this;
+    }
+
+    public UserQuery command(String command) {
+        this.command = command;
+        return this;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public UserQuery subCommand(String subCommandId) {
+        this.subCommand = subCommandId;
+        return null;
+    }
+
+    public String getSubCommand() {
+        return subCommand;
     }
 }

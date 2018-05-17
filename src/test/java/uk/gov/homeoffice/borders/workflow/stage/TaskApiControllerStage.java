@@ -83,7 +83,7 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
         user.setEmail(username);
         Team team = new Team();
         team.setName("test");
-        user.setTeam(team);
+        user.setTeams(Collections.singletonList(team));
         WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
 
         Mockito.when(identityService.getCurrentAuthentication()).thenReturn(workflowAuthentication);
@@ -122,7 +122,7 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
         Team team = new Team();
         team.setName("test");
         team.setId(UUID.randomUUID().toString());
-        user.setTeam(team);
+        user.setTeams(Collections.singletonList(team));
         WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
 
         Mockito.when(identityService.getCurrentAuthentication()).thenReturn(workflowAuthentication);

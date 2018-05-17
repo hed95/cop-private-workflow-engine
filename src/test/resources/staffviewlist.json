@@ -1,0 +1,19 @@
+[{
+  "phone": "phone",
+  "email": "email",
+  "gradetypeid": "gradetypeid",
+  "firstname": "firstname",
+  "surname": "surnam",
+  "qualificationtypes": [
+    {
+      "qualificationname": "dummy",
+      "qualificationtype": "1"
+    },
+    {
+      "qualificationname": "staff",
+      "qualificationtype": "2"
+    }
+  ],
+  "staffid": "satffid",
+  "gradename": "grade"
+}]

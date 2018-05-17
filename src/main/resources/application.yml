@@ -18,8 +18,8 @@ keycloak:
     secret: ${KEYCLOAK_AUTH_SECRET}
 
 
-prest-url: ${PREST_ENDPOINT_URL}
-prest-db: ${TX_DB_NAME}
+platform-data-url: ${PLATFORM_DATA_ENDPOINT_URL}
+platform-data-token: ${PLATFORM_DATA_TOKEN}
 
 gov:
   notify:

@@ -10,11 +10,11 @@ import java.util.List;
 
 public class TeamQuery extends GroupQueryImpl {
 
-    TeamQuery() {
+    public TeamQuery() {
         super();
     }
 
-    TeamQuery(CommandExecutor commandExecutor) {
+    public TeamQuery(CommandExecutor commandExecutor) {
         super(commandExecutor);
     }
 

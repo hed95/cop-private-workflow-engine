@@ -42,7 +42,7 @@ public class SecurityEventListener {
             String userId = keycloakSecurityContext.getToken().getEmail();
             User user = toUser(userId);
             if (user == null) {
-                log.warn("User '{}' does not have active session", userId);
+                log.warn("User '{}' does not have active shift", userId);
                 identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
             } else {
                 log.debug("User '{}' has active session", user);

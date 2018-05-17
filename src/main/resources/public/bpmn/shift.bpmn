@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.10.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="platform" exporter="Camunda Modeler" exporterVersion="1.10.0">
   <bpmn:collaboration id="Collaboration_1kjx4nt">
     <bpmn:documentation>Store active session</bpmn:documentation>
-    <bpmn:participant id="Participant_0mlpt32" name="Borders System" processRef="activate-session" />
+    <bpmn:participant id="Participant_0mlpt32" name="Borders System" processRef="activate-shift" />
     <bpmn:participant id="Participant_00gisla" name="UI " />
     <bpmn:messageFlow id="MessageFlow_0mzbw92" name="Form submission" sourceRef="Participant_00gisla" targetRef="StartEvent_1" />
   </bpmn:collaboration>
-  <bpmn:process id="activate-session" name="Session" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_1" name="Remove session request submitted">
+  <bpmn:process id="activate-shift" name="Session" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Shift start initiated">
       <bpmn:outgoing>SequenceFlow_08jcu12</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:serviceTask id="Task_1f7bevv" name="Store active session" camunda:type="external" camunda:topic="create-active-session">
+    <bpmn:serviceTask id="Task_1f7bevv" name="Create shift record" camunda:type="external" camunda:topic="create-active-shift">
       <bpmn:incoming>SequenceFlow_1j57u59</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0927hu5</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_01356zx">
         <bpmn:targetRef>DataStoreReference_0qzm7dy</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0927hu5" sourceRef="Task_1f7bevv" targetRef="expireActiveSession" />
+    <bpmn:sequenceFlow id="SequenceFlow_0927hu5" sourceRef="Task_1f7bevv" targetRef="expireActiveSession">
+      <bpmn:extensionElements>
+        <camunda:executionListener event="take">
+          <camunda:script scriptFormat="JavaScript"><![CDATA[print("Setting time data" + execution.getVariable('shiftInfo'));]]></camunda:script>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1tivuep" sourceRef="expireActiveSession" targetRef="Task_0f5abt8" />
     <bpmn:sequenceFlow id="SequenceFlow_0d8vrvl" sourceRef="Task_0f5abt8" targetRef="EndEvent_0cjilnz" />
     <bpmn:sequenceFlow id="SequenceFlow_08jcu12" sourceRef="StartEvent_1" targetRef="ExclusiveGateway_00wv8pd" />
@@ -29,20 +35,20 @@
     <bpmn:sequenceFlow id="SequenceFlow_1uwkwx0" name="no" sourceRef="ExclusiveGateway_00wv8pd" targetRef="Task_0wzgaj7">
       <bpmn:extensionElements>
         <camunda:executionListener event="take">
-          <camunda:script scriptFormat="javascript"><![CDATA[print("Person not found...moving to create person record..." + execution.getVariable('activeSession'));]]></camunda:script>
+          <camunda:script scriptFormat="javascript"><![CDATA[print("Person not found...moving to create person record..." + execution.getVariable('shiftInfo'));]]></camunda:script>
         </camunda:executionListener>
       </bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${activeSession.personId == null || activeSession.personId ==''}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${shiftInfo.staffId == null || shiftInfo.staffId ==''}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1fcbicp" name="yes" sourceRef="ExclusiveGateway_00wv8pd" targetRef="ExclusiveGateway_0uf1jgp">
       <bpmn:extensionElements>
         <camunda:executionListener event="take">
-          <camunda:script scriptFormat="javascript"><![CDATA[print("Person found...moving to create active session" + execution.getVariable('activeSession'));]]></camunda:script>
+          <camunda:script scriptFormat="javascript"><![CDATA[print("Person found...moving to create active session" + execution.getVariable('shiftInfo'));]]></camunda:script>
         </camunda:executionListener>
       </bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${activeSession.personId != null && activeSession.personId !=''}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${shiftInfo.staffId != null && shiftInfo.staffId !=''}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store" camunda:type="external" camunda:topic="create-user-from-active-session">
+    <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store" camunda:type="external" camunda:topic="create-user-from-shift-info">
       <bpmn:incoming>SequenceFlow_1uwkwx0</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0wrpwoe</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_01t9kc3">
@@ -57,24 +63,24 @@
     <bpmn:sequenceFlow id="SequenceFlow_1j57u59" sourceRef="ExclusiveGateway_0uf1jgp" targetRef="Task_1f7bevv" />
     <bpmn:sequenceFlow id="SequenceFlow_0wrpwoe" sourceRef="Task_0wzgaj7" targetRef="ExclusiveGateway_0uf1jgp" />
     <bpmn:dataStoreReference id="DataStoreReference_0qzm7dy" name="Persistent reference store" />
-    <bpmn:intermediateCatchEvent id="expireActiveSession" name="Session Expiry">
+    <bpmn:intermediateCatchEvent id="expireActiveSession" name="Shift Expiry">
       <bpmn:incoming>SequenceFlow_0927hu5</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1tivuep</bpmn:outgoing>
       <bpmn:timerEventDefinition>
-        <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${activeSession.endTime}</bpmn:timeDate>
+        <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${shiftInfo.endDateTime}</bpmn:timeDate>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
-    <bpmn:serviceTask id="Task_0f5abt8" name="Remove active team session" camunda:type="external" camunda:topic="remove-active-session">
+    <bpmn:serviceTask id="Task_0f5abt8" name="Remove shift record" camunda:type="external" camunda:topic="remove-active-shift">
       <bpmn:incoming>SequenceFlow_1tivuep</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0d8vrvl</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_0fwhjkz">
         <bpmn:targetRef>DataStoreReference_0qzm7dy</bpmn:targetRef>
       </bpmn:dataOutputAssociation>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="EndEvent_0cjilnz" name="Active session removed">
+    <bpmn:endEvent id="EndEvent_0cjilnz" name="Active shift removed">
       <bpmn:incoming>SequenceFlow_0d8vrvl</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:textAnnotation id="TextAnnotation_03yyvyg">    <bpmn:text>Remove session after specified time</bpmn:text>
+    <bpmn:textAnnotation id="TextAnnotation_03yyvyg">    <bpmn:text>Remove shift after specified time</bpmn:text>
 </bpmn:textAnnotation>
     <bpmn:association id="Association_14dh0bf" sourceRef="expireActiveSession" targetRef="TextAnnotation_03yyvyg" />
   </bpmn:process>
@@ -113,13 +119,13 @@
       <bpmndi:BPMNShape id="IntermediateCatchEvent_05hwa8g_di" bpmnElement="expireActiveSession">
         <dc:Bounds x="715" y="315" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="698" y="354" width="73" height="13" />
+          <dc:Bounds x="707" y="354" width="56" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_0cjilnz_di" bpmnElement="EndEvent_0cjilnz">
         <dc:Bounds x="1100" y="315" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1082" y="354" width="71" height="25" />
+          <dc:Bounds x="1091" y="354" width="54" height="24" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_018mejv_di" bpmnElement="Task_0f5abt8">
@@ -142,7 +148,7 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="TextAnnotation_03yyvyg_di" bpmnElement="TextAnnotation_03yyvyg">
-        <dc:Bounds x="619" y="231" width="100" height="54" />
+        <dc:Bounds x="619" y="231" width="100.00000000000001" height="53.55191256830601" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_14dh0bf_di" bpmnElement="Association_14dh0bf">
         <di:waypoint xsi:type="dc:Point" x="722" y="320" />

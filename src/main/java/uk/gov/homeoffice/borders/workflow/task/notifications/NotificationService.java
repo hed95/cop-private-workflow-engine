@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
+import uk.gov.homeoffice.borders.workflow.identity.UserQuery;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
 import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
 
@@ -61,11 +62,24 @@ public class NotificationService {
 
 
     public ProcessInstance create(Notification notification) {
+        if (notification.getCommandId() == null &&
+                notification.getSubCommandId() == null &&
+                notification.getTeamId() == null && notification.getLocationId() == null) {
+            throw new IllegalArgumentException("No command, team or location defined for notification");
+        }
+        UserQuery userQuery = new UserQuery();
 
-        List<User> candidateUsers = userService.allUsers().stream()
-                .filter(u -> filterByRegion(u, notification.getRegion())
-                        || filterByLocation(u, notification.getLocation())
-                        || filterByTeam(u, notification.getTeam())).collect(toList());
+        if (notification.getLocationId() != null) {
+            userQuery.location(notification.getLocationId());
+        } else if (notification.getCommandId() != null) {
+            userQuery.command(notification.getCommandId());
+        } else if (notification.getSubCommandId() != null) {
+            userQuery.subCommand(notification.getSubCommandId());
+        } else {
+            userQuery.memberOfGroup(notification.getTeamId());
+        }
+
+        List<User> candidateUsers = userService.findByQuery(userQuery);
 
         List<Notification> notifications = candidateUsers.stream().map(u -> {
             Notification updated = new Notification();
@@ -73,13 +87,13 @@ public class NotificationService {
             updated.setSubject(notification.getSubject());
             updated.setPriority(notification.getPriority());
             updated.setEmail(u.getEmail());
-            updated.setMobile(u.getStaffAttributes().getPhone());
+            updated.setMobile(u.getPhone());
             return updated;
 
         }).collect(toList());
 
         if (notifications.isEmpty()) {
-            throw new IllegalStateException("Unable to find any people to notify. Please check region/location/team");
+            throw new IllegalStateException("Unable to find any people to notify. Please check command/location/team");
         }
 
         ObjectValue notificationObjectValue =
@@ -93,21 +107,6 @@ public class NotificationService {
 
         return runtimeService.startProcessInstanceByKey(NOTIFICATIONS,
                 variables);
-
-    }
-
-    private boolean filterByTeam(User user, String team) {
-        return team != null && Team.flatten(user.getTeam()).filter(t -> team.equalsIgnoreCase(t.getTeamCode())).count() >= 1;
-
-    }
-
-    private boolean filterByLocation(User user, String location) {
-        return location != null && Team.flatten(user.getTeam()).filter(t -> location.equalsIgnoreCase(t.getLocation())).count() >=1;
-
-    }
-
-    private boolean filterByRegion(User user, String region) {
-        return region != null && Team.flatten(user.getTeam()).filter(t -> region.equalsIgnoreCase(t.getRegion())).count() >= 1;
 
     }
 

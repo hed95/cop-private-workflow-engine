@@ -59,7 +59,7 @@ public class TaskApplicationService {
         if (assignedToMeOnly) {
             taskQuery = taskQuery.taskAssignee(user.getEmail());
         } else if (unassignedOnly) {
-            taskQuery = taskQuery.taskCandidateGroupIn(Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(toList()))
+            taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
                     .taskUnassigned();
         } else {
             taskQuery = applyUserFilters(user, taskQuery);
@@ -96,7 +96,7 @@ public class TaskApplicationService {
 
 
     private List<String> resolveCandidateGroups(User user) {
-        return Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(toList());
+        return user.getTeams().stream().map(Team::getTeamCode).collect(toList());
     }
 
     /**
@@ -232,7 +232,7 @@ public class TaskApplicationService {
     public TasksCountDto taskCounts(User user) {
         TasksCountDto tasksCountDto = new TasksCountDto();
 
-        List<String> teamCodes = Team.flatten(user.getTeam()).map(Team::getTeamCode).collect(toList());
+        List<String> teamCodes = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
 
         Long tasksAssignedToUser = taskService.createTaskQuery().taskAssignee(user.getEmail()).count();
         tasksCountDto.setTasksAssignedToUser(tasksAssignedToUser);

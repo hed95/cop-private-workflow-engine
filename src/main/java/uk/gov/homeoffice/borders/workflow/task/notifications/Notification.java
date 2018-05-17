@@ -8,9 +8,10 @@ import lombok.Data;
 public class Notification {
     private String subject;
     private Object payload;
-    private String region;
-    private String location;
-    private String team;
+    private String commandId;
+    private String locationId;
+    private String subCommandId;
+    private String teamId;
     private Priority priority;
 
     private String assignee;

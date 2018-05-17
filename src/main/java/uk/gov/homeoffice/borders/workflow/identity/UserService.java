@@ -1,79 +1,108 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.ForbiddenException;
+import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.shift.ShiftInfo;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
 
-    private String prestUrl;
-    private ObjectMapper objectMapper;
     private RestTemplate restTemplate;
+    private PlatformDataUrlBuilder platformDataUrlBuilder;
 
-
+    /**
+     * Find user from using shift details
+     * @param userId
+     * @return user
+     */
     public User findByUserId(String userId) {
-        String response = restTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-user?email=%s",
-                prestUrl, userId), String.class).getBody();
-        JSONArray o = new JSONArray(response);
-        if (o.length() == 0) {
+        List<ShiftInfo> shiftDetails = restTemplate
+                .exchange(platformDataUrlBuilder.shiftUrl(userId), HttpMethod.GET, null,
+                        new ParameterizedTypeReference<List<ShiftInfo>>() {
+                        }, new HashMap<>()).getBody();
+        if (shiftDetails != null && shiftDetails.size() == 1) {
+            return getStaff(shiftDetails.get(0));
+        } else {
             return null;
         }
-        if (o.length() > 1) {
-            throw new ForbiddenException("Cannot have multiple active session for user");
-        }
-        try {
-            return objectMapper.readValue(o.getJSONObject(0).get("row_to_json").toString(), User.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
+    private User getStaff(ShiftInfo shiftInfo) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
+        HttpEntity<Object> requestEntity = new HttpEntity<>(httpHeaders);
 
-    public List<User> allUsers() {
-        String response = restTemplate.getForEntity(String.format("%s/_QUERIES/read/get-active-users", prestUrl),
-                String.class).getBody();
-        JSONArray o = new JSONArray(response);
-        try {
-            return objectMapper.readValue(o.getJSONObject(0).get("array_to_json").toString(), new TypeReference<List<User>>() {
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        User user = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(shiftInfo.getStaffId()),
+                HttpMethod.GET, requestEntity, User.class).getBody();
+
+
+        List<Team> teams = restTemplate
+                .exchange(platformDataUrlBuilder.teamChildren(),
+                        HttpMethod.POST,
+                        new HttpEntity<>(Collections.singletonMap("id", shiftInfo.getTeamId())),
+                        new ParameterizedTypeReference<List<Team>>() {}).getBody();
+
+        user.setTeams(teams);
+        user.setEmail(shiftInfo.getEmail());
+        return user;
+
     }
-
 
     public List<User> findByQuery(UserQuery query) {
-
         if (query.getId() != null) {
             return Collections.singletonList(findByUserId(query.getId()));
         }
 
-        List<User> users = allUsers();
-        if (query.getFirstName() != null) {
-            users.removeIf(user -> !user.getFirstName().equals(query.getFirstName()));
-        }
-        if (query.getLastName() != null) {
-            users.removeIf(user -> !user.getLastName().equals(query.getLastName()));
-        }
-        if (query.getEmail() != null) {
-            users.removeIf(user -> !user.getEmail().equals(query.getEmail()));
-        }
-        if (query.getGroupId() != null) {
-            users.removeIf(user -> !user.isMemberOf(query.getGroupId()));
-        }
-        return new ArrayList<>();
+        String url = resolveQueryUrl(query);
+
+        List<ShiftInfo> shifts = restTemplate.exchange(url,
+                HttpMethod.GET, null, new ParameterizedTypeReference<List<ShiftInfo>>() {
+                }, new HashMap<>()).getBody();
+
+        List<String> staffIds = shifts.stream().map(ShiftInfo::getStaffId).collect(Collectors.toList());
+
+        return restTemplate.exchange(platformDataUrlBuilder.staffViewIn(staffIds),
+                HttpMethod.GET, null, new ParameterizedTypeReference<List<User>>() {}).getBody();
+
     }
+
+    private String resolveQueryUrl(UserQuery query) {
+        String url = null;
+        if (query.getGroupId() != null) {
+            url = platformDataUrlBuilder.queryShiftByTeamId(query.getGroupId());
+        }
+
+        if (query.getCommand() != null) {
+            url = platformDataUrlBuilder.queryShiftByCommandId(query.getCommand());
+        }
+
+        if (query.getLocation() != null) {
+            url = platformDataUrlBuilder.queryShiftByLocationId(query.getLocation());
+        }
+
+        if (query.getSubCommand() != null) {
+            url = platformDataUrlBuilder.queryShiftBySubCommandId(query.getSubCommand());
+        }
+
+        if (url == null) {
+            throw new IllegalArgumentException("Could not determine url for query");
+        }
+        return url;
+    }
+
+
 }

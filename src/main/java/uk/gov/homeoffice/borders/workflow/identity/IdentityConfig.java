@@ -13,19 +13,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 
 @Configuration
 public class IdentityConfig {
 
+    private RestTemplate platformDataRestTemplate = new RestTemplate();
 
     @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Value("${prest-url}")
-    private String prestUrl;
+    private PlatformDataUrlBuilder platformDataUrlBuilder;
 
 
     @Bean
@@ -35,13 +31,13 @@ public class IdentityConfig {
 
     @Bean
     public UserService userService() {
-        return new UserService(prestUrl,objectMapper, restTemplate);
+        return new UserService(platformDataRestTemplate, platformDataUrlBuilder);
     }
 
 
     @Bean
     public TeamService teamService() {
-        return new TeamService(restTemplate, prestUrl, objectMapper);
+        return new TeamService(platformDataRestTemplate, platformDataUrlBuilder);
     }
 
     @Bean
