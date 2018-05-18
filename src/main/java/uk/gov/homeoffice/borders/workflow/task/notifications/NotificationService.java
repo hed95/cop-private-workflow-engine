@@ -118,13 +118,9 @@ public class NotificationService {
     }
 
     public String acknowledge(User user, String taskId) {
-        Task task = taskService.createTaskQuery().taskAssignee(user.getEmail()).singleResult();
-        if (task == null) {
-            throw new ResourceNotFound("Task id " + taskId + " does not exist");
-        }
-        taskService.claim(task.getId(), user.getEmail());
-        taskService.complete(task.getId());
+        taskService.claim(taskId, user.getEmail());
+        taskService.complete(taskId);
         log.info("Notification acknowledged.");
-        return task.getId();
+        return taskId;
     }
 }
