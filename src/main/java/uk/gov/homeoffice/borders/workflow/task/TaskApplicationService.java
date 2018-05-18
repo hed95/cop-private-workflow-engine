@@ -234,16 +234,22 @@ public class TaskApplicationService {
 
         List<String> teamCodes = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
 
-        Long tasksAssignedToUser = taskService.createTaskQuery().taskAssignee(user.getEmail()).count();
+        Long tasksAssignedToUser = taskService.createTaskQuery()
+                .processVariableValueNotEquals("type", "notifications")
+                .taskAssignee(user.getEmail()).count();
         tasksCountDto.setTasksAssignedToUser(tasksAssignedToUser);
 
 
-        Long unassignedTasks = taskService.createTaskQuery().taskCandidateGroupIn(teamCodes)
+        Long unassignedTasks = taskService.createTaskQuery()
+                .taskCandidateGroupIn(teamCodes)
+                .processVariableValueNotEquals("type", "notifications")
                 .taskUnassigned().count();
 
         tasksCountDto.setTasksUnassigned(unassignedTasks);
 
-        Long totalTasksAllocatedToTeam = taskService.createTaskQuery().taskCandidateGroupIn(teamCodes)
+        Long totalTasksAllocatedToTeam = taskService.createTaskQuery()
+                    .taskCandidateGroupIn(teamCodes)
+                     .processVariableValueNotEquals("type", "notifications")
                     .includeAssignedTasks()
                     .count();
 
