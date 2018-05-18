@@ -52,7 +52,6 @@ public class ProcessApplicationService {
                 .createProcessDefinitionQuery()
                 .latestVersion()
                 .list();
-
         //TODO: Filter by team
         List<ProcessDefinition> definitions = processDefinitions.stream()
                 .filter(p -> !p.getKey().equalsIgnoreCase("activate-shift")

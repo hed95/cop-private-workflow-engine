@@ -12,14 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Application Service responsible for dealing with the internal
@@ -51,14 +51,7 @@ public class ShiftApplicationService {
         String email = shiftInfo.getEmail();
         log.info("Starting a request to start a shift for '{}'", email);
 
-        ProcessInstance shiftForPerson = runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(email)
-                .singleResult();
-
-        if (shiftForPerson != null) {
-            deleteShift(email);
-            log.info("Removed previous shift workflow for '{}'", email);
-        }
+        deleteShift(email, "new-shift");
 
         setEndTime(shiftInfo);
 
@@ -95,28 +88,23 @@ public class ShiftApplicationService {
      * @see ProcessInstance
      */
     public void deleteShift(@NotNull String email, @NotNull String deleteReason) {
-        ProcessInstance shiftForStaff = runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(email)
-                .singleResult();
+        List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(email).list();
 
-        if (shiftForStaff == null) {
-            log.warn("Process instance does not exist based on email '{}'", email);
-            throw new ResourceNotFound("Shift details does not exist for '" + email + "'");
+
+        if (!CollectionUtils.isEmpty(instances)) {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("Authorization", "Bearer " + platformDataToken);
+            restTemplate.exchange(platformDataUrlBuilder.shiftUrl(email),
+                    HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
+            log.info("active shift deleted from store...deleting workflow");
+            List<String> ids = instances.stream().map(ProcessInstance::getProcessInstanceId).collect(Collectors.toList());
+            runtimeService.deleteProcessInstances(ids, deleteReason, false, false);
+            log.info("Shift deleted for '{}'", email);
         }
-        deleteShift(email);
-        log.info("active shift deleted from store...deleting workflow");
-        runtimeService.deleteProcessInstance(shiftForStaff.getProcessInstanceId(), deleteReason);
-        log.info("Shift deleted for '{}'", email);
-    }
-
-    private void deleteShift(@NotNull String email) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Authorization", "Bearer " + platformDataToken);
-        restTemplate.exchange(platformDataUrlBuilder.shiftUrl(email),
-                HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
-        log.info("active shift deleted from store..");
 
     }
+
 
     /**
      * Get shift info for given email
