@@ -35,8 +35,8 @@ public class SecurityEventListener {
         long serviceRoleCount = keycloakSecurityContext.getToken().getRealmAccess().getRoles().stream()
                 .filter(r -> r.equalsIgnoreCase("service_role")).count();
 
+        String userId = keycloakSecurityContext.getToken().getEmail();
         if (serviceRoleCount == 0) {
-            String userId = keycloakSecurityContext.getToken().getEmail();
             User user = toUser(userId);
             if (user == null) {
                 log.warn("User '{}' does not have active shift", userId);
@@ -45,6 +45,9 @@ public class SecurityEventListener {
                 log.debug("User '{}' has active session", user);
                 identityService.setAuthentication(new WorkflowAuthentication(user));
             }
+        } else {
+            log.debug("Service account user...'{}'", userId);
+            identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
         }
     }
 
