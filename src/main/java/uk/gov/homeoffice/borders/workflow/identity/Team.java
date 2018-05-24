@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
-
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Team implements org.camunda.bpm.engine.identity.Group {

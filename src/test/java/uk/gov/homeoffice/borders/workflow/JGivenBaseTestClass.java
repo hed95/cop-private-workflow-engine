@@ -3,7 +3,6 @@ package uk.gov.homeoffice.borders.workflow;
 import com.tngtech.jgiven.integration.spring.EnableJGiven;
 import com.tngtech.jgiven.integration.spring.SimpleSpringScenarioTest;
 import org.camunda.bpm.engine.IdentityService;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.AccessToken;
@@ -15,12 +14,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
 import uk.gov.service.notify.NotificationClient;
-
-import javax.annotation.PostConstruct;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,

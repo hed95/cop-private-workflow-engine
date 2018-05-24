@@ -1,34 +1,44 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.homeoffice.borders.workflow.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.shift.ShiftInfo;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-@AllArgsConstructor(onConstructor = @__(@Autowired))
 public class UserService {
 
     private RestTemplate restTemplate;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
+    //Self reference to enable methods to be called within this service and be proxied by Spring
+    @Resource
+    private UserService self;
+
+
+    @Autowired
+    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder) {
+        this.platformDataUrlBuilder = platformDataUrlBuilder;
+        this.restTemplate = restTemplate;
+    }
 
     /**
      * Find user from using shift details
      * @param userId
      * @return user
      */
+    @Cacheable(value="shifts", key="#userId", unless="#result == null")
     public User findByUserId(String userId) {
         List<ShiftInfo> shiftDetails = restTemplate
                 .exchange(platformDataUrlBuilder.shiftUrl(userId), HttpMethod.GET, null,
@@ -64,7 +74,7 @@ public class UserService {
 
     public List<User> findByQuery(UserQuery query) {
         if (query.getId() != null) {
-            return Collections.singletonList(findByUserId(query.getId()));
+            return Collections.singletonList(self.findByUserId(query.getId()));
         }
 
         String url = resolveQueryUrl(query);

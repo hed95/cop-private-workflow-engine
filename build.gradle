@@ -6,9 +6,16 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.8.RELEASE")
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
         classpath 'com.tngtech.jgiven:jgiven-gradle-plugin:0.15.3'
+
     }
+
+
+
 }
 
+plugins {
+    id "org.sonarqube" version "2.6"
+}
 
 repositories {
     mavenCentral()
@@ -16,11 +23,15 @@ repositories {
     jcenter()
 }
 
+
+
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'maven'
 apply plugin: "com.tngtech.jgiven.gradle-plugin"
+
+
 
 compileJava {
     sourceCompatibility = '1.8'
@@ -42,6 +53,7 @@ test {
     }
 }
 
+
 dependencies {
     compile ('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:2.3.0')
     compile ('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:2.3.0')
@@ -51,6 +63,7 @@ dependencies {
     compile('org.camunda.bpm:camunda-engine-plugin-spin')
     compile 'org.jsoup:jsoup:1.11.2'
 
+
     compile ('org.springframework.boot:spring-boot-configuration-processor') {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
     }
@@ -58,6 +71,8 @@ dependencies {
     compile ('org.springframework.boot:spring-boot-starter-actuator')
     compile ('org.springframework.boot:spring-boot-starter-security')
     compile ('org.springframework.boot:spring-boot-starter-hateoas')
+    compile('org.springframework.boot:spring-boot-starter-cache')
+    compile('com.github.ben-manes.caffeine:caffeine')
     compile('org.springframework.data:spring-data-commons:1.12.4.RELEASE')
     compile('org.springframework.retry:spring-retry:1.1.5.RELEASE')
     compile group: 'org.aspectj', name: 'aspectjtools', version: '1.8.13'

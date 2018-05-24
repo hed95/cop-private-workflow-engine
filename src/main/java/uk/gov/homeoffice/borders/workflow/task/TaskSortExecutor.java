@@ -5,8 +5,6 @@ import org.camunda.bpm.engine.task.TaskQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 import static java.util.Optional.ofNullable;
 
 @Component

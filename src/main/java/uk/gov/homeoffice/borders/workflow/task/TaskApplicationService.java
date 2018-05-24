@@ -13,7 +13,6 @@ import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.engine.variable.VariableMap;
-import org.camunda.bpm.engine.variable.Variables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,7 +26,6 @@ import uk.gov.homeoffice.borders.workflow.identity.User;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -36,6 +34,7 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class TaskApplicationService {
 
+    public static final String NOTIFICATIONS = "notifications";
     private TaskService taskService;
     private TaskSortExecutor taskSortExecutor;
     private ProcessEngine processEngine;
@@ -53,7 +52,7 @@ public class TaskApplicationService {
      */
     public Page<Task> tasks(@NotNull User user, Boolean assignedToMeOnly, Boolean unassignedOnly,Pageable pageable) {
         TaskQuery taskQuery = taskService.createTaskQuery()
-                .processVariableValueNotEquals("type", "notifications")
+                .processVariableValueNotEquals("type", NOTIFICATIONS)
                 .initializeFormKeys();
 
         if (assignedToMeOnly) {
@@ -235,21 +234,21 @@ public class TaskApplicationService {
         List<String> teamCodes = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
 
         Long tasksAssignedToUser = taskService.createTaskQuery()
-                .processVariableValueNotEquals("type", "notifications")
+                .processVariableValueNotEquals("type", NOTIFICATIONS)
                 .taskAssignee(user.getEmail()).count();
         tasksCountDto.setTasksAssignedToUser(tasksAssignedToUser);
 
 
         Long unassignedTasks = taskService.createTaskQuery()
                 .taskCandidateGroupIn(teamCodes)
-                .processVariableValueNotEquals("type", "notifications")
+                .processVariableValueNotEquals("type", NOTIFICATIONS)
                 .taskUnassigned().count();
 
         tasksCountDto.setTasksUnassigned(unassignedTasks);
 
         Long totalTasksAllocatedToTeam = taskService.createTaskQuery()
                     .taskCandidateGroupIn(teamCodes)
-                     .processVariableValueNotEquals("type", "notifications")
+                     .processVariableValueNotEquals("type", NOTIFICATIONS)
                     .includeAssignedTasks()
                     .count();
 

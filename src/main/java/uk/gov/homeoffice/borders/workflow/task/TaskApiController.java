@@ -76,13 +76,13 @@ public class TaskApiController {
     }
 
     @PostMapping("/{taskId}/_claim")
-    public ResponseEntity<?> claim(@PathVariable String taskId) {
+    public ResponseEntity claim(@PathVariable String taskId) {
         applicationService.claimTask(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{taskId}/_complete")
-    public ResponseEntity<?> complete(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
+    public ResponseEntity complete(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
         User user = restApiUserExtractor.toUser();
         applicationService.completeTask(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
@@ -90,7 +90,7 @@ public class TaskApiController {
     }
 
     @PostMapping("/{taskId}/form/_complete")
-    public ResponseEntity<?> completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
+    public ResponseEntity completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
         User user = restApiUserExtractor.toUser();
         applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
@@ -98,7 +98,7 @@ public class TaskApiController {
     }
 
     @PostMapping("/{taskId}/_unclaim")
-    public ResponseEntity<?> unclaim(@PathVariable String taskId) {
+    public ResponseEntity unclaim(@PathVariable String taskId) {
         applicationService.unclaim(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();
     }

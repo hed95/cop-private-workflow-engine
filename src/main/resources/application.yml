@@ -18,6 +18,7 @@ keycloak:
     secret: ${KEYCLOAK_AUTH_SECRET}
 
 
+
 platform-data-url: ${PLATFORM_DATA_ENDPOINT_URL}
 platform-data-token: ${PLATFORM_DATA_TOKEN}
 
@@ -42,8 +43,12 @@ camunda:
         - file:///workflow-resources/bpmn/**/*.bpmn
         - file:///workflow-resources/cmmn/**/*.cmmn
         - file:///workflow-resources/dmn/**/*.dmn
-
-
+spring:
+  cache:
+    cache-names: shifts
+    caffeine:
+      spec: maximumSize=500
+    type: caffeine
 
 ---
 

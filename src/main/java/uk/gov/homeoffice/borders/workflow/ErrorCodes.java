@@ -6,5 +6,5 @@ public class ErrorCodes {
 
     }
 
-    public static int GOV_NOTIFY_ERROR_CODE = 1001;
+    public static final int GOV_NOTIFY_ERROR_CODE = 1001;
 }

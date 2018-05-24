@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.repository.ResourceDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
@@ -21,9 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
-import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationService;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -48,11 +44,11 @@ public class ProcessApplicationService {
      * @return paged result
      */
     public Page<ProcessDefinition> processDefinitions(User user, Pageable pageable) {
+        log.debug("Loading process definitions for '{}'", user.getEmail());
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
                 .latestVersion()
                 .list();
-        //TODO: Filter by team
         List<ProcessDefinition> definitions = processDefinitions.stream()
                 .filter(p -> !p.getKey().equalsIgnoreCase("activate-shift")
                         && !p.getKey().equalsIgnoreCase("notifications"))
@@ -97,17 +93,20 @@ public class ProcessApplicationService {
 
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
                 variables);
-        log.info("'{}' was successfully started with id '{}'", processStartDto.getProcessKey(), processInstance.getProcessInstanceId());
+        log.info("'{}' was successfully started with id '{}' by '{}'", processStartDto.getProcessKey(),
+                processInstance.getProcessInstanceId(), user.getEmail());
 
         return processInstance;
 
     }
 
     public ProcessInstance getProcessInstance(String processInstanceId, User user) {
+        log.info("User '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
         return runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
     }
 
     public VariableMap variables(String processInstanceId, User user) {
+        log.info("User '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
         return runtimeService.getVariablesTyped(processInstanceId, false);
     }
 

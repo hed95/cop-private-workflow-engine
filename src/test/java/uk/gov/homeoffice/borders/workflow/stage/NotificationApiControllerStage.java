@@ -12,20 +12,14 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.Assert;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
-import uk.gov.homeoffice.borders.workflow.identity.UserQuery;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
 import uk.gov.homeoffice.borders.workflow.task.notifications.Notification;
 import uk.gov.homeoffice.borders.workflow.task.notifications.Priority;
-import uk.gov.service.notify.NotificationClient;
 
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.anyObject;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

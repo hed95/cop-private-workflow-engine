@@ -2,7 +2,6 @@ package uk.gov.homeoffice.borders.workflow.identity;
 
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.homeoffice.borders.workflow.BaseIntClass;

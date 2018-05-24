@@ -3,7 +3,6 @@ package uk.gov.homeoffice.borders.workflow.stage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.integration.spring.JGivenStage;
-import org.assertj.core.api.Java6BDDAssertions;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;

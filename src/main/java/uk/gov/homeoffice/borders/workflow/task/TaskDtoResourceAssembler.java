@@ -3,7 +3,6 @@ package uk.gov.homeoffice.borders.workflow.task;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
 import org.camunda.bpm.engine.task.Task;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.stereotype.Component;
 

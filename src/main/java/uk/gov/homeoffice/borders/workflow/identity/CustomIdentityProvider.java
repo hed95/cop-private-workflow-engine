@@ -38,11 +38,13 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
 
     @Override
     public NativeUserQuery createNativeUserQuery() {
+        //Not required for this implementation
         throw new UnsupportedOperationException("Not supported in this implementation");
     }
 
     @Override
     public boolean checkPassword(String userId, String password) {
+        //Not required for this implementation
         throw new UnsupportedOperationException("Not supported in this implementation");
     }
 
@@ -79,12 +81,12 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
 
     @Override
     public void flush() {
-
+        //Not required for this implementation
     }
 
     @Override
     public void close() {
-
+        //Not required for this implementation
     }
 
     public long findUserCountByQueryCriteria(UserQuery query) {

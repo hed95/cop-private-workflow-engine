@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
-import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceWithVariablesDto;
-import org.camunda.bpm.engine.rest.dto.runtime.VariableInstanceDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 
-import java.util.List;
 import java.util.Map;
 
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_INSTANCE_ROOT_API;
@@ -38,13 +35,13 @@ public class ProcessInstanceApiController {
 
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@PathVariable String processInstanceId, @RequestParam String reason) {
+    public ResponseEntity delete(@PathVariable String processInstanceId, @RequestParam String reason) {
         processApplicationService.delete(processInstanceId, reason);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping
-    public ResponseEntity<?> createInstance(@RequestBody ProcessStartDto processStartDto) {
+    public ResponseEntity<ProcessInstanceDto> createInstance(@RequestBody ProcessStartDto processStartDto) {
 
         ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, restApiUserExtractor.toUser());
         ProcessInstanceDto processInstanceDto = ProcessInstanceDto.fromProcessInstance(processInstance);

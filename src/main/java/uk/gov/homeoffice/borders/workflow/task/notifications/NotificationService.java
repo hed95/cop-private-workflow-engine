@@ -17,8 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
@@ -42,7 +40,7 @@ public class NotificationService {
     private UserService userService;
     private TaskApplicationService taskApplicationService;
 
-    public Page<Task> notifications(User user, Pageable pageable) {
+    public Page<Task> getNotifications(User user, Pageable pageable) {
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(NOTIFICATIONS)
                 .processVariableValueEquals("type", NOTIFICATIONS)
@@ -103,7 +101,7 @@ public class NotificationService {
                         .create();
 
         Map<String, Object> variables = new HashMap<>();
-        variables.put("notifications", notificationObjectValue);
+        variables.put(NOTIFICATIONS, notificationObjectValue);
         variables.put("type", NOTIFICATIONS);
 
         return runtimeService.startProcessInstanceByKey(NOTIFICATIONS,

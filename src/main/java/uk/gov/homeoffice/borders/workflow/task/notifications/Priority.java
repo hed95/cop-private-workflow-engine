@@ -2,10 +2,7 @@ package uk.gov.homeoffice.borders.workflow.task.notifications;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -55,7 +52,7 @@ public class Priority {
         public static class TypeDeserializer extends JsonDeserializer<Type> {
 
             @Override
-            public Type deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            public Type deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
                 ObjectCodec oc = p.getCodec();
                 TreeNode treeNode = oc.readTree(p);
                 if (treeNode instanceof ObjectNode) {
@@ -65,7 +62,6 @@ public class Priority {
                     TextNode textNode = (TextNode)treeNode;
                     return Type.fromType(textNode.textValue());
                 }
-
 
             }
         }

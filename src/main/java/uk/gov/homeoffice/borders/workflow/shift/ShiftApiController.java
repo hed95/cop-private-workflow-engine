@@ -33,7 +33,7 @@ public class ShiftApiController {
     private ShiftApplicationService shiftApplicationService;
 
     @PostMapping
-    public ResponseEntity<?> startShift(@RequestBody ShiftInfo shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Void> startShift(@RequestBody ShiftInfo shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
 
         String email = shiftInfo.getEmail();
         log.info("Request to create shift for '{}'", email);
@@ -44,7 +44,7 @@ public class ShiftApiController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
     @GetMapping("/{email}")
@@ -53,7 +53,7 @@ public class ShiftApiController {
     }
 
     @DeleteMapping("/{email}")
-    public ResponseEntity<?> deleteShift(@PathVariable String email, @RequestParam String deletedReason) {
+    public ResponseEntity deleteShift(@PathVariable String email, @RequestParam String deletedReason) {
         shiftApplicationService.deleteShift(email, deletedReason);
         return ResponseEntity.ok().build();
     }
