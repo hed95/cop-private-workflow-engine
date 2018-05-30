@@ -68,6 +68,7 @@ public class UserService {
 
         user.setTeams(teams);
         user.setEmail(shiftInfo.getEmail());
+        user.setPhone(shiftInfo.getPhone());
         return user;
 
     }
