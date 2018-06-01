@@ -22,7 +22,8 @@ public class ShiftRemovalEventListener extends ReactorExecutionListener {
 
     @Override
     public void notify(DelegateExecution execution) throws Exception {
-        if (execution.getCurrentActivityName().equalsIgnoreCase("Remove shift record")) {
+        if (!execution.getProcessInstance().isCanceled() &&
+                execution.getCurrentActivityName().equalsIgnoreCase("Remove shift record")) {
             ShiftInfo shiftInfo = (ShiftInfo) execution.
                     getVariableTyped("shiftInfo", true)
                     .getValue();

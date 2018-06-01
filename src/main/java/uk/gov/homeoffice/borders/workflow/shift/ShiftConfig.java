@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.shift;
 
+import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +16,9 @@ public class ShiftConfig {
 
     @Bean
     public ShiftApplicationService shiftApplicationService(RuntimeService runtimeService,
-                                                           PlatformDataUrlBuilder platformDataUrlBuilder) {
-        return new ShiftApplicationService(runtimeService, new RestTemplate(), platformDataUrlBuilder, platformDataToken);
+                                                           PlatformDataUrlBuilder platformDataUrlBuilder, ManagementService
+                                                           managementService) {
+        return new ShiftApplicationService(runtimeService, new RestTemplate(), platformDataUrlBuilder,
+                platformDataToken, managementService);
     }
 }

@@ -2,7 +2,9 @@ package uk.gov.homeoffice.borders.workflow.shift;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.runtime.Job;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.variable.Variables;
@@ -41,6 +43,8 @@ public class ShiftApplicationService {
     private PlatformDataUrlBuilder platformDataUrlBuilder;
 
     private String platformDataToken;
+
+    private ManagementService managementService;
 
     /**
      * Start a shift workflow
@@ -103,7 +107,11 @@ public class ShiftApplicationService {
                     HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
             log.info("active shift deleted from store...deleting workflow");
             List<String> ids = instances.stream().map(ProcessInstance::getProcessInstanceId).collect(Collectors.toList());
-            runtimeService.deleteProcessInstances(ids, deleteReason, false, false);
+            List<Job> jobs = managementService.createJobQuery()
+                    .processInstanceId(instances.get(0).getProcessInstanceId()).list();
+            jobs.stream().forEach(j -> managementService.deleteJob(j.getId()));
+
+            runtimeService.deleteProcessInstance(ids.get(0), deleteReason);
             log.info("Shift deleted for '{}'", email);
         }
 
