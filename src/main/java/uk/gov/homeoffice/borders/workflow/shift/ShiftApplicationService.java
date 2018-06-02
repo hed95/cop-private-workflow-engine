@@ -21,10 +21,7 @@ import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -81,10 +78,12 @@ public class ShiftApplicationService {
     private void setEndTime(ShiftInfo shiftInfo) {
         Integer shiftHours = shiftInfo.getShiftHours();
         Integer shiftMinutes = shiftInfo.getShiftMinutes();
-        Date startTime = shiftInfo.getStartDateTime();
+        Date startTime = new DateTime(shiftInfo.getStartDateTime())
+                .withZone(org.joda.time.DateTimeZone.UTC).toDate();
         shiftInfo.setEndDateTime(new DateTime(startTime)
                 .plusHours(shiftHours)
                 .plusMinutes(shiftMinutes)
+                .withZone(org.joda.time.DateTimeZone.UTC)
                 .toDate());
     }
 
@@ -101,17 +100,26 @@ public class ShiftApplicationService {
 
 
         if (!CollectionUtils.isEmpty(instances)) {
+            List<String> ids = instances.stream().map(ProcessInstance::getProcessInstanceId).collect(Collectors.toList());
+            List<String> shifts = runtimeService.createVariableInstanceQuery()
+                    .variableName("shiftId")
+                    .processInstanceIdIn(ids.toArray(new String[]{})).list()
+                    .stream()
+                    .map(v -> (String) v.getValue())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.set("Authorization", "Bearer " + platformDataToken);
-            restTemplate.exchange(platformDataUrlBuilder.shiftUrl(email),
-                    HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
-            log.info("active shift deleted from store...deleting workflow");
-            List<String> ids = instances.stream().map(ProcessInstance::getProcessInstanceId).collect(Collectors.toList());
-            List<Job> jobs = managementService.createJobQuery()
-                    .processInstanceId(instances.get(0).getProcessInstanceId()).list();
-            jobs.stream().forEach(j -> managementService.deleteJob(j.getId()));
 
-            runtimeService.deleteProcessInstance(ids.get(0), deleteReason);
+            shifts.stream().forEach(id -> {
+                restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(id),
+                        HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
+                log.info("active shift '{}' deleted from store...", id);
+            });
+
+            runtimeService.deleteProcessInstances(ids, deleteReason, false, true);
             log.info("Shift deleted for '{}'", email);
         }
 

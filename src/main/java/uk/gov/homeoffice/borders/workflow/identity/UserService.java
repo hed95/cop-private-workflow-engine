@@ -41,7 +41,7 @@ public class UserService {
     @Cacheable(value="shifts", key="#userId", unless="#result == null")
     public User findByUserId(String userId) {
         List<ShiftInfo> shiftDetails = restTemplate
-                .exchange(platformDataUrlBuilder.shiftUrl(userId), HttpMethod.GET, null,
+                .exchange(platformDataUrlBuilder.shiftUrlByEmail(userId), HttpMethod.GET, null,
                         new ParameterizedTypeReference<List<ShiftInfo>>() {
                         }, new HashMap<>()).getBody();
         if (shiftDetails != null && shiftDetails.size() == 1) {

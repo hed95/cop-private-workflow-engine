@@ -1,4 +1,4 @@
-package uk.gov.homeoffice.borders.workflow.identity;
+package uk.gov.homeoffice.borders.workflow.shift;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.ActivityTypes;

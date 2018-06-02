@@ -26,12 +26,20 @@ public class PlatformDataUrlBuilder {
     public static final String STAFFVIEW = "/staffview";
     private String platformDataUrl;
 
-    public String shiftUrl(String email) {
+    public String shiftUrlByEmail(String email) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
                 .path(SHIFT)
                 .query("email=eq.{email}")
                 .buildAndExpand(Collections.singletonMap("email", email))
+                .toString();
+    }
+    public String shiftUrlById(String id) {
+        return UriComponentsBuilder.newInstance()
+                .uri(URI.create(platformDataUrl))
+                .path(SHIFT)
+                .query("shiftid=eq.{id}")
+                .buildAndExpand(Collections.singletonMap("id", id))
                 .toString();
     }
 
