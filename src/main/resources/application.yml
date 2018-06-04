@@ -29,7 +29,7 @@ camunda:
   bpm:
     process-engine-name: borders
     database:
-      type: ${CAMUNDA_BD_TYPE:postgres}
+      type: ${CAMUNDA_DB_TYPE}
     deployment-resource-pattern:
         - classpath*:**/*.bpmn
         - classpath*:**/*.bpmn20.xml
@@ -43,7 +43,7 @@ camunda:
         - file:///workflow-resources/dmn/**/*.dmn
 spring:
   datasource:
-    driver-class-name: ${ENGINE_DRIVER:org.postgresql.Driver}
+    driver-class-name: ${ENGINE_DB_DRIVER}
     password: ${ENGINE_DB_PASSWORD}
     username: ${ENGINE_DB_USERNAME}
     url: ${ENGINE_DB_URL}
