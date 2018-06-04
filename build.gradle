@@ -87,7 +87,7 @@ dependencies {
     compile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.5.0.Final'
     compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.5.0.Final'
     compile('uk.gov.service.notify:notifications-java-client:3.8.0-RELEASE')
-
+    compile 'org.glassfish:javax.el:3.0.1-b08'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.283'
     compile ('org.codehaus.groovy:groovy-all:2.4.6')
     compile ('org.postgresql:postgresql:42.1.4')
