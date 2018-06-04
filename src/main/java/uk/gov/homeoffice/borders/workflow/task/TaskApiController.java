@@ -16,6 +16,7 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 
@@ -104,7 +105,7 @@ public class TaskApiController {
     }
 
     @GetMapping("/_task-counts")
-    public TasksCountDto taskCounts() {
+    public Mono<TasksCountDto> taskCounts() {
         return applicationService.taskCounts(restApiUserExtractor.toUser());
     }
 

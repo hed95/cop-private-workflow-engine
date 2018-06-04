@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.stage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.integration.spring.JGivenStage;
+import org.assertj.core.api.Java6BDDAssertions;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
@@ -17,9 +18,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
+import uk.gov.homeoffice.borders.workflow.task.TasksCountDto;
 
 import java.util.*;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,6 +53,8 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
 
     private ProcessInstance processInstance;
 
+    private ResultActions mvcTaskCountResults;
+
     public TaskApiControllerStage aNumberOfTasksCreated(int numberOfTasks) {
         List<Data> collectionOfData = new ArrayList<>();
 
@@ -67,9 +73,9 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
                         .serializationDataFormat("application/json")
                         .create();
 
-        Map<String,Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put("collectionOfData", dataObjectValue);
-        variables.put("type" , "non-notification");
+        variables.put("type", "non-notification");
 
         processInstance = runtimeService.startProcessInstanceByKey("test",
                 variables);
@@ -114,7 +120,6 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
     }
 
 
-
     public TaskApiControllerStage aQueryWithTaskName(String taskName) throws Exception {
         User user = new User();
         user.setEmail("test");
@@ -140,8 +145,8 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
         return this;
     }
 
-    public TaskApiControllerStage numberOfResultsShouldBe(int expected) throws Exception {
-        mvcPostResults.andExpect(jsonPath("$.page['totalElements']", is(expected)));
+    public TaskApiControllerStage numberOfResultsShouldGreaterOrEqualTo(int expected) throws Exception {
+        mvcPostResults.andExpect(jsonPath("$.page['totalElements']", greaterThanOrEqualTo(expected)));
         return this;
     }
 
@@ -150,6 +155,39 @@ public class TaskApiControllerStage extends Stage<TaskApiControllerStage> {
         return this;
     }
 
+    public TaskApiControllerStage taskCountForUser(String username) throws Exception {
+        User user = new User();
+        user.setEmail(username);
+        Team team = new Team();
+        team.setName("test");
+        team.setTeamCode("test");
+        user.setTeams(Collections.singletonList(team));
+        WorkflowAuthentication workflowAuthentication = new WorkflowAuthentication(user);
+
+        Mockito.when(identityService.getCurrentAuthentication()).thenReturn(workflowAuthentication);
+
+        mvcTaskCountResults = mockMvc.perform(get("/api/workflow/tasks/_task-counts").contentType(MediaType.APPLICATION_JSON));
+        return this;
+    }
+
+    public TaskApiControllerStage numberOfUnassignedTasks(long number) throws Exception {
+
+        TasksCountDto tasksCountDto = (TasksCountDto) mvcTaskCountResults.andReturn().getAsyncResult();
+        assertThat(tasksCountDto.getTasksUnassigned(), is (number));
+        return this;
+    }
+
+    public TaskApiControllerStage numberOfAssignedTasksToUser(long number) throws Exception {
+        TasksCountDto tasksCountDto = (TasksCountDto) mvcTaskCountResults.andReturn().getAsyncResult();
+        assertThat(tasksCountDto.getTasksAssignedToUser(), is (number));
+        return this;
+    }
+
+    public TaskApiControllerStage numberOfTasksAssignedToTeam(long number) throws Exception {
+        TasksCountDto tasksCountDto = (TasksCountDto) mvcTaskCountResults.andReturn().getAsyncResult();
+        assertThat(tasksCountDto.getTotalTasksAllocatedToTeam(), is (number));
+        return this;
+    }
 
 
     public static class Data {

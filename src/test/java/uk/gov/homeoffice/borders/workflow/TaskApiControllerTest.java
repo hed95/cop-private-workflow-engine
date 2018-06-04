@@ -9,32 +9,46 @@ public class TaskApiControllerTest extends JGivenBaseTestClass<TaskApiController
 
     @Test
     public void canGetPagedResults() throws Exception {
-                given()
-                    .aNumberOfTasksCreated(30)
+        given()
+                .aNumberOfTasksCreated(30)
                 .when()
-                    .aCallToGetTasksIsForUser("test")
+                .aCallToGetTasksIsForUser("test")
                 .then()
-                    .statusIsOK()
+                .statusIsOK()
                 .and()
-                    .resultSizeIsNotZero()
+                .resultSizeIsNotZero()
                 .and()
-                    .hasNextLink()
+                .hasNextLink()
                 .and()
-                    .hasFirstLink()
+                .hasFirstLink()
                 .and()
-                    .hasLastLink();
+                .hasLastLink();
     }
 
     @Test
     public void canQueryByTaskName() throws Exception {
-            given()
+        given()
                 .aNumberOfTasksCreated(1)
-            .when()
+                .when()
                 .aQueryWithTaskName("Perform duty for test 0")
-            .then()
+                .then()
                 .responseIsOK()
-            .and()
-                .numberOfResultsShouldBe(1);
+                .and()
+                .numberOfResultsShouldGreaterOrEqualTo(1);
+    }
+
+    @Test
+    public void canGetTaskCount() throws Exception {
+        given()
+                .aNumberOfTasksCreated(30)
+                .when()
+                .taskCountForUser("test")
+                .then()
+                .numberOfUnassignedTasks(0L)
+                .and()
+                .numberOfAssignedTasksToUser(30L)
+                .and()
+                .numberOfTasksAssignedToTeam(30L);
     }
 
 }

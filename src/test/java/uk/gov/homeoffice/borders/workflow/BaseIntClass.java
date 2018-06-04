@@ -22,15 +22,17 @@ import uk.gov.service.notify.NotificationClient;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"security.basic.enabled=false",
-                "keycloak.enabled=false"})
+        properties = {"keycloak.enabled=false", "spring.datasource.name=testdbB"})
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {"GOV_NOTIFY_CLIENT_ID = XXXX", "" +
-        "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX", "" +
+@TestPropertySource(properties = {"GOV_NOTIFY_CLIENT_ID = XXXX",
+        "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX",
         "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
         "PLATFORM_DATA_ENDPOINT_URL = http://localhost:8000",
-        "PLATFORM_DATA_TOKEN = DB"})
+        "PLATFORM_DATA_TOKEN = DB",
+        "ENGINE_DB_URL=jdbc:h2:mem:testdbB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false",
+        "ENGINE_DB_USERNAME=sa", "ENGINE_DB_PASSWORD=",
+        "ENGINE_DRIVER=org.h2.Driver", "CAMUNDA_DB_TYPE=h2"})
 public abstract class BaseIntClass {
 
 
@@ -59,7 +61,6 @@ public abstract class BaseIntClass {
 
     @Autowired
     protected RuntimeService runtimeService;
-
 
 
 }

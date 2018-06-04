@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -20,15 +21,19 @@ import uk.gov.service.notify.NotificationClient;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"security.basic.enabled=false",
-                "keycloak.enabled=false"})
+        properties = {"keycloak.enabled=false", "spring.datasource.name=testdbA"})
 @ActiveProfiles("test")
 @EnableJGiven
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {"GOV_NOTIFY_CLIENT_ID = XXXX", "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX", "" +
+@TestPropertySource(properties = {"GOV_NOTIFY_CLIENT_ID = XXXX",
+        "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX",
         "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
         "PLATFORM_DATA_ENDPOINT_URL = http://localhost:8000",
-        "PLATFORM_DATA_TOKEN = DB"})
+        "PLATFORM_DATA_TOKEN = DB",
+        "ENGINE_DB_URL=jdbc:h2:mem:testdbA;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false",
+        "ENGINE_DB_USERNAME=sa", "ENGINE_DB_PASSWORD=",
+        "ENGINE_DRIVER=org.h2.Driver", "CAMUNDA_DB_TYPE=h2"})
+@DirtiesContext
 public abstract class JGivenBaseTestClass<T> extends SimpleSpringScenarioTest<T> {
 
     @Autowired
@@ -42,7 +47,7 @@ public abstract class JGivenBaseTestClass<T> extends SimpleSpringScenarioTest<T>
 
 
     @MockBean
-    protected  UserService userService;
+    protected UserService userService;
 
     @Autowired
     protected MockMvc mockMvc;

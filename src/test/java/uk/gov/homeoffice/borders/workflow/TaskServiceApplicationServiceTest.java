@@ -45,4 +45,5 @@ public class TaskServiceApplicationServiceTest extends JGivenBaseTestClass<TaskA
                 .and()
                 .totalResultsIs(1L);
     }
+
 }

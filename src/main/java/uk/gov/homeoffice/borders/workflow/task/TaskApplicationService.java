@@ -19,13 +19,19 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
@@ -44,13 +50,12 @@ public class TaskApplicationService {
     /**
      * Returns paged result of tasks
      *
-     * @param user     user that is returned from active session look up
+     * @param user             user that is returned from active session look up
      * @param assignedToMeOnly used to indicate to just return tasks assigned to user
-     * @param pageable page object
-     *
+     * @param pageable         page object
      * @return paged result
      */
-    public Page<Task> tasks(@NotNull User user, Boolean assignedToMeOnly, Boolean unassignedOnly,Pageable pageable) {
+    public Page<Task> tasks(@NotNull User user, Boolean assignedToMeOnly, Boolean unassignedOnly, Pageable pageable) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", NOTIFICATIONS)
                 .initializeFormKeys();
@@ -228,32 +233,35 @@ public class TaskApplicationService {
     }
 
 
-    public TasksCountDto taskCounts(User user) {
-        TasksCountDto tasksCountDto = new TasksCountDto();
+    public Mono<TasksCountDto> taskCounts(User user) {
 
         List<String> teamCodes = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
 
-        Long tasksAssignedToUser = taskService.createTaskQuery()
+
+        Mono<Long> assignedToUser = Mono.fromCallable(() -> taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", NOTIFICATIONS)
-                .taskAssignee(user.getEmail()).count();
-        tasksCountDto.setTasksAssignedToUser(tasksAssignedToUser);
+                .taskAssignee(user.getEmail()).count()).subscribeOn(Schedulers.elastic());
 
-
-        Long unassignedTasks = taskService.createTaskQuery()
+        Mono<Long> unassignedTasks = Mono.fromCallable(() -> taskService.createTaskQuery()
                 .taskCandidateGroupIn(teamCodes)
                 .processVariableValueNotEquals("type", NOTIFICATIONS)
-                .taskUnassigned().count();
+                .taskUnassigned().count())
+                .subscribeOn(Schedulers.elastic());
 
-        tasksCountDto.setTasksUnassigned(unassignedTasks);
+        Mono<Long> tasksAssignedToTeams = Mono.fromCallable(() -> taskService.createTaskQuery()
+                .taskCandidateGroupIn(teamCodes)
+                .processVariableValueNotEquals("type", NOTIFICATIONS)
+                .includeAssignedTasks()
+                .count()).subscribeOn(Schedulers.elastic());
 
-        Long totalTasksAllocatedToTeam = taskService.createTaskQuery()
-                    .taskCandidateGroupIn(teamCodes)
-                     .processVariableValueNotEquals("type", NOTIFICATIONS)
-                    .includeAssignedTasks()
-                    .count();
+        return Mono.zip(Arrays.asList(assignedToUser, unassignedTasks, tasksAssignedToTeams), (args) -> {
+            log.info("Aggregating task counts....");
+            TasksCountDto tasksCountDto = new TasksCountDto();
+            tasksCountDto.setTasksAssignedToUser((Long) args[0]);
+            tasksCountDto.setTasksUnassigned((Long) args[1]);
+            tasksCountDto.setTotalTasksAllocatedToTeam((Long) args[2]);
+            return tasksCountDto;
+        }).doOnError((e) -> log.error("Failed to get task count", e)).onErrorReturn(new TasksCountDto()).subscribeOn(Schedulers.elastic());
 
-        tasksCountDto.setTotalTasksAllocatedToTeam(totalTasksAllocatedToTeam);
-
-        return tasksCountDto;
     }
 }

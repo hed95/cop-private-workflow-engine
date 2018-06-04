@@ -1,8 +1,3 @@
-endpoints:
-  enabled: false
-  health:
-    enabled: true
-
 
 keycloak:
   auth-server-url: ${KEYCLOAK_AUTH_URL}
@@ -32,6 +27,9 @@ gov:
 
 camunda:
   bpm:
+    process-engine-name: borders
+    database:
+      type: ${CAMUNDA_BD_TYPE:postgres}
     deployment-resource-pattern:
         - classpath*:**/*.bpmn
         - classpath*:**/*.bpmn20.xml
@@ -44,36 +42,16 @@ camunda:
         - file:///workflow-resources/cmmn/**/*.cmmn
         - file:///workflow-resources/dmn/**/*.dmn
 spring:
-  cache:
-    cache-names: shifts
-    caffeine:
-      spec: maximumSize=500
-    type: caffeine
-
----
-
-spring:
-  profiles: local,test
-
-camunda:
-  bpm:
-    process-engine-name: borders
-    database:
-      type: h2
-
----
-
-spring:
-  profiles: dev,prod
   datasource:
-    url: ${ENGINE_DB_URL}
+    driver-class-name: ${ENGINE_DRIVER:org.postgresql.Driver}
+    password: ${ENGINE_DB_PASSWORD}
     username: ${ENGINE_DB_USERNAME}
-    password: ${ENGINE_BD_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    url: ${ENGINE_DB_URL}
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=9000
+    cache-names: shifts
 
-camunda:
-  bpm:
-    process-engine-name: borders
-    database:
-      type: postgres
+
 
