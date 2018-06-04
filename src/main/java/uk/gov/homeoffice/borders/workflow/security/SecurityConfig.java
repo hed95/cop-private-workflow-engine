@@ -80,7 +80,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .antMatchers("/engine").permitAll()
-                .antMatchers("/health").permitAll()
+                .antMatchers("/actuator/health").permitAll()
                 .anyRequest()
                 .fullyAuthenticated();
     }
