@@ -26,5 +26,4 @@ public class RestApiUserExtractor {
         return currentAuthentication.getUser();
     }
 
-
 }
