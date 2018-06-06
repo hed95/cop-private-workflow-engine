@@ -56,7 +56,7 @@ public class ProcessApplicationService {
                 .sorted(Comparator.comparing(ResourceDefinition::getName))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(definitions, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), definitions.size());
+        return new PageImpl<>(definitions, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), definitions.size());
 
 
     }
@@ -64,14 +64,10 @@ public class ProcessApplicationService {
     /**
      * Get form key for given process definition key
      * @param processDefinitionId
-     * @return
+     * @return form key
      */
     public String formKey(String processDefinitionId) {
-        String startFormKey = formService.getStartFormKey(processDefinitionId);
-        if (startFormKey == null) {
-            throw new ResourceNotFound(String.format("Process definition %s does not have a start form", processDefinitionId));
-        }
-        return startFormKey;
+        return formService.getStartFormKey(processDefinitionId);
     }
 
     public void delete(String processInstanceId, String reason) {
@@ -102,7 +98,11 @@ public class ProcessApplicationService {
 
     public ProcessInstance getProcessInstance(String processInstanceId, User user) {
         log.info("User '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
-        return runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        if (processInstance == null) {
+            throw new ResourceNotFound("Process instance not found");
+        }
+        return processInstance;
     }
 
     public VariableMap variables(String processInstanceId, User user) {

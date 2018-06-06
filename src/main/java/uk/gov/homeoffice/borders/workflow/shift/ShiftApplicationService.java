@@ -41,8 +41,6 @@ public class ShiftApplicationService {
 
     private String platformDataToken;
 
-    private ManagementService managementService;
-
     /**
      * Start a shift workflow
      *

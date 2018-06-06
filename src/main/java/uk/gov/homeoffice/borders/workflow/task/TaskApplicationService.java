@@ -79,7 +79,7 @@ public class TaskApplicationService {
         List<Task> tasks = taskQuery
                 .listPage(calculatePageNumber(pageable), pageable.getPageSize());
 
-        return new PageImpl<>(tasks, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
+        return new PageImpl<>(tasks, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
     }
 
     public int calculatePageNumber(Pageable pageable) {

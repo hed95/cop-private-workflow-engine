@@ -23,9 +23,7 @@ import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS
  */
 
 @RestController
-@RequestMapping(path = PROCESS_INSTANCE_ROOT_API,
-        produces = MediaType.APPLICATION_JSON_VALUE,
-        consumes = MediaType.APPLICATION_JSON_VALUE )
+@RequestMapping(path = PROCESS_INSTANCE_ROOT_API)
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class ProcessInstanceApiController {
@@ -34,13 +32,15 @@ public class ProcessInstanceApiController {
     private RestApiUserExtractor restApiUserExtractor;
 
 
-    @DeleteMapping
+    @DeleteMapping("/{processInstanceId}")
     public ResponseEntity delete(@PathVariable String processInstanceId, @RequestParam String reason) {
         processApplicationService.delete(processInstanceId, reason);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping
+    @PostMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE )
     public ResponseEntity<ProcessInstanceDto> createInstance(@RequestBody ProcessStartDto processStartDto) {
 
         ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, restApiUserExtractor.toUser());
@@ -50,12 +50,12 @@ public class ProcessInstanceApiController {
 
     }
 
-    @GetMapping("/{processInstanceId}")
+    @GetMapping(value = "/{processInstanceId}", produces = MediaType.APPLICATION_JSON_VALUE)
     private ProcessInstanceDto processInstance(@PathVariable String processInstanceId) {
         ProcessInstance processInstance = processApplicationService.getProcessInstance(processInstanceId, restApiUserExtractor.toUser());
         return ProcessInstanceDto.fromProcessInstance(processInstance);
     }
-    @GetMapping("/{processInstanceId}/variables")
+    @GetMapping(value = "/{processInstanceId}/variables", produces = MediaType.APPLICATION_JSON_VALUE)
     private Map<String, VariableValueDto> variables(@PathVariable String processInstanceId) {
         VariableMap variables = processApplicationService.variables(processInstanceId, restApiUserExtractor.toUser());
         return VariableValueDto.fromVariableMap(variables);

@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -86,9 +87,17 @@ public class UserService {
 
         List<String> staffIds = shifts.stream().map(ShiftInfo::getStaffId).collect(Collectors.toList());
 
-        return restTemplate.exchange(platformDataUrlBuilder.staffViewIn(staffIds),
-                HttpMethod.GET, null, new ParameterizedTypeReference<List<User>>() {}).getBody();
+        Map<String, ShiftInfo> idsToInfo =
+                shifts.stream().collect(Collectors.toMap(ShiftInfo::getStaffId, item -> item));
 
+        List<User> users = restTemplate.exchange(platformDataUrlBuilder.staffViewIn(staffIds),
+                HttpMethod.GET, null, new ParameterizedTypeReference<List<User>>() {
+                }).getBody();
+
+        return users.stream().map( (User u) -> {
+            u.setPhone(idsToInfo.get(u.getId()).getPhone());
+            return u;
+        }).collect(Collectors.toList());
     }
 
     private String resolveQueryUrl(UserQuery query) {

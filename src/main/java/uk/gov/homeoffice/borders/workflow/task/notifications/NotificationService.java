@@ -55,7 +55,7 @@ public class NotificationService {
                 .listPage(pageNumber, pageable.getPageSize());
 
 
-        return new PageImpl<>(tasks, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), totalCount);
+        return new PageImpl<>(tasks,  PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalCount);
     }
 
 

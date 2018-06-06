@@ -17,9 +17,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 import uk.gov.homeoffice.borders.workflow.identity.User;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,15 +54,22 @@ public class TaskApiController {
     }
 
     @GetMapping("/{taskId}")
-    public TaskDtoResource task(@PathVariable String taskId) {
+    public Mono<TaskDtoResource> task(@PathVariable String taskId) {
         User user = restApiUserExtractor.toUser();
-        Task task = applicationService.getTask(user, taskId);
-        TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(task);
-        List<String> identityLinks = applicationService.getIdentityLinksForTask(task.getId())
-                .stream().map(IdentityLink::getGroupId).collect(Collectors.toList());
+        Mono<Task> task = Mono
+                .fromCallable(() -> applicationService.getTask(user, taskId))
+                .subscribeOn(Schedulers.elastic());
 
-        taskDtoResource.setCandidateGroups(identityLinks);
-        return taskDtoResource;
+        Mono<List<String>> indentities = Mono.fromCallable(() -> applicationService.getIdentityLinksForTask(taskId)
+                .stream().map(IdentityLink::getGroupId).collect(Collectors.toList()))
+                .subscribeOn(Schedulers.elastic());
+
+        return Mono.zip(Arrays.asList(task, indentities), (args) -> {
+            TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource((Task) args[0]);
+            taskDtoResource.setCandidateGroups((List<String>) args[1]);
+            return taskDtoResource;
+        }).subscribeOn(Schedulers.elastic());
+
     }
 
     @GetMapping("/{taskId}/variables")

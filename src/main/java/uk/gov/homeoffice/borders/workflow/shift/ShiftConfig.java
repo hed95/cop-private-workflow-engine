@@ -19,6 +19,6 @@ public class ShiftConfig {
                                                            PlatformDataUrlBuilder platformDataUrlBuilder, ManagementService
                                                            managementService) {
         return new ShiftApplicationService(runtimeService, new RestTemplate(), platformDataUrlBuilder,
-                platformDataToken, managementService);
+                platformDataToken);
     }
 }

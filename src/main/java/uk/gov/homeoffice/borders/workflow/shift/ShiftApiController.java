@@ -25,14 +25,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-@RequestMapping(path = "/api/workflow/shift",
-        produces = MediaType.APPLICATION_JSON_VALUE,
-        consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/api/workflow/shift")
 public class ShiftApiController {
 
     private ShiftApplicationService shiftApplicationService;
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> startShift(@RequestBody ShiftInfo shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
 
         String email = shiftInfo.getEmail();
@@ -47,7 +46,7 @@ public class ShiftApiController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{email}")
+    @GetMapping(path="/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ShiftInfo shiftInfo(@PathVariable String email) {
         return shiftApplicationService.getShiftInfo(email);
     }

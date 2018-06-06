@@ -35,8 +35,8 @@ public class GovNotifyConfiguration {
     }
 
     @Bean
-    public NotificationTaskEventListener notificationTaskEventListener() {
-        return new NotificationTaskEventListener(notificationClient(), emailNotificationTemplateId,
+    public NotificationTaskEventListener notificationTaskEventListener(NotificationClient notificationClient) {
+        return new NotificationTaskEventListener(notificationClient, emailNotificationTemplateId,
                 smsNotificationTemplateId, exceptionHandler());
     }
 }
