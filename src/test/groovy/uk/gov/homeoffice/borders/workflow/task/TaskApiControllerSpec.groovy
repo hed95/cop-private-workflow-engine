@@ -1,12 +1,14 @@
 package uk.gov.homeoffice.borders.workflow.task
 
+import org.camunda.bpm.engine.HistoryService
+import org.camunda.bpm.engine.rest.dto.VariableValueDto
+import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto
 import org.camunda.bpm.engine.task.Task
 import org.camunda.bpm.engine.variable.Variables
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import uk.gov.homeoffice.borders.workflow.BaseSpec
-import uk.gov.homeoffice.borders.workflow.identity.Team
-import uk.gov.homeoffice.borders.workflow.identity.User
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo
 import static org.hamcrest.Matchers.is
@@ -19,11 +21,14 @@ class TaskApiControllerSpec extends BaseSpec {
 
     def processInstance
 
-    void createTasks(number) {
+    @Autowired
+    HistoryService historyService
+
+    void createTasks(number, assignee) {
         def tasks = []
         number.times {
             def data = new Data()
-            data.assignee = "test"
+            data.assignee = assignee
             data.candidateGroup = "teamA"
             data.name = "test ${it}"
             data.description = "test ${it}"
@@ -45,15 +50,9 @@ class TaskApiControllerSpec extends BaseSpec {
 
     def 'can get paged results'() {
         given:
-        createTasks(30)
+        createTasks(30, "test")
         and:
-        def user = new User()
-        user.email = 'email'
-        def team = new Team()
-        user.teams = []
-        team.teamCode = 'teamA'
-        user.teams << team
-        restApiUserExtractor.toUser() >> user
+        logInUser()
 
         when:
         def result = mvc.perform(get("/api/workflow/tasks")
@@ -66,19 +65,15 @@ class TaskApiControllerSpec extends BaseSpec {
 
     }
 
+
+
+
     def 'can query task by name'() {
         given:
-        createTasks(1)
+        createTasks(1, "test")
 
         and:
-        def user = new User()
-        user.email = 'email'
-        def team = new Team()
-        user.teams = []
-        team.teamCode = 'teamA'
-        user.teams << team
-        restApiUserExtractor.toUser() >> user
-
+        logInUser()
 
         and:
         def taskQueryDto = new TaskQueryDto()
@@ -98,15 +93,9 @@ class TaskApiControllerSpec extends BaseSpec {
 
     def 'can get task count'() {
         given:
-        createTasks(30)
+        createTasks(30, "test")
         and:
-        def user = new User()
-        user.email = 'test'
-        def team = new Team()
-        user.teams = []
-        team.teamCode = 'teamA'
-        user.teams << team
-        restApiUserExtractor.toUser() >> user
+        logInUser()
 
         when:
         def result = mvc.perform(get("/api/workflow/tasks/_task-counts")
@@ -123,15 +112,9 @@ class TaskApiControllerSpec extends BaseSpec {
 
     def 'can get task'() {
         given:
-        createTasks(1)
+        createTasks(1, "test")
         and:
-        def user = new User()
-        user.email = 'test'
-        def team = new Team()
-        user.teams = []
-        team.teamCode = 'teamA'
-        user.teams << team
-        restApiUserExtractor.toUser() >> user
+        logInUser()
 
         when:
         List<Task> list = taskService.createTaskQuery()
@@ -147,13 +130,131 @@ class TaskApiControllerSpec extends BaseSpec {
     }
 
 
-    @lombok.Data
-    class Data {
-        String assignee
-        String candidateGroup
-        String name
-        String description
+    def 'can claim a task'() {
+        given:
+        createTasks(1, null)
+        and:
+        def user = logInUser()
+        and:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        def task = list.first()
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/${task.id}/_claim")
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        and:
+        def reloded = taskService.createTaskQuery().taskId(task.id).singleResult()
+        reloded.assignee == user.email
 
     }
+
+    def 'can claim and complete task'() {
+        given:
+        createTasks(1, null)
+        and:
+        def user = logInUser()
+        and:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        def task = list.first()
+
+        and:
+        mvc.perform(post("/api/workflow/tasks/${task.id}/_claim")
+                .contentType(MediaType.APPLICATION_JSON))
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/${task.id}/_complete")
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        and:
+        def reloded = historyService.createHistoricTaskInstanceQuery()
+                .taskId(task.id).singleResult()
+
+        reloded.assignee == user.email
+        reloded.endTime
+    }
+
+    def 'can claim and unclaim task'() {
+        given:
+        createTasks(1, null)
+        and:
+        logInUser()
+        and:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        def task = list.first()
+
+
+        and:
+        mvc.perform(post("/api/workflow/tasks/${task.id}/_claim")
+                .contentType(MediaType.APPLICATION_JSON))
+        list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        task = list.first()
+        task.assignee == 'test'
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/${task.id}/_unclaim")
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        and:
+        def reloded = taskService.createTaskQuery().taskId(task.id).singleResult()
+        reloded.assignee == null
+    }
+
+    def 'can complete task with form'() {
+        given:
+        createTasks(1, null)
+        and:
+        def user = logInUser()
+        and:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        def task = list.first()
+
+        and:
+        mvc.perform(post("/api/workflow/tasks/${task.id}/_claim")
+                .contentType(MediaType.APPLICATION_JSON))
+
+        def formData = new CompleteTaskDto()
+        formData.variables = [:]
+        def variable = new VariableValueDto()
+        variable.type = 'string'
+        variable.value = 'asStringValue'
+        formData.variables['formData'] = variable
+        def  json = objectMapper.writeValueAsString(formData)
+        json.inspect()
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/${task.id}/form/_complete")
+                .content(json)
+                .contentType(MediaType.APPLICATION_JSON))
+        and:
+        def reloded = historyService.createHistoricTaskInstanceQuery()
+                .taskId(task.id).singleResult()
+        and:
+        def formDataVariable = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(task.processInstanceId)
+                .variableName('formData').singleResult()
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+
+        and:
+        reloded.assignee == user.email
+        reloded.endTime
+        formDataVariable
+        formDataVariable.name == 'formData'
+        formDataVariable.value == variable.value
+    }
+
 
 }

@@ -9,7 +9,7 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
-import uk.gov.homeoffice.borders.workflow.identity.User;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import java.util.ArrayList;
 
@@ -29,12 +29,12 @@ public class SecurityEventListener {
 
         String userId = keycloakSecurityContext.getToken().getEmail();
         if (serviceRoleCount == 0) {
-            User user = toUser(userId);
+            ShiftUser user = toUser(userId);
             if (user == null) {
                 log.warn("User '{}' does not have active shift", userId);
                 identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
             } else {
-                log.debug("User '{}' has active session", user);
+                log.debug("User '{}' has active shift", user);
                 identityService.setAuthentication(new WorkflowAuthentication(user));
             }
         } else {
@@ -43,7 +43,7 @@ public class SecurityEventListener {
         }
     }
 
-    private User toUser(String userId) {
-        return (User) identityService.createUserQuery().userId(userId).singleResult();
+    private ShiftUser toUser(String userId) {
+        return (ShiftUser) identityService.createUserQuery().userId(userId).singleResult();
     }
 }

@@ -7,20 +7,17 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
 
-import static com.github.tomakehurst.wiremock.http.Response.response
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request
-
 class UserServiceSpec extends Specification {
 
-    def wmPort = 8001
+    def wmPort = 8089
 
     @Rule
     WireMockRule wireMockRule = new WireMockRule(wmPort)
 
-    public wireMockStub = new WireMockGroovy(wmPort)
+    def wireMockStub = new WireMockGroovy(wmPort)
 
 
-    def platformDataUrlBuilder = new PlatformDataUrlBuilder('http://localhost:8001')
+    def platformDataUrlBuilder = new PlatformDataUrlBuilder('http://localhost:8089')
     def userService = new UserService(new RestTemplate(), platformDataUrlBuilder)
 
     def 'can find user by id'() {

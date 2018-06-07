@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
-import uk.gov.homeoffice.borders.workflow.identity.User;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
+import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.TASKS_ROOT_API;
 
 /**
  * REST API for interacting with tasks
@@ -34,7 +34,7 @@ import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
  */
 
 @RestController
-@RequestMapping(path = ROOT_PATH,
+@RequestMapping(path = TASKS_ROOT_API,
         produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -55,7 +55,7 @@ public class TaskApiController {
 
     @GetMapping("/{taskId}")
     public Mono<TaskDtoResource> task(@PathVariable String taskId) {
-        User user = restApiUserExtractor.toUser();
+        ShiftUser user = restApiUserExtractor.toUser();
         Mono<Task> task = Mono
                 .fromCallable(() -> applicationService.getTask(user, taskId))
                 .subscribeOn(Schedulers.elastic());
@@ -64,7 +64,7 @@ public class TaskApiController {
                 .stream().map(IdentityLink::getGroupId).collect(Collectors.toList()))
                 .subscribeOn(Schedulers.elastic());
 
-        return Mono.zip(Arrays.asList(task, indentities), (args) -> {
+        return Mono.zip(Arrays.asList(task, indentities), (Object[] args) -> {
             TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource((Task) args[0]);
             taskDtoResource.setCandidateGroups((List<String>) args[1]);
             return taskDtoResource;
@@ -92,16 +92,16 @@ public class TaskApiController {
     }
 
     @PostMapping("/{taskId}/_complete")
-    public ResponseEntity complete(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
-        User user = restApiUserExtractor.toUser();
+    public ResponseEntity complete(@PathVariable String taskId, @RequestBody(required = false)  CompleteTaskDto completeTaskDto) {
+        ShiftUser user = restApiUserExtractor.toUser();
         applicationService.completeTask(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }
 
-    @PostMapping("/{taskId}/form/_complete")
+    @PostMapping(value = "/{taskId}/form/_complete", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
-        User user = restApiUserExtractor.toUser();
+        ShiftUser user = restApiUserExtractor.toUser();
         applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 

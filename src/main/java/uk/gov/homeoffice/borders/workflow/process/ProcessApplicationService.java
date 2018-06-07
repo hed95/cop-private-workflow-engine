@@ -19,7 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.User;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class ProcessApplicationService {
      * @param pageable
      * @return paged result
      */
-    public Page<ProcessDefinition> processDefinitions(User user, Pageable pageable) {
+    public Page<ProcessDefinition> processDefinitions(ShiftUser user, Pageable pageable) {
         log.debug("Loading process definitions for '{}'", user.getEmail());
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
@@ -76,7 +76,7 @@ public class ProcessApplicationService {
     }
 
 
-    public ProcessInstance createInstance(ProcessStartDto processStartDto, User user) {
+    public ProcessInstance createInstance(ProcessStartDto processStartDto, ShiftUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
         ObjectValue dataObject =
                 Variables.objectValue(processStartDto.getData())
@@ -96,8 +96,8 @@ public class ProcessApplicationService {
 
     }
 
-    public ProcessInstance getProcessInstance(String processInstanceId, User user) {
-        log.info("User '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
+    public ProcessInstance getProcessInstance(String processInstanceId, ShiftUser user) {
+        log.info("ShiftUser '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         if (processInstance == null) {
             throw new ResourceNotFound("Process instance not found");
@@ -105,8 +105,8 @@ public class ProcessApplicationService {
         return processInstance;
     }
 
-    public VariableMap variables(String processInstanceId, User user) {
-        log.info("User '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
+    public VariableMap variables(String processInstanceId, ShiftUser user) {
+        log.info("ShiftUser '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
         return runtimeService.getVariablesTyped(processInstanceId, false);
     }
 

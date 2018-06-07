@@ -4,7 +4,7 @@ import org.springframework.hateoas.PagedResources
 import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
-import uk.gov.homeoffice.borders.workflow.identity.User
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -14,7 +14,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
 
     def 'can get process definitions from /api/workflow/process-definitions'() {
         given:
-        restApiUserExtractor.toUser() >> new User()
+        restApiUserExtractor.toUser() >> new ShiftUser()
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions')
@@ -29,7 +29,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
 
     def 'can get process definition /api/workflow/process-definitions/test'() {
         given:
-        restApiUserExtractor.toUser() >> new User()
+        restApiUserExtractor.toUser() >> new ShiftUser()
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions/test')

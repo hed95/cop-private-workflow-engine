@@ -40,7 +40,7 @@ public class UserService {
      * @return user
      */
     @Cacheable(value="shifts", key="#userId", unless="#result == null")
-    public User findByUserId(String userId) {
+    public ShiftUser findByUserId(String userId) {
         List<ShiftInfo> shiftDetails = restTemplate
                 .exchange(platformDataUrlBuilder.shiftUrlByEmail(userId), HttpMethod.GET, null,
                         new ParameterizedTypeReference<List<ShiftInfo>>() {
@@ -52,13 +52,13 @@ public class UserService {
         }
     }
 
-    private User getStaff(ShiftInfo shiftInfo) {
+    private ShiftUser getStaff(ShiftInfo shiftInfo) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
         HttpEntity<Object> requestEntity = new HttpEntity<>(httpHeaders);
 
-        User user = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(shiftInfo.getStaffId()),
-                HttpMethod.GET, requestEntity, User.class).getBody();
+        ShiftUser user = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(shiftInfo.getStaffId()),
+                HttpMethod.GET, requestEntity, ShiftUser.class).getBody();
 
 
         List<Team> teams = restTemplate
@@ -74,7 +74,7 @@ public class UserService {
 
     }
 
-    public List<User> findByQuery(UserQuery query) {
+    public List<ShiftUser> findByQuery(UserQuery query) {
         if (query.getId() != null) {
             return Collections.singletonList(self.findByUserId(query.getId()));
         }
@@ -90,11 +90,11 @@ public class UserService {
         Map<String, ShiftInfo> idsToInfo =
                 shifts.stream().collect(Collectors.toMap(ShiftInfo::getStaffId, item -> item));
 
-        List<User> users = restTemplate.exchange(platformDataUrlBuilder.staffViewIn(staffIds),
-                HttpMethod.GET, null, new ParameterizedTypeReference<List<User>>() {
+        List<ShiftUser> users = restTemplate.exchange(platformDataUrlBuilder.staffViewIn(staffIds),
+                HttpMethod.GET, null, new ParameterizedTypeReference<List<ShiftUser>>() {
                 }).getBody();
 
-        return users.stream().map( (User u) -> {
+        return users.stream().map( (ShiftUser u) -> {
             u.setPhone(idsToInfo.get(u.getId()).getPhone());
             return u;
         }).collect(Collectors.toList());

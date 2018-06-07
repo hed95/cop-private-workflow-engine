@@ -2,7 +2,7 @@ package uk.gov.homeoffice.borders.workflow.security;
 
 import org.camunda.bpm.engine.impl.identity.Authentication;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
-import uk.gov.homeoffice.borders.workflow.identity.User;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import static java.util.stream.Collectors.toList;
 
 public class WorkflowAuthentication extends Authentication {
 
-    private User user;
+    private ShiftUser user;
 
     public WorkflowAuthentication() {
         super();
@@ -25,12 +25,12 @@ public class WorkflowAuthentication extends Authentication {
         super(authenticatedUserId, authenticatedGroupIds, authenticatedTenantIds);
     }
 
-    public WorkflowAuthentication(User user) {
+    public WorkflowAuthentication(ShiftUser user) {
         super(user.getEmail(), user.getTeams().stream().map(Team::getTeamCode).collect(toList()), new ArrayList<>());
         this.user = user;
     }
 
-    public User getUser() {
+    public ShiftUser getUser() {
         return this.user;
     }
 }

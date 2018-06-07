@@ -4,7 +4,7 @@ import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto
 import org.springframework.http.MediaType
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.Team
-import uk.gov.homeoffice.borders.workflow.identity.User
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.task.TaskApiControllerSpec
 
 import static org.hamcrest.Matchers.is
@@ -24,7 +24,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
 
 
         and:
-        def user = createUser()
+        def user = logInUser()
         restApiUserExtractor.toUser() >> user
 
         when:
@@ -43,7 +43,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
         def processStartDto = createProcessStartDto()
 
         and:
-        def user = createUser()
+        def user = logInUser()
         restApiUserExtractor.toUser() >> user
 
         and:
@@ -70,7 +70,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
         def processStartDto = createProcessStartDto()
 
         and:
-        def user = createUser()
+        def user = logInUser()
         restApiUserExtractor.toUser() >> user
 
         and:
@@ -97,7 +97,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
         def processStartDto = createProcessStartDto()
 
         and:
-        def user = createUser()
+        def user = logInUser()
         restApiUserExtractor.toUser() >> user
 
         and:
@@ -121,8 +121,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
         def processStartDto = new ProcessStartDto()
         processStartDto.processKey = 'test'
         processStartDto.variableName = 'collectionOfData'
-        def data = new TaskApiControllerSpec.Data()
-        data.assignee = "test"
+        def data = new Data()
         data.candidateGroup = "teamA"
         data.name = "test 0"
         data.description = "test 0"
@@ -130,15 +129,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
         processStartDto
     }
 
-    User createUser() {
-        def user = new User()
-        user.email = 'test'
-        def team = new Team()
-        user.teams = []
-        team.teamCode = 'teamA'
-        user.teams << team
-        user
-    }
+
 
 
 }

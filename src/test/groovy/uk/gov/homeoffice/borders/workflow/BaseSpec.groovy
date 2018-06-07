@@ -6,6 +6,7 @@ import com.github.tomjankes.wiremock.WireMockGroovy
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.camunda.bpm.engine.variable.Variables
 import org.junit.Rule
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,6 +28,8 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.service.notify.NotificationClient
 import uk.gov.service.notify.NotificationClientApi
 
@@ -78,6 +81,25 @@ abstract class BaseSpec extends Specification {
         runtimeService.deleteProcessInstances(ids, "testclean", true, true)
     }
 
+    ShiftUser logInUser() {
+        def user = new ShiftUser()
+        user.email = 'test'
+        def team = new Team()
+        user.teams = []
+        team.teamCode = 'teamA'
+        user.teams << team
+        restApiUserExtractor.toUser() >> user
+        user
+    }
+
+    @lombok.Data
+    class Data {
+        String assignee
+        String candidateGroup
+        String name
+        String description
+
+    }
 
     @Configuration
     static class StubConfig {

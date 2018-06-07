@@ -4,7 +4,7 @@ import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.Team
-import uk.gov.homeoffice.borders.workflow.identity.User
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.task.notifications.Notification
 import uk.gov.homeoffice.borders.workflow.task.notifications.Priority
 
@@ -20,21 +20,11 @@ class NotificationApiControllerSpec extends BaseSpec {
 
     def 'can create notification at /api/workflow/notifications'() {
         given:
-        def notification = new Notification()
-        notification.teamId = 'teamA'
-        notification.subject = 'Alert'
-        notification.payload = 'Some payload'
-        def priority = new Priority()
-        priority.notificationBoost = false
-        priority.type = Priority.Type.URGENT
-        notification.priority = priority
+        def notification = createNotification()
 
         and:
-        def user = new User()
-        def team = new Team()
-        user.teams = []
-        team.teamCode = 'teamA'
-        user.teams << team
+        def user = createUser()
+
         restApiUserExtractor.toUser() >> user
 
         and:
@@ -109,9 +99,7 @@ class NotificationApiControllerSpec extends BaseSpec {
                  'payload': 'Some payload'], _ as String)
     }
 
-
-    def 'can get notification for user at /api/workflow/notifications'() {
-        given:
+    Notification createNotification() {
         def notification = new Notification()
         notification.teamId = 'teamA'
         notification.subject = 'Alert'
@@ -121,13 +109,28 @@ class NotificationApiControllerSpec extends BaseSpec {
         priority.type = Priority.Type.URGENT
         notification.priority = priority
 
-        and:
-        def user = new User()
+        notification
+    }
+
+
+    ShiftUser createUser() {
+        def user = new ShiftUser()
         user.email = 'email'
         def team = new Team()
         user.teams = []
         team.teamCode = 'teamA'
         user.teams << team
+
+        user
+
+    }
+
+    def 'can get notification for user at /api/workflow/notifications'() {
+        given:
+        def notification = createNotification()
+
+        and:
+        def user = createUser()
         restApiUserExtractor.toUser() >> user
 
         and:

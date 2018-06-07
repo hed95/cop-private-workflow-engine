@@ -22,7 +22,7 @@ import uk.gov.homeoffice.borders.workflow.task.TaskDtoResource;
 import uk.gov.homeoffice.borders.workflow.task.TaskDtoResourceAssembler;
 import uk.gov.homeoffice.borders.workflow.task.TaskReference;
 
-import static uk.gov.homeoffice.borders.workflow.task.notifications.NotificationsApiPaths.ROOT_PATH;
+import static uk.gov.homeoffice.borders.workflow.task.notifications.NotificationsApiPaths.NOTIFICATIONS_ROOT_API;
 
 /**
  * Notifications are tasks that are created by a specific workflow
@@ -31,7 +31,7 @@ import static uk.gov.homeoffice.borders.workflow.task.notifications.Notification
  */
 
 @RestController
-@RequestMapping(path = ROOT_PATH)
+@RequestMapping(path = NOTIFICATIONS_ROOT_API)
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NotificationsApiController {
@@ -45,7 +45,7 @@ public class NotificationsApiController {
     public ResponseEntity<ProcessInstanceDto> notifications(@RequestBody Notification notification, UriComponentsBuilder uriComponentsBuilder) {
         ProcessInstance processInstance = notificationService.create(notification);
         UriComponents uriComponents =
-                uriComponentsBuilder.path(ROOT_PATH + "/process-instance/{processInstanceId}").buildAndExpand(processInstance.getProcessInstanceId());
+                uriComponentsBuilder.path(NOTIFICATIONS_ROOT_API + "/process-instance/{processInstanceId}").buildAndExpand(processInstance.getProcessInstanceId());
         return  ResponseEntity
                     .created(uriComponents.toUri())
                     .body(ProcessInstanceDto.fromProcessInstance(processInstance));
