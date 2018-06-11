@@ -23,6 +23,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class NotificationTaskEventListener extends ReactorTaskListener {
 
+    private static final String SUBJECT = "subject";
     private NotificationClient notificationClient;
     private String emailNotificationTemplateId;
     private String smsNotificationTemplateId;
@@ -39,7 +40,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
             Priority priority = notification.getPriority();
             boolean notificationBoost = priority.isNotificationBoost();
             Map<String, String> variables = new HashMap<>();
-            variables.put("subject", notification.getSubject());
+            variables.put(SUBJECT, notification.getSubject());
             variables.put("payload", notification.getPayload().toString());
             try {
                 String reference = String.format("/api/workflow/notifications/%s", delegateTask.getProcessInstanceId());
@@ -53,7 +54,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
                         break;
                     case URGENT:
                         log.info("Urgent Priority defined");
-                        variables.put("subject", "URGENT: " + notification.getSubject());
+                        variables.put(SUBJECT, "URGENT: " + notification.getSubject());
                         if (!notificationBoost) {
                             sendEmail(notification, variables, reference);
                         } else {
@@ -64,7 +65,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
                         break;
                     default:
                         log.info("Emergency Priority defined..applying default boost (sendSMS and sendEmail)");
-                        variables.put("subject", "EMERGENCY: " + notification.getSubject());
+                        variables.put(SUBJECT, "EMERGENCY: " + notification.getSubject());
                         sendEmail(notification, variables, reference);
                         sendSMS(notification, variables, reference);
                 }

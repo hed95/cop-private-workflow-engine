@@ -12,8 +12,9 @@ Interface that is exposed over HTTP and define the resources for the engine
 #### Application Service Code
 
 Internal application code that uses the native Camunda API and does filtering
-based on the user who is currently logged in.  
+based on the user who is currently logged in and their team details.
 
+Only certain Camunda REST APIs
 
 #### Core Resources
 1. Tasks

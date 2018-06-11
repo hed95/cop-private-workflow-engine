@@ -1,7 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.jni.Proc;
 import org.camunda.bpm.engine.rest.*;
 import org.camunda.bpm.engine.rest.history.HistoryRestService;
 import org.camunda.bpm.engine.rest.impl.AbstractProcessEngineRestServiceImpl;
@@ -23,6 +22,7 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
     @Autowired
     private CustomCamundaRestApiService customCamundaRestApiService;
 
+    @Override
     protected void registerCamundaRestResources() {
         log.info("Configuring camunda rest api.");
         this.register(customCamundaRestApiService);

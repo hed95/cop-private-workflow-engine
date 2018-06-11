@@ -12,8 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,7 @@ import uk.gov.homeoffice.borders.workflow.task.TaskDtoResource;
 import uk.gov.homeoffice.borders.workflow.task.TaskDtoResourceAssembler;
 import uk.gov.homeoffice.borders.workflow.task.TaskReference;
 
-import static uk.gov.homeoffice.borders.workflow.task.notifications.NotificationsApiPaths.ROOT_PATH;
+import static uk.gov.homeoffice.borders.workflow.task.notifications.NotificationsApiPaths.NOTIFICATIONS_ROOT_API;
 
 /**
  * Notifications are tasks that are created by a specific workflow
@@ -33,7 +31,7 @@ import static uk.gov.homeoffice.borders.workflow.task.notifications.Notification
  */
 
 @RestController
-@RequestMapping(path = ROOT_PATH)
+@RequestMapping(path = NOTIFICATIONS_ROOT_API)
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NotificationsApiController {
@@ -44,10 +42,10 @@ public class NotificationsApiController {
     private NotificationService notificationService;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> notifications(@RequestBody Notification notification, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<ProcessInstanceDto> notifications(@RequestBody Notification notification, UriComponentsBuilder uriComponentsBuilder) {
         ProcessInstance processInstance = notificationService.create(notification);
         UriComponents uriComponents =
-                uriComponentsBuilder.path(ROOT_PATH + "/process-instance/{processInstanceId}").buildAndExpand(processInstance.getProcessInstanceId());
+                uriComponentsBuilder.path(NOTIFICATIONS_ROOT_API + "/process-instance/{processInstanceId}").buildAndExpand(processInstance.getProcessInstanceId());
         return  ResponseEntity
                     .created(uriComponents.toUri())
                     .body(ProcessInstanceDto.fromProcessInstance(processInstance));
@@ -55,7 +53,7 @@ public class NotificationsApiController {
     }
 
     @DeleteMapping("/{processInstanceId}")
-    public ResponseEntity<?> cancel(@PathVariable String processInstanceId, @RequestParam String reason) {
+    public ResponseEntity cancel(@PathVariable String processInstanceId, @RequestParam String reason) {
         notificationService.cancel(processInstanceId, reason);
         return ResponseEntity.ok().build();
     }
@@ -72,7 +70,7 @@ public class NotificationsApiController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedResources<TaskDtoResource> notifications(Pageable pageable) {
-        Page<Task> page = notificationService.notifications(restApiUserExtractor.toUser(), pageable);
+        Page<Task> page = notificationService.getNotifications(restApiUserExtractor.toUser(), pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 }

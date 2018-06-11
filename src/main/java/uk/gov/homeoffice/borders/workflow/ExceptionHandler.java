@@ -25,7 +25,7 @@ public class ExceptionHandler {
         try {
             log.error(objectMapper.writeValueAsString(errorResponse));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new InternalWorkflowException(e);
         }
     }
 

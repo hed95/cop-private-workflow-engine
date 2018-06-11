@@ -25,15 +25,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-@RequestMapping(path = "/api/workflow/shift",
-        produces = MediaType.APPLICATION_JSON_VALUE,
-        consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/api/workflow/shift")
 public class ShiftApiController {
 
     private ShiftApplicationService shiftApplicationService;
 
-    @PostMapping
-    public ResponseEntity<?> startShift(@RequestBody ShiftInfo shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> startShift(@RequestBody ShiftInfo shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
 
         String email = shiftInfo.getEmail();
         log.info("Request to create shift for '{}'", email);
@@ -44,16 +43,16 @@ public class ShiftApiController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{email}")
+    @GetMapping(path="/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ShiftInfo shiftInfo(@PathVariable String email) {
         return shiftApplicationService.getShiftInfo(email);
     }
 
     @DeleteMapping("/{email}")
-    public ResponseEntity<?> deleteShift(@PathVariable String email, @RequestParam String deletedReason) {
+    public ResponseEntity deleteShift(@PathVariable String email, @RequestParam String deletedReason) {
         shiftApplicationService.deleteShift(email, deletedReason);
         return ResponseEntity.ok().build();
     }

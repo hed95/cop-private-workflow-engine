@@ -22,14 +22,24 @@ import static java.util.Optional.ofNullable;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PlatformDataUrlBuilder {
 
+    private static final String SHIFT = "/shift";
+    public static final String STAFFVIEW = "/staffview";
     private String platformDataUrl;
 
-    public String shiftUrl(String email) {
+    public String shiftUrlByEmail(String email) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
-                .path("/shift")
+                .path(SHIFT)
                 .query("email=eq.{email}")
                 .buildAndExpand(Collections.singletonMap("email", email))
+                .toString();
+    }
+    public String shiftUrlById(String id) {
+        return UriComponentsBuilder.newInstance()
+                .uri(URI.create(platformDataUrl))
+                .path(SHIFT)
+                .query("shiftid=eq.{id}")
+                .buildAndExpand(Collections.singletonMap("id", id))
                 .toString();
     }
 
@@ -79,7 +89,7 @@ public class PlatformDataUrlBuilder {
     public String queryShiftByTeamId(String teamId) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
-                .path("/shift")
+                .path(SHIFT)
                 .query("teamid=eq.{teamId}")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
                 .toString();
@@ -89,7 +99,7 @@ public class PlatformDataUrlBuilder {
     public String queryShiftByLocationId(String locationId) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
-                .path("/shift")
+                .path(SHIFT)
                 .query("locationid=eq.{locationId}")
                 .buildAndExpand(Collections.singletonMap("locationId", locationId))
                 .toString();
@@ -99,7 +109,7 @@ public class PlatformDataUrlBuilder {
     public String queryShiftByCommandId(String commandId) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
-                .path("/shift")
+                .path(SHIFT)
                 .query("or=(subcommandid.eq.{commandId}, commandid.eq.{commandId})")
                 .buildAndExpand(Collections.singletonMap("commandId", commandId))
                 .toString();
@@ -109,7 +119,7 @@ public class PlatformDataUrlBuilder {
     public String getStaffUrl(String staffId) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
-                .path("/staffview")
+                .path(STAFFVIEW)
                 .query("staffid=eq.{staffId}")
                 .buildAndExpand(Collections.singletonMap("staffId", staffId))
                 .toString();
@@ -127,7 +137,7 @@ public class PlatformDataUrlBuilder {
         String idsToProcess = StringUtils.join(staffIds, ",");
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
-                .path("/staffview")
+                .path(STAFFVIEW)
                 .query("staffid=in.({ids})")
                 .buildAndExpand(Collections.singletonMap("ids", idsToProcess))
                 .toString();
@@ -137,7 +147,7 @@ public class PlatformDataUrlBuilder {
     public String queryShiftBySubCommandId(String subCommand) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
-                .path("/shift")
+                .path(SHIFT)
                 .query("subcommandid=eq.{subCommand}")
                 .buildAndExpand(Collections.singletonMap("subCommand", subCommand))
                 .toString();

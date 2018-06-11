@@ -3,11 +3,12 @@ package uk.gov.homeoffice.borders.workflow.identity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class User implements org.camunda.bpm.engine.identity.User {
+public class ShiftUser implements org.camunda.bpm.engine.identity.User {
 
     @JsonProperty("staffid")
     private String id;
@@ -33,7 +34,9 @@ public class User implements org.camunda.bpm.engine.identity.User {
     }
 
     @Data
-    public static class Qualification {
+    public static class Qualification implements Serializable{
+        private static final long serialVersionUID = 1L;
+
         @JsonProperty("qualificationtype")
         private String id;
         @JsonProperty("qualificationname")

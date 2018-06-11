@@ -4,6 +4,7 @@ package uk.gov.homeoffice.borders.workflow.config;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.annotation.EnableRetry;
@@ -14,6 +15,7 @@ import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 
 @Configuration
 @EnableRetry
+@EnableCaching
 public class ApplicationConfiguration {
 
     @Value("${platform-data-url}")

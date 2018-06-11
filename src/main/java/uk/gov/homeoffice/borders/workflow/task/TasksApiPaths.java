@@ -5,5 +5,5 @@ class TasksApiPaths {
     private TasksApiPaths() {
     }
 
-    static final String ROOT_PATH = "/api/workflow/tasks";
+    static final String TASKS_ROOT_API = "/api/workflow/tasks";
 }

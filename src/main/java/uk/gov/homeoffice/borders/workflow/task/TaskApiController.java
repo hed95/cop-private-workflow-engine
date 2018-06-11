@@ -16,14 +16,17 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
-import uk.gov.homeoffice.borders.workflow.identity.User;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
+import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.TASKS_ROOT_API;
 
 /**
  * REST API for interacting with tasks
@@ -31,7 +34,7 @@ import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.ROOT_PATH;
  */
 
 @RestController
-@RequestMapping(path = ROOT_PATH,
+@RequestMapping(path = TASKS_ROOT_API,
         produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -51,15 +54,22 @@ public class TaskApiController {
     }
 
     @GetMapping("/{taskId}")
-    public TaskDtoResource task(@PathVariable String taskId) {
-        User user = restApiUserExtractor.toUser();
-        Task task = applicationService.getTask(user, taskId);
-        TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(task);
-        List<String> identityLinks = applicationService.getIdentityLinksForTask(task.getId())
-                .stream().map(IdentityLink::getGroupId).collect(Collectors.toList());
+    public Mono<TaskDtoResource> task(@PathVariable String taskId) {
+        ShiftUser user = restApiUserExtractor.toUser();
+        Mono<Task> task = Mono
+                .fromCallable(() -> applicationService.getTask(user, taskId))
+                .subscribeOn(Schedulers.elastic());
 
-        taskDtoResource.setCandidateGroups(identityLinks);
-        return taskDtoResource;
+        Mono<List<String>> indentities = Mono.fromCallable(() -> applicationService.getIdentityLinksForTask(taskId)
+                .stream().map(IdentityLink::getGroupId).collect(Collectors.toList()))
+                .subscribeOn(Schedulers.elastic());
+
+        return Mono.zip(Arrays.asList(task, indentities), (Object[] args) -> {
+            TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource((Task) args[0]);
+            taskDtoResource.setCandidateGroups((List<String>) args[1]);
+            return taskDtoResource;
+        }).subscribeOn(Schedulers.elastic());
+
     }
 
     @GetMapping("/{taskId}/variables")
@@ -76,35 +86,35 @@ public class TaskApiController {
     }
 
     @PostMapping("/{taskId}/_claim")
-    public ResponseEntity<?> claim(@PathVariable String taskId) {
+    public ResponseEntity claim(@PathVariable String taskId) {
         applicationService.claimTask(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{taskId}/_complete")
-    public ResponseEntity<?> complete(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
-        User user = restApiUserExtractor.toUser();
+    public ResponseEntity complete(@PathVariable String taskId, @RequestBody(required = false)  CompleteTaskDto completeTaskDto) {
+        ShiftUser user = restApiUserExtractor.toUser();
         applicationService.completeTask(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }
 
-    @PostMapping("/{taskId}/form/_complete")
-    public ResponseEntity<?> completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
-        User user = restApiUserExtractor.toUser();
+    @PostMapping(value = "/{taskId}/form/_complete", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
+        ShiftUser user = restApiUserExtractor.toUser();
         applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }
 
     @PostMapping("/{taskId}/_unclaim")
-    public ResponseEntity<?> unclaim(@PathVariable String taskId) {
+    public ResponseEntity unclaim(@PathVariable String taskId) {
         applicationService.unclaim(restApiUserExtractor.toUser(), taskId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/_task-counts")
-    public TasksCountDto taskCounts() {
+    public Mono<TasksCountDto> taskCounts() {
         return applicationService.taskCounts(restApiUserExtractor.toUser());
     }
 

@@ -8,8 +8,8 @@ import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.homeoffice.borders.workflow.ForbiddenException;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
-import uk.gov.homeoffice.borders.workflow.identity.User;
 
 import java.util.List;
 
@@ -22,13 +22,13 @@ public class TaskChecker {
 
     private TaskService taskService;
 
-    public void checkUserAuthorized(User user, Task task) {
+    public void checkUserAuthorized(ShiftUser user, Task task) {
         List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(task.getId());
 
         List<String> teams = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
         List<IdentityLink> identities = identityLinks.stream().filter(i -> teams.contains(i.getGroupId())).collect(toList());
 
-        if (identities.size() == 0 && (!user.getEmail().equalsIgnoreCase(task.getAssignee()))) {
+        if (identities.isEmpty() && (!user.getEmail().equalsIgnoreCase(task.getAssignee()))) {
             throw new ForbiddenException("User not authorized to action task");
         }
     }

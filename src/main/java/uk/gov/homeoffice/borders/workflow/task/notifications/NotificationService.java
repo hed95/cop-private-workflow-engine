@@ -17,9 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.Team;
-import uk.gov.homeoffice.borders.workflow.identity.User;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
 import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
@@ -42,7 +40,7 @@ public class NotificationService {
     private UserService userService;
     private TaskApplicationService taskApplicationService;
 
-    public Page<Task> notifications(User user, Pageable pageable) {
+    public Page<Task> getNotifications(ShiftUser user, Pageable pageable) {
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(NOTIFICATIONS)
                 .processVariableValueEquals("type", NOTIFICATIONS)
@@ -57,7 +55,7 @@ public class NotificationService {
                 .listPage(pageNumber, pageable.getPageSize());
 
 
-        return new PageImpl<>(tasks, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), totalCount);
+        return new PageImpl<>(tasks,  PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalCount);
     }
 
 
@@ -80,7 +78,7 @@ public class NotificationService {
             userQuery.command(notification.getCommandId());
         }
 
-        List<User> candidateUsers = userService.findByQuery(userQuery);
+        List<ShiftUser> candidateUsers = userService.findByQuery(userQuery);
 
         List<Notification> notifications = candidateUsers.stream().map(u -> {
             Notification updated = new Notification();
@@ -103,7 +101,7 @@ public class NotificationService {
                         .create();
 
         Map<String, Object> variables = new HashMap<>();
-        variables.put("notifications", notificationObjectValue);
+        variables.put(NOTIFICATIONS, notificationObjectValue);
         variables.put("type", NOTIFICATIONS);
 
         return runtimeService.startProcessInstanceByKey(NOTIFICATIONS,
@@ -117,14 +115,10 @@ public class NotificationService {
         }
     }
 
-    public String acknowledge(User user, String taskId) {
-        Task task = taskService.createTaskQuery().taskAssignee(user.getEmail()).singleResult();
-        if (task == null) {
-            throw new ResourceNotFound("Task id " + taskId + " does not exist");
-        }
-        taskService.claim(task.getId(), user.getEmail());
-        taskService.complete(task.getId());
+    public String acknowledge(ShiftUser user, String taskId) {
+        taskService.claim(taskId, user.getEmail());
+        taskService.complete(taskId);
         log.info("Notification acknowledged.");
-        return task.getId();
+        return taskId;
     }
 }

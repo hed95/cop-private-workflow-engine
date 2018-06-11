@@ -13,21 +13,22 @@ import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.engine.variable.VariableMap;
-import org.camunda.bpm.engine.variable.Variables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
-import uk.gov.homeoffice.borders.workflow.identity.User;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -36,6 +37,7 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class TaskApplicationService {
 
+    public static final String NOTIFICATIONS = "notifications";
     private TaskService taskService;
     private TaskSortExecutor taskSortExecutor;
     private ProcessEngine processEngine;
@@ -45,15 +47,14 @@ public class TaskApplicationService {
     /**
      * Returns paged result of tasks
      *
-     * @param user     user that is returned from active session look up
+     * @param user             user that is returned from active session look up
      * @param assignedToMeOnly used to indicate to just return tasks assigned to user
-     * @param pageable page object
-     *
+     * @param pageable         page object
      * @return paged result
      */
-    public Page<Task> tasks(@NotNull User user, Boolean assignedToMeOnly, Boolean unassignedOnly,Pageable pageable) {
+    public Page<Task> tasks(@NotNull ShiftUser user, Boolean assignedToMeOnly, Boolean unassignedOnly, Pageable pageable) {
         TaskQuery taskQuery = taskService.createTaskQuery()
-                .processVariableValueNotEquals("type", "notifications")
+                .processVariableValueNotEquals("type", NOTIFICATIONS)
                 .initializeFormKeys();
 
         if (assignedToMeOnly) {
@@ -75,7 +76,7 @@ public class TaskApplicationService {
         List<Task> tasks = taskQuery
                 .listPage(calculatePageNumber(pageable), pageable.getPageSize());
 
-        return new PageImpl<>(tasks, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
+        return new PageImpl<>(tasks, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
     }
 
     public int calculatePageNumber(Pageable pageable) {
@@ -86,7 +87,7 @@ public class TaskApplicationService {
     }
 
 
-    private TaskQuery applyUserFilters(@NotNull User user, TaskQuery taskQuery) {
+    private TaskQuery applyUserFilters(@NotNull ShiftUser user, TaskQuery taskQuery) {
         return taskQuery.or()
                 .taskAssignee(user.getEmail())
                 .taskCandidateGroupIn(resolveCandidateGroups(user))
@@ -95,7 +96,7 @@ public class TaskApplicationService {
     }
 
 
-    private List<String> resolveCandidateGroups(User user) {
+    private List<String> resolveCandidateGroups(ShiftUser user) {
         return user.getTeams().stream().map(Team::getTeamCode).collect(toList());
     }
 
@@ -105,7 +106,7 @@ public class TaskApplicationService {
      * @param user
      * @param taskId
      */
-    public void claimTask(User user, String taskId) {
+    public void claimTask(ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.claim(task.getId(), user.getEmail());
         log.info("Task '{}' claimed", taskId);
@@ -119,7 +120,7 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    public void completeTask(User user, String taskId, CompleteTaskDto completeTaskDto) {
+    public void completeTask(ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
 
@@ -139,14 +140,14 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    public void completeTaskWithForm(User user, String taskId, CompleteTaskDto completeTaskDto) {
+    public void completeTaskWithForm(ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
         VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
         formService.submitTaskForm(task.getId(), variables);
     }
 
-    private void validateTaskCanBeCompletedByUser(User user, Task task) {
+    private void validateTaskCanBeCompletedByUser(ShiftUser user, Task task) {
         if (!task.getAssignee().equalsIgnoreCase(user.getEmail())) {
             throw new ForbiddenException("Task cannot be completed by user");
         }
@@ -159,7 +160,7 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    public Task getTask(User user, String taskId) {
+    public Task getTask(ShiftUser user, String taskId) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .initializeFormKeys()
                 .taskId(taskId);
@@ -176,7 +177,7 @@ public class TaskApplicationService {
      * @param user
      * @param taskId
      */
-    public void unclaim(User user, String taskId) {
+    public void unclaim(ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.setAssignee(task.getId(), null);
         log.info("Task '{}' unclaimed");
@@ -190,9 +191,9 @@ public class TaskApplicationService {
      * @param pageable
      * @return
      * @see TaskQueryDto
-     * @see User
+     * @see ShiftUser
      */
-    public Page<Task> query(User user, TaskQueryDto queryDto, Pageable pageable) {
+    public Page<Task> query(ShiftUser user, TaskQueryDto queryDto, Pageable pageable) {
         TaskQuery taskQuery = queryDto.toQuery(processEngine);
         taskQuery = applyUserFilters(user, taskQuery);
         long totalResults = taskQuery.count();
@@ -212,7 +213,7 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    public VariableMap getVariables(User user, String taskId) {
+    public VariableMap getVariables(ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskExistsCheck(taskId, task);
         return taskService.getVariablesTyped(task.getId(), false);
@@ -229,26 +230,35 @@ public class TaskApplicationService {
     }
 
 
-    public TasksCountDto taskCounts(User user) {
-        TasksCountDto tasksCountDto = new TasksCountDto();
+    public Mono<TasksCountDto> taskCounts(ShiftUser user) {
 
         List<String> teamCodes = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
 
-        Long tasksAssignedToUser = taskService.createTaskQuery().taskAssignee(user.getEmail()).count();
-        tasksCountDto.setTasksAssignedToUser(tasksAssignedToUser);
 
+        Mono<Long> assignedToUser = Mono.fromCallable(() -> taskService.createTaskQuery()
+                .processVariableValueNotEquals("type", NOTIFICATIONS)
+                .taskAssignee(user.getEmail()).count()).subscribeOn(Schedulers.elastic());
 
-        Long unassignedTasks = taskService.createTaskQuery().taskCandidateGroupIn(teamCodes)
-                .taskUnassigned().count();
+        Mono<Long> unassignedTasks = Mono.fromCallable(() -> taskService.createTaskQuery()
+                .taskCandidateGroupIn(teamCodes)
+                .processVariableValueNotEquals("type", NOTIFICATIONS)
+                .taskUnassigned().count())
+                .subscribeOn(Schedulers.elastic());
 
-        tasksCountDto.setTasksUnassigned(unassignedTasks);
+        Mono<Long> tasksAssignedToTeams = Mono.fromCallable(() -> taskService.createTaskQuery()
+                .taskCandidateGroupIn(teamCodes)
+                .processVariableValueNotEquals("type", NOTIFICATIONS)
+                .includeAssignedTasks()
+                .count()).subscribeOn(Schedulers.elastic());
 
-        Long totalTasksAllocatedToTeam = taskService.createTaskQuery().taskCandidateGroupIn(teamCodes)
-                    .includeAssignedTasks()
-                    .count();
+        return Mono.zip(Arrays.asList(assignedToUser, unassignedTasks, tasksAssignedToTeams), (Object[] args) -> {
+            log.info("Aggregating task counts....");
+            TasksCountDto tasksCountDto = new TasksCountDto();
+            tasksCountDto.setTasksAssignedToUser((Long) args[0]);
+            tasksCountDto.setTasksUnassigned((Long) args[1]);
+            tasksCountDto.setTotalTasksAllocatedToTeam((Long) args[2]);
+            return tasksCountDto;
+        }).doOnError((Throwable e) -> log.error("Failed to get task count", e)).onErrorReturn(new TasksCountDto()).subscribeOn(Schedulers.elastic());
 
-        tasksCountDto.setTotalTasksAllocatedToTeam(totalTasksAllocatedToTeam);
-
-        return tasksCountDto;
     }
 }

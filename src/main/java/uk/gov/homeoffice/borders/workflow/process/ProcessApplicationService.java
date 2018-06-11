@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.repository.ResourceDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
@@ -21,9 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.Team;
-import uk.gov.homeoffice.borders.workflow.identity.User;
-import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationService;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -47,13 +43,12 @@ public class ProcessApplicationService {
      * @param pageable
      * @return paged result
      */
-    public Page<ProcessDefinition> processDefinitions(User user, Pageable pageable) {
+    public Page<ProcessDefinition> processDefinitions(ShiftUser user, Pageable pageable) {
+        log.debug("Loading process definitions for '{}'", user.getEmail());
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
                 .latestVersion()
                 .list();
-
-        //TODO: Filter by team
         List<ProcessDefinition> definitions = processDefinitions.stream()
                 .filter(p -> !p.getKey().equalsIgnoreCase("activate-shift")
                         && !p.getKey().equalsIgnoreCase("notifications"))
@@ -61,7 +56,7 @@ public class ProcessApplicationService {
                 .sorted(Comparator.comparing(ResourceDefinition::getName))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(definitions, new PageRequest(pageable.getPageNumber(), pageable.getPageSize()), definitions.size());
+        return new PageImpl<>(definitions, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), definitions.size());
 
 
     }
@@ -69,14 +64,10 @@ public class ProcessApplicationService {
     /**
      * Get form key for given process definition key
      * @param processDefinitionId
-     * @return
+     * @return form key
      */
     public String formKey(String processDefinitionId) {
-        String startFormKey = formService.getStartFormKey(processDefinitionId);
-        if (startFormKey == null) {
-            throw new ResourceNotFound(String.format("Process definition %s does not have a start form", processDefinitionId));
-        }
-        return startFormKey;
+        return formService.getStartFormKey(processDefinitionId);
     }
 
     public void delete(String processInstanceId, String reason) {
@@ -85,7 +76,7 @@ public class ProcessApplicationService {
     }
 
 
-    public ProcessInstance createInstance(ProcessStartDto processStartDto, User user) {
+    public ProcessInstance createInstance(ProcessStartDto processStartDto, ShiftUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
         ObjectValue dataObject =
                 Variables.objectValue(processStartDto.getData())
@@ -98,17 +89,24 @@ public class ProcessApplicationService {
 
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
                 variables);
-        log.info("'{}' was successfully started with id '{}'", processStartDto.getProcessKey(), processInstance.getProcessInstanceId());
+        log.info("'{}' was successfully started with id '{}' by '{}'", processStartDto.getProcessKey(),
+                processInstance.getProcessInstanceId(), user.getEmail());
 
         return processInstance;
 
     }
 
-    public ProcessInstance getProcessInstance(String processInstanceId, User user) {
-        return runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+    public ProcessInstance getProcessInstance(String processInstanceId, ShiftUser user) {
+        log.info("ShiftUser '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        if (processInstance == null) {
+            throw new ResourceNotFound("Process instance not found");
+        }
+        return processInstance;
     }
 
-    public VariableMap variables(String processInstanceId, User user) {
+    public VariableMap variables(String processInstanceId, ShiftUser user) {
+        log.info("ShiftUser '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
         return runtimeService.getVariablesTyped(processInstanceId, false);
     }
 

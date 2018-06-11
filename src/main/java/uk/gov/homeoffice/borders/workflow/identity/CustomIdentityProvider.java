@@ -21,7 +21,7 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
     private TeamService teamService;
 
     @Override
-    public User findUserById(String userId) {
+    public ShiftUser findUserById(String userId) {
        return userService.findByUserId(userId);
     }
 
@@ -38,11 +38,13 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
 
     @Override
     public NativeUserQuery createNativeUserQuery() {
+        //Not required for this implementation
         throw new UnsupportedOperationException("Not supported in this implementation");
     }
 
     @Override
     public boolean checkPassword(String userId, String password) {
+        //Not required for this implementation
         throw new UnsupportedOperationException("Not supported in this implementation");
     }
 
@@ -79,12 +81,12 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
 
     @Override
     public void flush() {
-
+        //Not required for this implementation
     }
 
     @Override
     public void close() {
-
+        //Not required for this implementation
     }
 
     public long findUserCountByQueryCriteria(UserQuery query) {
@@ -93,7 +95,7 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
     }
 
     public List<org.camunda.bpm.engine.identity.User> findUserByQueryCriteria(UserQuery query) {
-        List<User> users = userService.findByQuery(query);
+        List<ShiftUser> users = userService.findByQuery(query);
         return new ArrayList<>(users);
     }
 
