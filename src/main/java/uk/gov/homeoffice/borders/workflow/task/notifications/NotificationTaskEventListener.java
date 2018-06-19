@@ -34,7 +34,6 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
             delay = 1000L
     ))
     public void notify(DelegateTask delegateTask) {
-
         if (processIsNotification(delegateTask)) {
             Notification notification = getNotification(delegateTask);
             Priority priority = notification.getPriority();

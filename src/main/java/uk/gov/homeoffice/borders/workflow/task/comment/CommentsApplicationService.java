@@ -8,13 +8,19 @@ import org.camunda.bpm.engine.rest.dto.task.CommentDto;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.task.TaskChecker;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,18 +30,37 @@ public class CommentsApplicationService {
 
     private TaskService taskService;
     private TaskChecker taskChecker;
+    private PlatformDataUrlBuilder platformDataUrlBuilder;
+    private RestTemplate restTemplate;
 
-    public List<Comment> comments(ShiftUser user, String taskId) {
+    public List<TaskComment> comments(ShiftUser user, String taskId) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         applyTaskCheck(user, task);
-        return taskService.getTaskComments(task.getId()).stream()
-                .sorted(Comparator.comparing(Comment::getTime)).collect(Collectors.toList());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        List<TaskComment> comments = restTemplate.exchange(platformDataUrlBuilder.getCommentsById(task.getId()), HttpMethod.GET,
+                new HttpEntity<>(httpHeaders), new ParameterizedTypeReference<List<TaskComment>>() {
+                }).getBody();
+        if (comments == null) {
+            return new ArrayList<>();
+        }
+        return comments.stream().sorted(Comparator.comparing(TaskComment::getCreatedOn)).collect(Collectors.toList());
     }
 
-    public Comment create(ShiftUser user, CommentDto commentDto) {
-        Task task = taskService.createTaskQuery().taskId(commentDto.getTaskId()).singleResult();
+    public TaskComment create(ShiftUser user, TaskComment taskComment) {
+        Task task = taskService.createTaskQuery().taskId(taskComment.getTaskId()).singleResult();
         applyTaskCheck(user, task);
-        return taskService.createComment(commentDto.getTaskId(), task.getProcessInstanceId(), commentDto.getMessage());
+
+        if (!taskComment.getStaffId().equalsIgnoreCase(user.getId())) {
+           throw new IllegalArgumentException("User submitting comment not same as user currently logged in");
+        }
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        restTemplate.exchange(platformDataUrlBuilder.comments(), HttpMethod.POST,
+                new HttpEntity<>(taskComment, httpHeaders), TaskComment.class, new HashMap<>());
+
+        return taskComment;
     }
 
     private void applyTaskCheck(ShiftUser user, Task task) {

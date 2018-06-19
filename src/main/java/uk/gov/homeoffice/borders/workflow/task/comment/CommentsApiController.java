@@ -26,16 +26,12 @@ public class CommentsApiController {
     private RestApiUserExtractor restApiUserExtractor;
 
     @GetMapping(path = "/api/workflow/tasks/{taskId}/comments")
-    public List<CommentDto> comments(@PathVariable String taskId) {
-        return commentsApplicationService.comments(restApiUserExtractor.toUser(), taskId)
-                .stream()
-                .map(CommentDto::fromComment)
-                .collect(toList());
+    public List<TaskComment> comments(@PathVariable String taskId) {
+        return commentsApplicationService.comments(restApiUserExtractor.toUser(), taskId);
     }
 
     @PostMapping(path = "/api/workflow/tasks/comments", produces = "application/json", consumes = "application/json")
-    public CommentDto create(@RequestBody CommentDto commentDto) {
-        Comment comment = commentsApplicationService.create(restApiUserExtractor.toUser(), commentDto);
-        return CommentDto.fromComment(comment);
+    public TaskComment create(@RequestBody TaskComment commentDto) {
+        return commentsApplicationService.create(restApiUserExtractor.toUser(), commentDto);
     }
 }

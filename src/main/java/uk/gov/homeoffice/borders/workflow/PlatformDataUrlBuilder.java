@@ -23,7 +23,9 @@ import static java.util.Optional.ofNullable;
 public class PlatformDataUrlBuilder {
 
     private static final String SHIFT = "/shift";
-    public static final String STAFFVIEW = "/staffview";
+    private static final String STAFFVIEW = "/staffview";
+    private static String COMMENTS = "/taskcomment";
+
     private String platformDataUrl;
 
     public String shiftUrlByEmail(String email) {
@@ -150,6 +152,25 @@ public class PlatformDataUrlBuilder {
                 .path(SHIFT)
                 .query("subcommandid=eq.{subCommand}")
                 .buildAndExpand(Collections.singletonMap("subCommand", subCommand))
+                .toString();
+    }
+
+    public String getCommentsById(String taskId) {
+        return UriComponentsBuilder
+                .newInstance()
+                .uri(URI.create(platformDataUrl))
+                .path(COMMENTS)
+                .query("taskid=eq.{taskId}")
+                .buildAndExpand(Collections.singletonMap("taskId", taskId))
+                .toString();
+    }
+
+    public String comments() {
+         return UriComponentsBuilder
+                .newInstance()
+                .uri(URI.create(platformDataUrl))
+                .path(COMMENTS)
+                .build()
                 .toString();
     }
 }

@@ -83,6 +83,7 @@ abstract class BaseSpec extends Specification {
 
     ShiftUser logInUser() {
         def user = new ShiftUser()
+        user.id = 'test'
         user.email = 'test'
         def team = new Team()
         user.teams = []
@@ -136,12 +137,12 @@ abstract class BaseSpec extends Specification {
         @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
         @Primary
         RestTemplate keycloakRestTemplate() {
-            return new RestTemplate();
+            return new RestTemplate()
         }
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.csrf().disable().authorizeRequests().anyRequest().permitAll();
+            http.csrf().disable().authorizeRequests().anyRequest().permitAll()
         }
 
     }
