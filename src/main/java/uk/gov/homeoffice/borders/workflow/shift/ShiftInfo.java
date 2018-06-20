@@ -29,6 +29,8 @@ public class ShiftInfo {
     private String subCommandId;
     @JsonProperty("locationid")
     private String locationId;
+    @JsonProperty("currentlocationid")
+    private String currentLocationId;
 
     @JsonProperty("staffid")
     private String staffId;
