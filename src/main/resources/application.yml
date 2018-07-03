@@ -54,5 +54,9 @@ spring:
     cache-names: shifts
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  http:
+    converters:
+      preferred-json-mapper: jackson
+
 
 

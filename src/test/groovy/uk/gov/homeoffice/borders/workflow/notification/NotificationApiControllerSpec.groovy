@@ -96,7 +96,7 @@ class NotificationApiControllerSpec extends BaseSpec {
         and:
         1 * notificationClient.sendEmail('XXXX', 'email',
                 ['subject': 'URGENT: Alert',
-                 'payload': 'Some payload'], _ as String)
+                 'payload': 'Some payload', 'externalLink': ''], _ as String)
     }
 
     Notification createNotification() {

@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.task.comment;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -18,5 +19,5 @@ public class TaskComment {
     private String taskId;
     @JsonProperty("staffid")
     private String staffId;
-
+    private String email;
 }

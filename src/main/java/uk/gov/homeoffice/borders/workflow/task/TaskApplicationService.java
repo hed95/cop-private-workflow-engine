@@ -166,8 +166,6 @@ public class TaskApplicationService {
                 .taskId(taskId);
         Task task = applyUserFilters(user, taskQuery).singleResult();
         taskExistsCheck(taskId, task);
-
-
         return task;
     }
 
@@ -233,7 +231,6 @@ public class TaskApplicationService {
     public Mono<TasksCountDto> taskCounts(ShiftUser user) {
 
         List<String> teamCodes = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
-
 
         Mono<Long> assignedToUser = Mono.fromCallable(() -> taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", NOTIFICATIONS)

@@ -54,7 +54,7 @@ public class TaskApiController {
     }
 
     @GetMapping("/{taskId}")
-    public Mono<TaskDtoResource> task(@PathVariable String taskId) {
+    public Mono<TaskDtoResource> task(@PathVariable String taskId, @RequestParam(required = false, defaultValue = "false") Boolean includeVariables) {
         ShiftUser user = restApiUserExtractor.toUser();
         Mono<Task> task = Mono
                 .fromCallable(() -> applicationService.getTask(user, taskId))
@@ -64,6 +64,17 @@ public class TaskApiController {
                 .stream().map(IdentityLink::getGroupId).collect(Collectors.toList()))
                 .subscribeOn(Schedulers.elastic());
 
+        if (includeVariables) {
+            Mono<Map<String, VariableValueDto>> variableMap = Mono.fromCallable(() -> applicationService.getVariables(user, taskId))
+                    .map(v -> VariableValueDto.fromVariableMap(v))
+                    .subscribeOn(Schedulers.elastic());
+            return Mono.zip(Arrays.asList(task, indentities, variableMap), (Object[] args) -> {
+                TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource((Task) args[0]);
+                taskDtoResource.setCandidateGroups((List<String>) args[1]);
+                taskDtoResource.setVariables((Map<String, VariableValueDto>)args[2]);
+                return taskDtoResource;
+            }).subscribeOn(Schedulers.elastic());
+        }
         return Mono.zip(Arrays.asList(task, indentities), (Object[] args) -> {
             TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource((Task) args[0]);
             taskDtoResource.setCandidateGroups((List<String>) args[1]);

@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.task
 
 import org.camunda.bpm.engine.HistoryService
+import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.rest.dto.VariableValueDto
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto
@@ -9,6 +10,8 @@ import org.camunda.bpm.engine.variable.Variables
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import uk.gov.homeoffice.borders.workflow.BaseSpec
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.Team
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo
 import static org.hamcrest.Matchers.is
@@ -21,6 +24,8 @@ class TaskApiControllerSpec extends BaseSpec {
 
     def processInstance
 
+    @Autowired
+    private IdentityService identityService
     @Autowired
     HistoryService historyService
 
@@ -254,6 +259,32 @@ class TaskApiControllerSpec extends BaseSpec {
         formDataVariable
         formDataVariable.name == 'formData'
         formDataVariable.value == variable.value
+    }
+
+    def 'can get task assigned to me and no candidate group'() {
+        given:
+        def task = taskService.newTask(UUID.randomUUID().toString())
+        task.assignee = 'user@user.com'
+        task.name = 'task'
+        task.description = 'test description'
+        taskService.saveTask(task)
+        taskService.addCandidateGroup(task.id, 'anotherGroup')
+
+        when:
+        def user = new ShiftUser()
+        user.id = 'test'
+        user.email = 'user@user.com'
+        def team = new Team()
+        user.teams = []
+        team.teamCode = 'teamA'
+        user.teams << team
+        restApiUserExtractor.toUser() >> user
+        def result = mvc.perform(get("/api/workflow/tasks/${task.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        def taskLoaded = result.andReturn().asyncResult as TaskDtoResource
+        taskLoaded.taskDto.assignee == user.email
     }
 
 

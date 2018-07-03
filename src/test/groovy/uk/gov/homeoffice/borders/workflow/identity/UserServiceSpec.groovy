@@ -9,7 +9,7 @@ import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
 
 class UserServiceSpec extends Specification {
 
-    def wmPort = 8089
+    def wmPort = 8181
 
     @Rule
     WireMockRule wireMockRule = new WireMockRule(wmPort)
@@ -17,7 +17,7 @@ class UserServiceSpec extends Specification {
     def wireMockStub = new WireMockGroovy(wmPort)
 
 
-    def platformDataUrlBuilder = new PlatformDataUrlBuilder('http://localhost:8089')
+    def platformDataUrlBuilder = new PlatformDataUrlBuilder('http://localhost:8181')
     def userService = new UserService(new RestTemplate(), platformDataUrlBuilder)
 
     def 'can find user by id'() {

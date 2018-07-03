@@ -9,7 +9,7 @@
       <bpmn:documentation>${notification.payload}</bpmn:documentation>
       <bpmn:extensionElements>
         <camunda:inputOutput>
-          <camunda:inputParameter name="taskType">notfication</camunda:inputParameter>
+          <camunda:inputParameter name="taskType">notification</camunda:inputParameter>
         </camunda:inputOutput>
         <camunda:properties>
           <camunda:property name="taskType" value="notification" />

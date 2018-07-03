@@ -13,8 +13,12 @@ public class Notification {
     private String subCommandId;
     private String teamId;
     private Priority priority;
-
     private String assignee;
     private String email;
     private String mobile;
+    private String incidentid;
+    private String externalLink;
+    private String smsNotificationId;
+    private String emailNotificationId;
+
 }

@@ -73,6 +73,7 @@ dependencies {
     compile ('org.springframework.boot:spring-boot-starter-hateoas')
     compile('org.springframework.boot:spring-boot-starter-jdbc')
     compile('org.springframework.boot:spring-boot-starter-cache')
+    compile('org.springframework.boot:spring-boot-starter-json')
     compile('com.github.ben-manes.caffeine:caffeine')
     compile('org.springframework.data:spring-data-commons:2.0.7.RELEASE')
     compile('org.springframework.retry:spring-retry:1.2.2.RELEASE')

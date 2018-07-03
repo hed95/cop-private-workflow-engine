@@ -83,6 +83,9 @@
     <bpmn:textAnnotation id="TextAnnotation_03yyvyg">    <bpmn:text>Remove shift after specified time</bpmn:text>
 </bpmn:textAnnotation>
     <bpmn:association id="Association_14dh0bf" sourceRef="expireActiveSession" targetRef="TextAnnotation_03yyvyg" />
+    <bpmn:association id="Association_0y1rg0g" sourceRef="StartEvent_1" targetRef="TextAnnotation_19koyg6" />
+    <bpmn:textAnnotation id="TextAnnotation_19koyg6">    <bpmn:text>Start form references FormIO form</bpmn:text>
+</bpmn:textAnnotation>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1kjx4nt">
@@ -226,6 +229,13 @@
         <di:waypoint xsi:type="dc:Point" x="322" y="518" />
         <di:waypoint xsi:type="dc:Point" x="322" y="546" />
         <di:waypoint xsi:type="dc:Point" x="607" y="546" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="TextAnnotation_19koyg6_di" bpmnElement="TextAnnotation_19koyg6">
+        <dc:Bounds x="185.67325428194994" y="204.74703557312253" width="99.98764822134386" height="54.01844532279315" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0y1rg0g_di" bpmnElement="Association_0y1rg0g">
+        <di:waypoint xsi:type="dc:Point" x="154" y="320" />
+        <di:waypoint xsi:type="dc:Point" x="211" y="259" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
