@@ -103,8 +103,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
     private String resolveExternalLink(Notification notification, DelegateTask delegateTask) {
         String result = notification.getExternalLink().replace("%taskId%", delegateTask.getId());
         result = result.replace("%processInstanceId%", delegateTask.getProcessInstanceId());
-        String baseUrl = StringUtils.substringBefore(result, "?");
-        return baseUrl + "?" + Base64.getUrlEncoder().encodeToString(StringUtils.substringAfter(result, "?").getBytes());
+        return result;
     }
 
 
