@@ -22,11 +22,14 @@ import java.util.Date;
 @CamundaSelector
 public class AuditEventListener extends ReactorExecutionListener {
 
-    @Autowired
     private ObjectMapper objectMapper;
+    private IdentityService identityService;
 
     @Autowired
-    private IdentityService identityService;
+    public AuditEventListener(ObjectMapper objectMapper, IdentityService identityService) {
+        this.objectMapper = objectMapper;
+        this.identityService = identityService;
+    }
 
     @Override
     public void notify(DelegateExecution execution) throws Exception {
