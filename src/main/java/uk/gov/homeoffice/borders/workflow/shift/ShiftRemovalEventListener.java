@@ -17,8 +17,12 @@ import static org.camunda.bpm.engine.impl.pvm.PvmEvent.EVENTNAME_END;
 @CamundaSelector(type = ActivityTypes.TASK_SERVICE, event = EVENTNAME_END)
 public class ShiftRemovalEventListener extends ReactorExecutionListener {
 
-    @Autowired
     private CacheManager cacheManager;
+
+    @Autowired
+    public ShiftRemovalEventListener(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
 
     @Override
     public void notify(DelegateExecution execution) throws Exception {
