@@ -48,8 +48,8 @@ public class PlatformDataUrlBuilder {
     public String teamById(String teamId) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
-                .path("/team/{teamId}")
-                .buildAndExpand(Collections.singletonMap("teamid", teamId))
+                .path("/team?teamcode=eq.{teamId}")
+                .buildAndExpand(Collections.singletonMap("teamId", teamId))
                 .toString();
 
     }
