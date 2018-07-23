@@ -4,7 +4,7 @@ workspace:
 
 pipeline:
   test:
-      image: node:8
+      image: quay.io/ukhomeofficedigital/openjdk8:latest
       environment:
         - GRADLE_USER_HOME=~/.gradle
       commands:
