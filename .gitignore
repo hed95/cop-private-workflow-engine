@@ -1,7 +1,7 @@
 .idea
 build
 .gradle
-borders-workflow-engine.iml
+borders-private-workflow-engine.iml
 out/
 dist/
 jgiven-reports/
