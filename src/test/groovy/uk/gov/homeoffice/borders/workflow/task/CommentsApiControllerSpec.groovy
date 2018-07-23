@@ -51,6 +51,7 @@ class CommentsApiControllerSpec extends BaseSpec {
                 headers {
                     "Content-Type" "application/json"
                 }
+
             }
 
         }

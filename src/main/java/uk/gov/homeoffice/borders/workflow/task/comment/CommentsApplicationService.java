@@ -60,10 +60,10 @@ public class CommentsApplicationService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         httpHeaders.set("Authorization", "Bearer " + platformDataToken);
 
-        ResponseEntity<TaskComment> response = restTemplate.exchange(platformDataUrlBuilder.comments(), HttpMethod.POST,
+        restTemplate.exchange(platformDataUrlBuilder.comments(), HttpMethod.POST,
                 new HttpEntity<>(taskComment, httpHeaders), TaskComment.class, new HashMap<>());
 
-        return response.getBody();
+        return taskComment;
     }
 
     private void applyTaskCheck(ShiftUser user, Task task) {
