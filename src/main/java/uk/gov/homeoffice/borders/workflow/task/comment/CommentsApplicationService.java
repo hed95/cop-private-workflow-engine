@@ -63,7 +63,7 @@ public class CommentsApplicationService {
         ResponseEntity<TaskComment> response = restTemplate.exchange(platformDataUrlBuilder.comments(), HttpMethod.POST,
                 new HttpEntity<>(taskComment, httpHeaders), TaskComment.class, new HashMap<>());
 
-        return taskComment;
+        return response.getBody();
     }
 
     private void applyTaskCheck(ShiftUser user, Task task) {

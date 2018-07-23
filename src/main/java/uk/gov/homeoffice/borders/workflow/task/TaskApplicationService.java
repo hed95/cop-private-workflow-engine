@@ -255,7 +255,9 @@ public class TaskApplicationService {
             tasksCountDto.setTasksUnassigned((Long) args[1]);
             tasksCountDto.setTotalTasksAllocatedToTeam((Long) args[2]);
             return tasksCountDto;
-        }).doOnError((Throwable e) -> log.error("Failed to get task count", e)).onErrorReturn(new TasksCountDto()).subscribeOn(Schedulers.elastic());
+        }).doOnError((Throwable e) -> log.error("Failed to get task count", e))
+                .onErrorReturn(new TasksCountDto())
+                .subscribeOn(Schedulers.elastic());
 
     }
 }
