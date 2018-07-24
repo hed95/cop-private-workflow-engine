@@ -30,6 +30,7 @@ import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
+import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationTaskEventListener
 import uk.gov.service.notify.NotificationClient
 import uk.gov.service.notify.NotificationClientApi
 
@@ -144,6 +145,5 @@ abstract class BaseSpec extends Specification {
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable().authorizeRequests().anyRequest().permitAll()
         }
-
     }
 }

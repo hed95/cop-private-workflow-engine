@@ -14,12 +14,10 @@ import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
 import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
 import org.camunda.spin.Spin;
 import org.camunda.spin.json.SpinJsonNode;
-import org.camunda.spin.plugin.variable.type.JsonValueType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.web.util.UriUtils;
 import uk.gov.homeoffice.borders.workflow.ExceptionHandler;
 import uk.gov.homeoffice.borders.workflow.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.task.NotifyFailureException;
@@ -29,12 +27,13 @@ import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+/**
+ * Event listener that sends email or/and sms on the
+ * creation of the user task
+ */
 @CamundaSelector(event = TaskListener.EVENTNAME_CREATE,
         type = ActivityTypes.TASK_USER_TASK)
 @Slf4j
@@ -42,14 +41,27 @@ import java.util.Map;
 public class NotificationTaskEventListener extends ReactorTaskListener {
 
     private static final String SUBJECT = "subject";
+    private static final String NOTIFICATION_VARIABLE_NAME = "notification";
+
     private NotificationClient notificationClient;
     private String emailNotificationTemplateId;
     private String smsNotificationTemplateId;
     private ExceptionHandler exceptionHandler;
     private ObjectMapper objectMapper;
-    private static final String NOTIFICATION_VARIABLE_NAME = "notification";
 
 
+    /**
+     * Retryable method to send sms or/and email.
+     * The user task will still get created if there
+     * is an exception when trying to send email and/or sms.
+     *
+     * Using GovNotify as notification client
+     *
+     * @param delegateTask
+     * @see NotificationClient
+     * @see DelegateTask
+     * @see Retryable
+     */
     @Override
     @Retryable(value = {NotifyFailureException.class}, backoff = @Backoff(
             delay = 1000L
