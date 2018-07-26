@@ -41,10 +41,16 @@ public class UserService {
      */
     @Cacheable(value="shifts", key="#userId", unless="#result == null")
     public ShiftUser findByUserId(String userId) {
-        List<ShiftInfo> shiftDetails = restTemplate
-                .exchange(platformDataUrlBuilder.shiftUrlByEmail(userId), HttpMethod.GET, null,
-                        new ParameterizedTypeReference<List<ShiftInfo>>() {
-                        }, new HashMap<>()).getBody();
+        List<ShiftInfo> shiftDetails = null;
+        try {
+            shiftDetails = restTemplate
+                    .exchange(platformDataUrlBuilder.shiftUrlByEmail(userId), HttpMethod.GET, null,
+                            new ParameterizedTypeReference<List<ShiftInfo>>() {
+                            }, new HashMap<>()).getBody();
+        } catch (Exception e) {
+            log.error("Failed to get user", e);
+            return null;
+        }
         if (shiftDetails != null && shiftDetails.size() == 1) {
             return getStaff(shiftDetails.get(0));
         } else {

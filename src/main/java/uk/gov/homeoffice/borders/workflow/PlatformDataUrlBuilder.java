@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 import uk.gov.homeoffice.borders.workflow.identity.TeamQuery;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,13 +30,13 @@ public class PlatformDataUrlBuilder {
 
     private String platformDataUrl;
 
-    public String shiftUrlByEmail(String email) {
+    public String shiftUrlByEmail(String email)  {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
                 .path(SHIFT)
                 .query("email=eq.{email}")
-                .buildAndExpand(Collections.singletonMap("email", email))
-                .toString();
+                .buildAndExpand(Collections.singletonMap("email", email.replace("+", "%2B")))
+                .toUriString();
     }
     public String shiftUrlById(String id) {
         return UriComponentsBuilder.newInstance()
@@ -173,4 +175,5 @@ public class PlatformDataUrlBuilder {
                 .build()
                 .toString();
     }
+
 }

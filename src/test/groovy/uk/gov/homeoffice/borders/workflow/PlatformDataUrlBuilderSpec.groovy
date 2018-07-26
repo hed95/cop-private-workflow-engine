@@ -189,4 +189,17 @@ class PlatformDataUrlBuilderSpec extends Specification {
         url == 'http://localhost:9000/shift?subcommandid=eq.subcommandId'
     }
 
+    def 'can get shift url by email endcoded'() {
+        given:
+        def email = "my+email+abc@host.com"
+
+        when:
+        def url = underTest.shiftUrlByEmail(email)
+
+        then:
+        url
+        url == 'http://localhost:9000/shift?email=eq.my%2Bemail%2Babc@host.com'
+
+    }
+
 }
