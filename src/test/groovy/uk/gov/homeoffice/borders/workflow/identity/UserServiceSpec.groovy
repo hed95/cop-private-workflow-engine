@@ -391,7 +391,7 @@ class UserServiceSpec extends Specification {
                           "staffid": "staffid",
                           "gradename": "grade"
                         }]
-                     """PlatformDataUrlBuilderSpec
+                     """
                 headers {
                     "Content-Type" "application/json"
                 }
