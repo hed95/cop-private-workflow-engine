@@ -18,7 +18,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/shift?email=eq.myemail@host.com'
+        url == 'http://localhost:9000/shift?email=eq.myemail%40host.com'
 
     }
 
@@ -198,7 +198,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/shift?email=eq.my%2Bemail%2Babc@host.com'
+        url == 'http://localhost:9000/shift?email=eq.my%2Bemail%2Babc%40host.com'
 
     }
 

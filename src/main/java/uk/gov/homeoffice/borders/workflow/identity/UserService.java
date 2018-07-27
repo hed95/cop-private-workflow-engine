@@ -1,17 +1,25 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriUtils;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.shift.ShiftInfo;
 
 import javax.annotation.Resource;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,12 +49,15 @@ public class UserService {
      */
     @Cacheable(value="shifts", key="#userId", unless="#result == null")
     public ShiftUser findByUserId(String userId) {
-        List<ShiftInfo> shiftDetails = null;
+        List<ShiftInfo> shiftDetails;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
         try {
             shiftDetails = restTemplate
-                    .exchange(platformDataUrlBuilder.shiftUrlByEmail(userId), HttpMethod.GET, null,
+                    .exchange(URI.create(platformDataUrlBuilder.shiftUrlByEmail(userId)), HttpMethod.GET, new HttpEntity<>(headers),
                             new ParameterizedTypeReference<List<ShiftInfo>>() {
-                            }, new HashMap<>()).getBody();
+                            }).getBody();
         } catch (Exception e) {
             log.error("Failed to get user", e);
             return null;

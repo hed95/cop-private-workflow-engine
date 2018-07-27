@@ -10,6 +10,7 @@ import uk.gov.homeoffice.borders.workflow.identity.TeamQuery;
 
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,12 +31,13 @@ public class PlatformDataUrlBuilder {
 
     private String platformDataUrl;
 
-    public String shiftUrlByEmail(String email)  {
+    public String shiftUrlByEmail(String email) {
+        email = UriUtils.encode(email, StandardCharsets.UTF_8);
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
                 .path(SHIFT)
                 .query("email=eq.{email}")
-                .buildAndExpand(Collections.singletonMap("email", email.replace("+", "%2B")))
+                .buildAndExpand(Collections.singletonMap("email", email))
                 .toUriString();
     }
     public String shiftUrlById(String id) {
