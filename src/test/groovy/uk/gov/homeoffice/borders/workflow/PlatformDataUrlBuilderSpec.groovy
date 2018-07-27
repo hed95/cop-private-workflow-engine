@@ -120,7 +120,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/shift?or=(subcommandid.eq.commandId, commandid.eq.commandId)'
+        url == 'http://localhost:9000/shift?or=(subcommandid.eq.commandId,commandid.eq.commandId)'
     }
 
     def 'can get staff url'() {
