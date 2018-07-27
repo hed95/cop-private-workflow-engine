@@ -9,7 +9,6 @@ import org.springframework.web.util.UriUtils;
 import uk.gov.homeoffice.borders.workflow.identity.TeamQuery;
 
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
