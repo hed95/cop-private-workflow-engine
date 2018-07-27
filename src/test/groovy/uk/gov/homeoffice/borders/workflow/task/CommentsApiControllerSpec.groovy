@@ -152,4 +152,84 @@ class CommentsApiControllerSpec extends BaseSpec {
         !comments.isEmpty()
 
     }
+
+    def 'exception thrown if current user and comment user are not the same'() {
+        given:
+        wireMockStub.stub {
+            request {
+                method 'POST'
+                url '/taskcomment'
+            }
+
+            response {
+                status 201
+                headers {
+                    "Content-Type" "application/json"
+                }
+
+            }
+
+        }
+
+        and:
+        createTasks(1, "test")
+        and:
+        logInUser()
+        and:
+        def task = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list().first()
+        and:
+        def comment = new TaskComment()
+        comment.taskId = task.id
+        comment.comment = "message"
+        comment.staffId = 'testACS'
+
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/comments")
+                .content(objectMapper.writeValueAsString(comment))
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is4xxClientError())
+    }
+
+    def '404 thrown if task does not exist for comment'() {
+        given:
+        wireMockStub.stub {
+            request {
+                method 'POST'
+                url '/taskcomment'
+            }
+
+            response {
+                status 201
+                headers {
+                    "Content-Type" "application/json"
+                }
+
+            }
+
+        }
+
+        and:
+        createTasks(1, "test")
+        and:
+        logInUser()
+
+        and:
+        def comment = new TaskComment()
+        comment.taskId = "randomTaskId"
+        comment.comment = "message"
+        comment.staffId = 'testACS'
+
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/comments")
+                .content(objectMapper.writeValueAsString(comment))
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is4xxClientError())
+    }
 }

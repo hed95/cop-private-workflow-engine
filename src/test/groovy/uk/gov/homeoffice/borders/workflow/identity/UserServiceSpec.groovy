@@ -20,6 +20,11 @@ class UserServiceSpec extends Specification {
     def platformDataUrlBuilder = new PlatformDataUrlBuilder('http://localhost:8181')
     def userService = new UserService(new RestTemplate(), platformDataUrlBuilder)
 
+    def setup() {
+        userService.self = userService
+    }
+
+
     def 'can find user by id'() {
         given:
         wireMockStub.stub {
@@ -417,6 +422,103 @@ class UserServiceSpec extends Specification {
 
         then:
         thrown(IllegalArgumentException)
+    }
+
+    def 'can find by user id in query'() {
+        given:
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/shift?email=eq.email'
+            }
+
+            response {
+                status 200
+                body """ [
+                            {
+                                "shiftid" : "id",
+                                "staffid" : "staffid",
+                                "teamid" : "teamid",
+                                "phone" : "phone",
+                                "email" : "email"
+                              }
+                         ]
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+
+        }
+
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/staffview?staffid=eq.staffid'
+            }
+            response {
+                status: 200
+                body """
+                       {
+                          "phone": "phone",
+                          "email": "email",
+                          "gradetypeid": "gradetypeid",
+                          "firstname": "firstname",
+                          "surname": "surname",
+                          "qualificationtypes": [
+                            {
+                              "qualificationname": "dummy",
+                              "qualificationtype": "1"
+                            },
+                            {
+                              "qualificationname": "staff",
+                              "qualificationtype": "2"
+                            }
+                          ],
+                          "staffid": "staffid",
+                          "gradename": "grade"
+                        }
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
+
+        wireMockStub.stub {
+            request {
+                method 'POST'
+                url '/rpc/teamchildren'
+
+            }
+            response {
+                status: 200
+                body """
+                       [
+                          {
+                            "teamid": "teamid",
+                            "parentteamid": null,
+                            "teamname": "teamname",
+                            "teamcode": "teamcode"
+                          }
+                        ]
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
+
+
+        when:
+        def query = new UserQuery()
+        query.userId("email")
+        def result = userService.findByQuery(query)
+
+
+        then:
+        result
+        !result.isEmpty()
     }
 
 }

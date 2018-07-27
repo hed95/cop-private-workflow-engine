@@ -86,6 +86,7 @@ abstract class BaseSpec extends Specification {
         def user = new ShiftUser()
         user.id = 'test'
         user.email = 'test'
+
         def team = new Team()
         user.teams = []
         team.teamCode = 'teamA'
