@@ -116,7 +116,7 @@ public class PlatformDataUrlBuilder {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataUrl))
                 .path(SHIFT)
-                .query("or=(subcommandid.eq.{commandId}, commandid.eq.{commandId})")
+                .query("or=(subcommandid.eq.{commandId},commandid.eq.{commandId})")
                 .buildAndExpand(Collections.singletonMap("commandId", commandId))
                 .toString();
 
