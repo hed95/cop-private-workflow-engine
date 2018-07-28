@@ -521,4 +521,53 @@ class UserServiceSpec extends Specification {
         !result.isEmpty()
     }
 
+    def 'no shift info returned if remote service throws Exception'() {
+        given:
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/shift?email=eq.email'
+            }
+
+            response {
+                status 504
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+
+        }
+        when:
+        def result = userService.findByUserId("email")
+
+        then:
+        !result
+
+    }
+
+    def 'no shift info returned if remote service returns empty result'() {
+        given:
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/shift?email=eq.email'
+            }
+
+            response {
+                status 200
+                body '''[]'''
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+
+        }
+        when:
+        def result = userService.findByUserId("email")
+
+        then:
+        !result
+
+    }
+
 }

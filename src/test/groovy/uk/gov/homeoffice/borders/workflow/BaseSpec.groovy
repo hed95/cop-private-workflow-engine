@@ -6,7 +6,6 @@ import com.github.tomjankes.wiremock.WireMockGroovy
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.runtime.ProcessInstance
-import org.camunda.bpm.engine.variable.Variables
 import org.junit.Rule
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.context.annotation.Profile
 import org.springframework.context.annotation.Scope
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -30,9 +28,7 @@ import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
-import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationTaskEventListener
 import uk.gov.service.notify.NotificationClient
-import uk.gov.service.notify.NotificationClientApi
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = ["keycloak.enabled=false", "spring.datasource.name=testdbB"])

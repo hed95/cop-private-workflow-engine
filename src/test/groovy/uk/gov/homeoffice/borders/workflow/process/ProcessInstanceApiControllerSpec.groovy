@@ -3,9 +3,6 @@ package uk.gov.homeoffice.borders.workflow.process
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto
 import org.springframework.http.MediaType
 import uk.gov.homeoffice.borders.workflow.BaseSpec
-import uk.gov.homeoffice.borders.workflow.identity.Team
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
-import uk.gov.homeoffice.borders.workflow.task.TaskApiControllerSpec
 
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.core.IsNull.notNullValue
