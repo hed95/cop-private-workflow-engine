@@ -35,13 +35,20 @@ public class TaskSortExecutor {
                 taskQuery.orderByDueDate().desc();
             }
         });
-
-        ofNullable(sort.getOrderFor("created")).ifPresent(s -> {
+        ofNullable(sort.getOrderFor("assignee")).ifPresent(s -> {
             if (s.isAscending()) {
-                taskQuery.orderByTaskCreateTime().asc();
+                taskQuery.orderByTaskAssignee().asc();
             } else {
-                taskQuery.orderByTaskCreateTime().desc();
+                taskQuery.orderByTaskAssignee().desc();
             }
         });
+        ofNullable(sort.getOrderFor("priority")).ifPresent(s -> {
+            if (s.isAscending()) {
+                taskQuery.orderByTaskPriority().asc();
+            } else {
+                taskQuery.orderByTaskPriority().desc();
+            }
+        });
+
     }
 }

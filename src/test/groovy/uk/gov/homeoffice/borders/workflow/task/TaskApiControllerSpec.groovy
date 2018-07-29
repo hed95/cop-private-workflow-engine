@@ -7,6 +7,7 @@ import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto
 import org.camunda.bpm.engine.task.Task
 import org.camunda.bpm.engine.variable.Variables
+import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import uk.gov.homeoffice.borders.workflow.BaseSpec
@@ -69,8 +70,6 @@ class TaskApiControllerSpec extends BaseSpec {
 
 
     }
-
-
 
 
     def 'can query task by name'() {
@@ -235,7 +234,7 @@ class TaskApiControllerSpec extends BaseSpec {
         variable.type = 'string'
         variable.value = 'asStringValue'
         formData.variables['formData'] = variable
-        def  json = objectMapper.writeValueAsString(formData)
+        def json = objectMapper.writeValueAsString(formData)
         json.inspect()
 
         when:
@@ -285,6 +284,87 @@ class TaskApiControllerSpec extends BaseSpec {
         then:
         def taskLoaded = result.andReturn().asyncResult as TaskDtoResource
         taskLoaded.taskDto.assignee == user.email
+    }
+
+    def 'can get task with variables'() {
+        given:
+        createTasks(1, "test")
+        and:
+        logInUser()
+
+        when:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        Task task = list.first()
+        def result = mvc.perform(get("/api/workflow/tasks/${task.getId()}?includeVariables=true").contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        def taskLoaded = result.andReturn().asyncResult
+        taskLoaded
+        !taskLoaded.variables.isEmpty()
+    }
+
+    def 'can variables for given task'() {
+        given:
+        createTasks(1, "test")
+        and:
+        logInUser()
+
+        when:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        Task task = list.first()
+        def result = mvc.perform(get("/api/workflow/tasks/${task.getId()}/variables").contentType(MediaType.APPLICATION_JSON))
+        def variables = new JSONObject(result.andReturn().response.getContentAsString())
+
+        then:
+        variables
+        variables.keySet().size() != 0
+
+    }
+
+    def 'can complete task with variables'() {
+        given:
+        createTasks(1, null)
+        and:
+        def user = logInUser()
+        and:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        def task = list.first()
+
+        and:
+        mvc.perform(post("/api/workflow/tasks/${task.id}/_claim")
+                .contentType(MediaType.APPLICATION_JSON))
+        and:
+        def variables = new CompleteTaskDto()
+        variables.variables = [:]
+        def dto = new VariableValueDto()
+        dto.value = 'test'
+        dto.type = 'string'
+        variables.variables["testOneTwoThree"] = dto
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/${task.id}/_complete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(variables)))
+
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        and:
+        def reloded = historyService.createHistoricTaskInstanceQuery()
+                .taskId(task.id).singleResult()
+
+        def variable = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(reloded.processInstanceId)
+                .variableName("testOneTwoThree")
+                .singleResult()
+
+        variable.name == 'testOneTwoThree'
+        variable.value == 'test'
+
     }
 
 
