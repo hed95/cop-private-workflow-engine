@@ -69,8 +69,9 @@ public class NotificationsApiController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public PagedResources<TaskDtoResource> notifications(Pageable pageable) {
-        Page<Task> page = notificationService.getNotifications(restApiUserExtractor.toUser(), pageable);
+    public PagedResources<TaskDtoResource> notifications(Pageable pageable, @RequestParam(required = false, defaultValue = "false") boolean countOnly) {
+        Page<Task> page = notificationService.getNotifications(restApiUserExtractor.toUser(), pageable, countOnly);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
+
 }

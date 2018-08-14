@@ -22,6 +22,7 @@ import uk.gov.homeoffice.borders.workflow.identity.UserQuery;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
 import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class NotificationService {
     private UserService userService;
     private TaskApplicationService taskApplicationService;
 
-    public Page<Task> getNotifications(ShiftUser user, Pageable pageable) {
+    public Page<Task> getNotifications(ShiftUser user, Pageable pageable, boolean countOnly) {
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(NOTIFICATIONS)
                 .processVariableValueEquals("type", NOTIFICATIONS)
@@ -48,12 +49,15 @@ public class NotificationService {
                 .orderByTaskCreateTime()
                 .desc();
         Long totalCount = query.count();
-
+        if (countOnly) {
+            return new PageImpl<>(new ArrayList<>(),
+                    PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
+                    totalCount);
+        }
         int pageNumber = taskApplicationService.calculatePageNumber(pageable);
 
         List<Task> tasks = query
                 .listPage(pageNumber, pageable.getPageSize());
-
 
         return new PageImpl<>(tasks,  PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalCount);
     }
