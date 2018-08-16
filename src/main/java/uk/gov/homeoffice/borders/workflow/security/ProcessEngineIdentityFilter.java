@@ -34,25 +34,27 @@ public class ProcessEngineIdentityFilter extends GenericFilterBean {
         if (context == null) {
             throw new ForbiddenException("No active security context set");
         }
-        final KeycloakAuthenticationToken token = (KeycloakAuthenticationToken) context.getAuthentication();
-        RefreshableKeycloakSecurityContext keycloakSecurityContext = ((SimpleKeycloakAccount) token.getDetails()).getKeycloakSecurityContext();
+        if (context.getAuthentication() instanceof KeycloakAuthenticationToken) {
+            final KeycloakAuthenticationToken token = (KeycloakAuthenticationToken) context.getAuthentication();
+            RefreshableKeycloakSecurityContext keycloakSecurityContext = ((SimpleKeycloakAccount) token.getDetails()).getKeycloakSecurityContext();
 
-        long serviceRoleCount = keycloakSecurityContext.getToken().getRealmAccess().getRoles().stream()
-                .filter(r -> r.equalsIgnoreCase("service_role")).count();
+            long serviceRoleCount = keycloakSecurityContext.getToken().getRealmAccess().getRoles().stream()
+                    .filter(r -> r.equalsIgnoreCase("service_role")).count();
 
-        String userId = keycloakSecurityContext.getToken().getEmail();
-        if (serviceRoleCount == 0) {
-            ShiftUser user = toUser(userId);
-            if (user == null) {
-                log.warn("User '{}' does not have active shift", userId);
-                identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
+            String userId = keycloakSecurityContext.getToken().getEmail();
+            if (serviceRoleCount == 0) {
+                ShiftUser user = toUser(userId);
+                if (user == null) {
+                    log.warn("User '{}' does not have active shift", userId);
+                    identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
+                } else {
+                    log.debug("User '{}' has active shift", user);
+                    identityService.setAuthentication(new WorkflowAuthentication(user));
+                }
             } else {
-                log.debug("User '{}' has active shift", user);
-                identityService.setAuthentication(new WorkflowAuthentication(user));
+                log.debug("Service account user...'{}'", userId);
+                identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
             }
-        } else {
-            log.debug("Service account user...'{}'", userId);
-            identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
         }
         try {
             chain.doFilter(request, response);
