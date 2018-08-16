@@ -249,7 +249,6 @@ public class TaskApplicationService {
                 .count()).subscribeOn(Schedulers.elastic());
 
         return Mono.zip(Arrays.asList(assignedToUser, unassignedTasks, tasksAssignedToTeams), (Object[] args) -> {
-            log.info("Aggregating task counts....");
             TasksCountDto tasksCountDto = new TasksCountDto();
             tasksCountDto.setTasksAssignedToUser((Long) args[0]);
             tasksCountDto.setTasksUnassigned((Long) args[1]);
