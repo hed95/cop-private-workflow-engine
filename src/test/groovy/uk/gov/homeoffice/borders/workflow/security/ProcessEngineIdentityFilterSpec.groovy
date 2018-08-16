@@ -5,26 +5,35 @@ import org.keycloak.adapters.RefreshableKeycloakSecurityContext
 import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
 import org.keycloak.representations.AccessToken
-import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent
+import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery
 
-class SecurityEventListenerSpec extends Specification {
+import javax.servlet.FilterChain
+import javax.servlet.ServletRequest
+import javax.servlet.ServletResponse
+
+class ProcessEngineIdentityFilterSpec extends Specification {
 
     def identityService = Mock(IdentityService)
 
-    def underTest = new SecurityEventListener(identityService)
+    def underTest = new ProcessEngineIdentityFilter(identityService)
 
+    def request = Mock(ServletRequest)
+    def response = Mock(ServletResponse)
+    def chain = Mock(FilterChain)
+
+    def cleanup() {
+        SecurityContextHolder.clearContext()
+    }
 
     def 'can register authenticated service role user into identity service'() {
         WorkflowAuthentication authentication
         given:
-        def successEvent = Mock(InteractiveAuthenticationSuccessEvent)
         def keycloakAccount = Mock(SimpleKeycloakAccount)
         def keycloakAuthenticationToken = Mock(KeycloakAuthenticationToken)
         def refreshableKeycloakSecurityContext =Mock(RefreshableKeycloakSecurityContext)
-        successEvent.getSource() >> keycloakAuthenticationToken
         keycloakAuthenticationToken.getDetails() >> keycloakAccount
         keycloakAccount.getKeycloakSecurityContext() >> refreshableKeycloakSecurityContext
 
@@ -35,8 +44,13 @@ class SecurityEventListenerSpec extends Specification {
         token.getEmail() >> 'service-email'
         realmAccess.getRoles() >> ['service_role']
 
+
+        def securityContext = SecurityContextHolder.createEmptyContext()
+        securityContext.setAuthentication(keycloakAuthenticationToken)
+        SecurityContextHolder.setContext(securityContext)
+
         when:
-        underTest.onSuccessfulAuthentication(successEvent)
+        underTest.doFilter(request, response, chain)
 
         then:
         1 * identityService.setAuthentication(_)  >> { arguments -> authentication=arguments[0]}
@@ -47,11 +61,9 @@ class SecurityEventListenerSpec extends Specification {
     def 'can register user with shift details'() {
         WorkflowAuthentication authentication
         given:
-        def successEvent = Mock(InteractiveAuthenticationSuccessEvent)
         def keycloakAccount = Mock(SimpleKeycloakAccount)
         def keycloakAuthenticationToken = Mock(KeycloakAuthenticationToken)
         def refreshableKeycloakSecurityContext =Mock(RefreshableKeycloakSecurityContext)
-        successEvent.getSource() >> keycloakAuthenticationToken
         keycloakAuthenticationToken.getDetails() >> keycloakAccount
         keycloakAccount.getKeycloakSecurityContext() >> refreshableKeycloakSecurityContext
 
@@ -73,8 +85,14 @@ class SecurityEventListenerSpec extends Specification {
         userQuery.userId("email") >> userQuery
         userQuery.singleResult() >> user
 
+        and:
+        def securityContext = SecurityContextHolder.createEmptyContext()
+        securityContext.setAuthentication(keycloakAuthenticationToken)
+        SecurityContextHolder.setContext(securityContext)
+
+
         when:
-        underTest.onSuccessfulAuthentication(successEvent)
+        underTest.doFilter(request, response, chain)
 
         then:
         1 * identityService.setAuthentication(_)  >> { arguments -> authentication=arguments[0]}
@@ -85,11 +103,9 @@ class SecurityEventListenerSpec extends Specification {
     def 'can register user without shift details'() {
         WorkflowAuthentication authentication
         given:
-        def successEvent = Mock(InteractiveAuthenticationSuccessEvent)
         def keycloakAccount = Mock(SimpleKeycloakAccount)
         def keycloakAuthenticationToken = Mock(KeycloakAuthenticationToken)
         def refreshableKeycloakSecurityContext =Mock(RefreshableKeycloakSecurityContext)
-        successEvent.getSource() >> keycloakAuthenticationToken
         keycloakAuthenticationToken.getDetails() >> keycloakAccount
         keycloakAccount.getKeycloakSecurityContext() >> refreshableKeycloakSecurityContext
 
@@ -107,8 +123,14 @@ class SecurityEventListenerSpec extends Specification {
         userQuery.userId("email") >> userQuery
         userQuery.singleResult() >> null
 
+        and:
+        def securityContext = SecurityContextHolder.createEmptyContext()
+        securityContext.setAuthentication(keycloakAuthenticationToken)
+        SecurityContextHolder.setContext(securityContext)
+
+
         when:
-        underTest.onSuccessfulAuthentication(successEvent)
+        underTest.doFilter(request, response, chain)
 
         then:
         1 * identityService.setAuthentication(_)  >> { arguments -> authentication=arguments[0]}

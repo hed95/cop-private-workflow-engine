@@ -70,7 +70,6 @@ public class TaskApplicationService {
         log.info("Total results for query '{}'", totalResults);
 
         if (pageable.getSort() != null) {
-            log.info("Sort defined...applying");
             taskSortExecutor.applySort(taskQuery, pageable.getSort());
         }
         List<Task> tasks = taskQuery

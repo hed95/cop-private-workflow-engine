@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -107,16 +108,11 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     }
 
-
-    @Bean
-    public SecurityEventListener securityEventListener() {
-        return new SecurityEventListener(identityService);
-    }
-
     @Bean
     public FilterRegistrationBean keycloakAuthenticationProcessingFilterRegistrationBean(
             KeycloakAuthenticationProcessingFilter filter) {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean(filter);
+        registrationBean.setOrder(1);
         registrationBean.setEnabled(false);
         return registrationBean;
     }
@@ -125,8 +121,15 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     public FilterRegistrationBean keycloakPreAuthActionsFilterRegistrationBean(
             KeycloakPreAuthActionsFilter filter) {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean(filter);
+        registrationBean.setOrder(0);
         registrationBean.setEnabled(false);
         return registrationBean;
+    }
+
+    @Bean
+    @Order(-1)
+    public ProcessEngineIdentityFilter processEngineFilter(IdentityService identityService) {
+        return new ProcessEngineIdentityFilter(identityService);
     }
 
     @Bean
