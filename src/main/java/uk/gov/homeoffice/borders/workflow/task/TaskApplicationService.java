@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class TaskApplicationService {
 
-    public static final String NOTIFICATIONS = "notifications";
+    private static final String NOTIFICATIONS = "notifications";
     private TaskService taskService;
     private TaskSortExecutor taskSortExecutor;
     private ProcessEngine processEngine;
@@ -105,7 +105,7 @@ public class TaskApplicationService {
      * @param user
      * @param taskId
      */
-    public void claimTask(ShiftUser user, String taskId) {
+    void claimTask(ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.claim(task.getId(), user.getEmail());
         log.info("Task '{}' claimed", taskId);
@@ -119,7 +119,7 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    public void completeTask(ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
+    void completeTask(ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
 
@@ -139,7 +139,7 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    public void completeTaskWithForm(ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
+    void completeTaskWithForm(ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
         VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
@@ -159,7 +159,7 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    public Task getTask(ShiftUser user, String taskId) {
+    Task getTask(ShiftUser user, String taskId) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .initializeFormKeys()
                 .taskId(taskId);
@@ -174,7 +174,7 @@ public class TaskApplicationService {
      * @param user
      * @param taskId
      */
-    public void unclaim(ShiftUser user, String taskId) {
+    void unclaim(ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.setAssignee(task.getId(), null);
         log.info("Task '{}' unclaimed");
@@ -210,7 +210,7 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    public VariableMap getVariables(ShiftUser user, String taskId) {
+    VariableMap getVariables(ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskExistsCheck(taskId, task);
         return taskService.getVariablesTyped(task.getId(), false);
@@ -222,12 +222,12 @@ public class TaskApplicationService {
         }
     }
 
-    public List<IdentityLink> getIdentityLinksForTask(String id) {
+    List<IdentityLink> getIdentityLinksForTask(String id) {
         return taskService.getIdentityLinksForTask(id);
     }
 
 
-    public Mono<TasksCountDto> taskCounts(ShiftUser user) {
+    Mono<TasksCountDto> taskCounts(ShiftUser user) {
 
         List<String> teamCodes = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
 

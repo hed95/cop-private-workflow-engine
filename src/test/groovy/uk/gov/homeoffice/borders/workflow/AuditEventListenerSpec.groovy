@@ -4,14 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.delegate.DelegateExecution
 import spock.lang.Specification
+import uk.gov.homeoffice.borders.workflow.audit.AuditEventListener
+import uk.gov.homeoffice.borders.workflow.audit.LogAuditProcessor
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
 class AuditEventListenerSpec extends Specification {
 
     def objectMapper = Mock(ObjectMapper)
+    def logAuditEventListener = new LogAuditProcessor(objectMapper)
     def identityService = Mock(IdentityService)
-    def auditEventListener = new AuditEventListener(objectMapper, identityService)
+    def auditEventListener = new AuditEventListener(identityService, [logAuditEventListener])
 
 
     def 'can record audit event'() {

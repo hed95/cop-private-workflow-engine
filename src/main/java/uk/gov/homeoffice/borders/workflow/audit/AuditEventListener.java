@@ -1,7 +1,6 @@
-package uk.gov.homeoffice.borders.workflow;
+package uk.gov.homeoffice.borders.workflow.audit;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.IdentityService;
@@ -10,33 +9,38 @@ import org.camunda.bpm.engine.impl.identity.Authentication;
 import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
 import org.camunda.bpm.extension.reactor.spring.listener.ReactorExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Used to log all events within the workflow engine.
  */
 @Slf4j
-@Component
 @CamundaSelector
 public class AuditEventListener extends ReactorExecutionListener {
 
-    private ObjectMapper objectMapper;
     private IdentityService identityService;
+    private List<AuditProcessor> auditProcessors;
 
     @Autowired
-    public AuditEventListener(ObjectMapper objectMapper, IdentityService identityService) {
-        this.objectMapper = objectMapper;
+    public AuditEventListener(IdentityService identityService,
+                              List<AuditProcessor> auditProcessors) {
         this.identityService = identityService;
+        this.auditProcessors = auditProcessors;
     }
 
     @Override
-    public void notify(DelegateExecution execution) throws Exception {
+    public void notify(DelegateExecution execution){
         Authentication currentAuthentication = identityService.getCurrentAuthentication();
         AuditEvent auditEvent = AuditEvent.createFrom(execution, currentAuthentication);
-        String json = objectMapper.writeValueAsString(auditEvent);
-        log.debug("Audit event: '{}'", json);
+        this.auditProcessors.stream().forEach(processor -> {
+            try {
+                processor.handleAudit(auditEvent);
+            } catch (Exception e) {
+                log.error("Failed to handle audit", e);
+            }
+        });
     }
 
 

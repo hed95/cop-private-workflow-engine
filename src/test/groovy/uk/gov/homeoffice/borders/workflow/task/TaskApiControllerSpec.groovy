@@ -10,6 +10,8 @@ import org.camunda.bpm.engine.variable.Variables
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MvcResult
+import org.springframework.test.web.servlet.ResultHandler
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
@@ -282,7 +284,7 @@ class TaskApiControllerSpec extends BaseSpec {
                 .contentType(MediaType.APPLICATION_JSON))
 
         then:
-        def taskLoaded = result.andReturn().asyncResult as TaskDtoResource
+        def taskLoaded = result.andReturn().asyncResult
         taskLoaded.taskDto.assignee == user.email
     }
 
