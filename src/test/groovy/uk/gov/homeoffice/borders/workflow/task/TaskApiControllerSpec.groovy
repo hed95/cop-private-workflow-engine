@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.ResultHandler
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
+import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo
 import static org.hamcrest.Matchers.is
@@ -279,7 +280,8 @@ class TaskApiControllerSpec extends BaseSpec {
         user.teams = []
         team.teamCode = 'teamA'
         user.teams << team
-        restApiUserExtractor.toUser() >> user
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+
         def result = mvc.perform(get("/api/workflow/tasks/${task.id}")
                 .contentType(MediaType.APPLICATION_JSON))
 

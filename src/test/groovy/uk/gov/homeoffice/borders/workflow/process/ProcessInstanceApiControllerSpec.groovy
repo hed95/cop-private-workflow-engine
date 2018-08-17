@@ -22,7 +22,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
 
         and:
         def user = logInUser()
-        restApiUserExtractor.toUser() >> user
+
 
         when:
         def result = mvc.perform(post("/api/workflow/process-instances")
@@ -41,7 +41,6 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
 
         and:
         def user = logInUser()
-        restApiUserExtractor.toUser() >> user
 
         and:
         def result = mvc.perform(post("/api/workflow/process-instances")
@@ -68,7 +67,6 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
 
         and:
         def user = logInUser()
-        restApiUserExtractor.toUser() >> user
 
         and:
         def result = mvc.perform(post("/api/workflow/process-instances")
@@ -95,7 +93,6 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
 
         and:
         def user = logInUser()
-        restApiUserExtractor.toUser() >> user
 
         and:
         def result = mvc.perform(post("/api/workflow/process-instances")

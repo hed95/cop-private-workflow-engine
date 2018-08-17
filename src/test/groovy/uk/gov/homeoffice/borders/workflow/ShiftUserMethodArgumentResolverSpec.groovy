@@ -1,15 +1,20 @@
 package uk.gov.homeoffice.borders.workflow
 
 import org.camunda.bpm.engine.IdentityService
+import org.springframework.core.MethodParameter
+import org.springframework.web.bind.support.WebDataBinderFactory
+import org.springframework.web.context.request.NativeWebRequest
+import org.springframework.web.method.support.ModelAndViewContainer
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.shift.ShiftUserMethodArgumentResolver
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
-class RestApiUserExtractorSpec extends Specification {
+class ShiftUserMethodArgumentResolverSpec extends Specification {
 
     def identityService = Mock(IdentityService)
 
-    def restApiUserExtractor = new RestApiUserExtractor(identityService)
+    def shiftUserMethodArgumentResolver = new ShiftUserMethodArgumentResolver(identityService)
 
     def 'can get user'() {
         given:
@@ -21,7 +26,7 @@ class RestApiUserExtractorSpec extends Specification {
         identityService.getCurrentAuthentication() >> workflowAuthentication
 
         when:
-        def result = restApiUserExtractor.toUser()
+        def result = shiftUserMethodArgumentResolver.resolveArgument(Mock(MethodParameter),Mock(ModelAndViewContainer),Mock(NativeWebRequest),Mock(WebDataBinderFactory))
 
         then:
         result
@@ -34,7 +39,7 @@ class RestApiUserExtractorSpec extends Specification {
         identityService.getCurrentAuthentication() >> workflowAuthentication
 
         when:
-        restApiUserExtractor.toUser()
+        shiftUserMethodArgumentResolver.resolveArgument(Mock(MethodParameter),Mock(ModelAndViewContainer),Mock(NativeWebRequest),Mock(WebDataBinderFactory))
 
         then:
         thrown ForbiddenException
@@ -45,7 +50,7 @@ class RestApiUserExtractorSpec extends Specification {
         identityService.getCurrentAuthentication() >> null
 
         when:
-        restApiUserExtractor.toUser()
+        shiftUserMethodArgumentResolver.resolveArgument(Mock(MethodParameter),Mock(ModelAndViewContainer),Mock(NativeWebRequest),Mock(WebDataBinderFactory))
 
         then:
         thrown ForbiddenException

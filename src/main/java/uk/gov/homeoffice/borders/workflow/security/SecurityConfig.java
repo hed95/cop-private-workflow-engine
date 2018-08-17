@@ -48,9 +48,6 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
             "/webjars/**"
     };
 
-    @Autowired
-    private IdentityService identityService;
-
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) {
@@ -87,26 +84,6 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .fullyAuthenticated();
     }
 
-    @Bean
-    @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public AccessToken accessToken() {
-        return securityContext().getToken();
-    }
-
-    private KeycloakSecurityContext securityContext() {
-        return ((KeycloakPrincipal) ((KeycloakAuthenticationToken) getRequest()
-                .getUserPrincipal()).getPrincipal()).getKeycloakSecurityContext();
-    }
-
-    @Bean
-    @Scope(scopeName = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public KeycloakSecurityContext keycloakSecurityContext() {
-        return securityContext();
-    }
-
-    private HttpServletRequest getRequest() {
-        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-    }
 
     @Bean
     public FilterRegistrationBean keycloakAuthenticationProcessingFilterRegistrationBean(

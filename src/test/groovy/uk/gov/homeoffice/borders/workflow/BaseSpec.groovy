@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
+import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.runtime.ProcessInstance
@@ -28,6 +29,7 @@ import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
+import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.service.notify.NotificationClient
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -54,13 +56,13 @@ abstract class BaseSpec extends Specification {
     public RuntimeService runtimeService
 
     @Autowired
-    public RestApiUserExtractor restApiUserExtractor
-
-    @Autowired
     public TaskService taskService
 
     @Autowired
     public NotificationClient notificationClient
+
+    @Autowired
+    public IdentityService identityService
 
 
     def wmPort = 8000
@@ -87,7 +89,7 @@ abstract class BaseSpec extends Specification {
         user.teams = []
         team.teamCode = 'teamA'
         user.teams << team
-        restApiUserExtractor.toUser() >> user
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
         user
     }
 
@@ -107,8 +109,9 @@ abstract class BaseSpec extends Specification {
         @Bean
         MockPostProcessor mockPostProcessor() {
             new MockPostProcessor(
-                    ['restApiUserExtractor': detachedMockFactory.Stub(RestApiUserExtractor),
-                     'notificationClient'  : detachedMockFactory.Mock(NotificationClient)
+                    [
+                            'identityService'   : detachedMockFactory.Stub(IdentityService),
+                            'notificationClient': detachedMockFactory.Mock(NotificationClient)
                     ]
             )
         }

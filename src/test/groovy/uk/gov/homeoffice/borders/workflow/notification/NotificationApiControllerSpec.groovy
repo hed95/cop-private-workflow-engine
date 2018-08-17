@@ -5,6 +5,7 @@ import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.homeoffice.borders.workflow.task.notifications.Notification
 import uk.gov.homeoffice.borders.workflow.task.notifications.Priority
 
@@ -24,8 +25,8 @@ class NotificationApiControllerSpec extends BaseSpec {
 
         and:
         def user = createUser()
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
 
-        restApiUserExtractor.toUser() >> user
 
         and:
         wireMockStub.stub {
@@ -131,7 +132,8 @@ class NotificationApiControllerSpec extends BaseSpec {
 
         and:
         def user = createUser()
-        restApiUserExtractor.toUser() >> user
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+
 
         and:
         wireMockStub.stub {
@@ -198,7 +200,8 @@ class NotificationApiControllerSpec extends BaseSpec {
 
 
         when:
-        restApiUserExtractor.toUser() >> user
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+
         def result = mvc.perform(get("/api/workflow/notifications")
                 .contentType(MediaType.APPLICATION_JSON))
 

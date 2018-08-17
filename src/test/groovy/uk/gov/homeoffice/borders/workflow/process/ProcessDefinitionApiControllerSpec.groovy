@@ -14,7 +14,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
 
     def 'can get process definitions from /api/workflow/process-definitions'() {
         given:
-        restApiUserExtractor.toUser() >> new ShiftUser()
+        logInUser()
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions')
@@ -29,7 +29,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
 
     def 'can get process definition /api/workflow/process-definitions/test'() {
         given:
-        restApiUserExtractor.toUser() >> new ShiftUser()
+        logInUser()
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions/test')

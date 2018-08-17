@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.task.TaskDtoResource;
 import uk.gov.homeoffice.borders.workflow.task.TaskDtoResourceAssembler;
 import uk.gov.homeoffice.borders.workflow.task.TaskReference;
@@ -36,13 +36,13 @@ import static uk.gov.homeoffice.borders.workflow.task.notifications.Notification
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NotificationsApiController {
 
-    private RestApiUserExtractor restApiUserExtractor;
     private TaskDtoResourceAssembler taskDtoResourceAssembler;
     private PagedResourcesAssembler<Task> pagedResourcesAssembler;
     private NotificationService notificationService;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProcessInstanceDto> notifications(@RequestBody Notification notification, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<ProcessInstanceDto> notifications(@RequestBody Notification notification,
+                                                            UriComponentsBuilder uriComponentsBuilder) {
         ProcessInstance processInstance = notificationService.create(notification);
         UriComponents uriComponents =
                 uriComponentsBuilder.path(NOTIFICATIONS_ROOT_API + "/process-instance/{processInstanceId}").buildAndExpand(processInstance.getProcessInstanceId());
@@ -60,8 +60,8 @@ public class NotificationsApiController {
 
 
     @DeleteMapping("/task/{taskId}")
-    public ResponseEntity<TaskReference> acknowledge(@PathVariable String taskId) {
-        String id = notificationService.acknowledge(restApiUserExtractor.toUser(), taskId);
+    public ResponseEntity<TaskReference> acknowledge(@PathVariable String taskId, ShiftUser shiftUser) {
+        String id = notificationService.acknowledge(shiftUser, taskId);
         TaskReference taskReference = new TaskReference();
         taskReference.setId(id);
         taskReference.setStatus(TaskListener.EVENTNAME_COMPLETE);
@@ -69,8 +69,10 @@ public class NotificationsApiController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public PagedResources<TaskDtoResource> notifications(Pageable pageable, @RequestParam(required = false, defaultValue = "false") boolean countOnly) {
-        Page<Task> page = notificationService.getNotifications(restApiUserExtractor.toUser(), pageable, countOnly);
+    public PagedResources<TaskDtoResource> notifications(Pageable pageable,
+                                                         @RequestParam(required = false, defaultValue = "false") boolean countOnly,
+                                                         ShiftUser shiftUser) {
+        Page<Task> page = notificationService.getNotifications(shiftUser, pageable, countOnly);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 

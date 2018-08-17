@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import uk.gov.homeoffice.borders.workflow.RestApiUserExtractor;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import java.util.Arrays;
@@ -44,20 +43,19 @@ public class TaskApiController {
     private TaskApplicationService applicationService;
     private TaskDtoResourceAssembler taskDtoResourceAssembler;
     private PagedResourcesAssembler<Task> pagedResourcesAssembler;
-    private RestApiUserExtractor restApiUserExtractor;
 
     @GetMapping
     public PagedResources<TaskDtoResource> tasks(@RequestParam(required = false, defaultValue = "false") Boolean assignedToMeOnly,
                                                  @RequestParam(required = false, defaultValue = "false") Boolean unassignedOnly,
-                                                 Pageable pageable) {
-        Page<Task> page = applicationService.tasks(restApiUserExtractor.toUser(), assignedToMeOnly, unassignedOnly, pageable);
+                                                 Pageable pageable, ShiftUser shiftUser) {
+        Page<Task> page = applicationService.tasks(shiftUser, assignedToMeOnly, unassignedOnly, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 
     @GetMapping("/{taskId}")
     @SuppressWarnings("unchecked")
-    public CompletableFuture<TaskDtoResource> task(@PathVariable String taskId, @RequestParam(required = false, defaultValue = "false") Boolean includeVariables) throws Exception {
-        ShiftUser user = restApiUserExtractor.toUser();
+    public CompletableFuture<TaskDtoResource> task(@PathVariable String taskId,
+                                                   @RequestParam(required = false, defaultValue = "false") Boolean includeVariables, ShiftUser user) throws Exception {
         Mono<Task> task = Mono
                 .fromCallable(() -> applicationService.getTask(user, taskId))
                 .subscribeOn(Schedulers.elastic());
@@ -86,49 +84,49 @@ public class TaskApiController {
     }
 
     @GetMapping("/{taskId}/variables")
-    public Map<String, VariableValueDto> variables(@PathVariable String taskId) {
-        VariableMap variables = applicationService.getVariables(restApiUserExtractor.toUser(), taskId);
+    public Map<String, VariableValueDto> variables(@PathVariable String taskId, ShiftUser shiftUser) {
+        VariableMap variables = applicationService.getVariables(shiftUser, taskId);
         return VariableValueDto.fromVariableMap(variables);
     }
 
     @PostMapping
-    public PagedResources<TaskDtoResource> query(@RequestBody TaskQueryDto queryDto, Pageable pageable) {
-        Page<Task> page = applicationService.query(restApiUserExtractor.toUser(), queryDto, pageable);
+    public PagedResources<TaskDtoResource> query(@RequestBody TaskQueryDto queryDto, Pageable pageable, ShiftUser shiftUser) {
+        Page<Task> page = applicationService.query(shiftUser, queryDto, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
 
     }
 
     @PostMapping("/{taskId}/_claim")
-    public ResponseEntity claim(@PathVariable String taskId) {
-        applicationService.claimTask(restApiUserExtractor.toUser(), taskId);
+    public ResponseEntity claim(@PathVariable String taskId, ShiftUser shiftUser) {
+        applicationService.claimTask(shiftUser, taskId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{taskId}/_complete")
-    public ResponseEntity complete(@PathVariable String taskId, @RequestBody(required = false)  CompleteTaskDto completeTaskDto) {
-        ShiftUser user = restApiUserExtractor.toUser();
-        applicationService.completeTask(user, taskId, completeTaskDto);
+    public ResponseEntity complete(@PathVariable String taskId, @RequestBody(required = false)
+            CompleteTaskDto completeTaskDto, ShiftUser shiftUser) {
+        applicationService.completeTask(shiftUser, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }
 
     @PostMapping(value = "/{taskId}/form/_complete", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto) {
-        ShiftUser user = restApiUserExtractor.toUser();
+    public ResponseEntity completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto,
+                                           ShiftUser user) {
         applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }
 
     @PostMapping("/{taskId}/_unclaim")
-    public ResponseEntity unclaim(@PathVariable String taskId) {
-        applicationService.unclaim(restApiUserExtractor.toUser(), taskId);
+    public ResponseEntity unclaim(@PathVariable String taskId, ShiftUser shiftUser) {
+        applicationService.unclaim(shiftUser, taskId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/_task-counts")
-    public CompletableFuture<TasksCountDto> taskCounts() {
-        return applicationService.taskCounts(restApiUserExtractor.toUser()).toFuture();
+    public CompletableFuture<TasksCountDto> taskCounts(ShiftUser shiftUser) {
+        return applicationService.taskCounts(shiftUser).toFuture();
     }
 
 
