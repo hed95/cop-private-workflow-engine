@@ -7,6 +7,7 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
 import org.keycloak.representations.AccessToken
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
+import uk.gov.homeoffice.borders.workflow.ForbiddenException
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery
 
@@ -137,6 +138,14 @@ class ProcessEngineIdentityFilterSpec extends Specification {
         !authentication.user
         authentication.userId == 'email'
         authentication.getGroupIds().size() == 0
+    }
+
+    def 'throws exception if context is null'() {
+        when:
+        underTest.doFilter(request, response, chain)
+
+        then:
+        thrown(ForbiddenException)
     }
 
 }

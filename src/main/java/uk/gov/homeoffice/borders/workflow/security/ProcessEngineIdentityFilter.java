@@ -26,12 +26,13 @@ import java.util.ArrayList;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class ProcessEngineIdentityFilter extends GenericFilterBean {
 
+    private static final String SERVICE_ROLE = "service_role";
     private IdentityService identityService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final SecurityContext context = SecurityContextHolder.getContext();
-        if (context == null) {
+        if (context.getAuthentication() == null) {
             throw new ForbiddenException("No active security context set");
         }
         if (context.getAuthentication() instanceof KeycloakAuthenticationToken) {
@@ -39,7 +40,7 @@ public class ProcessEngineIdentityFilter extends GenericFilterBean {
             RefreshableKeycloakSecurityContext keycloakSecurityContext = ((SimpleKeycloakAccount) token.getDetails()).getKeycloakSecurityContext();
 
             long serviceRoleCount = keycloakSecurityContext.getToken().getRealmAccess().getRoles().stream()
-                    .filter(r -> r.equalsIgnoreCase("service_role")).count();
+                    .filter(r -> r.equalsIgnoreCase(SERVICE_ROLE)).count();
 
             String userId = keycloakSecurityContext.getToken().getEmail();
             if (serviceRoleCount == 0) {

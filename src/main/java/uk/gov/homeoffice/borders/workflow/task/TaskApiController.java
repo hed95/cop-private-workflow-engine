@@ -55,7 +55,7 @@ public class TaskApiController {
     @GetMapping("/{taskId}")
     @SuppressWarnings("unchecked")
     public CompletableFuture<TaskDtoResource> task(@PathVariable String taskId,
-                                                   @RequestParam(required = false, defaultValue = "false") Boolean includeVariables, ShiftUser user) throws Exception {
+                                                   @RequestParam(required = false, defaultValue = "false") Boolean includeVariables, ShiftUser user)  {
         Mono<Task> task = Mono
                 .fromCallable(() -> applicationService.getTask(user, taskId))
                 .subscribeOn(Schedulers.elastic());
