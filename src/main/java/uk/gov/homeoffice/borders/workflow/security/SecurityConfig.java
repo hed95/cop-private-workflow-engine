@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.security;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.camunda.bpm.engine.IdentityService;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
@@ -25,12 +26,21 @@ import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.springframework.context.annotation.ScopedProxyMode.TARGET_CLASS;
+import static org.springframework.web.util.TagUtils.SCOPE_REQUEST;
 
 @Configuration
 @EnableWebSecurity
@@ -38,15 +48,22 @@ import javax.servlet.http.HttpServletRequest;
 @Profile("!test")
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
-    @Autowired
-    public KeycloakClientRequestFactory keycloakClientRequestFactory;
-
+    private static final String ENGINE = "/engine";
+    private static final String ACTUATOR_HEALTH = "/actuator/health";
+    private static final String ACTUATOR_METRICS = "/actuator/metrics";
     private static final String[] SWAGGER_WHITELIST = {
             "/swagger-resources/**",
             "/swagger-ui.html",
             "/v2/api-docs",
             "/webjars/**"
     };
+
+    static final List<String> NO_AUTH_URLS = Collections.unmodifiableList(
+           Arrays.asList(ArrayUtils.addAll(SWAGGER_WHITELIST, ENGINE, ACTUATOR_HEALTH, ACTUATOR_METRICS))
+    );
+
+    @Autowired
+    public KeycloakClientRequestFactory keycloakClientRequestFactory;
 
 
     @Autowired
@@ -58,6 +75,14 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         auth.authenticationProvider(keycloakAuthenticationProvider);
     }
 
+    @Bean
+    @Scope(scopeName = SCOPE_REQUEST, proxyMode = TARGET_CLASS)
+    public KeycloakSecurityContext securityContext() {
+        return (KeycloakSecurityContext)
+                RequestContextHolder.currentRequestAttributes()
+                        .getAttribute(KeycloakSecurityContext.class.getName(), RequestAttributes.SCOPE_REQUEST);
+
+    }
 
     @Bean
     public KeycloakSpringBootConfigResolver keycloakConfigResolver() {
@@ -77,9 +102,9 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers(SWAGGER_WHITELIST).permitAll()
-                .antMatchers("/engine").permitAll()
-                .antMatchers("/actuator/health").permitAll()
-                .antMatchers("/actuator/metrics").permitAll()
+                .antMatchers(ENGINE).permitAll()
+                .antMatchers(ACTUATOR_HEALTH).permitAll()
+                .antMatchers(ACTUATOR_METRICS).permitAll()
                 .anyRequest()
                 .fullyAuthenticated();
     }
@@ -105,8 +130,9 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
     @Bean
     @Order(-1)
-    public ProcessEngineIdentityFilter processEngineFilter(IdentityService identityService) {
-        return new ProcessEngineIdentityFilter(identityService);
+    public ProcessEngineIdentityFilter processEngineFilter(IdentityService identityService,
+                                                           KeycloakSecurityContext securityContext ) {
+        return new ProcessEngineIdentityFilter(identityService, securityContext, new AntPathMatcher());
     }
 
     @Bean

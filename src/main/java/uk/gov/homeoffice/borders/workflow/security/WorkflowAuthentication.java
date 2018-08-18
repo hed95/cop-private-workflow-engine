@@ -10,6 +10,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 public class WorkflowAuthentication extends Authentication {
+    public static final String SERVICE_ROLE = "service_role";
 
     private ShiftUser user;
 
@@ -28,6 +29,10 @@ public class WorkflowAuthentication extends Authentication {
     public WorkflowAuthentication(ShiftUser user) {
         super(user.getEmail(), user.getTeams().stream().map(Team::getTeamCode).collect(toList()), new ArrayList<>());
         this.user = user;
+    }
+
+    public boolean isServiceRole() {
+        return this.getGroupIds().stream().filter(SERVICE_ROLE::equalsIgnoreCase).count() == 1;
     }
 
     public ShiftUser getUser() {

@@ -59,4 +59,8 @@ spring:
       preferred-json-mapper: jackson
 
 
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics

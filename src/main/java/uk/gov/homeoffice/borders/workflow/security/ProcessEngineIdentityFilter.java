@@ -4,65 +4,60 @@ package uk.gov.homeoffice.borders.workflow.security;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.IdentityService;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
-import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.keycloak.KeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.GenericFilterBean;
-import uk.gov.homeoffice.borders.workflow.ForbiddenException;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import static java.util.Optional.ofNullable;
 
 
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-public class ProcessEngineIdentityFilter extends GenericFilterBean {
+public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
 
     private static final String SERVICE_ROLE = "service_role";
     private IdentityService identityService;
+    private KeycloakSecurityContext keycloakSecurityContext;
+    private AntPathMatcher antPathMatcher;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        final SecurityContext context = SecurityContextHolder.getContext();
-        if (context.getAuthentication() == null) {
-            throw new ForbiddenException("No active security context set");
-        }
-        if (context.getAuthentication() instanceof KeycloakAuthenticationToken) {
-            final KeycloakAuthenticationToken token = (KeycloakAuthenticationToken) context.getAuthentication();
-            RefreshableKeycloakSecurityContext keycloakSecurityContext = ((SimpleKeycloakAccount) token.getDetails()).getKeycloakSecurityContext();
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain) throws ServletException, IOException {
 
-            long serviceRoleCount = keycloakSecurityContext.getToken().getRealmAccess().getRoles().stream()
-                    .filter(r -> r.equalsIgnoreCase(SERVICE_ROLE)).count();
+        long serviceRoleCount = keycloakSecurityContext.getToken().getRealmAccess().getRoles().stream()
+                .filter(r -> r.equalsIgnoreCase(SERVICE_ROLE)).count();
 
-            String userId = keycloakSecurityContext.getToken().getEmail();
-            if (serviceRoleCount == 0) {
-                ShiftUser user = toUser(userId);
-                if (user == null) {
-                    log.warn("User '{}' does not have active shift", userId);
-                    identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
-                } else {
-                    log.debug("User '{}' has active shift", user);
-                    identityService.setAuthentication(new WorkflowAuthentication(user));
-                }
-            } else {
-                log.debug("Service account user...'{}'", userId);
-                identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
-            }
+        String userId = keycloakSecurityContext.getToken().getEmail();
+        if (serviceRoleCount == 0) {
+            WorkflowAuthentication workflowAuthentication =
+                    ofNullable(toUser(userId)).map(WorkflowAuthentication::new).
+                            orElse(new WorkflowAuthentication(userId, new ArrayList<>()));
+            identityService.setAuthentication(workflowAuthentication);
+        } else {
+            log.debug("Service account user...'{}'", userId);
+            identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
         }
         try {
             chain.doFilter(request, response);
         } finally {
             identityService.clearAuthentication();
         }
+    }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return SecurityConfig.NO_AUTH_URLS.stream()
+                .anyMatch(path -> antPathMatcher.match(path, request.getServletPath()));
     }
 
     private ShiftUser toUser(String userId) {

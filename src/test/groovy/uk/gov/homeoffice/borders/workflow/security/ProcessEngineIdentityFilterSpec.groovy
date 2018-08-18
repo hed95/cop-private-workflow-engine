@@ -1,33 +1,31 @@
 package uk.gov.homeoffice.borders.workflow.security
 
+
 import org.camunda.bpm.engine.IdentityService
 import org.keycloak.adapters.RefreshableKeycloakSecurityContext
 import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
 import org.keycloak.representations.AccessToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.util.AntPathMatcher
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.ForbiddenException
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery
 
 import javax.servlet.FilterChain
-import javax.servlet.ServletRequest
-import javax.servlet.ServletResponse
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 class ProcessEngineIdentityFilterSpec extends Specification {
 
     def identityService = Mock(IdentityService)
+    def antPathMatcher = new AntPathMatcher()
 
-    def underTest = new ProcessEngineIdentityFilter(identityService)
-
-    def request = Mock(ServletRequest)
-    def response = Mock(ServletResponse)
+    def request = Mock(HttpServletRequest)
+    def response = Mock(HttpServletResponse)
     def chain = Mock(FilterChain)
 
-    def cleanup() {
-        SecurityContextHolder.clearContext()
-    }
 
     def 'can register authenticated service role user into identity service'() {
         WorkflowAuthentication authentication
@@ -45,16 +43,15 @@ class ProcessEngineIdentityFilterSpec extends Specification {
         token.getEmail() >> 'service-email'
         realmAccess.getRoles() >> ['service_role']
 
-
-        def securityContext = SecurityContextHolder.createEmptyContext()
-        securityContext.setAuthentication(keycloakAuthenticationToken)
-        SecurityContextHolder.setContext(securityContext)
+        and:
+        def underTest = new ProcessEngineIdentityFilter(identityService,refreshableKeycloakSecurityContext, antPathMatcher)
 
         when:
-        underTest.doFilter(request, response, chain)
+        underTest.doFilterInternal(request, response, chain)
 
         then:
         1 * identityService.setAuthentication(_)  >> { arguments -> authentication=arguments[0]}
+        1 * identityService.clearAuthentication()
         authentication.userId == 'service-email'
         !authentication.user
     }
@@ -87,18 +84,16 @@ class ProcessEngineIdentityFilterSpec extends Specification {
         userQuery.singleResult() >> user
 
         and:
-        def securityContext = SecurityContextHolder.createEmptyContext()
-        securityContext.setAuthentication(keycloakAuthenticationToken)
-        SecurityContextHolder.setContext(securityContext)
-
+        def underTest = new ProcessEngineIdentityFilter(identityService,refreshableKeycloakSecurityContext, antPathMatcher)
 
         when:
-        underTest.doFilter(request, response, chain)
+        underTest.doFilterInternal(request, response, chain)
 
         then:
         1 * identityService.setAuthentication(_)  >> { arguments -> authentication=arguments[0]}
         authentication.user
         authentication.user.email == 'email'
+        1 * identityService.clearAuthentication()
     }
 
     def 'can register user without shift details'() {
@@ -125,27 +120,18 @@ class ProcessEngineIdentityFilterSpec extends Specification {
         userQuery.singleResult() >> null
 
         and:
-        def securityContext = SecurityContextHolder.createEmptyContext()
-        securityContext.setAuthentication(keycloakAuthenticationToken)
-        SecurityContextHolder.setContext(securityContext)
+        def underTest = new ProcessEngineIdentityFilter(identityService,refreshableKeycloakSecurityContext, antPathMatcher)
 
 
         when:
-        underTest.doFilter(request, response, chain)
+        underTest.doFilterInternal(request, response, chain)
 
         then:
         1 * identityService.setAuthentication(_)  >> { arguments -> authentication=arguments[0]}
+        1 * identityService.clearAuthentication()
         !authentication.user
         authentication.userId == 'email'
         authentication.getGroupIds().size() == 0
-    }
-
-    def 'throws exception if context is null'() {
-        when:
-        underTest.doFilter(request, response, chain)
-
-        then:
-        thrown(ForbiddenException)
     }
 
 }
