@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static java.util.Optional.ofNullable;
 
@@ -45,7 +46,7 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
             identityService.setAuthentication(workflowAuthentication);
         } else {
             log.debug("Service account user...'{}'", userId);
-            identityService.setAuthentication(new WorkflowAuthentication(userId, new ArrayList<>()));
+            identityService.setAuthentication(new WorkflowAuthentication(userId, Collections.singletonList(SERVICE_ROLE)));
         }
         try {
             chain.doFilter(request, response);

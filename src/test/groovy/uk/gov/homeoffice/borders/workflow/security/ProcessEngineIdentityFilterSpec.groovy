@@ -1,15 +1,12 @@
 package uk.gov.homeoffice.borders.workflow.security
 
-
 import org.camunda.bpm.engine.IdentityService
 import org.keycloak.adapters.RefreshableKeycloakSecurityContext
 import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
 import org.keycloak.representations.AccessToken
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import spock.lang.Specification
-import uk.gov.homeoffice.borders.workflow.ForbiddenException
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery
 
