@@ -17,15 +17,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-
 import static java.util.Optional.ofNullable;
+import static uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication.SERVICE_ROLE;
 
 
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
 
-    private static final String SERVICE_ROLE = "service_role";
     private IdentityService identityService;
     private KeycloakSecurityContext keycloakSecurityContext;
     private AntPathMatcher antPathMatcher;
