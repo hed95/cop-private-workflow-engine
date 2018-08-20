@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
-import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
+import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;

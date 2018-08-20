@@ -6,6 +6,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer
 import spock.lang.Specification
+import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.shift.ShiftUserMethodArgumentResolver
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication

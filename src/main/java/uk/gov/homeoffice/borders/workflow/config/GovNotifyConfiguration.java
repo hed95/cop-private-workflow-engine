@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.homeoffice.borders.workflow.ExceptionHandler;
+import uk.gov.homeoffice.borders.workflow.exception.ExceptionHandler;
 import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationTaskEventListener;
 import uk.gov.service.notify.NotificationClient;
 

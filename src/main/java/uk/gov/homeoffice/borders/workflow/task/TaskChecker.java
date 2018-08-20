@@ -7,7 +7,7 @@ import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.gov.homeoffice.borders.workflow.ForbiddenException;
+import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 

@@ -1,4 +1,4 @@
-package uk.gov.homeoffice.borders.workflow;
+package uk.gov.homeoffice.borders.workflow.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -21,8 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import uk.gov.homeoffice.borders.workflow.ForbiddenException;
-import uk.gov.homeoffice.borders.workflow.ResourceNotFound;
+import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
+import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 

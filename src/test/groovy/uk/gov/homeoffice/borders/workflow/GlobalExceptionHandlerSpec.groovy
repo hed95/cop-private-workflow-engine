@@ -1,6 +1,9 @@
 package uk.gov.homeoffice.borders.workflow
 
 import spock.lang.Specification
+import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException
+import uk.gov.homeoffice.borders.workflow.exception.GlobalExceptionHandler
+import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound
 
 class GlobalExceptionHandlerSpec extends Specification {
 

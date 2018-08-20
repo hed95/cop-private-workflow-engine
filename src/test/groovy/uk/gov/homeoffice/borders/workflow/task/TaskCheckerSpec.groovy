@@ -4,7 +4,7 @@ import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.impl.persistence.entity.IdentityLinkEntity
 import org.camunda.bpm.engine.task.Task
 import spock.lang.Specification
-import uk.gov.homeoffice.borders.workflow.ForbiddenException
+import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 

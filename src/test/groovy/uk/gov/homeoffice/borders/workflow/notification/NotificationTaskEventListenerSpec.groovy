@@ -7,7 +7,7 @@ import org.camunda.spin.Spin
 import org.camunda.spin.plugin.variable.SpinValues
 import org.springframework.http.MediaType
 import spock.lang.Specification
-import uk.gov.homeoffice.borders.workflow.ExceptionHandler
+import uk.gov.homeoffice.borders.workflow.exception.ExceptionHandler
 import uk.gov.homeoffice.borders.workflow.task.notifications.Notification
 import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationTaskEventListener
 import uk.gov.homeoffice.borders.workflow.task.notifications.Priority
