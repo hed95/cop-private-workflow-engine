@@ -22,7 +22,7 @@ import static uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
 
 @Slf4j
-@AllArgsConstructor(onConstructor = @__(@Autowired))
+@AllArgsConstructor
 public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
 
     private IdentityService identityService;
