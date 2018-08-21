@@ -49,8 +49,9 @@ class ProcessEngineIdentityFilterSpec extends Specification {
         then:
         1 * identityService.setAuthentication(_)  >> { arguments -> authentication=arguments[0]}
         1 * identityService.clearAuthentication()
-        authentication.userId == 'service-email'
-        !authentication.user
+        authentication.user
+        authentication.user.email == 'service-email'
+
     }
 
     def 'can register user with shift details'() {

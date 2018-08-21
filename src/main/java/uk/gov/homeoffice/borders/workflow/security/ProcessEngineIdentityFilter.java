@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.Team;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -45,7 +46,14 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
             identityService.setAuthentication(workflowAuthentication);
         } else {
             log.debug("Service account user...'{}'", userId);
-            identityService.setAuthentication(new WorkflowAuthentication(userId, Collections.singletonList(SERVICE_ROLE)));
+            ShiftUser shiftUser = new ShiftUser();
+            shiftUser.setEmail(userId);
+            Team team = new Team();
+            team.setName(SERVICE_ROLE);
+            team.setType(SERVICE_ROLE);
+            team.setTeamCode(SERVICE_ROLE);
+            shiftUser.setTeams(Collections.singletonList(team));
+            identityService.setAuthentication(new WorkflowAuthentication(shiftUser));
         }
         try {
             chain.doFilter(request, response);
