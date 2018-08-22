@@ -116,7 +116,7 @@ public class ProcessApplicationService {
                 .latestVersion()
                 .processDefinitionKey(processKey).singleResult();
         if (processDefinition == null) {
-            throw new ResourceNotFound("Definition does nto exist");
+            throw new ResourceNotFound(String.format("%s definition does not exist in workflow engine", processKey));
         }
         return processDefinition;
     }
