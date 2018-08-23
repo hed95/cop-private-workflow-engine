@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.process;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
@@ -29,6 +30,7 @@ import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS
 public class ProcessInstanceApiController {
 
     private ProcessApplicationService processApplicationService;
+    private ObjectMapper objectMapper;
 
     @DeleteMapping("/{processInstanceId}")
     public ResponseEntity delete(@PathVariable String processInstanceId, @RequestParam String reason) {
@@ -39,8 +41,9 @@ public class ProcessInstanceApiController {
     @PostMapping(
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE )
-    public ResponseEntity<ProcessInstanceDto> createInstance(@RequestBody ProcessStartDto processStartDto, ShiftUser shiftUser) {
-
+    public ResponseEntity<ProcessInstanceDto> createInstance(@RequestBody ProcessStartDto processStartDto, ShiftUser shiftUser)
+            throws Exception {
+        log.info("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
         ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, shiftUser);
         ProcessInstanceDto processInstanceDto = ProcessInstanceDto.fromProcessInstance(processInstance);
 

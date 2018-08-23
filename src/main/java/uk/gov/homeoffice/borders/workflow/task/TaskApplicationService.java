@@ -47,24 +47,30 @@ public class TaskApplicationService {
     /**
      * Returns paged result of tasks
      *
-     * @param user             user that is returned from active session look up
-     * @param assignedToMeOnly used to indicate to just return tasks assigned to user
-     * @param pageable         page object
+     * @param user     user that is returned from active session look up
+     * @param pageable page object
      * @return paged result
      */
-    public Page<Task> tasks(@NotNull ShiftUser user, Boolean assignedToMeOnly, Boolean unassignedOnly, Pageable pageable) {
+    public Page<Task> tasks(@NotNull ShiftUser user, TaskCriteria taskCriteria, Pageable pageable) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", NOTIFICATIONS)
                 .initializeFormKeys();
-
-        if (assignedToMeOnly) {
-            taskQuery = taskQuery.taskAssignee(user.getEmail());
-        } else if (unassignedOnly) {
-            taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
-                    .taskUnassigned();
-        } else {
+        if (taskCriteria == null) {
             taskQuery = applyUserFilters(user, taskQuery);
+        } else {
+            if (taskCriteria.getAssignedToMeOnly()) {
+                taskQuery = taskQuery.taskAssignee(user.getEmail());
+            } else if (taskCriteria.getUnassignedOnly()) {
+                taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
+                        .taskUnassigned();
+            } else if (taskCriteria.getTeamOnly()) {
+                taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
+                        .includeAssignedTasks();
+            } else {
+                taskQuery = applyUserFilters(user, taskQuery);
+            }
         }
+
 
         Long totalResults = taskQuery.count();
         log.info("Total results for query '{}'", totalResults);

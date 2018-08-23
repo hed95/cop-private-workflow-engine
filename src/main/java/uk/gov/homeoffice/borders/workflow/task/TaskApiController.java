@@ -23,6 +23,7 @@ import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -47,8 +48,16 @@ public class TaskApiController {
     @GetMapping
     public PagedResources<TaskDtoResource> tasks(@RequestParam(required = false, defaultValue = "false") Boolean assignedToMeOnly,
                                                  @RequestParam(required = false, defaultValue = "false") Boolean unassignedOnly,
+                                                 @RequestParam(required = false, defaultValue = "false") Boolean teamOnly,
                                                  Pageable pageable, ShiftUser shiftUser) {
-        Page<Task> page = applicationService.tasks(shiftUser, assignedToMeOnly, unassignedOnly, pageable);
+
+
+        TaskCriteria taskCriteria = new TaskCriteria();
+        taskCriteria.setAssignedToMeOnly(assignedToMeOnly);
+        taskCriteria.setTeamOnly(teamOnly);
+        taskCriteria.setUnassignedOnly(unassignedOnly);
+
+        Page<Task> page = applicationService.tasks(shiftUser, taskCriteria, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 
