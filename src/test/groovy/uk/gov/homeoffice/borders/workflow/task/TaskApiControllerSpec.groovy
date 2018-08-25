@@ -159,6 +159,27 @@ class TaskApiControllerSpec extends BaseSpec {
 
     }
 
+    def 'can claim task already owned'() {
+        given:
+        createTasks(1, "anotherUser")
+        and:
+        def user = logInUser()
+        and:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        def task = list.first()
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/${task.id}/_claim")
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        and:
+        def reloded = taskService.createTaskQuery().taskId(task.id).singleResult()
+        reloded.assignee == user.email
+    }
+
     def 'can claim and complete task'() {
         given:
         createTasks(1, null)

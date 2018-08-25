@@ -22,6 +22,7 @@ import uk.gov.homeoffice.borders.workflow.identity.UserQuery;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
 import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public class NotificationService {
     private UserService userService;
     private TaskApplicationService taskApplicationService;
 
-    public Page<Task> getNotifications(ShiftUser user, Pageable pageable, boolean countOnly) {
+    public Page<Task> getNotifications(@NotNull ShiftUser user, Pageable pageable, boolean countOnly) {
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(NOTIFICATIONS)
                 .processVariableValueEquals("type", NOTIFICATIONS)
@@ -119,7 +120,7 @@ public class NotificationService {
         }
     }
 
-    public String acknowledge(ShiftUser user, String taskId) {
+    public String acknowledge(@NotNull ShiftUser user, String taskId) {
         taskService.claim(taskId, user.getEmail());
         taskService.complete(taskId);
         log.info("Notification acknowledged.");

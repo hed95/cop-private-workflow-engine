@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
+
 import static java.util.Optional.ofNullable;
 import static uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication.SERVICE_ROLE;
 
@@ -35,31 +37,35 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
 
-        long serviceRoleCount = keycloakSecurityContext.getToken().getRealmAccess().getRoles().stream()
-                .filter(r -> r.equalsIgnoreCase(SERVICE_ROLE)).count();
+        Optional<String> serviceRole = keycloakSecurityContext.getToken()
+                .getRealmAccess().getRoles().stream()
+                .filter(r -> r.equalsIgnoreCase(SERVICE_ROLE)).findFirst();
 
         String userId = keycloakSecurityContext.getToken().getEmail();
-        if (serviceRoleCount == 0) {
-            WorkflowAuthentication workflowAuthentication =
-                    ofNullable(toUser(userId)).map(WorkflowAuthentication::new).
-                            orElse(new WorkflowAuthentication(userId, new ArrayList<>()));
-            identityService.setAuthentication(workflowAuthentication);
-        } else {
+
+        WorkflowAuthentication workflowAuthentication = serviceRole.map(role -> {
             log.debug("Service account user...'{}'", userId);
-            ShiftUser shiftUser = new ShiftUser();
-            shiftUser.setEmail(userId);
-            Team team = new Team();
-            team.setName(SERVICE_ROLE);
-            team.setType(SERVICE_ROLE);
-            team.setTeamCode(SERVICE_ROLE);
-            shiftUser.setTeams(Collections.singletonList(team));
-            identityService.setAuthentication(new WorkflowAuthentication(shiftUser));
-        }
+            return createServiceRoleAuthentication(userId);
+        }).orElseGet(() -> ofNullable(toUser(userId)).map(WorkflowAuthentication::new).
+                orElse(new WorkflowAuthentication(userId, new ArrayList<>())));
+
+        identityService.setAuthentication(workflowAuthentication);
         try {
             chain.doFilter(request, response);
         } finally {
             identityService.clearAuthentication();
         }
+    }
+
+    private WorkflowAuthentication createServiceRoleAuthentication(String userId) {
+        ShiftUser shiftUser = new ShiftUser();
+        shiftUser.setEmail(userId);
+        Team team = new Team();
+        team.setName(SERVICE_ROLE);
+        team.setType(SERVICE_ROLE);
+        team.setTeamCode(SERVICE_ROLE);
+        shiftUser.setTeams(Collections.singletonList(team));
+        return new WorkflowAuthentication(shiftUser);
     }
 
     @Override

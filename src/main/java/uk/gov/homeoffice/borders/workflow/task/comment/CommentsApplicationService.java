@@ -17,6 +17,7 @@ import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.task.TaskChecker;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ public class CommentsApplicationService {
     private RestTemplate restTemplate;
     private String platformDataToken;
 
-    public List<TaskComment> comments(ShiftUser user, String taskId) {
+    public List<TaskComment> comments(@NotNull ShiftUser user, String taskId) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         applyTaskCheck(user, task);
         HttpHeaders httpHeaders = new HttpHeaders();

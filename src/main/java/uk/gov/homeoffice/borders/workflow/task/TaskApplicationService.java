@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
@@ -58,21 +59,10 @@ public class TaskApplicationService {
         if (taskCriteria == null) {
             taskQuery = applyUserFilters(user, taskQuery);
         } else {
-            if (taskCriteria.getAssignedToMeOnly()) {
-                taskQuery = taskQuery.taskAssignee(user.getEmail());
-            } else if (taskCriteria.getUnassignedOnly()) {
-                taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
-                        .taskUnassigned();
-            } else if (taskCriteria.getTeamOnly()) {
-                taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
-                        .includeAssignedTasks();
-            } else {
-                taskQuery = applyUserFilters(user, taskQuery);
-            }
+            taskQuery = createQuery(user, taskCriteria, taskQuery);
         }
 
-
-        Long totalResults = taskQuery.count();
+        long totalResults = taskQuery.count();
         log.info("Total results for query '{}'", totalResults);
 
         if (pageable.getSort() != null) {
@@ -81,6 +71,21 @@ public class TaskApplicationService {
         List<Task> tasks = taskQuery
                 .listPage(calculatePageNumber(pageable), pageable.getPageSize());
         return new PageImpl<>(tasks, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
+    }
+
+    private TaskQuery createQuery(@NotNull ShiftUser user, TaskCriteria taskCriteria, TaskQuery taskQuery) {
+        if (taskCriteria.getAssignedToMeOnly()) {
+            taskQuery = taskQuery.taskAssignee(user.getEmail());
+        } else if (taskCriteria.getUnassignedOnly()) {
+            taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
+                    .taskUnassigned();
+        } else if (taskCriteria.getTeamOnly()) {
+            taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
+                    .includeAssignedTasks();
+        } else {
+            taskQuery = applyUserFilters(user, taskQuery);
+        }
+        return taskQuery;
     }
 
     public int calculatePageNumber(Pageable pageable) {
@@ -110,10 +115,17 @@ public class TaskApplicationService {
      * @param user
      * @param taskId
      */
-    void claimTask(ShiftUser user, String taskId) {
+    void claimTask(@NotNull ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
+        if (task.getAssignee() != null && !task.getAssignee().equalsIgnoreCase(user.getEmail())) {
+            log.info("Task id '{}' was assigned to '{}'...now being reassigned to '{}'",
+                    task.getId(),
+                    task.getAssignee(),
+                    user.getEmail());
+            taskService.setAssignee(taskId, null);
+        }
         taskService.claim(task.getId(), user.getEmail());
-        log.info("Task '{}' claimed", taskId);
+        log.info("Task '{}' claimed by '{}'", taskId, user.getEmail());
     }
 
     /**
@@ -124,7 +136,7 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    void completeTask(ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
+    void completeTask(@NotNull ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
 
@@ -144,7 +156,7 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    void completeTaskWithForm(ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
+    void completeTaskWithForm(@NotNull  ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
         VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
@@ -164,7 +176,7 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    Task getTask(ShiftUser user, String taskId) {
+    Task getTask(@NotNull ShiftUser user, String taskId) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .initializeFormKeys()
                 .taskId(taskId);
@@ -179,7 +191,7 @@ public class TaskApplicationService {
      * @param user
      * @param taskId
      */
-    void unclaim(ShiftUser user, String taskId) {
+    void unclaim(@NotNull ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.setAssignee(task.getId(), null);
         log.info("Task '{}' unclaimed");
@@ -195,7 +207,7 @@ public class TaskApplicationService {
      * @see TaskQueryDto
      * @see ShiftUser
      */
-    public Page<Task> query(ShiftUser user, TaskQueryDto queryDto, Pageable pageable) {
+    public Page<Task> query(@NotNull ShiftUser user, TaskQueryDto queryDto, Pageable pageable) {
         TaskQuery taskQuery = queryDto.toQuery(processEngine);
         taskQuery = applyUserFilters(user, taskQuery);
         long totalResults = taskQuery.count();
@@ -215,7 +227,7 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    VariableMap getVariables(ShiftUser user, String taskId) {
+    VariableMap getVariables(@NotNull ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskExistsCheck(taskId, task);
         return taskService.getVariablesTyped(task.getId(), false);

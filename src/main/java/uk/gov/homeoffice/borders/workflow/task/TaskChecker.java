@@ -11,6 +11,7 @@ import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -22,7 +23,7 @@ public class TaskChecker {
 
     private TaskService taskService;
 
-    public void checkUserAuthorized(ShiftUser user, Task task) {
+    public void checkUserAuthorized(@NotNull ShiftUser user, Task task) {
         List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(task.getId());
 
         List<String> teams = user.getTeams().stream().map(Team::getTeamCode).collect(toList());

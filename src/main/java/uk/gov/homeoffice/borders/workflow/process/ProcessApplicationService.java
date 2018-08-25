@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
+import javax.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +44,7 @@ public class ProcessApplicationService {
      * @param pageable
      * @return paged result
      */
-    public Page<ProcessDefinition> processDefinitions(ShiftUser user, Pageable pageable) {
+    public Page<ProcessDefinition> processDefinitions(@NotNull ShiftUser user, Pageable pageable) {
         log.debug("Loading process definitions for '{}'", user.getEmail());
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
@@ -76,7 +77,7 @@ public class ProcessApplicationService {
     }
 
 
-    public ProcessInstance createInstance(ProcessStartDto processStartDto, ShiftUser user) {
+    public ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull ShiftUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
         ObjectValue dataObject =
                 Variables.objectValue(processStartDto.getData())
@@ -96,7 +97,7 @@ public class ProcessApplicationService {
 
     }
 
-    public ProcessInstance getProcessInstance(String processInstanceId, ShiftUser user) {
+    public ProcessInstance getProcessInstance(@NotNull String processInstanceId, @NotNull ShiftUser user) {
         log.info("ShiftUser '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         if (processInstance == null) {
@@ -105,7 +106,7 @@ public class ProcessApplicationService {
         return processInstance;
     }
 
-    public VariableMap variables(String processInstanceId, ShiftUser user) {
+    public VariableMap variables(String processInstanceId, @NotNull ShiftUser user) {
         log.info("ShiftUser '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
         return runtimeService.getVariablesTyped(processInstanceId, false);
     }
