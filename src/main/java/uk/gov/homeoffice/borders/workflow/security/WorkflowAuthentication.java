@@ -38,4 +38,5 @@ public class WorkflowAuthentication extends Authentication {
     public ShiftUser getUser() {
         return this.user;
     }
+
 }

@@ -194,7 +194,7 @@ public class TaskApplicationService {
     void unclaim(@NotNull ShiftUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.setAssignee(task.getId(), null);
-        log.info("Task '{}' unclaimed");
+        log.info("Task '{}' unclaimed", taskId);
     }
 
     /**

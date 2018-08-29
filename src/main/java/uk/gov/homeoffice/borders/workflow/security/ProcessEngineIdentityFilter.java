@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.IdentityService;
 import org.keycloak.KeycloakSecurityContext;
+import org.slf4j.MDC;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
@@ -49,9 +50,12 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
                 orElse(new WorkflowAuthentication(userId, new ArrayList<>())));
 
         identityService.setAuthentication(workflowAuthentication);
+        String mdcData = String.format("[userId:%s | requestPath:%s]", workflowAuthentication.getUserId(), request.getServletPath());
+        MDC.put("mdcData", mdcData);
         try {
             chain.doFilter(request, response);
         } finally {
+            MDC.clear();
             identityService.clearAuthentication();
         }
     }
