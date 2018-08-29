@@ -16,8 +16,10 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -112,7 +114,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
 
     @Bean
-    @Order(-1)
+    @Order()
     public ProcessEngineIdentityFilter processEngineFilter(IdentityService identityService,
                                                            KeycloakSecurityContext securityContext ) {
         return new ProcessEngineIdentityFilter(identityService, securityContext, new AntPathMatcher());

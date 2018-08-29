@@ -287,7 +287,7 @@ class TaskApiControllerSpec extends BaseSpec {
     def 'can get task assigned to me and no candidate group'() {
         given:
         def task = taskService.newTask(UUID.randomUUID().toString())
-        task.assignee = 'user@user.com'
+        task.assignee = 'shiftUser@shiftUser.com'
         task.name = 'task'
         task.description = 'test description'
         taskService.saveTask(task)
@@ -296,7 +296,7 @@ class TaskApiControllerSpec extends BaseSpec {
         when:
         def user = new ShiftUser()
         user.id = 'test'
-        user.email = 'user@user.com'
+        user.email = 'shiftUser@shiftUser.com'
         def team = new Team()
         user.teams = []
         team.teamCode = 'teamA'

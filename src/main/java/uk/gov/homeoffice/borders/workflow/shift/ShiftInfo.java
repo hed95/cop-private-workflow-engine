@@ -12,7 +12,7 @@ public class ShiftInfo {
 
     @JsonProperty("shiftid")
     private String shiftId;
-    @NotNull @JsonProperty("enddatetime")
+    @JsonProperty("enddatetime")
     private Date endDateTime;
     @NotNull @JsonProperty("startdatetime")
     private Date startDateTime;
@@ -23,18 +23,24 @@ public class ShiftInfo {
 
     @NotNull @JsonProperty("teamid")
     private String teamId;
+    @NotNull
     @JsonProperty("commandid")
     private String commandId;
+    @NotNull
     @JsonProperty("subcommandid")
     private String subCommandId;
+    @NotNull
     @JsonProperty("locationid")
     private String locationId;
+    @NotNull
     @JsonProperty("currentlocationid")
     private String currentLocationId;
 
     @JsonProperty("staffid")
     private String staffId;
+    @NotNull
     private String phone;
+    @NotNull
     private String email;
     @JsonProperty("gradetypeid")
     private String gradeTypeId;

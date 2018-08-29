@@ -232,4 +232,28 @@ class CommentsApiControllerSpec extends BaseSpec {
         then:
         result.andExpect(status().is4xxClientError())
     }
+
+    def 'throws 4xx error if comment does not have message'() {
+        given:
+        createTasks(1, "test")
+        and:
+        logInUser()
+        and:
+        def task = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list().first()
+        and:
+        def comment = new TaskComment()
+        comment.taskId = task.id
+        comment.staffId = 'test'
+
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/comments")
+                .content(objectMapper.writeValueAsString(comment))
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is4xxClientError())
+
+    }
 }

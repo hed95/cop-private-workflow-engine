@@ -10,7 +10,8 @@ import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationTaskEve
 import uk.gov.service.notify.NotificationClient;
 
 @Configuration
-public class GovNotifyConfiguration {
+public class
+GovNotifyConfiguration {
 
     @Value("${gov.notify.api.key}")
     private String notificationApiKey;

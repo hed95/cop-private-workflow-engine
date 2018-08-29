@@ -9,6 +9,8 @@ import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,7 +50,7 @@ public class ShiftApplicationService {
      * @see ShiftInfo
      * @see ProcessInstance
      */
-    public ProcessInstance startShift(@NotNull ShiftInfo shiftInfo) {
+    public ProcessInstance startShift(@NotNull @Valid ShiftInfo shiftInfo) {
 
         String email = shiftInfo.getEmail();
         log.info("Starting a request to start a shift for '{}'", email);
@@ -90,13 +93,14 @@ public class ShiftApplicationService {
      * @param deleteReason This is required and explains why the workflow was cancelled.
      * @see ProcessInstance
      */
+    @CacheEvict(cacheNames = {"shifts"}, key="#email")
     public void deleteShift(@NotNull String email, @NotNull String deleteReason) {
         List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email).list();
-
-
         if (!CollectionUtils.isEmpty(instances)) {
-            List<String> ids = instances.stream().map(ProcessInstance::getProcessInstanceId).collect(Collectors.toList());
+            List<String> ids = instances.stream()
+                    .map(ProcessInstance::getProcessInstanceId)
+                        .collect(Collectors.toList());
             List<String> shifts = runtimeService.createVariableInstanceQuery()
                     .variableName("shiftId")
                     .processInstanceIdIn(ids.toArray(new String[]{})).list()
@@ -116,6 +120,7 @@ public class ShiftApplicationService {
             });
 
             runtimeService.deleteProcessInstances(ids, deleteReason, false, true);
+
             log.info("Shift deleted for '{}'", email);
         }
 

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
+
 /**
  * This REST API is responsible for creating an active shift within the workflow platform.
  * This drives what tasks/processes/cases a user can see.
@@ -32,7 +34,7 @@ public class ShiftApiController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> startShift(@RequestBody ShiftInfo shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Void> startShift(@RequestBody @Valid ShiftInfo shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
 
         String email = shiftInfo.getEmail();
         log.info("Request to create shift for '{}'", email);

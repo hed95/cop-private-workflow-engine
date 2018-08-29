@@ -21,7 +21,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
 
 
         and:
-        def user = logInUser()
+        logInUser()
 
 
         when:
@@ -92,7 +92,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
         def processStartDto = createProcessStartDto()
 
         and:
-        def user = logInUser()
+        logInUser()
 
         and:
         def result = mvc.perform(post("/api/workflow/process-instances")
@@ -111,6 +111,42 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
 
     }
 
+    def "exception thrown if process start dto missing process key"() {
+        given:
+        def processStartDto = createProcessDtoWithMissingAttributes(false, true)
+
+        and:
+        logInUser()
+
+        when:
+        def result = mvc.perform(post("/api/workflow/process-instances")
+                .content(objectMapper.writeValueAsString(processStartDto))
+                .contentType(MediaType.APPLICATION_JSON))
+
+
+        then:
+        result.andExpect(status().is4xxClientError())
+
+    }
+
+    def "exception thrown if process start dto missing variable name"() {
+        given:
+        def processStartDto = createProcessDtoWithMissingAttributes(true, false)
+
+        and:
+        logInUser()
+
+        when:
+        def result = mvc.perform(post("/api/workflow/process-instances")
+                .content(objectMapper.writeValueAsString(processStartDto))
+                .contentType(MediaType.APPLICATION_JSON))
+
+
+        then:
+        result.andExpect(status().is4xxClientError())
+
+    }
+
     ProcessStartDto createProcessStartDto() {
         def processStartDto = new ProcessStartDto()
         processStartDto.processKey = 'test'
@@ -124,6 +160,23 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
     }
 
 
+    ProcessStartDto createProcessDtoWithMissingAttributes(boolean includeProcessKey, boolean includeVariableName) {
+        def processStartDto = new ProcessStartDto()
+        if (includeProcessKey) {
+            processStartDto.processKey = 'test'
+
+        }
+
+        if (includeVariableName) {
+            processStartDto.variableName = 'collectionOfData'
+        }
+        def data = new Data()
+        data.candidateGroup = "teamA"
+        data.name = "test 0"
+        data.description = "test 0"
+        processStartDto.data = [data]
+        processStartDto
+    }
 
 
 }

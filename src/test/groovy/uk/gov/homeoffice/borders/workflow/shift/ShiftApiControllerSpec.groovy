@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.shift
 
-import org.camunda.bpm.engine.runtime.ProcessInstance
+
 import org.joda.time.LocalDateTime
 import org.springframework.http.MediaType
 import spock.lang.Title
@@ -81,14 +81,127 @@ class ShiftApiControllerSpec extends BaseSpec {
 
     }
 
+    def '4xx client error thrown if shift has no start time'() {
+        given:
+        def shiftInfo = new ShiftInfo()
+        shiftInfo.setEmail("testEmail")
+        shiftInfo.setStaffId(UUID.randomUUID().toString())
+        shiftInfo.setCommandId("commandid")
+        shiftInfo.setSubCommandId("subcommandid")
+        shiftInfo.setTeamId("teamid")
+        shiftInfo.setLocationId("locationid")
+        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setPhone("phone")
+        shiftInfo.setShiftHours(1)
+        shiftInfo.setShiftMinutes(0)
+
+        when:
+        def result = mvc.perform(post('/api/workflow/shift')
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shiftInfo)))
+
+        then:
+        result.andExpect(status().is4xxClientError())
+    }
+
+    def '4xx client error thrown if shift has command id'() {
+        given:
+        def shiftInfo = new ShiftInfo()
+        shiftInfo.setEmail("testEmail")
+        shiftInfo.setStaffId(UUID.randomUUID().toString())
+        shiftInfo.setSubCommandId("subcommandid")
+        shiftInfo.setTeamId("teamid")
+        shiftInfo.setLocationId("locationid")
+        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setPhone("phone")
+        shiftInfo.setShiftHours(1)
+        shiftInfo.setShiftMinutes(0)
+        shiftInfo.setStartDateTime(LocalDateTime.now().toDate())
+
+        when:
+        def result = mvc.perform(post('/api/workflow/shift')
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shiftInfo)))
+
+        then:
+        result.andExpect(status().is4xxClientError())
+    }
+
+    def '4xx client error thrown if shift has no team id'() {
+        def shiftInfo = new ShiftInfo()
+        shiftInfo.setEmail("testEmail")
+        shiftInfo.setStaffId(UUID.randomUUID().toString())
+        shiftInfo.setSubCommandId("subcommandid")
+        shiftInfo.setCommandId("commandId")
+        shiftInfo.setLocationId("locationid")
+        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setPhone("phone")
+        shiftInfo.setShiftHours(1)
+        shiftInfo.setShiftMinutes(0)
+        shiftInfo.setStartDateTime(LocalDateTime.now().toDate())
+
+        when:
+        def result = mvc.perform(post('/api/workflow/shift')
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shiftInfo)))
+
+        then:
+        result.andExpect(status().is4xxClientError())
+    }
+    def '4xx client error thrown if shift has no email'() {
+        def shiftInfo = new ShiftInfo()
+        shiftInfo.setStaffId(UUID.randomUUID().toString())
+        shiftInfo.setSubCommandId("subcommandid")
+        shiftInfo.setCommandId("commandid")
+        shiftInfo.setTeamId("teamid")
+        shiftInfo.setLocationId("locationid")
+        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setPhone("phone")
+        shiftInfo.setShiftHours(1)
+        shiftInfo.setShiftMinutes(0)
+        shiftInfo.setStartDateTime(LocalDateTime.now().toDate())
+
+        when:
+        def result = mvc.perform(post('/api/workflow/shift')
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shiftInfo)))
+
+        then:
+        result.andExpect(status().is4xxClientError())
+    }
+
+    def '4xx client error thrown if shift has no phone'() {
+        def shiftInfo = new ShiftInfo()
+        shiftInfo.setEmail("email")
+        shiftInfo.setStaffId(UUID.randomUUID().toString())
+        shiftInfo.setSubCommandId("subcommandid")
+        shiftInfo.setCommandId("commandid")
+        shiftInfo.setTeamId("teamid")
+        shiftInfo.setLocationId("locationid")
+        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setShiftHours(1)
+        shiftInfo.setShiftMinutes(0)
+        shiftInfo.setStartDateTime(LocalDateTime.now().toDate())
+
+        when:
+        def result = mvc.perform(post('/api/workflow/shift')
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shiftInfo)))
+
+        then:
+        result.andExpect(status().is4xxClientError())
+    }
+
+
 
     ShiftInfo createActiveShift() {
         ShiftInfo shiftInfo = new ShiftInfo()
+        shiftInfo.setCommandId("commandid")
+        shiftInfo.setSubCommandId("subcommandid")
+        shiftInfo.setTeamId("teamId")
+        shiftInfo.setLocationId("location")
+        shiftInfo.setPhone("phone")
         shiftInfo.setEmail("testEmail")
         shiftInfo.setStartDateTime(LocalDateTime.now().toDate())
         shiftInfo.setStaffId(UUID.randomUUID().toString())
         shiftInfo.setShiftHours(1)
         shiftInfo.setShiftMinutes(0)
+        shiftInfo.setCurrentLocationId("current")
         shiftInfo
     }
 }

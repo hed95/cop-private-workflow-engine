@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public class CommentsApiController {
     }
 
     @PostMapping(path = "/api/workflow/tasks/comments", produces = "application/json", consumes = "application/json")
-    public TaskComment create(@RequestBody TaskComment commentDto, ShiftUser shiftUser) {
+    public TaskComment create(@RequestBody @Valid TaskComment commentDto, ShiftUser shiftUser) {
         return commentsApplicationService.create(shiftUser, commentDto);
     }
 }

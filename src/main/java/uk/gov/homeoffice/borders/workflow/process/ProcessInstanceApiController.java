@@ -9,11 +9,13 @@ import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_INSTANCE_ROOT_API;
@@ -41,7 +43,7 @@ public class ProcessInstanceApiController {
     @PostMapping(
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE )
-    public ResponseEntity<ProcessInstanceDto> createInstance(@RequestBody ProcessStartDto processStartDto, ShiftUser shiftUser)
+    public ResponseEntity<ProcessInstanceDto> createInstance(@RequestBody @Valid ProcessStartDto processStartDto, ShiftUser shiftUser)
             throws Exception {
         log.info("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
         ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, shiftUser);
