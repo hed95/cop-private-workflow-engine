@@ -20,5 +20,6 @@ public class Notification {
     private String externalLink;
     private String smsNotificationId;
     private String emailNotificationId;
+    private String incidentResponsesId;
 
 }
