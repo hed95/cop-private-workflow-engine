@@ -1,7 +1,9 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +30,12 @@ public class ApplicationConfiguration {
 
     @Value("${platform-data-url}")
     private String platformUrl;
+
+    @Bean
+    public JacksonJsonDataFormat formatter(ObjectMapper objectMapper) {
+        return new JacksonJsonDataFormat("application/json", objectMapper);
+    }
+
 
     @Bean
     public ProcessEnginePlugin spinProcessEnginePlugin() {

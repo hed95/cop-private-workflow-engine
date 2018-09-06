@@ -7,6 +7,8 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
+import org.camunda.spin.Spin;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -41,6 +43,7 @@ public class ShiftApplicationService {
     private PlatformDataUrlBuilder platformDataUrlBuilder;
 
     private String platformDataToken;
+    private JacksonJsonDataFormat formatter;
 
     /**
      * Start a shift workflow
@@ -59,10 +62,7 @@ public class ShiftApplicationService {
 
         setEndTime(shiftInfo);
 
-        ObjectValue shiftVariableObject =
-                Variables.objectValue(shiftInfo)
-                        .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
-                        .create();
+        Spin<?> shiftVariableObject = Spin.S(shiftInfo, formatter);
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("shiftInfo", shiftVariableObject);
@@ -93,14 +93,14 @@ public class ShiftApplicationService {
      * @param deleteReason This is required and explains why the workflow was cancelled.
      * @see ProcessInstance
      */
-    @CacheEvict(cacheNames = {"shifts"}, key="#email")
+    @CacheEvict(cacheNames = {"shifts"}, key = "#email")
     public void deleteShift(@NotNull String email, @NotNull String deleteReason) {
         List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email).list();
         if (!CollectionUtils.isEmpty(instances)) {
             List<String> ids = instances.stream()
                     .map(ProcessInstance::getProcessInstanceId)
-                        .collect(Collectors.toList());
+                    .collect(Collectors.toList());
             List<String> shifts = runtimeService.createVariableInstanceQuery()
                     .variableName("shiftId")
                     .processInstanceIdIn(ids.toArray(new String[]{})).list()
@@ -149,7 +149,7 @@ public class ShiftApplicationService {
                 .variableName("shiftInfo").singleResult();
 
         if (variableInstance != null) {
-            return (ShiftInfo) variableInstance.getValue();
+            return Spin.S(variableInstance.getValue(), formatter).mapTo(ShiftInfo.class);
         }
 
         throw new ResourceNotFound("Shift data could not be found");

@@ -38,7 +38,7 @@
           <camunda:script scriptFormat="javascript"><![CDATA[print("Person not found...moving to create person record..." + execution.getVariable('shiftInfo'));]]></camunda:script>
         </camunda:executionListener>
       </bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${shiftInfo.staffId == null || shiftInfo.staffId ==''}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${S(shiftInfo).prop("staffid").isNull() || S(shiftInfo).prop("staffid").stringValue() ==''}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1fcbicp" name="yes" sourceRef="ExclusiveGateway_00wv8pd" targetRef="ExclusiveGateway_0uf1jgp">
       <bpmn:extensionElements>
@@ -46,7 +46,7 @@
           <camunda:script scriptFormat="javascript"><![CDATA[print("Person found...moving to create active session" + execution.getVariable('shiftInfo'));]]></camunda:script>
         </camunda:executionListener>
       </bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${shiftInfo.staffId != null && shiftInfo.staffId !=''}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${S(shiftInfo).prop('staffid').isNull() == false && S(shiftInfo).prop('staffid').stringValue() !=''}]]></bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store" camunda:type="external" camunda:topic="create-user-from-shift-info">
       <bpmn:incoming>SequenceFlow_1uwkwx0</bpmn:incoming>
@@ -67,7 +67,7 @@
       <bpmn:incoming>SequenceFlow_0927hu5</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1tivuep</bpmn:outgoing>
       <bpmn:timerEventDefinition>
-        <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${shiftInfo.endDateTime}</bpmn:timeDate>
+        <bpmn:timeDate xsi:type="bpmn:tFormalExpression"><![CDATA[${S(shiftInfo).prop("enddatetime").value()}]]></bpmn:timeDate>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:serviceTask id="Task_0f5abt8" name="Remove shift record" camunda:type="external" camunda:topic="remove-active-shift">

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.camunda.bpm.engine.delegate.DelegateTask
 import org.camunda.bpm.engine.variable.Variables
 import org.camunda.spin.Spin
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat
 import org.camunda.spin.plugin.variable.SpinValues
 import org.springframework.http.MediaType
 import spock.lang.Specification
@@ -24,7 +25,7 @@ class NotificationTaskEventListenerSpec extends Specification {
 
     def setup() {
         underTest = new NotificationTaskEventListener(notificationClient, "emailNotificationTemplateId", "smsNotificationTemplateId",
-        new ExceptionHandler(), new ObjectMapper())
+        new ExceptionHandler(), new JacksonJsonDataFormat("application/jackson", new ObjectMapper()))
     }
 
     def 'can handle standard notification'() {
@@ -62,7 +63,7 @@ class NotificationTaskEventListenerSpec extends Specification {
 
         then:
         1 * delegateTask.setVariable(_,_) >> {
-            arguments -> updated = arguments[1].getValue()
+            arguments -> updated = Spin.S(arguments[1]).mapTo(Notification)
         }
 
         updated.emailNotificationId == emailResponseUUID.toString()
@@ -102,7 +103,7 @@ class NotificationTaskEventListenerSpec extends Specification {
 
         then:
         1 * delegateTask.setVariable(_,_) >> {
-            arguments -> updated = arguments[1].mapTo(Notification)
+            arguments -> updated = Spin.S(arguments[1]).mapTo(Notification)
         }
 
         updated.emailNotificationId == emailResponseUUID.toString()
@@ -153,7 +154,7 @@ class NotificationTaskEventListenerSpec extends Specification {
 
         then:
         1 * delegateTask.setVariable(_,_) >> {
-            arguments -> updatedNotification = arguments[1].getValue()
+            arguments -> updatedNotification = Spin.S(arguments[1]).mapTo(Notification)
         }
 
         updatedNotification.emailNotificationId == emailResponseUUID.toString()
@@ -205,7 +206,7 @@ class NotificationTaskEventListenerSpec extends Specification {
 
         then:
         1 * delegateTask.setVariable(_,_) >> {
-            arguments -> updatedNotification = arguments[1].getValue()
+            arguments -> updatedNotification = Spin.S(arguments[1]).mapTo(Notification)
         }
 
         updatedNotification.emailNotificationId == emailResponseUUID.toString()

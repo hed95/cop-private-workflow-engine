@@ -7,6 +7,7 @@ import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto
 import org.camunda.bpm.engine.task.Task
 import org.camunda.bpm.engine.variable.Variables
+import org.camunda.spin.Spin
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -45,9 +46,7 @@ class TaskApiControllerSpec extends BaseSpec {
         }
 
         def objectValue =
-                Variables.objectValue(tasks)
-                        .serializationDataFormat("application/json")
-                        .create()
+                Spin.S(tasks, "application/json")
 
         def variables = [:]
         variables['collectionOfData'] = objectValue

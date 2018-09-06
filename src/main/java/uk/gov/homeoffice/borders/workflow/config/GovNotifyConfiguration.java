@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,9 @@ GovNotifyConfiguration {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private JacksonJsonDataFormat formatter;
+
     @Bean
     public NotificationClient notificationClient() {
         return new NotificationClient(notificationApiKey);
@@ -38,6 +42,6 @@ GovNotifyConfiguration {
     @Bean
     public NotificationTaskEventListener notificationTaskEventListener(NotificationClient notificationClient) {
         return new NotificationTaskEventListener(notificationClient, emailNotificationTemplateId,
-                smsNotificationTemplateId, exceptionHandler(), objectMapper);
+                smsNotificationTemplateId, exceptionHandler(), formatter);
     }
 }

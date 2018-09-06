@@ -66,7 +66,7 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
         def processStartDto = createProcessStartDto()
 
         and:
-        def user = logInUser()
+        logInUser()
 
         and:
         def result = mvc.perform(post("/api/workflow/process-instances")

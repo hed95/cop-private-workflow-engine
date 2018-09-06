@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.shift;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

@@ -13,6 +13,7 @@ import org.camunda.bpm.engine.variable.value.TypedValue;
 import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
 import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
 import org.camunda.spin.Spin;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.json.SpinJsonNode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import uk.gov.homeoffice.borders.workflow.exception.ExceptionHandler;
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
+import uk.gov.homeoffice.borders.workflow.shift.ShiftInfo;
 import uk.gov.homeoffice.borders.workflow.task.NotifyFailureException;
 import uk.gov.service.notify.NotificationClient;
 import uk.gov.service.notify.NotificationClientException;
@@ -47,7 +49,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
     private String emailNotificationTemplateId;
     private String smsNotificationTemplateId;
     private ExceptionHandler exceptionHandler;
-    private ObjectMapper objectMapper;
+    private JacksonJsonDataFormat formatter;
 
 
     /**
@@ -121,6 +123,10 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
 
     private void sendSMS(Notification notification, Map<String, String> variables, String reference) {
         try {
+            String externalLink = variables.get("externalLink");
+            if (StringUtils.isNotBlank(externalLink)) {
+                variables.put("externalLink", externalLink.replaceAll("http", "awb://http"));
+            }
             SendSmsResponse sendSmsResponse = notificationClient.sendSms(smsNotificationTemplateId, notification.getMobile(), variables, reference);
             notification.setSmsNotificationId(sendSmsResponse.getNotificationId().toString());
             log.info("SMS notification sent");
@@ -152,30 +158,11 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
     private Notification getNotification(DelegateTask delegateTask) {
         TypedValue notification = delegateTask.
                 getVariableTyped(NOTIFICATION_VARIABLE_NAME, true);
-        if (notification.getValue() instanceof SpinJsonNode) {
-            SpinJsonNode node = (SpinJsonNode) notification.getValue();
-            try {
-                return objectMapper.readValue(node.toString(), Notification.class);
-            } catch (IOException e) {
-                throw new InternalWorkflowException(e);
-            }
-        } else {
-            return (Notification) notification.getValue();
-        }
+        return Spin.S(notification.getValue(), formatter).mapTo(Notification.class);
     }
 
     private void saveNotification(DelegateTask delegateTask, Notification notification) {
-        TypedValue type = delegateTask.
-                getVariableTyped(NOTIFICATION_VARIABLE_NAME, true);
-        if (type.getValue() instanceof SpinJsonNode) {
-            delegateTask.setVariable(NOTIFICATION_VARIABLE_NAME, Spin.JSON(notification));
-        } else {
-            ObjectValue notificationObjectValue =
-                    Variables.objectValue(notification)
-                            .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
-                            .create();
-            delegateTask.setVariable(NOTIFICATION_VARIABLE_NAME, notificationObjectValue);
-        }
+        delegateTask.setVariable(NOTIFICATION_VARIABLE_NAME, Spin.S(notification, formatter));
     }
 
 
@@ -183,5 +170,6 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
         String taskType = (String) delegateTask.getVariable("taskType");
         return taskType != null && taskType.equalsIgnoreCase(NOTIFICATION_VARIABLE_NAME);
     }
+
 
 }

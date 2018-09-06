@@ -10,6 +10,8 @@ import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
+import org.camunda.spin.Spin;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,14 +37,15 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class NotificationService {
 
-    public static final String NOTIFICATIONS = "notifications";
+    private static final String NOTIFICATIONS = "notifications";
 
     private TaskService taskService;
     private RuntimeService runtimeService;
     private UserService userService;
     private TaskApplicationService taskApplicationService;
+    private JacksonJsonDataFormat formatter;
 
-    public Page<Task> getNotifications(@NotNull ShiftUser user, Pageable pageable, boolean countOnly) {
+    Page<Task> getNotifications(@NotNull ShiftUser user, Pageable pageable, boolean countOnly) {
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(NOTIFICATIONS)
                 .processVariableValueEquals("type", NOTIFICATIONS)
@@ -100,10 +103,8 @@ public class NotificationService {
             throw new IllegalStateException("Unable to find any people to notify. Please check command/location/team");
         }
 
-        ObjectValue notificationObjectValue =
-                Variables.objectValue(notifications)
-                        .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
-                        .create();
+        Spin<?> notificationObjectValue =
+                Spin.S(notifications, formatter);
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(NOTIFICATIONS, notificationObjectValue);

@@ -11,6 +11,8 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
+import org.camunda.spin.Spin;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,6 +38,7 @@ public class ProcessApplicationService {
     private RepositoryService repositoryService;
     private RuntimeService runtimeService;
     private FormService formService;
+    private JacksonJsonDataFormat formatter;
 
     /**
      * Returns the process definitions based on user qualifications and grades.
@@ -79,13 +82,11 @@ public class ProcessApplicationService {
 
     public ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull ShiftUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
-        ObjectValue dataObject =
-                Variables.objectValue(processStartDto.getData())
-                        .serializationDataFormat(MediaType.APPLICATION_JSON_VALUE)
-                        .create();
+
+        Spin<?> spinObject = Spin.S(processStartDto.getData(), formatter);
 
         Map<String, Object> variables = new HashMap<>();
-        variables.put(processStartDto.getVariableName(), dataObject);
+        variables.put(processStartDto.getVariableName(), spinObject);
         variables.put("type", "non-notifications");
 
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),

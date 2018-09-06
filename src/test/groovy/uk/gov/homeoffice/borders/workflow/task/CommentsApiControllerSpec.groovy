@@ -2,6 +2,7 @@ package uk.gov.homeoffice.borders.workflow.task
 
 import com.fasterxml.jackson.core.type.TypeReference
 import org.camunda.bpm.engine.variable.Variables
+import org.camunda.spin.Spin
 import org.springframework.http.MediaType
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.task.comment.TaskComment
@@ -26,9 +27,7 @@ class CommentsApiControllerSpec extends BaseSpec {
         }
 
         def objectValue =
-                Variables.objectValue(tasks)
-                        .serializationDataFormat("application/json")
-                        .create()
+                Spin.S(tasks, "application/json")
 
         def variables = [:]
         variables['collectionOfData'] = objectValue

@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.shift;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,10 +23,9 @@ public class ShiftConfig {
 
     @Bean
     public ShiftApplicationService shiftApplicationService(RuntimeService runtimeService,
-                                                           PlatformDataUrlBuilder platformDataUrlBuilder, ManagementService
-                                                           managementService) {
+                                                           PlatformDataUrlBuilder platformDataUrlBuilder, JacksonJsonDataFormat formatter) {
         return new ShiftApplicationService(runtimeService, new RestTemplate(), platformDataUrlBuilder,
-                platformDataToken);
+                platformDataToken, formatter);
     }
 
 

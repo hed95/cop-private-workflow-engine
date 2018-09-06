@@ -9,11 +9,11 @@
       <bpmn:incoming>SequenceFlow_1tpgry9</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1tpgry9" sourceRef="Task_0wq8t7g" targetRef="EndEvent_0a9y5j8" />
-    <bpmn:userTask id="Task_0wq8t7g" name="Perform duty for ${data.name}" camunda:assignee="${data.assignee}" camunda:candidateGroups="${data.candidateGroup}">
-      <bpmn:documentation>${data.description}</bpmn:documentation>
+    <bpmn:userTask id="Task_0wq8t7g" name="Perform duty for ${S(data).prop(&#39;name&#39;).stringValue()}" camunda:assignee="${S(data).prop(&#34;assignee&#34;).isNull() ? &#34;&#34;: S(data).prop(&#34;assignee&#34;).stringValue()}" camunda:candidateGroups="${S(data).prop(&#39;candidateGroup&#39;).stringValue()}">
+      <bpmn:documentation><![CDATA[${S(data).prop('description').stringValue()}]]></bpmn:documentation>
       <bpmn:incoming>SequenceFlow_1bt0m26</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1tpgry9</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics camunda:collection="collectionOfData" camunda:elementVariable="data" />
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="${S(collectionOfData).elements()}" camunda:elementVariable="data" />
     </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
