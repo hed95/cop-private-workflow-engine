@@ -20,10 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -70,7 +67,9 @@ public class TaskApiController {
                 .subscribeOn(Schedulers.elastic());
 
         Mono<List<String>> identities = Mono.fromCallable(() -> applicationService.getIdentityLinksForTask(taskId)
-                .stream().map(IdentityLink::getGroupId).collect(Collectors.toList()))
+                .stream().map(IdentityLink::getGroupId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()))
                 .subscribeOn(Schedulers.elastic());
 
         if (includeVariables) {
