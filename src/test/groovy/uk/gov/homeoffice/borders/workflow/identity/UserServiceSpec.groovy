@@ -6,6 +6,7 @@ import org.junit.Rule
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
+import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
 
 class UserServiceSpec extends Specification {
 
@@ -15,15 +16,16 @@ class UserServiceSpec extends Specification {
     WireMockRule wireMockRule = new WireMockRule(wmPort)
 
     def wireMockStub = new WireMockGroovy(wmPort)
-
-
-    def platformDataUrlBuilder = new PlatformDataUrlBuilder('http://localhost:8181')
-    def userService = new UserService(new RestTemplate(), platformDataUrlBuilder)
+    def userService
 
     def setup() {
+        def platformDataBean = new PlatformDataBean()
+        platformDataBean.url="http://localhost:8181"
+        platformDataBean.token = "token"
+        def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
+        userService = new UserService(new RestTemplate(), platformDataUrlBuilder)
         userService.self = userService
     }
-
 
     def 'can find user by id'() {
         given:

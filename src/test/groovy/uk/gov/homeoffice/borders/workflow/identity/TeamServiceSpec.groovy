@@ -6,6 +6,7 @@ import org.junit.Rule
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
+import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
 
 class TeamServiceSpec extends Specification {
 
@@ -15,11 +16,15 @@ class TeamServiceSpec extends Specification {
     WireMockRule wireMockRule = new WireMockRule(wmPort)
 
     def wireMockStub = new WireMockGroovy(wmPort)
+    def teamService
 
-
-    def platformDataUrlBuilder = new PlatformDataUrlBuilder('http://localhost:8182')
-    def teamService = new TeamService(new RestTemplate(), platformDataUrlBuilder)
-
+    def setup() {
+        def platformDataBean = new PlatformDataBean()
+        platformDataBean.url="http://localhost:8182"
+        platformDataBean.token = "token";
+        def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
+        teamService = new TeamService(new RestTemplate(), platformDataUrlBuilder)
+    }
 
     def 'can find by id'() {
         given:

@@ -6,7 +6,9 @@ import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,10 +28,11 @@ import java.util.concurrent.Executor;
 @EnableRetry
 @EnableCaching
 @EnableAsync
+@EnableConfigurationProperties(PlatformDataBean.class)
 public class ApplicationConfiguration {
 
-    @Value("${platform-data-url}")
-    private String platformUrl;
+    @Autowired
+    private PlatformDataBean platformDataBean;
 
     @Bean
     public JacksonJsonDataFormat formatter(ObjectMapper objectMapper) {
@@ -55,7 +58,7 @@ public class ApplicationConfiguration {
 
     @Bean
     public PlatformDataUrlBuilder platformDataQueryBuilder() {
-        return new PlatformDataUrlBuilder(platformUrl);
+        return new PlatformDataUrlBuilder(platformDataBean);
     }
 
     @Bean

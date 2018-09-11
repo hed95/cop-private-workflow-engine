@@ -13,8 +13,9 @@ keycloak:
 
 
 
-platform-data-url: ${PLATFORM_DATA_ENDPOINT_URL}
-platform-data-token: ${PLATFORM_DATA_TOKEN}
+platform-data:
+    url: ${PLATFORM_DATA_ENDPOINT_URL}
+    token: ${PLATFORM_DATA_TOKEN}
 
 gov:
   notify:

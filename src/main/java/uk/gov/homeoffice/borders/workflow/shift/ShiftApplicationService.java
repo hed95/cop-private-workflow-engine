@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 
 import javax.validation.Valid;
@@ -42,7 +43,7 @@ public class ShiftApplicationService {
 
     private PlatformDataUrlBuilder platformDataUrlBuilder;
 
-    private String platformDataToken;
+    private PlatformDataBean platformDataBean;
     private JacksonJsonDataFormat formatter;
 
     /**
@@ -111,7 +112,7 @@ public class ShiftApplicationService {
 
 
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("Authorization", "Bearer " + platformDataToken);
+            httpHeaders.set("Authorization", "Bearer " + platformDataBean.getToken());
 
             shifts.stream().forEach(id -> {
                 restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(id),

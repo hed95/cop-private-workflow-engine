@@ -1,13 +1,25 @@
 package uk.gov.homeoffice.borders.workflow
 
+import spock.lang.Shared
 import spock.lang.Specification
+import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
 import uk.gov.homeoffice.borders.workflow.identity.TeamQuery
 
 class PlatformDataUrlBuilderSpec extends Specification {
 
     def platformDataUrl = 'http://localhost:9000'
+    def token = "token"
+    def platformDataBean = new PlatformDataBean()
 
-    def underTest = new PlatformDataUrlBuilder(platformDataUrl)
+    def underTest
+
+    def setup() {
+        platformDataBean.token = token
+        platformDataBean.url = platformDataUrl
+        underTest = new PlatformDataUrlBuilder(platformDataBean)
+    }
+
+
 
     def 'can get shift url by email'() {
         given:
