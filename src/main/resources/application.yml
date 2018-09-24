@@ -12,6 +12,9 @@ keycloak:
     secret: ${KEYCLOAK_AUTH_SECRET}
 
 
+public-ui:
+    protocol: ${PUBLIC_UI_PROTOCOL}
+    text-protocol: ${PUBLIC_TEXT_UI_PROTOCOL}
 
 platform-data:
     url: ${PLATFORM_DATA_ENDPOINT_URL}

@@ -11,8 +11,7 @@ import uk.gov.homeoffice.borders.workflow.task.notifications.NotificationTaskEve
 import uk.gov.service.notify.NotificationClient;
 
 @Configuration
-public class
-GovNotifyConfiguration {
+public class GovNotifyConfiguration {
 
     @Value("${gov.notify.api.key}")
     private String notificationApiKey;
@@ -22,6 +21,12 @@ GovNotifyConfiguration {
 
     @Value("${gov.notify.api.notification.smsTemplateId}")
     private String smsNotificationTemplateId;
+
+    @Value("${public-ui.protocol}")
+    private String publicUIProtocol;
+
+    @Value("${public-ui.text-protocol")
+    private String publicUITextProtocol;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -42,6 +47,6 @@ GovNotifyConfiguration {
     @Bean
     public NotificationTaskEventListener notificationTaskEventListener(NotificationClient notificationClient) {
         return new NotificationTaskEventListener(notificationClient, emailNotificationTemplateId,
-                smsNotificationTemplateId, exceptionHandler(), formatter);
+                smsNotificationTemplateId, exceptionHandler(), formatter, publicUIProtocol, publicUITextProtocol);
     }
 }

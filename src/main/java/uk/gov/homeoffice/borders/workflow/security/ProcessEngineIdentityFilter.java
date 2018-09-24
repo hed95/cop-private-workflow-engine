@@ -38,8 +38,11 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
 
         Optional<String> serviceRole = keycloakSecurityContext.getToken()
-                .getRealmAccess().getRoles().stream()
-                .filter(r -> r.equalsIgnoreCase(SERVICE_ROLE)).findFirst();
+                .getRealmAccess()
+                .getRoles()
+                .stream()
+                .filter(r -> r.equalsIgnoreCase(SERVICE_ROLE))
+                .findFirst();
 
         String userId = keycloakSecurityContext.getToken().getEmail();
 

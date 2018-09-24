@@ -1,34 +1,26 @@
 package uk.gov.homeoffice.borders.workflow.task.notifications;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.TaskListener;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.bpm.engine.variable.value.TypedValue;
 import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
 import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
-import org.camunda.spin.json.SpinJsonNode;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import uk.gov.homeoffice.borders.workflow.exception.ExceptionHandler;
-import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
-import uk.gov.homeoffice.borders.workflow.shift.ShiftInfo;
 import uk.gov.homeoffice.borders.workflow.task.NotifyFailureException;
 import uk.gov.service.notify.NotificationClient;
 import uk.gov.service.notify.NotificationClientException;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +42,8 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
     private String smsNotificationTemplateId;
     private ExceptionHandler exceptionHandler;
     private JacksonJsonDataFormat formatter;
-
+    private String publicUIProtocol;
+    private String publicUITextProtocol;
 
     /**
      * Retryable method to send sms or/and email.
@@ -125,7 +118,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
         try {
             String externalLink = variables.get("externalLink");
             if (StringUtils.isNotBlank(externalLink)) {
-                variables.put("externalLink", externalLink.replaceAll("http", "awb://http"));
+                variables.put("externalLink", publicUITextProtocol + externalLink);
             }
             SendSmsResponse sendSmsResponse = notificationClient.sendSms(smsNotificationTemplateId, notification.getMobile(), variables, reference);
             notification.setSmsNotificationId(sendSmsResponse.getNotificationId().toString());
@@ -141,6 +134,10 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
 
     private void sendEmail(Notification notification, Map<String, String> variables, String reference) {
         try {
+            String externalLink = variables.get("externalLink");
+            if (StringUtils.isNotBlank(externalLink)) {
+                variables.put("externalLink", publicUIProtocol + externalLink);
+            }
             SendEmailResponse sendEmailResponse = notificationClient.sendEmail(emailNotificationTemplateId,
                     notification.getEmail(), variables, reference);
             notification.setEmailNotificationId(sendEmailResponse.getNotificationId().toString());

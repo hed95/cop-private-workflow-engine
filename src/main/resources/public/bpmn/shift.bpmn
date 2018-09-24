@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="internal-platform" exporter="Camunda Modeler" exporterVersion="1.10.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="internal-platform" exporter="Camunda Modeler" exporterVersion="2.0.1">
   <bpmn:collaboration id="Collaboration_1kjx4nt">
     <bpmn:documentation>Store active session</bpmn:documentation>
     <bpmn:participant id="Participant_0mlpt32" name="Borders System" processRef="activate-shift" />
     <bpmn:participant id="Participant_00gisla" name="UI " />
     <bpmn:messageFlow id="MessageFlow_0mzbw92" name="Form submission" sourceRef="Participant_00gisla" targetRef="StartEvent_1" />
   </bpmn:collaboration>
-  <bpmn:process id="activate-shift" name="Activate Shift" isExecutable="true">
+  <bpmn:process id="activate-shift" name="Activate Shift" isExecutable="true" camunda:candidateStarterGroups="STAFF">
     <bpmn:startEvent id="StartEvent_1" name="Shift start initiated">
       <bpmn:outgoing>SequenceFlow_08jcu12</bpmn:outgoing>
     </bpmn:startEvent>
@@ -20,7 +20,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0927hu5" sourceRef="Task_1f7bevv" targetRef="expireActiveSession">
       <bpmn:extensionElements>
         <camunda:executionListener event="take">
-          <camunda:script scriptFormat="JavaScript"><![CDATA[print("Setting time data" + execution.getVariable('shiftInfo'));]]></camunda:script>
+          <camunda:script scriptFormat="JavaScript">print("Setting time data" + execution.getVariable('shiftInfo'));</camunda:script>
         </camunda:executionListener>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
@@ -35,18 +35,18 @@
     <bpmn:sequenceFlow id="SequenceFlow_1uwkwx0" name="no" sourceRef="ExclusiveGateway_00wv8pd" targetRef="Task_0wzgaj7">
       <bpmn:extensionElements>
         <camunda:executionListener event="take">
-          <camunda:script scriptFormat="javascript"><![CDATA[print("Person not found...moving to create person record..." + execution.getVariable('shiftInfo'));]]></camunda:script>
+          <camunda:script scriptFormat="javascript">print("Person not found...moving to create person record..." + execution.getVariable('shiftInfo'));</camunda:script>
         </camunda:executionListener>
       </bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${S(shiftInfo).prop("staffid").isNull() || S(shiftInfo).prop("staffid").stringValue() ==''}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${S(shiftInfo).prop("staffid").isNull() || S(shiftInfo).prop("staffid").stringValue() ==''}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1fcbicp" name="yes" sourceRef="ExclusiveGateway_00wv8pd" targetRef="ExclusiveGateway_0uf1jgp">
       <bpmn:extensionElements>
         <camunda:executionListener event="take">
-          <camunda:script scriptFormat="javascript"><![CDATA[print("Person found...moving to create active session" + execution.getVariable('shiftInfo'));]]></camunda:script>
+          <camunda:script scriptFormat="javascript">print("Person found...moving to create active session" + execution.getVariable('shiftInfo'));</camunda:script>
         </camunda:executionListener>
       </bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[${S(shiftInfo).prop('staffid').isNull() == false && S(shiftInfo).prop('staffid').stringValue() !=''}]]></bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${S(shiftInfo).prop('staffid').isNull() == false &amp;&amp; S(shiftInfo).prop('staffid').stringValue() !=''}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Task_0wzgaj7" name="Create user in store" camunda:type="external" camunda:topic="create-user-from-shift-info">
       <bpmn:incoming>SequenceFlow_1uwkwx0</bpmn:incoming>
@@ -67,7 +67,7 @@
       <bpmn:incoming>SequenceFlow_0927hu5</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1tivuep</bpmn:outgoing>
       <bpmn:timerEventDefinition>
-        <bpmn:timeDate xsi:type="bpmn:tFormalExpression"><![CDATA[${S(shiftInfo).prop("enddatetime").value()}]]></bpmn:timeDate>
+        <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${S(shiftInfo).prop("enddatetime").value()}</bpmn:timeDate>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:serviceTask id="Task_0f5abt8" name="Remove shift record" camunda:type="external" camunda:topic="remove-active-shift">
@@ -80,12 +80,14 @@
     <bpmn:endEvent id="EndEvent_0cjilnz" name="Active shift removed">
       <bpmn:incoming>SequenceFlow_0d8vrvl</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:textAnnotation id="TextAnnotation_03yyvyg">    <bpmn:text>Remove shift after specified time</bpmn:text>
-</bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_03yyvyg">
+      <bpmn:text>Remove shift after specified time</bpmn:text>
+    </bpmn:textAnnotation>
     <bpmn:association id="Association_14dh0bf" sourceRef="expireActiveSession" targetRef="TextAnnotation_03yyvyg" />
     <bpmn:association id="Association_0y1rg0g" sourceRef="StartEvent_1" targetRef="TextAnnotation_19koyg6" />
-    <bpmn:textAnnotation id="TextAnnotation_19koyg6">    <bpmn:text>Start form references FormIO form</bpmn:text>
-</bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_19koyg6">
+      <bpmn:text>Start form references FormIO form</bpmn:text>
+    </bpmn:textAnnotation>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1kjx4nt">
@@ -102,9 +104,9 @@
         <dc:Bounds x="48" y="-99" width="526" height="179" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="MessageFlow_0mzbw92_di" bpmnElement="MessageFlow_0mzbw92">
-        <di:waypoint xsi:type="dc:Point" x="143" y="80" />
-        <di:waypoint xsi:type="dc:Point" x="143" y="202" />
-        <di:waypoint xsi:type="dc:Point" x="143" y="315" />
+        <di:waypoint x="143" y="80" />
+        <di:waypoint x="143" y="202" />
+        <di:waypoint x="143" y="315" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="153" y="120.27586206896551" width="84" height="12" />
         </bpmndi:BPMNLabel>
@@ -113,8 +115,8 @@
         <dc:Bounds x="511" y="293" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0927hu5_di" bpmnElement="SequenceFlow_0927hu5">
-        <di:waypoint xsi:type="dc:Point" x="611" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="715" y="333" />
+        <di:waypoint x="611" y="333" />
+        <di:waypoint x="715" y="333" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="618" y="311.5" width="90" height="13" />
         </bpmndi:BPMNLabel>
@@ -135,17 +137,17 @@
         <dc:Bounds x="853" y="293" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1tivuep_di" bpmnElement="SequenceFlow_1tivuep">
-        <di:waypoint xsi:type="dc:Point" x="751" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="804" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="804" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="853" y="333" />
+        <di:waypoint x="751" y="333" />
+        <di:waypoint x="804" y="333" />
+        <di:waypoint x="804" y="333" />
+        <di:waypoint x="853" y="333" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="774" y="326.5" width="90" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0d8vrvl_di" bpmnElement="SequenceFlow_0d8vrvl">
-        <di:waypoint xsi:type="dc:Point" x="953" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="1100" y="333" />
+        <di:waypoint x="953" y="333" />
+        <di:waypoint x="1100" y="333" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="981.5" y="311.5" width="90" height="13" />
         </bpmndi:BPMNLabel>
@@ -154,8 +156,8 @@
         <dc:Bounds x="619" y="231" width="100.00000000000001" height="53.55191256830601" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_14dh0bf_di" bpmnElement="Association_14dh0bf">
-        <di:waypoint xsi:type="dc:Point" x="722" y="320" />
-        <di:waypoint xsi:type="dc:Point" x="692" y="285" />
+        <di:waypoint x="722" y="320" />
+        <di:waypoint x="692" y="285" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="DataStoreReference_0qzm7dy_di" bpmnElement="DataStoreReference_0qzm7dy">
         <dc:Bounds x="607.1311084624554" y="518.637663885578" width="50" height="50" />
@@ -164,14 +166,14 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="DataOutputAssociation_01356zx_di" bpmnElement="DataOutputAssociation_01356zx">
-        <di:waypoint xsi:type="dc:Point" x="561" y="373" />
-        <di:waypoint xsi:type="dc:Point" x="561" y="550" />
-        <di:waypoint xsi:type="dc:Point" x="607" y="550" />
+        <di:waypoint x="561" y="373" />
+        <di:waypoint x="561" y="550" />
+        <di:waypoint x="607" y="550" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataOutputAssociation_0fwhjkz_di" bpmnElement="DataOutputAssociation_0fwhjkz">
-        <di:waypoint xsi:type="dc:Point" x="903" y="373" />
-        <di:waypoint xsi:type="dc:Point" x="903" y="542" />
-        <di:waypoint xsi:type="dc:Point" x="657" y="542" />
+        <di:waypoint x="903" y="373" />
+        <di:waypoint x="903" y="542" />
+        <di:waypoint x="657" y="542" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_00wv8pd_di" bpmnElement="ExclusiveGateway_00wv8pd" isMarkerVisible="true">
         <dc:Bounds x="211.1311084624553" y="308" width="50" height="50" />
@@ -180,23 +182,23 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_08jcu12_di" bpmnElement="SequenceFlow_08jcu12">
-        <di:waypoint xsi:type="dc:Point" x="160" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="211" y="333" />
+        <di:waypoint x="160" y="333" />
+        <di:waypoint x="211" y="333" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="185.5" y="311.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1uwkwx0_di" bpmnElement="SequenceFlow_1uwkwx0">
-        <di:waypoint xsi:type="dc:Point" x="236" y="358" />
-        <di:waypoint xsi:type="dc:Point" x="236" y="478" />
-        <di:waypoint xsi:type="dc:Point" x="272" y="478" />
+        <di:waypoint x="236" y="358" />
+        <di:waypoint x="236" y="478" />
+        <di:waypoint x="272" y="478" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="245" y="411" width="13" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1fcbicp_di" bpmnElement="SequenceFlow_1fcbicp">
-        <di:waypoint xsi:type="dc:Point" x="261" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="414" y="333" />
+        <di:waypoint x="261" y="333" />
+        <di:waypoint x="414" y="333" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="328.5" y="311" width="18" height="13" />
         </bpmndi:BPMNLabel>
@@ -211,31 +213,31 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1j57u59_di" bpmnElement="SequenceFlow_1j57u59">
-        <di:waypoint xsi:type="dc:Point" x="464" y="333" />
-        <di:waypoint xsi:type="dc:Point" x="511" y="333" />
+        <di:waypoint x="464" y="333" />
+        <di:waypoint x="511" y="333" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="487.5" y="311" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0wrpwoe_di" bpmnElement="SequenceFlow_0wrpwoe">
-        <di:waypoint xsi:type="dc:Point" x="372" y="478" />
-        <di:waypoint xsi:type="dc:Point" x="439" y="478" />
-        <di:waypoint xsi:type="dc:Point" x="439" y="358" />
+        <di:waypoint x="372" y="478" />
+        <di:waypoint x="439" y="478" />
+        <di:waypoint x="439" y="358" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="405.5" y="456" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataOutputAssociation_01t9kc3_di" bpmnElement="DataOutputAssociation_01t9kc3">
-        <di:waypoint xsi:type="dc:Point" x="322" y="518" />
-        <di:waypoint xsi:type="dc:Point" x="322" y="546" />
-        <di:waypoint xsi:type="dc:Point" x="607" y="546" />
+        <di:waypoint x="322" y="518" />
+        <di:waypoint x="322" y="546" />
+        <di:waypoint x="607" y="546" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="TextAnnotation_19koyg6_di" bpmnElement="TextAnnotation_19koyg6">
         <dc:Bounds x="185.67325428194994" y="204.74703557312253" width="99.98764822134386" height="54.01844532279315" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0y1rg0g_di" bpmnElement="Association_0y1rg0g">
-        <di:waypoint xsi:type="dc:Point" x="154" y="320" />
-        <di:waypoint xsi:type="dc:Point" x="211" y="259" />
+        <di:waypoint x="154" y="320" />
+        <di:waypoint x="211" y="259" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

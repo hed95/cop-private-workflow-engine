@@ -43,7 +43,9 @@ import uk.gov.service.notify.NotificationClient
         "PLATFORM_DATA_TOKEN = DB",
         "ENGINE_DB_URL=jdbc:h2:mem:testdbB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false",
         "ENGINE_DB_USERNAME=sa", "ENGINE_DB_PASSWORD=",
-        "ENGINE_DB_DRIVER=org.h2.Driver", "CAMUNDA_DB_TYPE=h2"])
+        "ENGINE_DB_DRIVER=org.h2.Driver", "CAMUNDA_DB_TYPE=h2",
+        "PUBLIC_UI_PROTOCOL=uiprotocol",
+        "PUBLIC_UI_TEXT_PROTOCOL=uitextprotocol"])
 abstract class BaseSpec extends Specification {
 
     @Autowired

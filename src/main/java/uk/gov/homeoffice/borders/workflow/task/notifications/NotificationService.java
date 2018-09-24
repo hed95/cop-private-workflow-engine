@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import uk.gov.homeoffice.borders.workflow.PageHelper;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
@@ -42,8 +43,8 @@ public class NotificationService {
     private TaskService taskService;
     private RuntimeService runtimeService;
     private UserService userService;
-    private TaskApplicationService taskApplicationService;
     private JacksonJsonDataFormat formatter;
+    private static final PageHelper PAGE_HELPER = new PageHelper();
 
     Page<Task> getNotifications(@NotNull ShiftUser user, Pageable pageable, boolean countOnly) {
         TaskQuery query = taskService.createTaskQuery()
@@ -58,7 +59,7 @@ public class NotificationService {
                     PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
                     totalCount);
         }
-        int pageNumber = taskApplicationService.calculatePageNumber(pageable);
+        int pageNumber = PAGE_HELPER.calculatePageNumber(pageable);
 
         List<Task> tasks = query
                 .listPage(pageNumber, pageable.getPageSize());

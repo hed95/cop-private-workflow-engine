@@ -43,13 +43,11 @@ public class ProcessInstanceApiController {
     @PostMapping(
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE )
-    public ResponseEntity<ProcessInstanceDto> createInstance(@RequestBody @Valid ProcessStartDto processStartDto, ShiftUser shiftUser)
+    public ProcessInstanceDto createInstance(@RequestBody @Valid ProcessStartDto processStartDto, ShiftUser shiftUser)
             throws Exception {
         log.info("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
         ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, shiftUser);
-        ProcessInstanceDto processInstanceDto = ProcessInstanceDto.fromProcessInstance(processInstance);
-
-        return ResponseEntity.ok(processInstanceDto);
+        return ProcessInstanceDto.fromProcessInstance(processInstance);
 
     }
 

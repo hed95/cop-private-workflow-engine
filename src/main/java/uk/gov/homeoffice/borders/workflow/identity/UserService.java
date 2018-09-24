@@ -4,21 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.shift.ShiftInfo;
 
 import javax.annotation.Resource;
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 public class UserService {
@@ -63,25 +60,26 @@ public class UserService {
         }
     }
 
-    private ShiftUser getStaff(ShiftInfo shiftInfo) {
+    private ShiftUser getStaff(final ShiftInfo shiftInfo) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
         HttpEntity<Object> requestEntity = new HttpEntity<>(httpHeaders);
 
-        ShiftUser user = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(shiftInfo.getStaffId()),
-                HttpMethod.GET, requestEntity, ShiftUser.class).getBody();
+        ResponseEntity<ShiftUser> response = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(shiftInfo.getStaffId()),
+                HttpMethod.GET, requestEntity, ShiftUser.class);
 
+        return Optional.ofNullable(response.getBody()).map(user -> {
+            List<Team> teams = restTemplate
+                    .exchange(platformDataUrlBuilder.teamChildren(),
+                            HttpMethod.POST,
+                            new HttpEntity<>(Collections.singletonMap("id", shiftInfo.getTeamId())),
+                            new ParameterizedTypeReference<List<Team>>() {}).getBody();
 
-        List<Team> teams = restTemplate
-                .exchange(platformDataUrlBuilder.teamChildren(),
-                        HttpMethod.POST,
-                        new HttpEntity<>(Collections.singletonMap("id", shiftInfo.getTeamId())),
-                        new ParameterizedTypeReference<List<Team>>() {}).getBody();
-
-        user.setTeams(teams);
-        user.setEmail(shiftInfo.getEmail());
-        user.setPhone(shiftInfo.getPhone());
-        return user;
+            user.setTeams(ofNullable(teams).orElse(new ArrayList<>()));
+            user.setEmail(shiftInfo.getEmail());
+            user.setPhone(shiftInfo.getPhone());
+            return user;
+        }).orElseThrow(() -> new InternalWorkflowException("Could not find shift user"));
 
     }
 

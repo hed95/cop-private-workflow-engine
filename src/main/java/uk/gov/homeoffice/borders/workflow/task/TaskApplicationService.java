@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import uk.gov.homeoffice.borders.workflow.PageHelper;
 import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
@@ -45,6 +46,7 @@ public class TaskApplicationService {
     private FormService formService;
     private ObjectMapper objectMapper;
 
+    private static final PageHelper PAGE_HELPER = new PageHelper();
     /**
      * Returns paged result of tasks
      *
@@ -69,7 +71,7 @@ public class TaskApplicationService {
             taskSortExecutor.applySort(taskQuery, pageable.getSort());
         }
         List<Task> tasks = taskQuery
-                .listPage(calculatePageNumber(pageable), pageable.getPageSize());
+                .listPage(PAGE_HELPER.calculatePageNumber(pageable), pageable.getPageSize());
         return new PageImpl<>(tasks, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
     }
 
@@ -88,12 +90,7 @@ public class TaskApplicationService {
         return taskQuery;
     }
 
-    public int calculatePageNumber(Pageable pageable) {
-        if (pageable.getPageNumber() == 0) {
-            return 0;
-        }
-        return pageable.getPageNumber() * pageable.getPageSize();
-    }
+
 
 
     private TaskQuery applyUserFilters(@NotNull ShiftUser user, TaskQuery taskQuery) {
@@ -212,7 +209,7 @@ public class TaskApplicationService {
         taskQuery = applyUserFilters(user, taskQuery);
         long totalResults = taskQuery.count();
 
-        int pageNumber = calculatePageNumber(pageable);
+        int pageNumber = PAGE_HELPER.calculatePageNumber(pageable);
 
         List<Task> tasks = taskQuery
                 .listPage(pageNumber, pageable.getPageSize());

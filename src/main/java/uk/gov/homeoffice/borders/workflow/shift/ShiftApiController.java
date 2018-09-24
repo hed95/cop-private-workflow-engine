@@ -19,7 +19,7 @@ import javax.validation.Valid;
  * This REST API is responsible for creating an active shift within the workflow platform.
  * This drives what tasks/processes/cases a user can see.
  * <p>
- * The workflow create a record in the Shift platform data service
+ * The workflow creates a record in the Shift platform data service
  * and then goes to sleep. The end time of the shift then triggers the workflow to
  * remove the shift record
  */

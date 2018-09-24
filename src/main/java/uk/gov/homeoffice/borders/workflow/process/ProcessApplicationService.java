@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import uk.gov.homeoffice.borders.workflow.PageHelper;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
@@ -39,6 +40,7 @@ public class ProcessApplicationService {
     private RuntimeService runtimeService;
     private FormService formService;
     private JacksonJsonDataFormat formatter;
+    private static final PageHelper PAGE_HELPER = new PageHelper();
 
     /**
      * Returns the process definitions based on user qualifications and grades.
