@@ -13,10 +13,8 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
@@ -150,10 +148,30 @@ public class ShiftApplicationService {
                 .variableName("shiftInfo").singleResult();
 
         if (variableInstance != null) {
-            return Spin.S(variableInstance.getValue(), formatter).mapTo(ShiftInfo.class);
+            ShiftInfo shiftInfo = Spin.S(variableInstance.getValue(), formatter).mapTo(ShiftInfo.class);
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
+
+            HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
+
+            ResponseEntity<Map<String,String>> response = restTemplate
+                    .exchange(platformDataUrlBuilder.getLocation(shiftInfo.getCurrentLocationId()),
+                            HttpMethod.GET,
+                            entity,
+                            new ParameterizedTypeReference<Map<String,String>>() {}
+                    );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String locationName = Optional.ofNullable(response.getBody())
+                        .orElse(Collections.singletonMap("locationname", "Unknown")).get("locationname");
+                shiftInfo.setCurrentLocationName(locationName);
+            }
+
+            return shiftInfo;
         }
 
         throw new ResourceNotFound("Shift data could not be found");
     }
+
 
 }

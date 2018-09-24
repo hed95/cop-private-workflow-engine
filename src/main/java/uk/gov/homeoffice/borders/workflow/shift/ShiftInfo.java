@@ -56,6 +56,7 @@ public class ShiftInfo {
     @JsonProperty("firstname")
     private String firstName;
     private String surname;
+    private String currentLocationName;
 
 
 }

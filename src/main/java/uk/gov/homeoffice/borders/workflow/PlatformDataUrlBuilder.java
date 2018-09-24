@@ -27,7 +27,8 @@ public class PlatformDataUrlBuilder {
 
     private static final String SHIFT = "/shift";
     private static final String STAFFVIEW = "/staffview";
-    private static String COMMENTS = "/taskcomment";
+    private static final String COMMENTS = "/taskcomment";
+    private static final String LOCATION = "/rf_location";
 
     private PlatformDataBean platformDataBean;
 
@@ -178,4 +179,13 @@ public class PlatformDataUrlBuilder {
                 .toString();
     }
 
+    public String getLocation(String currentLocationId) {
+        return UriComponentsBuilder
+                .newInstance()
+                .uri(URI.create(platformDataBean.getUrl()))
+                .path(LOCATION)
+                .query("locationid=eq.{currentLocationId}")
+                .buildAndExpand(Collections.singletonMap("currentLocationId", currentLocationId))
+                .toString();
+    }
 }

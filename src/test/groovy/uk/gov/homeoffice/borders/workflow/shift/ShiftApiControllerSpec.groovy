@@ -31,6 +31,27 @@ class ShiftApiControllerSpec extends BaseSpec {
     def "can get shift info at /api/workflow/shift"() {
         given:
         def shift = createActiveShift()
+
+        and:
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/rf_location?locationid=eq.current'
+
+            }
+            response {
+                status 200
+                headers {
+                    "Content-Type" "application/json"
+                }
+                body '''
+                        {
+                         "locationname" : "current"
+                        }
+                    '''
+            }
+        }
+
         and:
         mvc.perform(post('/api/workflow/shift')
                 .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shift)))
@@ -43,6 +64,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         result.andExpect(status().is2xxSuccessful())
         ShiftInfo shiftInfo = objectMapper.readValue(result.andReturn().response.contentAsString, ShiftInfo)
         shiftInfo
+        shiftInfo.getCurrentLocationName() == 'current'
 
     }
 
