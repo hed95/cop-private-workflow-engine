@@ -53,11 +53,13 @@ public class ShiftApiController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    @GetMapping(path="/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path={"/{email}", ""}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ShiftInfo shiftInfo(@PathVariable(required = false) String email, ShiftUser shiftUser) {
         String userId = ofNullable(email).orElse(shiftUser.getEmail());
         return shiftApplicationService.getShiftInfo(userId);
     }
+
+
 
     @DeleteMapping("/{email}")
     public ResponseEntity deleteShift(@PathVariable String email, @RequestParam String deletedReason) {
