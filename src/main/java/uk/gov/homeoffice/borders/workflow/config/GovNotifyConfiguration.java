@@ -25,7 +25,7 @@ public class GovNotifyConfiguration {
     @Value("${public-ui.protocol}")
     private String publicUIProtocol;
 
-    @Value("${public-ui.text-protocol")
+    @Value("${public-ui.text-protocol}")
     private String publicUITextProtocol;
 
     @Autowired
