@@ -45,7 +45,7 @@ import uk.gov.service.notify.NotificationClient
         "ENGINE_DB_USERNAME=sa", "ENGINE_DB_PASSWORD=",
         "ENGINE_DB_DRIVER=org.h2.Driver", "CAMUNDA_DB_TYPE=h2",
         "PUBLIC_UI_PROTOCOL=https://",
-        "PUBLIC_UI_TEXT_PROTOCOL=awb://"])
+        "PUBLIC_UI_TXT_PROTOCOL=awb://"])
 abstract class BaseSpec extends Specification {
 
     @Autowired

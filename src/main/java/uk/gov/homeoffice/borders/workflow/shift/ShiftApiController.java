@@ -12,8 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import javax.validation.Valid;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * This REST API is responsible for creating an active shift within the workflow platform.
@@ -50,8 +54,9 @@ public class ShiftApiController {
     }
 
     @GetMapping(path="/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ShiftInfo shiftInfo(@PathVariable String email) {
-        return shiftApplicationService.getShiftInfo(email);
+    public ShiftInfo shiftInfo(@PathVariable(required = false) String email, ShiftUser shiftUser) {
+        String userId = ofNullable(email).orElse(shiftUser.getEmail());
+        return shiftApplicationService.getShiftInfo(userId);
     }
 
     @DeleteMapping("/{email}")

@@ -5,6 +5,9 @@ import org.joda.time.LocalDateTime
 import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.Team
+import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
 import static com.github.tomakehurst.wiremock.http.Response.response
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -31,6 +34,9 @@ class ShiftApiControllerSpec extends BaseSpec {
     def "can get shift info at /api/workflow/shift"() {
         given:
         def shift = createActiveShift()
+
+        and:
+        logInUser()
 
         and:
         wireMockStub.stub {
@@ -209,7 +215,18 @@ class ShiftApiControllerSpec extends BaseSpec {
         result.andExpect(status().is4xxClientError())
     }
 
+    ShiftUser logInUser() {
+        def user = new ShiftUser()
+        user.id = 'test'
+        user.email = 'testEmail'
 
+        def team = new Team()
+        user.teams = []
+        team.teamCode = 'teamA'
+        user.teams << team
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+        user
+    }
 
     ShiftInfo createActiveShift() {
         ShiftInfo shiftInfo = new ShiftInfo()

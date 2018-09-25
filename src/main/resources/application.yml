@@ -14,7 +14,7 @@ keycloak:
 
 public-ui:
     protocol: ${PUBLIC_UI_PROTOCOL}
-    text-protocol: ${PUBLIC_UI_TEXT_PROTOCOL}
+    text-protocol: ${PUBLIC_UI_TXT_PROTOCOL}
 
 platform-data:
     url: ${PLATFORM_DATA_ENDPOINT_URL}
