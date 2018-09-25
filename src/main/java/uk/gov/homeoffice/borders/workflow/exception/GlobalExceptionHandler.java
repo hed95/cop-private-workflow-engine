@@ -25,7 +25,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ResponseStatus(UNAUTHORIZED)
+    @ResponseStatus(FORBIDDEN)
     @ExceptionHandler(value = ForbiddenException.class)
     public ErrorResponse handleForbiddenException(ForbiddenException e) {
         log.error("Unauthorised exception", e);
