@@ -118,7 +118,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
         try {
             String externalLink = variables.get("externalLink");
             if (StringUtils.isNotBlank(externalLink)) {
-                variables.put("externalLink", publicUITextProtocol + externalLink);
+                variables.put("externalLink", externalLink.replaceAll(publicUIProtocol, publicUITextProtocol));
             }
             SendSmsResponse sendSmsResponse = notificationClient.sendSms(smsNotificationTemplateId, notification.getMobile(), variables, reference);
             notification.setSmsNotificationId(sendSmsResponse.getNotificationId().toString());
@@ -136,7 +136,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
         try {
             String externalLink = variables.get("externalLink");
             if (StringUtils.isNotBlank(externalLink)) {
-                variables.put("externalLink", publicUIProtocol + externalLink);
+                variables.put("externalLink", externalLink);
             }
             SendEmailResponse sendEmailResponse = notificationClient.sendEmail(emailNotificationTemplateId,
                     notification.getEmail(), variables, reference);

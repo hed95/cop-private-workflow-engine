@@ -25,7 +25,7 @@ class NotificationTaskEventListenerSpec extends Specification {
 
     def setup() {
         underTest = new NotificationTaskEventListener(notificationClient, "emailNotificationTemplateId", "smsNotificationTemplateId",
-        new ExceptionHandler(), new JacksonJsonDataFormat("application/jackson", new ObjectMapper()), "uiProtocol", "uiTextProtocol")
+        new ExceptionHandler(), new JacksonJsonDataFormat("application/jackson", new ObjectMapper()), "https://", "awb://")
     }
 
     def 'can handle standard notification'() {
@@ -118,6 +118,7 @@ class NotificationTaskEventListenerSpec extends Specification {
         notification.payload = "payload"
         notification.email = "email"
         notification.mobile = "mobile"
+        notification.externalLink = "click on this link https://private-ui.homeoffice.gov.uk"
         def priority = new Priority()
         priority.setNotificationBoost(true)
         priority.type = Priority.Type.URGENT
@@ -131,6 +132,7 @@ class NotificationTaskEventListenerSpec extends Specification {
         delegateTask.getVariable("taskType") >> "notification"
         delegateTask.getVariableTyped("notification", true) >> notificationVariable
         delegateTask.getProcessInstanceId() >> "processInstanceId"
+        delegateTask.getId() >> "id"
 
         and:
         def emailResponse = Mock(SendEmailResponse)
@@ -143,10 +145,10 @@ class NotificationTaskEventListenerSpec extends Specification {
         smsResponse.getNotificationId() >> smsResponseUUID
 
         1 * notificationClient.sendEmail('emailNotificationTemplateId', "email",
-                ['payload': 'payload', 'externalLink': '', 'subject' : 'URGENT: subject'], '/api/workflow/notifications/processInstanceId') >> emailResponse
+                ['payload': 'payload', 'externalLink': 'click on this link https://private-ui.homeoffice.gov.uk', 'subject' : 'URGENT: subject'], '/api/workflow/notifications/processInstanceId') >> emailResponse
 
         1 * notificationClient.sendSms('smsNotificationTemplateId', "mobile",
-                ['payload': 'payload', 'externalLink': '', 'subject' : 'URGENT: subject'], '/api/workflow/notifications/processInstanceId') >> smsResponse
+                ['payload': 'payload', 'externalLink': 'click on this link awb://private-ui.homeoffice.gov.uk', 'subject' : 'URGENT: subject'], '/api/workflow/notifications/processInstanceId') >> smsResponse
 
 
         when:
