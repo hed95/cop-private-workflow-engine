@@ -54,6 +54,7 @@ public class ProcessApplicationService {
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
                 .latestVersion()
+                .active()
                 .list();
         List<ProcessDefinition> definitions = processDefinitions.stream()
                 .filter(p -> !p.getKey().equalsIgnoreCase("activate-shift")
