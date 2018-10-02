@@ -46,17 +46,6 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public RetryTemplate retryTemplate() {
-        RetryTemplate retryTemplate = new RetryTemplate();
-        FixedBackOffPolicy fixedBackOffPolicy = new FixedBackOffPolicy();
-        retryTemplate.setBackOffPolicy(fixedBackOffPolicy);
-        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
-        retryPolicy.setMaxAttempts(3);
-        retryTemplate.setRetryPolicy(retryPolicy);
-        return retryTemplate;
-    }
-
-    @Bean
     public PlatformDataUrlBuilder platformDataQueryBuilder() {
         return new PlatformDataUrlBuilder(platformDataBean);
     }

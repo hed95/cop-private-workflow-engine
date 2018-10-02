@@ -53,11 +53,10 @@ public class UserService {
             log.error("Failed to get user", e);
             return null;
         }
-        if (shiftDetails != null && shiftDetails.size() == 1) {
-            return getStaff(shiftDetails.get(0));
-        } else {
-            return null;
-        }
+        return ofNullable(shiftDetails)
+                .filter(s -> !s.isEmpty())
+                .map(s -> getStaff(shiftDetails.get(0)))
+                .orElse(null);
     }
 
     private ShiftUser getStaff(final ShiftInfo shiftInfo) {
@@ -68,7 +67,7 @@ public class UserService {
         ResponseEntity<ShiftUser> response = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(shiftInfo.getStaffId()),
                 HttpMethod.GET, requestEntity, ShiftUser.class);
 
-        return Optional.ofNullable(response.getBody()).map(user -> {
+        return ofNullable(response.getBody()).map(user -> {
             List<Team> teams = restTemplate
                     .exchange(platformDataUrlBuilder.teamChildren(),
                             HttpMethod.POST,

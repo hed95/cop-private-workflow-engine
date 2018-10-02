@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
+import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException
 
 class UserServiceSpec extends Specification {
 
@@ -570,6 +571,56 @@ class UserServiceSpec extends Specification {
         then:
         !result
 
+    }
+
+    def 'exception thrown if staff details cannot be located'() {
+        given:
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/shift?email=eq.email'
+            }
+
+            response {
+                status 200
+                body """ [
+                            {
+                                "shiftid" : "id",
+                                "staffid" : "staffid",
+                                "teamid" : "teamid",
+                                "phone" : "phone",
+                                "email" : "email"
+                              }
+                         ]
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+
+        }
+
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/staffview?staffid=eq.staffid'
+            }
+            response {
+                status: 200
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
+
+        when:
+        def query = new UserQuery()
+        query.userId("email")
+        userService.findByQuery(query)
+
+
+        then:
+        thrown(InternalWorkflowException)
     }
 
 }

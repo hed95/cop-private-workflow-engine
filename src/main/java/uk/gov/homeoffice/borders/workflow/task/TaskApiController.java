@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.TASKS_ROOT_API;
 
 /**
@@ -69,7 +70,7 @@ public class TaskApiController {
         Mono<List<String>> identities = Mono.fromCallable(() -> applicationService.getIdentityLinksForTask(taskId)
                 .stream().map(IdentityLink::getGroupId)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList()))
+                .collect(toList()))
                 .subscribeOn(Schedulers.elastic());
 
         if (includeVariables) {

@@ -67,12 +67,14 @@ dependencies {
     compile('org.camunda.bpm:camunda-engine-plugin-connect:7.10.0-alpha3')
     compile 'org.jsoup:jsoup:1.11.2'
 
+    compile('org.springframework.security:spring-security-messaging')
 
     compile ('org.springframework.boot:spring-boot-configuration-processor') {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
     }
     compile ('org.springframework.boot:spring-boot-starter-webflux')
     compile ('org.springframework.boot:spring-boot-starter-actuator')
+    compile ('org.springframework.boot:spring-boot-starter-websocket')
     compile ('org.springframework.boot:spring-boot-starter-security')
     compile ('org.springframework.boot:spring-boot-starter-hateoas')
     compile('org.springframework.boot:spring-boot-starter-jdbc')
@@ -85,8 +87,8 @@ dependencies {
     compile 'io.springfox:springfox-swagger2:2.7.0'
     compile 'io.springfox:springfox-swagger-ui:2.7.0'
     compile 'org.apache.commons:commons-lang3:3.6'
-    compile('org.keycloak:keycloak-spring-boot-2-adapter:4.0.0.Beta3')
-    compile group: 'org.keycloak', name: 'keycloak-tomcat8-adapter', version: '4.0.0.Beta3'
+    compile('org.keycloak:keycloak-spring-boot-2-adapter:4.4.0.Final')
+    compile group: 'org.keycloak', name: 'keycloak-tomcat8-adapter', version: '4.4.0.Final'
     compile group: 'org.eclipse', name: 'yasson', version: '1.0'
     compile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'
     compile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.5.0.Final'

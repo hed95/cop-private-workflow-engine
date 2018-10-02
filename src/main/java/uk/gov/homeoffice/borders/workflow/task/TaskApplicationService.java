@@ -47,6 +47,7 @@ public class TaskApplicationService {
     private ObjectMapper objectMapper;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
+
     /**
      * Returns paged result of tasks
      *
@@ -78,19 +79,20 @@ public class TaskApplicationService {
     private TaskQuery createQuery(@NotNull ShiftUser user, TaskCriteria taskCriteria, TaskQuery taskQuery) {
         if (taskCriteria.getAssignedToMeOnly()) {
             taskQuery = taskQuery.taskAssignee(user.getEmail());
-        } else if (taskCriteria.getUnassignedOnly()) {
-            taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
-                    .taskUnassigned();
-        } else if (taskCriteria.getTeamOnly()) {
-            taskQuery = taskQuery.taskCandidateGroupIn(user.getTeams().stream().map(Team::getTeamCode).collect(toList()))
-                    .includeAssignedTasks();
         } else {
-            taskQuery = applyUserFilters(user, taskQuery);
+            List<String> teamCodes = resolveCandidateGroups(user);
+            if (taskCriteria.getUnassignedOnly()) {
+                taskQuery = taskQuery.taskCandidateGroupIn(teamCodes)
+                        .taskUnassigned();
+            } else if (taskCriteria.getTeamOnly()) {
+                taskQuery = taskQuery.taskCandidateGroupIn(teamCodes)
+                        .includeAssignedTasks();
+            } else {
+                taskQuery = applyUserFilters(user, taskQuery);
+            }
         }
         return taskQuery;
     }
-
-
 
 
     private TaskQuery applyUserFilters(@NotNull ShiftUser user, TaskQuery taskQuery) {
@@ -153,7 +155,7 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    void completeTaskWithForm(@NotNull  ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
+    void completeTaskWithForm(@NotNull ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
         VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
@@ -243,7 +245,7 @@ public class TaskApplicationService {
 
     Mono<TasksCountDto> taskCounts(ShiftUser user) {
 
-        List<String> teamCodes = user.getTeams().stream().map(Team::getTeamCode).collect(toList());
+        List<String> teamCodes = resolveCandidateGroups(user);
 
         Mono<Long> assignedToUser = Mono.fromCallable(() -> taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", NOTIFICATIONS)
