@@ -14,10 +14,12 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
+import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.security.SecurityConfig;
 
 import java.security.Principal;
@@ -34,8 +36,9 @@ public class TaskWebSocketConfig extends AbstractSecurityWebSocketMessageBrokerC
 
 
     @Bean
-    public UserTaskEventListener userTaskEventListener(SimpMessagingTemplate simpMessagingTemplate) {
-        return new UserTaskEventListener(simpMessagingTemplate);
+    public UserTaskEventListener userTaskEventListener(SimpMessagingTemplate simpMessagingTemplate,
+                                                       PlatformDataUrlBuilder platformDataUrlBuilder) {
+        return new UserTaskEventListener(simpMessagingTemplate, platformDataUrlBuilder, new RestTemplate());
     }
 
     @Override

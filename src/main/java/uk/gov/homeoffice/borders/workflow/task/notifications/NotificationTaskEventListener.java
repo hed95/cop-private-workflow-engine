@@ -35,7 +35,7 @@ import java.util.Map;
 public class NotificationTaskEventListener extends ReactorTaskListener {
 
     private static final String SUBJECT = "subject";
-    private static final String NOTIFICATION_VARIABLE_NAME = "notification";
+    public static final String NOTIFICATION_VARIABLE_NAME = "notification";
 
     private NotificationClient notificationClient;
     private String emailNotificationTemplateId;

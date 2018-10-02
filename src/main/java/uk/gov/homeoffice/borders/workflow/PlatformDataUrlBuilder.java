@@ -29,6 +29,7 @@ public class PlatformDataUrlBuilder {
     private static final String STAFFVIEW = "/staffview";
     private static final String COMMENTS = "/taskcomment";
     private static final String LOCATION = "/rf_location";
+    private static final String TEAM = "/team";
 
     private PlatformDataBean platformDataBean;
 
@@ -55,6 +56,16 @@ public class PlatformDataUrlBuilder {
                 .uri(URI.create(platformDataBean.getUrl()))
                 .path("/team?teamcode=eq.{teamId}")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
+                .toString();
+
+    }
+
+    public String teamByIds(String... teamIds) {
+        return UriComponentsBuilder.newInstance()
+                .uri(URI.create(platformDataBean.getUrl()))
+                .path(TEAM)
+                .query("teamcode=in.({teamIds})")
+                .buildAndExpand(Collections.singletonMap("teamIds", teamIds))
                 .toString();
 
     }
