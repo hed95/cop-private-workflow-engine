@@ -11,7 +11,7 @@ import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException
 
 class UserServiceSpec extends Specification {
 
-    def wmPort = 8181
+    def wmPort = 8911
 
     @Rule
     WireMockRule wireMockRule = new WireMockRule(wmPort)
@@ -21,7 +21,7 @@ class UserServiceSpec extends Specification {
 
     def setup() {
         def platformDataBean = new PlatformDataBean()
-        platformDataBean.url="http://localhost:8181"
+        platformDataBean.url="http://localhost:8911"
         platformDataBean.token = "token"
         def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
         userService = new UserService(new RestTemplate(), platformDataUrlBuilder)

@@ -41,7 +41,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     private static final String ENGINE = "/engine";
     private static final String ACTUATOR_HEALTH = "/actuator/health";
     private static final String ACTUATOR_METRICS = "/actuator/metrics";
-    public static final String WEB_SOCKET_TASKS = "/api/workflow/ws-tasks";
+    public static final String WEB_SOCKET_TASKS = "/ws/workflow/tasks";
     private static final String[] SWAGGER_WHITELIST = {
             "/swagger-resources/**",
             "/swagger-ui.html",

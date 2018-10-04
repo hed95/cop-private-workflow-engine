@@ -1,11 +1,9 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.identity.User;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -43,7 +41,7 @@ public class TaskWebSocketConfig extends AbstractSecurityWebSocketMessageBrokerC
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/user/topic");
+        config.enableSimpleBroker("/topic", "/queue");
     }
 
 
@@ -65,15 +63,14 @@ public class TaskWebSocketConfig extends AbstractSecurityWebSocketMessageBrokerC
                     }
                 };
             }
-        });
-        registry.addEndpoint(SecurityConfig.WEB_SOCKET_TASKS).setAllowedOrigins("*").withSockJS();
+        }).withSockJS();
     }
 
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages.simpTypeMatchers(CONNECT, UNSUBSCRIBE, DISCONNECT, HEARTBEAT).permitAll()
-                .simpDestMatchers("/topic/**", "/user/topic/**").authenticated()
-                .simpSubscribeDestMatchers("/topic/**", "/user/topic/**").authenticated()
+                .simpDestMatchers("/topic/**", "/queue/**", "/user/queue/**").authenticated()
+                .simpSubscribeDestMatchers("/topic/**", "/queue/**", "/user/queue/**").authenticated()
                 .anyMessage().denyAll();
 
     }
