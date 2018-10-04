@@ -27,8 +27,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
-@CamundaSelector(event = TaskListener.EVENTNAME_CREATE,
-        type = ActivityTypes.TASK_USER_TASK)
+@CamundaSelector(type = ActivityTypes.TASK_USER_TASK)
 @Slf4j
 @AllArgsConstructor
 public class UserTaskEventListener extends ReactorTaskListener {
