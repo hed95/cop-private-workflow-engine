@@ -68,7 +68,7 @@ public class UserTaskEventListener extends ReactorTaskListener {
                     super.afterCompletion(status);
                     ofNullable(assignee)
                             .ifPresent(a -> messagingTemplate.convertAndSendToUser(a,
-                                    "/topic/task", taskId));
+                                    "/queue/task", taskId));
 
                     teamIds.forEach(team ->
                             messagingTemplate.convertAndSend(format("/topic/task/%s", team), taskId));
