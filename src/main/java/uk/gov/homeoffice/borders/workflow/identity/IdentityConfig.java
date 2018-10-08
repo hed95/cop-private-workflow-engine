@@ -1,41 +1,20 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
 
-import org.camunda.bpm.engine.IdentityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
-import uk.gov.homeoffice.borders.workflow.shift.ShiftUserMethodArgumentResolver;
-
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Configuration
 public class IdentityConfig {
 
-    private RestTemplate platformDataRestTemplate = createRestTemplate();
-
-
-    private RestTemplate createRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
-        List<HttpMessageConverter<?>> converters = restTemplate.getMessageConverters().stream()
-                .filter(m -> !(m instanceof StringHttpMessageConverter))
-                .collect(Collectors.toList());
-        converters.add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
-        restTemplate.setMessageConverters(converters);
-        return restTemplate;
-    }
-
     @Autowired
     private PlatformDataUrlBuilder platformDataUrlBuilder;
 
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Bean
     public CustomIdentityProviderPlugin identityProviderPlugin() {
@@ -44,13 +23,13 @@ public class IdentityConfig {
 
     @Bean
     public UserService userService() {
-        return new UserService(platformDataRestTemplate, platformDataUrlBuilder);
+        return new UserService(restTemplate, platformDataUrlBuilder);
     }
 
 
     @Bean
     public TeamService teamService() {
-        return new TeamService(platformDataRestTemplate, platformDataUrlBuilder);
+        return new TeamService(restTemplate, platformDataUrlBuilder);
     }
 
     @Bean

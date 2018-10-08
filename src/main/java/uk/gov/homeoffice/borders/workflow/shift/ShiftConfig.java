@@ -25,8 +25,9 @@ public class ShiftConfig {
     @Bean
     public ShiftApplicationService shiftApplicationService(RuntimeService runtimeService,
                                                            PlatformDataUrlBuilder platformDataUrlBuilder,
-                                                           JacksonJsonDataFormat formatter) {
-        return new ShiftApplicationService(runtimeService, new RestTemplate(), platformDataUrlBuilder,
+                                                           JacksonJsonDataFormat formatter, RestTemplate restTemplate) {
+        return new ShiftApplicationService(runtimeService, restTemplate,
+                platformDataUrlBuilder,
                 platformDataBean, formatter);
     }
 

@@ -32,11 +32,10 @@ import static org.springframework.messaging.simp.SimpMessageType.*;
 @Profile("!test")
 public class TaskWebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
-
     @Bean
     public UserTaskEventListener userTaskEventListener(SimpMessagingTemplate simpMessagingTemplate,
-                                                       PlatformDataUrlBuilder platformDataUrlBuilder) {
-        return new UserTaskEventListener(simpMessagingTemplate, platformDataUrlBuilder, new RestTemplate());
+                                                       PlatformDataUrlBuilder platformDataUrlBuilder, RestTemplate restTemplate) {
+        return new UserTaskEventListener(simpMessagingTemplate, platformDataUrlBuilder, restTemplate);
     }
 
     @Override

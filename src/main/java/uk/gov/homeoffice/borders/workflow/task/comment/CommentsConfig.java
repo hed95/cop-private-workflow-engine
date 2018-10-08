@@ -21,10 +21,7 @@ public class CommentsConfig {
     public CommentsApplicationService commentsApplicationService(TaskService taskService,
                                                                  TaskChecker taskChecker,
                                                                  PlatformDataUrlBuilder platformDataUrlBuilder,
-                                                                 MappingJackson2HttpMessageConverter converter) {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().removeIf( m -> m instanceof MappingJackson2HttpMessageConverter);
-        restTemplate.getMessageConverters().add(converter);
+                                                                 RestTemplate restTemplate) {
         return new CommentsApplicationService(taskService, taskChecker, platformDataUrlBuilder,
                 restTemplate, platformDataBean);
     }

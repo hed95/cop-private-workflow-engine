@@ -110,10 +110,4 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         return new ProcessEngineIdentityFilter(identityService, securityContext, new AntPathMatcher());
     }
 
-    @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public RestTemplate keycloakRestTemplate() {
-        return new KeycloakRestTemplate(keycloakClientRequestFactory);
-    }
-
 }

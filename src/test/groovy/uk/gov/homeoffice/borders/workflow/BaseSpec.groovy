@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
 import org.camunda.bpm.engine.IdentityService
@@ -32,6 +33,8 @@ import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.service.notify.NotificationClient
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = ["keycloak.enabled=false", "spring.datasource.name=testdbB"])
 @ActiveProfiles("test")
@@ -45,7 +48,11 @@ import uk.gov.service.notify.NotificationClient
         "ENGINE_DB_USERNAME=sa", "ENGINE_DB_PASSWORD=",
         "ENGINE_DB_DRIVER=org.h2.Driver", "CAMUNDA_DB_TYPE=h2",
         "PUBLIC_UI_PROTOCOL=https://",
-        "PUBLIC_UI_TXT_PROTOCOL=awb://"])
+        "PUBLIC_UI_TXT_PROTOCOL=awb://",
+        "KEYCLOAK_AUTH_URL=http://localhost:9000/auth",
+        "KEYCLOAK_REALM=myRealm",
+        "KEYCLOAK_AUTH_SECRET=very_secret",
+        "KEYCLOAK_CLIENT_ID=client_id"])
 abstract class BaseSpec extends Specification {
 
     @Autowired
@@ -74,12 +81,27 @@ abstract class BaseSpec extends Specification {
 
     public wireMockStub = new WireMockGroovy(wmPort)
 
+    def stubKeycloak() {
+        stubFor(post("/realms/myRealm/protocol/openid-connect/token")
+                .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded;charset=UTF-8"))
+                .withHeader("Authorization", equalTo("Basic Y2xpZW50X2lkOnZlcnlfc2VjcmV0"))
+                .withRequestBody(equalTo("grant_type=client_credentials"))
+                .willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody("""
+                                        {
+                                            "access_token": "MY_SECRET_TOKEN"
+                                        }
+                                        """)))
+    }
+
     def setup() {
         def instances = runtimeService.createProcessInstanceQuery().list() as ProcessInstance[]
         def ids = instances.collect {
             it -> it.processInstanceId
         }
         runtimeService.deleteProcessInstances(ids, "testclean", true, true)
+        stubKeycloak()
     }
 
     ShiftUser logInUser() {
@@ -142,6 +164,7 @@ abstract class BaseSpec extends Specification {
         RestTemplate keycloakRestTemplate() {
             return new RestTemplate()
         }
+
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {

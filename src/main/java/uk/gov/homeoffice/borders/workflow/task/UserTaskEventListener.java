@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
 import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
