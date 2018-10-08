@@ -22,6 +22,9 @@ class ShiftApiControllerSpec extends BaseSpec {
         given:
         def shift = createActiveShift()
 
+        and:
+        deleteShift()
+
         when:
         def result = mvc.perform(post('/api/workflow/shift')
                 .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shift)))
@@ -31,11 +34,28 @@ class ShiftApiControllerSpec extends BaseSpec {
 
     }
 
+    private deleteShift() {
+        wireMockStub.stub {
+            request {
+                method 'DELETE'
+                url '/shift?email=eq.testEmail'
+
+            }
+            response {
+                status 200
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
+    }
+
     def "can get shift info at /api/workflow/shift"() {
         given:
         def shift = createActiveShift()
 
         and:
+        deleteShift()
         logInUser()
 
         and:
@@ -88,6 +108,8 @@ class ShiftApiControllerSpec extends BaseSpec {
                 status 200
             }
         }
+        and:
+        deleteShift()
 
         and:
         mvc.perform(post('/api/workflow/shift')

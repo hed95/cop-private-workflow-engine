@@ -94,6 +94,8 @@ public class ShiftApplicationService {
      */
     @CacheEvict(cacheNames = {"shifts"}, key = "#email")
     public void deleteShift(@NotNull String email, @NotNull String deleteReason) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+
         List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email).list();
         if (!CollectionUtils.isEmpty(instances)) {
@@ -108,10 +110,6 @@ public class ShiftApplicationService {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("Authorization", "Bearer " + platformDataBean.getToken());
-
             shifts.stream().forEach(id -> {
                 restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(id),
                         HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
@@ -121,6 +119,12 @@ public class ShiftApplicationService {
             runtimeService.deleteProcessInstances(ids, deleteReason, false, true);
 
             log.info("Shift deleted for '{}'", email);
+        } else {
+
+            restTemplate.exchange(platformDataUrlBuilder.shiftUrlByEmail(email),
+                    HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
+            log.info("No process instance found but deleted from platform data...shift");
+
         }
 
     }
