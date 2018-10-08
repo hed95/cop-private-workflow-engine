@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,6 @@ public class KeycloakClient {
         final HttpEntity<?> entity = new HttpEntity<>(body, headers);
 
         final ResponseEntity<KeycloakResult> result = restTemplate.postForEntity(authUrl, entity, KeycloakResult.class);
-
         return result.getBody().access_token;
     }
 

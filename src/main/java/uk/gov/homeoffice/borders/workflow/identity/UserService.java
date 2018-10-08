@@ -70,7 +70,7 @@ public class UserService {
         return ofNullable(response.getBody()).map(user -> {
             List<Team> teams = restTemplate
                     .exchange(platformDataUrlBuilder.teamChildren(),
-                            HttpMethod.POST,
+                            HttpMethod.GET,
                             new HttpEntity<>(Collections.singletonMap("id", shiftInfo.getTeamId())),
                             new ParameterizedTypeReference<List<Team>>() {}).getBody();
 
