@@ -10,5 +10,4 @@ import org.springframework.stereotype.Component;
 public class PlatformDataBean {
 
     private String url;
-    private String token;
 }

@@ -121,9 +121,9 @@ public class ShiftApplicationService {
             log.info("Shift deleted for '{}'", email);
         } else {
 
-            restTemplate.exchange(platformDataUrlBuilder.shiftUrlByEmail(email),
+            ResponseEntity<String> response = restTemplate.exchange(platformDataUrlBuilder.shiftUrlByEmail(email),
                     HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
-            log.info("No process instance found but deleted from platform data...shift");
+            log.info("No process instance found but deleted from platform data...shift {}", response.getStatusCode());
 
         }
 

@@ -21,7 +21,6 @@ class TeamServiceSpec extends Specification {
     def setup() {
         def platformDataBean = new PlatformDataBean()
         platformDataBean.url="http://localhost:8182"
-        platformDataBean.token = "token";
         def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
         teamService = new TeamService(new RestTemplate(), platformDataUrlBuilder)
     }

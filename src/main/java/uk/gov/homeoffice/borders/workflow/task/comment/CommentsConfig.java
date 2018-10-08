@@ -14,15 +14,12 @@ import uk.gov.homeoffice.borders.workflow.task.TaskChecker;
 @Configuration
 public class CommentsConfig {
 
-    @Autowired
-    private PlatformDataBean platformDataBean;
-
     @Bean
     public CommentsApplicationService commentsApplicationService(TaskService taskService,
                                                                  TaskChecker taskChecker,
                                                                  PlatformDataUrlBuilder platformDataUrlBuilder,
                                                                  RestTemplate restTemplate) {
         return new CommentsApplicationService(taskService, taskChecker, platformDataUrlBuilder,
-                restTemplate, platformDataBean);
+                restTemplate);
     }
 }

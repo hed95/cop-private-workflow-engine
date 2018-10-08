@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.borders.workflow
 
-import spock.lang.Shared
+
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
 import uk.gov.homeoffice.borders.workflow.identity.TeamQuery
@@ -14,11 +14,9 @@ class PlatformDataUrlBuilderSpec extends Specification {
     def underTest
 
     def setup() {
-        platformDataBean.token = token
         platformDataBean.url = platformDataUrl
         underTest = new PlatformDataUrlBuilder(platformDataBean)
     }
-
 
 
     def 'can get shift url by email'() {
@@ -59,7 +57,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
         url == "http://localhost:9000/team?teamid=eq.teamId"
     }
 
-    def 'can get team url by team name' () {
+    def 'can get team url by team name'() {
         given:
         def teamName = "teamName"
         def teamQuery = new TeamQuery().groupName(teamName)
@@ -73,7 +71,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
     }
 
 
-    def 'can get team url by team name like' () {
+    def 'can get team url by team name like'() {
         given:
         def teamName = "teamName"
         def teamQuery = new TeamQuery().groupNameLike(teamName)
@@ -177,7 +175,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
         url == 'http://localhost:9000/taskcomment'
     }
 
-    def 'can get url for comments for task'()  {
+    def 'can get url for comments for task'() {
         given:
         def taskId = 'taskId'
 

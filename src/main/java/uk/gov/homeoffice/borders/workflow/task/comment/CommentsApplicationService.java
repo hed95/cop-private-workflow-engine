@@ -13,7 +13,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
-import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.task.TaskChecker;
@@ -30,7 +29,6 @@ public class CommentsApplicationService {
     private TaskChecker taskChecker;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
     private RestTemplate restTemplate;
-    private PlatformDataBean platformDataBean;
 
     public List<TaskComment> comments(@NotNull ShiftUser user, String taskId) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
@@ -62,7 +60,6 @@ public class CommentsApplicationService {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.set("Authorization", "Bearer " + platformDataBean.getToken());
 
         restTemplate.exchange(platformDataUrlBuilder.comments(), HttpMethod.POST,
                 new HttpEntity<>(taskComment, httpHeaders), TaskComment.class, new HashMap<>());

@@ -22,7 +22,6 @@ class UserServiceSpec extends Specification {
     def setup() {
         def platformDataBean = new PlatformDataBean()
         platformDataBean.url="http://localhost:8911"
-        platformDataBean.token = "token"
         def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
         userService = new UserService(new RestTemplate(), platformDataUrlBuilder)
         userService.self = userService
