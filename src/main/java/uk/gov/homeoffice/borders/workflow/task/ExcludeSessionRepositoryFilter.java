@@ -16,13 +16,13 @@ import java.io.IOException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExcludeSessionRepositoryFilter extends OncePerRequestFilter {
 
-    private final AntPathRequestMatcher restCamundaPath = new AntPathRequestMatcher("/rest/camunda/external-task/**");
+    private final AntPathRequestMatcher restExternalTaskEndpoint = new AntPathRequestMatcher("/rest/camunda/external-task/**");
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        if (restCamundaPath.matches(httpRequest)) {
+        if (restExternalTaskEndpoint.matches(httpRequest)) {
             httpRequest.setAttribute("org.springframework.session.web.http.SessionRepositoryFilter.FILTERED", Boolean.TRUE);
         }
         filterChain.doFilter(httpRequest, httpResponse);
