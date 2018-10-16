@@ -1,6 +1,5 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.ActivityTypes;
