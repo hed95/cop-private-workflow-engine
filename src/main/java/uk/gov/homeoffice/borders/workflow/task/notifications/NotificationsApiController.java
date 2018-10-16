@@ -60,7 +60,7 @@ public class NotificationsApiController {
 
 
     @DeleteMapping("/task/{taskId}")
-    public ResponseEntity<TaskReference> acknowledge(@PathVariable String taskId, ShiftUser shiftUser) {
+    public ResponseEntity<?> acknowledge(@PathVariable String taskId, ShiftUser shiftUser) {
         String id = notificationService.acknowledge(shiftUser, taskId);
         TaskReference taskReference = new TaskReference();
         taskReference.setId(id);

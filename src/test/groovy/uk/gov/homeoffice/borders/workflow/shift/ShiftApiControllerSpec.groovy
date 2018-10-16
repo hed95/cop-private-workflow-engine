@@ -37,12 +37,30 @@ class ShiftApiControllerSpec extends BaseSpec {
     private deleteShift() {
         wireMockStub.stub {
             request {
-                method 'DELETE'
+                method 'GET'
                 url '/shift?email=eq.testEmail'
 
             }
             response {
                 status 200
+                body """
+                        [{
+                          "shiftid": "shiftId"
+                        }]
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
+        wireMockStub.stub {
+            request {
+                method 'DELETE'
+                url '/shift?shiftid=eq.shiftId'
+
+            }
+            response {
+                status 204
                 headers {
                     "Content-Type" "application/json"
                 }

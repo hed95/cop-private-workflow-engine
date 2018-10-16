@@ -7,21 +7,32 @@ import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 import org.keycloak.adapters.springsecurity.client.KeycloakClientRequestFactory;
-import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
-import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.Session;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -36,7 +47,10 @@ import static org.springframework.web.util.TagUtils.SCOPE_REQUEST;
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 @Profile("!test")
+@EnableRedisHttpSession
+@EnableScheduling
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+
 
     private static final String ENGINE = "/engine";
     private static final String ACTUATOR_HEALTH = "/actuator/health";
@@ -50,11 +64,24 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     };
 
     static final List<String> NO_AUTH_URLS = Collections.unmodifiableList(
-           Arrays.asList(ArrayUtils.addAll(SWAGGER_WHITELIST, ENGINE, ACTUATOR_HEALTH, ACTUATOR_METRICS, WEB_SOCKET_TASKS))
+            Arrays.asList(ArrayUtils.addAll(SWAGGER_WHITELIST, ENGINE, ACTUATOR_HEALTH, ACTUATOR_METRICS, WEB_SOCKET_TASKS))
     );
 
     @Autowired
     public KeycloakClientRequestFactory keycloakClientRequestFactory;
+
+    @Autowired
+    public RedisConnectionFactory redisConnectionFactory;
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate() {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        RedisSerializer stringSerializer = new StringRedisSerializer();
+        template.setKeySerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
 
 
     @Autowired
@@ -84,8 +111,21 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     @Override
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new RegisterSessionAuthenticationStrategy(
-                new SessionRegistryImpl());
+                springSessionBackedRegistry());
     }
+
+    @Bean
+    @SuppressWarnings("unchecked")
+    public SessionRegistry springSessionBackedRegistry() {
+        return new SpringSessionBackedSessionRegistry<Session>(sessionRepository());
+    }
+
+    @Bean
+    @SuppressWarnings("unchecked")
+    public FindByIndexNameSessionRepository sessionRepository() {
+        return new RedisOperationsSessionRepository((RedisTemplate) redisTemplate());
+    }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -102,12 +142,12 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     }
 
 
-
     @Bean
     @Order()
     public ProcessEngineIdentityFilter processEngineFilter(IdentityService identityService,
-                                                           KeycloakSecurityContext securityContext ) {
+                                                           KeycloakSecurityContext securityContext) {
         return new ProcessEngineIdentityFilter(identityService, securityContext, new AntPathMatcher());
     }
+
 
 }

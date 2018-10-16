@@ -16,7 +16,7 @@ public class KeycloakBearerTokenInterceptor implements ClientHttpRequestIntercep
 
     private KeycloakClient keycloakClient;
 
-    public KeycloakBearerTokenInterceptor(KeycloakClient keycloakClient) {
+    KeycloakBearerTokenInterceptor(KeycloakClient keycloakClient) {
         this.keycloakClient = keycloakClient;
     }
 

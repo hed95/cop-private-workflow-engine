@@ -62,16 +62,12 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public RestTemplate restTemplate(KeycloakClient keycloakClient,
-                                     MappingJackson2HttpMessageConverter converter) {
+    public RestTemplate restTemplate(KeycloakClient keycloakClient) {
         KeycloakBearerTokenInterceptor keycloakBearerTokenInterceptor =
                 new KeycloakBearerTokenInterceptor(keycloakClient);
-
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getInterceptors().add(keycloakBearerTokenInterceptor);
 
-        restTemplate.getMessageConverters().removeIf( m -> m instanceof MappingJackson2HttpMessageConverter);
-        restTemplate.getMessageConverters().add(converter);
+        restTemplate.getInterceptors().add(keycloakBearerTokenInterceptor);
         return restTemplate;
     }
 

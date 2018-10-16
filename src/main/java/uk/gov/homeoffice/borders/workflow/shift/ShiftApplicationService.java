@@ -20,11 +20,15 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
+import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * Application Service responsible for dealing with the internal
@@ -52,7 +56,7 @@ public class ShiftApplicationService {
      * @see ShiftInfo
      * @see ProcessInstance
      */
-    public ProcessInstance startShift(@NotNull @Valid ShiftInfo shiftInfo) {
+    ProcessInstance startShift(@NotNull @Valid ShiftInfo shiftInfo) {
 
         String email = shiftInfo.getEmail();
         log.info("Starting a request to start a shift for '{}'", email);
@@ -94,7 +98,6 @@ public class ShiftApplicationService {
      */
     @CacheEvict(cacheNames = {"shifts"}, key = "#email")
     public void deleteShift(@NotNull String email, @NotNull String deleteReason) {
-        HttpHeaders httpHeaders = new HttpHeaders();
 
         List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email).list();
@@ -110,9 +113,9 @@ public class ShiftApplicationService {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            shifts.stream().forEach(id -> {
+            shifts.forEach(id -> {
                 restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(id),
-                        HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
+                        HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
                 log.info("active shift '{}' deleted from store...", id);
             });
 
@@ -120,10 +123,19 @@ public class ShiftApplicationService {
 
             log.info("Shift deleted for '{}'", email);
         } else {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            List<ShiftInfo> shifts =  restTemplate
+                    .exchange(URI.create(platformDataUrlBuilder.shiftUrlByEmail(email)), HttpMethod.GET, new HttpEntity<>(httpHeaders),
+                            new ParameterizedTypeReference<List<ShiftInfo>>() {
+                            }).getBody();
 
-            ResponseEntity<String> response = restTemplate.exchange(platformDataUrlBuilder.shiftUrlByEmail(email),
-                    HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
-            log.info("No process instance found but deleted from platform data...shift {}", response.getStatusCode());
+            if (!CollectionUtils.isEmpty(shifts)) {
+                ResponseEntity<String> response = restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(shifts.get(0).getShiftId()),
+                        HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
+                log.info("No process instance found but deleted from platform data...shift {}", response.getStatusCode());
+
+            }
 
         }
 
@@ -138,7 +150,7 @@ public class ShiftApplicationService {
      * @throws ResourceNotFound shift info cannot be found
      * @see ShiftInfo
      */
-    public ShiftInfo getShiftInfo(@NotNull String email) {
+    ShiftInfo getShiftInfo(@NotNull String email) {
         ProcessInstance shift = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email)
                 .singleResult();
@@ -151,8 +163,8 @@ public class ShiftApplicationService {
                 .processInstanceIdIn(shift.getProcessInstanceId())
                 .variableName("shiftInfo").singleResult();
 
-        if (variableInstance != null) {
-            ShiftInfo shiftInfo = Spin.S(variableInstance.getValue(), formatter).mapTo(ShiftInfo.class);
+        return ofNullable(variableInstance).map(variable -> {
+            ShiftInfo shiftInfo = Spin.S(variable.getValue(), formatter).mapTo(ShiftInfo.class);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
 
@@ -166,15 +178,13 @@ public class ShiftApplicationService {
                     );
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                String locationName = Optional.ofNullable(response.getBody())
+                String locationName = ofNullable(response.getBody())
                         .orElse(Collections.singletonMap("locationname", "Unknown")).get("locationname");
                 shiftInfo.setCurrentLocationName(locationName);
             }
-
             return shiftInfo;
-        }
+        }).orElseThrow(() -> new ResourceNotFound("Shift data could not be found"));
 
-        throw new ResourceNotFound("Shift data could not be found");
     }
 
 
