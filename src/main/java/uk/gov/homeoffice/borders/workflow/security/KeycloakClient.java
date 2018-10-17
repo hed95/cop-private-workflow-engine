@@ -1,5 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.security;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -44,7 +46,7 @@ public class KeycloakClient {
         final HttpEntity<?> entity = new HttpEntity<>(body, headers);
 
         final ResponseEntity<KeycloakResult> result = restTemplate.postForEntity(authUrl, entity, KeycloakResult.class);
-        return result.getBody().access_token;
+        return result.getBody().getAccessToken();
     }
 
 
@@ -54,8 +56,10 @@ public class KeycloakClient {
         return "Basic " + new String(encodedAuth);
     }
 
+    @Data
     public static class KeycloakResult {
-        public String access_token;
+        @JsonProperty("access_token")
+        private String accessToken;
     }
 
 }
