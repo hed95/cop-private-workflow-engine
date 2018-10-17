@@ -69,6 +69,7 @@ public class UserTaskEventListener extends ReactorTaskListener {
             TaskReference taskReference = new TaskReference();
             taskReference.setId(taskId);
             taskReference.setStatus(delegateTask.getEventName());
+
             registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void afterCompletion(int status) {
