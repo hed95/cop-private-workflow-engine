@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
 import org.springframework.session.Session;
@@ -52,13 +53,21 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
+        long heartbeatServer = 10000;
+        long heartbeatClient = 10000;
+
+        ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
+        te.setPoolSize(2);
+        te.setThreadNamePrefix("wss-heartbeat-thread-");
+        te.initialize();
+
         sessionRepositoryInterceptor.setMatchingMessageTypes(EnumSet.of(SimpMessageType.CONNECT,
                 SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE,
                 SimpMessageType.UNSUBSCRIBE, SimpMessageType.HEARTBEAT));
 
         config.enableSimpleBroker("/topic", "/queue")
-                .setTaskScheduler(new ConcurrentTaskScheduler())
-                .setHeartbeatValue(new long[]{10000,10000});
+                .setTaskScheduler(te)
+                .setHeartbeatValue(new long[]{heartbeatServer, heartbeatClient});
     }
 
 
