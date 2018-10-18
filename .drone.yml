@@ -52,8 +52,8 @@ pipeline:
       - docker_name
     commands:
     - docker login -u=$${DOCKER_USERNAME} -p=$${DOCKER_PASSWORD} $${DOCKER_SERVER}
-    - docker tag $${DOCKER_NAME} $${DOCKER_SERVER}/$${DOCKER_GROUP}/$${DOCKER_NAME}:$${DRONE_REPO_BRANCH}
-    - docker push $${DOCKER_SERVER}/$${DOCKER_GROUP}/$${DOCKER_NAME}:$${DRONE_REPO_BRANCH}
+    - docker tag $${DOCKER_NAME} $${DOCKER_SERVER}/$${DOCKER_GROUP}/$${DOCKER_NAME}:$${DRONE_COMMIT_BRANCH}
+    - docker push $${DOCKER_SERVER}/$${DOCKER_GROUP}/$${DOCKER_NAME}:$${DRONE_COMMIT_BRANCH}
     when:
       event: push
 
