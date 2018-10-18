@@ -4,16 +4,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
+import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
 import org.springframework.session.Session;
 import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
+import org.springframework.session.web.socket.server.SessionRepositoryMessageInterceptor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -23,6 +28,7 @@ import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.security.SecurityConfig;
 
 import java.security.Principal;
+import java.util.EnumSet;
 import java.util.Map;
 
 import static org.springframework.messaging.simp.SimpMessageType.*;
@@ -34,6 +40,10 @@ import static org.springframework.messaging.simp.SimpMessageType.*;
 @Profile("!test")
 public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<Session> {
 
+    @Autowired
+    SessionRepositoryMessageInterceptor sessionRepositoryInterceptor;
+
+
     @Bean
     public UserTaskEventListener userTaskEventListener(SimpMessagingTemplate simpMessagingTemplate,
                                                        PlatformDataUrlBuilder platformDataUrlBuilder, RestTemplate restTemplate) {
@@ -42,7 +52,13 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue");
+        sessionRepositoryInterceptor.setMatchingMessageTypes(EnumSet.of(SimpMessageType.CONNECT,
+                SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE,
+                SimpMessageType.UNSUBSCRIBE, SimpMessageType.HEARTBEAT));
+
+        config.enableSimpleBroker("/topic", "/queue")
+                .setTaskScheduler(new ConcurrentTaskScheduler())
+                .setHeartbeatValue(new long[]{10000,10000});
     }
 
 
