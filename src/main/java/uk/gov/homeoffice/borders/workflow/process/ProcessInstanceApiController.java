@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.process;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import javax.validation.Valid;
@@ -44,7 +46,7 @@ public class ProcessInstanceApiController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE )
     public ProcessInstanceDto createInstance(@RequestBody @Valid ProcessStartDto processStartDto, ShiftUser shiftUser)
-            throws Exception {
+            throws JsonProcessingException {
         log.info("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
         ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, shiftUser);
         return ProcessInstanceDto.fromProcessInstance(processInstance);
