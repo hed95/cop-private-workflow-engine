@@ -18,6 +18,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
 import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
 import org.springframework.session.web.socket.server.SessionRepositoryMessageInterceptor;
 import org.springframework.web.client.RestTemplate;
@@ -25,6 +27,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
+import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.security.SecurityConfig;
 
@@ -43,9 +46,18 @@ import static org.springframework.messaging.simp.SimpMessageType.*;
 @Profile("!test")
 public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<Session> {
 
-    @Autowired
-    SessionRepositoryMessageInterceptor sessionRepositoryInterceptor;
 
+    @Bean
+    public SessionRepositoryMessageInterceptor sessionRepositoryMessageInterceptor(RedisOperationsSessionRepository sessionRepository) {
+        SessionRepositoryMessageInterceptor sessionRepositoryMessageInterceptor = new SessionRepositoryMessageInterceptor(sessionRepository);
+        sessionRepositoryMessageInterceptor.setMatchingMessageTypes(EnumSet.of(SimpMessageType.CONNECT,
+                SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE,
+                SimpMessageType.UNSUBSCRIBE, SimpMessageType.HEARTBEAT));
+        return sessionRepositoryMessageInterceptor;
+    }
+
+    @Autowired
+    private SessionRepositoryMessageInterceptor sessionRepositoryMessageInterceptor;
 
     @Bean
     public UserTaskEventListener userTaskEventListener(SimpMessagingTemplate simpMessagingTemplate,
@@ -63,10 +75,6 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
         te.setThreadNamePrefix("wss-heartbeat-thread-");
         te.initialize();
 
-        sessionRepositoryInterceptor.setMatchingMessageTypes(EnumSet.of(SimpMessageType.CONNECT,
-                SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE,
-                SimpMessageType.UNSUBSCRIBE, SimpMessageType.HEARTBEAT));
-
         config.enableSimpleBroker("/topic", "/queue")
                 .setTaskScheduler(te)
                 .setHeartbeatValue(new long[]{heartbeatServer, heartbeatClient});
@@ -75,7 +83,9 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
 
     @Override
     public void configureStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint(SecurityConfig.WEB_SOCKET_TASKS).setAllowedOrigins("*").setHandshakeHandler(new AbstractHandshakeHandler() {
+        registry.addEndpoint(SecurityConfig.WEB_SOCKET_TASKS).setAllowedOrigins("*")
+                .addInterceptors(sessionRepositoryMessageInterceptor)
+                .setHandshakeHandler(new AbstractHandshakeHandler() {
             @Override
             protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
                 final KeycloakAuthenticationToken p = (KeycloakAuthenticationToken) super.determineUser(request, wsHandler, attributes);
