@@ -29,8 +29,10 @@ import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.security.SecurityConfig;
 
 import java.security.Principal;
+import java.sql.Time;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.messaging.simp.SimpMessageType.*;
 
@@ -89,7 +91,10 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
                     }
                 };
             }
-        }).withSockJS();
+        }).withSockJS()
+                .setHeartbeatTime(TimeUnit.SECONDS.toMillis(10))
+                .setDisconnectDelay(TimeUnit.SECONDS.toMillis(120));
+
     }
 
 
