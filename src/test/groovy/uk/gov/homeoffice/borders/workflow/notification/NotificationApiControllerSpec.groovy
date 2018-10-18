@@ -1,18 +1,20 @@
 package uk.gov.homeoffice.borders.workflow.notification
 
-import org.apache.http.HttpStatus
+
+import org.camunda.bpm.engine.delegate.TaskListener
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto
 import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
-import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
+import uk.gov.homeoffice.borders.workflow.task.TaskReference
 import uk.gov.homeoffice.borders.workflow.task.notifications.Notification
 import uk.gov.homeoffice.borders.workflow.task.notifications.Priority
 
 import static com.github.tomakehurst.wiremock.http.Response.response
-import static org.springframework.http.HttpStatus.*
+import static org.springframework.http.HttpStatus.OK
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -97,7 +99,7 @@ class NotificationApiControllerSpec extends BaseSpec {
         def asString = objectMapper.writeValueAsString(notification)
         def result = mvc.perform(post("/api/workflow/notifications").content(asString)
                 .contentType(MediaType.APPLICATION_JSON))
-        def processInstance = objectMapper.readValue(result.andReturn().response.content.toString(), ProcessInstanceDto)
+        def processInstance = objectMapper.readValue(result.andReturn().response.getContentAsString(), ProcessInstanceDto)
 
         when:
         def response = mvc.perform(delete("/api/workflow/notifications/${processInstance.id}?reason=test").content(asString)
@@ -105,6 +107,39 @@ class NotificationApiControllerSpec extends BaseSpec {
 
         then:
         response.andReturn().response.status == OK.value()
+    }
+
+
+    def 'can acknowledge a notification'() {
+        given:
+        def notification = createNotification()
+
+        and:
+        def user = createUser()
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+
+
+        and:
+        stubGetShift()
+        stubStaffView()
+
+        and:
+        def asString = objectMapper.writeValueAsString(notification)
+        def result = mvc.perform(post("/api/workflow/notifications").content(asString)
+                .contentType(MediaType.APPLICATION_JSON))
+        def processInstance = objectMapper.readValue(result.andReturn().response.getContentAsString(), ProcessInstanceDto)
+        def task = taskService.createTaskQuery().processInstanceId(processInstance.id).list().first()
+
+        when:
+        def response = mvc.perform(delete("/api/workflow/notifications/task/${task.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+        def taskReference = objectMapper.readValue(response.andReturn().response.getContentAsString(), TaskReference)
+
+        then:
+        taskReference
+        taskReference.id == task.id
+        taskReference.status == TaskListener.EVENTNAME_COMPLETE
+
     }
 
     private stubGetShift() {
