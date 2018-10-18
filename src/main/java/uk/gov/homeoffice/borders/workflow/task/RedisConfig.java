@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import static java.util.Optional.ofNullable;
 
 @Configuration
 @Profile("!test")
+@Slf4j
 public class RedisConfig {
 
 
@@ -28,6 +30,7 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
+        log.info("Initialising redis host: '{}' on port '{}'", redisHostName, redisPort);
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(5);
         poolConfig.setTestOnBorrow(true);
@@ -45,8 +48,12 @@ public class RedisConfig {
                 .poolConfig(poolConfig)
                 .build();
 
-        return new JedisConnectionFactory(redisStandaloneConfiguration,
+
+        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(redisStandaloneConfiguration,
                 jedisClientConfiguration);
+        log.info("Initialised redis: '{}' on port '{}'", redisHostName, redisPort);
+
+        return jedisConnectionFactory;
     }
 
 }
