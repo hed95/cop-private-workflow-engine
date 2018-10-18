@@ -11,11 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 public class KeycloakClient {
@@ -40,13 +45,14 @@ public class KeycloakClient {
 
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set("Authorization", authHeader());
 
         final HttpEntity<?> entity = new HttpEntity<>(body, headers);
 
         final ResponseEntity<KeycloakResult> result = restTemplate.postForEntity(authUrl, entity, KeycloakResult.class);
-        return result.getBody().getAccessToken();
+        return ofNullable(result.getBody()).map(KeycloakResult::getAccessToken)
+                .orElseThrow(() -> new InternalWorkflowException("Failed to get token from Keyclaok"));
     }
 
 
@@ -57,7 +63,7 @@ public class KeycloakClient {
     }
 
     @Data
-    public static class KeycloakResult {
+    private static class KeycloakResult {
         @JsonProperty("access_token")
         private String accessToken;
     }
