@@ -18,11 +18,11 @@ import static java.util.Optional.ofNullable;
 public class RedisConfig {
 
 
-    @Value("${redis.hostname:localhost}")
+    @Value("#{environment.PRIVATE_REDIS_NAME?:'localhost'}")
     public String redisHostName;
-    @Value("${redis.port:6379}")
+    @Value("#{environment.PRIVATE_REDIS_PORT?:6379}")
     public int redisPort;
-    @Value("${redis.authToken:#{null}}")
+    @Value("#{environment.PRIVATE_REDIS_PASSWORD}")
     private String redisAuthToken;
 
 
