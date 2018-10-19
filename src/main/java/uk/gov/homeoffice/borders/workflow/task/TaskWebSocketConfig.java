@@ -44,17 +44,7 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        long heartbeatServer = 10000;
-        long heartbeatClient = 10000;
-
-        ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
-        te.setPoolSize(2);
-        te.setThreadNamePrefix("wss-heartbeat-thread-");
-        te.initialize();
-
-        config.enableSimpleBroker("/topic", "/queue")
-                .setTaskScheduler(te)
-                .setHeartbeatValue(new long[]{heartbeatServer, heartbeatClient});
+        config.enableSimpleBroker("/topic", "/queue");
     }
 
 
