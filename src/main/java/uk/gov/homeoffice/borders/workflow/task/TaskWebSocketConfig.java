@@ -78,8 +78,8 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
                 };
             }
         }).withSockJS()
-                .setHeartbeatTime(TimeUnit.SECONDS.toMillis(10))
-                .setDisconnectDelay(TimeUnit.SECONDS.toMillis(120));
+                .setHeartbeatTime(TimeUnit.SECONDS.toMillis(5))
+                .setDisconnectDelay(TimeUnit.MINUTES.toMillis(4));
 
     }
 
