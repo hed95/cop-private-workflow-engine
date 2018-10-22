@@ -1,6 +1,6 @@
 workspace:
   base: /build
-  path: src/github.com/ukhomeoffice/borders-private-workflow-engine
+  path: src/github.com/ukhomeoffice/cop-private-workflow-engine
 
 pipeline:
   test:
