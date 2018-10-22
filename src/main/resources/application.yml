@@ -82,3 +82,5 @@ management:
 logging:
   pattern:
     level: "%X{mdcData}%5p"
+  level:
+    org.springframework.web.socket: DEBUG
