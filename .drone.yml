@@ -1,6 +1,6 @@
 workspace:
   base: /build
-  path: src/github.com/ukhomeoffice/borders-private-workflow-engine
+  path: src/github.com/ukhomeoffice/cop-private-workflow-engine
 
 pipeline:
   test:
@@ -52,10 +52,9 @@ pipeline:
       - docker_name
     commands:
     - docker login -u=$${DOCKER_USERNAME} -p=$${DOCKER_PASSWORD} $${DOCKER_SERVER}
-    - docker tag $${DOCKER_NAME} $${DOCKER_SERVER}/$${DOCKER_GROUP}/$${DOCKER_NAME}:latest
-    - docker push $${DOCKER_SERVER}/$${DOCKER_GROUP}/$${DOCKER_NAME}:latest
+    - docker tag $${DOCKER_NAME} $${DOCKER_SERVER}/$${DOCKER_GROUP}/$${DOCKER_NAME}:$${DRONE_COMMIT_BRANCH}
+    - docker push $${DOCKER_SERVER}/$${DOCKER_GROUP}/$${DOCKER_NAME}:$${DRONE_COMMIT_BRANCH}
     when:
-      branch: master
       event: push
 
   tag_image_to_quay:
