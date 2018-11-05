@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.task.comment;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +19,8 @@ public class CommentsConfig {
     public CommentsApplicationService commentsApplicationService(TaskService taskService,
                                                                  TaskChecker taskChecker,
                                                                  PlatformDataUrlBuilder platformDataUrlBuilder,
-                                                                 RestTemplate restTemplate) {
+                                                                 RestTemplate restTemplate, ObjectMapper objectMapper) {
         return new CommentsApplicationService(taskService, taskChecker, platformDataUrlBuilder,
-                restTemplate);
+                restTemplate, objectMapper);
     }
 }
