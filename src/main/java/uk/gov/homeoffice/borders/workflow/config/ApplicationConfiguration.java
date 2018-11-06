@@ -66,7 +66,6 @@ public class ApplicationConfiguration {
     public RestTemplate restTemplate(KeycloakClient keycloakClient, RestTemplateBuilder builder) {
         KeycloakBearerTokenInterceptor keycloakBearerTokenInterceptor =
                 new KeycloakBearerTokenInterceptor(keycloakClient);
-
         RestTemplate restTemplate = builder.build();
         restTemplate.getInterceptors().add(keycloakBearerTokenInterceptor);
         return restTemplate;
