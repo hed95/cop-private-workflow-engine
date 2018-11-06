@@ -66,8 +66,10 @@ public class ApplicationConfiguration {
     public RestTemplate restTemplate(KeycloakClient keycloakClient, RestTemplateBuilder builder) {
         KeycloakBearerTokenInterceptor keycloakBearerTokenInterceptor =
                 new KeycloakBearerTokenInterceptor(keycloakClient);
-        builder.additionalInterceptors(keycloakBearerTokenInterceptor);
-        return builder.build();
+
+        RestTemplate restTemplate = builder.build();
+        restTemplate.getInterceptors().add(keycloakBearerTokenInterceptor);
+        return restTemplate;
     }
 
     public  static class MDCContextTaskDecorator implements TaskDecorator {
