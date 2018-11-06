@@ -45,7 +45,8 @@ class ShiftApiControllerSpec extends BaseSpec {
                 status 200
                 body """
                         [{
-                          "shiftid": "shiftId"
+                          "shiftid": "shiftId",
+                          "enddatetime": "2018-11-06T16:23:26"
                         }]
                      """
                 headers {
