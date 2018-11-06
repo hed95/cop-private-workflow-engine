@@ -69,6 +69,10 @@ spring:
   http:
     converters:
       preferred-json-mapper: jackson
+  jackson:
+    date-format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
 
 management:
   endpoints:
@@ -84,3 +88,4 @@ logging:
     level: "%X{mdcData}%5p"
   level:
     org.springframework.web.socket: DEBUG
+

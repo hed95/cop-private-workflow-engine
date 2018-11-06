@@ -9,6 +9,7 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,13 +63,11 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public RestTemplate restTemplate(KeycloakClient keycloakClient) {
+    public RestTemplate restTemplate(KeycloakClient keycloakClient, RestTemplateBuilder builder) {
         KeycloakBearerTokenInterceptor keycloakBearerTokenInterceptor =
                 new KeycloakBearerTokenInterceptor(keycloakClient);
-        RestTemplate restTemplate = new RestTemplate();
-
-        restTemplate.getInterceptors().add(keycloakBearerTokenInterceptor);
-        return restTemplate;
+        builder.additionalInterceptors(keycloakBearerTokenInterceptor);
+        return builder.build();
     }
 
     public  static class MDCContextTaskDecorator implements TaskDecorator {
