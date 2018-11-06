@@ -115,7 +115,7 @@ class CommentsApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/taskcomment?taskid=eq.' + task.id
+                url '/taskcomment?taskid=eq.' + task.id + '&order=createdon.desc'
             }
             response {
                 status 201
