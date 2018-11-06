@@ -176,7 +176,7 @@ public class PlatformDataUrlBuilder {
                 .newInstance()
                 .uri(URI.create(platformDataBean.getUrl()))
                 .path(COMMENTS)
-                .query("taskid=eq.{taskId}")
+                .query("taskid=eq.{taskId}&order=createdon.desc")
                 .buildAndExpand(Collections.singletonMap("taskId", taskId))
                 .toString();
     }

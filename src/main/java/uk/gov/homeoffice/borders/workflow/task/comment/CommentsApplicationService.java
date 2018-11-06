@@ -44,7 +44,7 @@ public class CommentsApplicationService {
         if (comments == null) {
             return new ArrayList<>();
         }
-        return comments.stream().sorted(Comparator.comparing(TaskComment::getCreatedOn)).collect(Collectors.toList());
+        return comments;
     }
 
     public TaskComment create(ShiftUser user, TaskComment taskComment) {
