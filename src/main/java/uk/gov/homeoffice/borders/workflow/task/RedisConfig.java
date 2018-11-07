@@ -10,6 +10,7 @@ import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import redis.clients.jedis.JedisPoolConfig;
 
 import static java.util.Optional.ofNullable;
@@ -55,6 +56,11 @@ public class RedisConfig {
                 jedisClientConfiguration);
         log.info("Initialised redis: '{}' on port '{}'", redisHostName, redisPort);
         return jedisConnectionFactory;
+    }
+
+    @Bean
+    public static ConfigureRedisAction configureRedisAction() {
+        return ConfigureRedisAction.NO_OP;
     }
 
 }
