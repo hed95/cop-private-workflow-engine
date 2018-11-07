@@ -49,7 +49,7 @@ public class ProcessApplicationService {
      * @param pageable
      * @return paged result
      */
-    public Page<ProcessDefinition> processDefinitions(@NotNull ShiftUser user, Pageable pageable) {
+    Page<ProcessDefinition> processDefinitions(@NotNull ShiftUser user, Pageable pageable) {
         log.debug("Loading process definitions for '{}'", user.getEmail());
         List<ProcessDefinition> processDefinitions = repositoryService
                 .createProcessDefinitionQuery()
@@ -73,17 +73,17 @@ public class ProcessApplicationService {
      * @param processDefinitionId
      * @return form key
      */
-    public String formKey(String processDefinitionId) {
+    String formKey(String processDefinitionId) {
         return formService.getStartFormKey(processDefinitionId);
     }
 
-    public void delete(String processInstanceId, String reason) {
+    void delete(String processInstanceId, String reason) {
         runtimeService.deleteProcessInstance(processInstanceId, reason);
         log.info("Process instance '{}' deleted", processInstanceId);
     }
 
 
-    public ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull ShiftUser user) {
+    ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull ShiftUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
 
         Spin<?> spinObject = Spin.S(processStartDto.getData(), formatter);
@@ -101,7 +101,7 @@ public class ProcessApplicationService {
 
     }
 
-    public ProcessInstance getProcessInstance(@NotNull String processInstanceId, @NotNull ShiftUser user) {
+    ProcessInstance getProcessInstance(@NotNull String processInstanceId, @NotNull ShiftUser user) {
         log.info("ShiftUser '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         if (processInstance == null) {
@@ -115,7 +115,7 @@ public class ProcessApplicationService {
         return runtimeService.getVariablesTyped(processInstanceId, false);
     }
 
-    public ProcessDefinition getDefinition(String processKey) {
+    ProcessDefinition getDefinition(String processKey) {
         ProcessDefinition processDefinition = repositoryService
                 .createProcessDefinitionQuery()
                 .latestVersion()

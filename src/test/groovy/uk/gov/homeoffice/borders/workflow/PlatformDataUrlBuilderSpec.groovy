@@ -184,7 +184,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/taskcomment?taskid=eq.taskId'
+        url == 'http://localhost:9000/taskcomment?taskid=eq.taskId&order=createdon.desc'
     }
 
     def 'can get shift url by subcommand id'() {

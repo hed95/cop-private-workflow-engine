@@ -10,8 +10,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
+import org.springframework.session.Session;
+import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -22,6 +25,7 @@ import uk.gov.homeoffice.borders.workflow.security.SecurityConfig;
 
 import java.security.Principal;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.messaging.simp.SimpMessageType.*;
 
@@ -30,7 +34,7 @@ import static org.springframework.messaging.simp.SimpMessageType.*;
 @EnableWebSocketMessageBroker
 @Slf4j
 @Profile("!test")
-public class TaskWebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<Session> {
 
     @Bean
     public UserTaskEventListener userTaskEventListener(SimpMessagingTemplate simpMessagingTemplate,
@@ -40,13 +44,24 @@ public class TaskWebSocketConfig extends AbstractSecurityWebSocketMessageBrokerC
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue");
+        long heartbeatServer = 5000;
+        long heartbeatClient = 5000;
+
+        ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
+        te.setPoolSize(2);
+        te.setThreadNamePrefix("wss-heartbeat-thread-");
+        te.initialize();
+
+        config.enableSimpleBroker("/topic", "/queue")
+                .setTaskScheduler(te)
+                .setHeartbeatValue(new long[]{heartbeatServer, heartbeatClient});
     }
 
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint(SecurityConfig.WEB_SOCKET_TASKS).setAllowedOrigins("*").setHandshakeHandler(new AbstractHandshakeHandler(){
+    public void configureStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint(SecurityConfig.WEB_SOCKET_TASKS).setAllowedOrigins("*")
+                .setHandshakeHandler(new AbstractHandshakeHandler() {
             @Override
             protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
                 final KeycloakAuthenticationToken p = (KeycloakAuthenticationToken) super.determineUser(request, wsHandler, attributes);
@@ -62,20 +77,29 @@ public class TaskWebSocketConfig extends AbstractSecurityWebSocketMessageBrokerC
                     }
                 };
             }
-        }).withSockJS();
-    }
-
-    @Override
-    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-        messages.simpTypeMatchers(CONNECT, UNSUBSCRIBE, DISCONNECT, HEARTBEAT).permitAll()
-                .simpDestMatchers("/topic/**", "/queue/**", "/user/queue/**").authenticated()
-                .simpSubscribeDestMatchers("/topic/**", "/queue/**", "/user/queue/**").authenticated()
-                .anyMessage().denyAll();
+        }).withSockJS()
+                .setHeartbeatTime(TimeUnit.SECONDS.toMillis(5))
+                .setDisconnectDelay(TimeUnit.MINUTES.toMillis(4));
 
     }
 
-    @Override
-    protected boolean sameOriginDisabled() {
-        return true;
+
+    @Configuration
+    @Profile("!test")
+    public static class TaskWeSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+        @Override
+        protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+            messages.simpTypeMatchers(CONNECT, UNSUBSCRIBE, DISCONNECT, HEARTBEAT).permitAll()
+                    .simpDestMatchers("/topic/**", "/queue/**", "/user/queue/**").authenticated()
+                    .simpSubscribeDestMatchers("/topic/**", "/queue/**", "/user/queue/**").authenticated()
+                    .anyMessage().denyAll();
+
+        }
+
+        @Override
+        protected boolean sameOriginDisabled() {
+            return true;
+        }
+
     }
 }

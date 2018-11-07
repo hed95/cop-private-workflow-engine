@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,30 +47,39 @@ public class UserTaskEventListener extends ReactorTaskListener {
                     .map(IdentityLink::getGroupId)
                     .collect(toList());
 
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
+            final List<String> teamIds = new ArrayList<>();
+            if (!teamCodes.isEmpty()) {
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
 
-            List<Team> teams = restTemplate.exchange(platformDataUrlBuilder.teamByIds(teamCodes.toArray(new String[]{})),
-                    HttpMethod.GET, entity, new ParameterizedTypeReference<List<Team>>() {
-                    }).getBody();
+                List<Team> response = restTemplate.exchange(platformDataUrlBuilder.teamByIds(teamCodes.toArray(new String[]{})),
+                        HttpMethod.GET, entity, new ParameterizedTypeReference<List<Team>>() {
+                        }).getBody();
 
-            final List<String> teamIds = teams.stream()
-                    .filter(team -> !team.getTeamCode().equalsIgnoreCase("STAFF"))
-                    .map(Team::getId).collect(Collectors.toList());
-            log.info("teamids {}", teamIds);
+                if (response != null) {
+                    teamIds.addAll(response.stream()
+                            .filter(team -> !team.getTeamCode().equalsIgnoreCase("STAFF"))
+                            .map(Team::getId).collect(Collectors.toList()));
+                    log.info("teamids {}", teamIds);
+                }
+            }
 
             final String taskId = delegateTask.getId();
+            TaskReference taskReference = new TaskReference();
+            taskReference.setId(taskId);
+            taskReference.setStatus(delegateTask.getEventName());
+
             registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void afterCompletion(int status) {
                     super.afterCompletion(status);
                     ofNullable(assignee)
                             .ifPresent(a -> messagingTemplate.convertAndSendToUser(a,
-                                    "/queue/task", taskId));
+                                    "/queue/task", taskReference));
 
                     teamIds.forEach(team ->
-                            messagingTemplate.convertAndSend(format("/topic/task/%s", team), taskId));
+                            messagingTemplate.convertAndSend(format("/topic/task/%s", team), taskReference));
                 }
 
             });

@@ -18,7 +18,6 @@ public-ui:
 
 platform-data:
     url: ${PLATFORM_DATA_ENDPOINT_URL}
-    token: ${PLATFORM_DATA_TOKEN}
 
 gov:
   notify:
@@ -44,6 +43,7 @@ camunda:
     - file:///workflow-resources/bpmn/**/*.bpmn
     - file:///workflow-resources/cmmn/**/*.cmmn
     - file:///workflow-resources/dmn/**/*.dmn
+
 spring:
   datasource:
     driver-class-name: ${ENGINE_DB_DRIVER}
@@ -69,7 +69,10 @@ spring:
   http:
     converters:
       preferred-json-mapper: jackson
-
+  jackson:
+    date-format: "yyyy-MM-dd'T'HH:mm:ss"
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
 
 management:
   endpoints:
@@ -83,3 +86,6 @@ management:
 logging:
   pattern:
     level: "%X{mdcData}%5p"
+  level:
+    org.springframework.web.socket: DEBUG
+

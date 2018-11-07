@@ -1,6 +1,8 @@
 package uk.gov.homeoffice.borders.workflow.task.comment;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.TaskService;
@@ -29,6 +31,7 @@ public class CommentsApplicationService {
     private TaskChecker taskChecker;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
     private RestTemplate restTemplate;
+    private ObjectMapper objectMapper;
 
     public List<TaskComment> comments(@NotNull ShiftUser user, String taskId) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
@@ -41,7 +44,7 @@ public class CommentsApplicationService {
         if (comments == null) {
             return new ArrayList<>();
         }
-        return comments.stream().sorted(Comparator.comparing(TaskComment::getCreatedOn)).collect(Collectors.toList());
+        return comments;
     }
 
     public TaskComment create(ShiftUser user, TaskComment taskComment) {
@@ -60,7 +63,11 @@ public class CommentsApplicationService {
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-
+        try {
+            log.info("Task comment being sent '{}'", objectMapper.writeValueAsString(taskComment));
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to create json for task comment", e);
+        }
         restTemplate.exchange(platformDataUrlBuilder.comments(), HttpMethod.POST,
                 new HttpEntity<>(taskComment, httpHeaders), TaskComment.class, new HashMap<>());
 

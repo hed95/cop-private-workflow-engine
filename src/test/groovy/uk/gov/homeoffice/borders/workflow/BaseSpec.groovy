@@ -14,14 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Scope
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
@@ -36,7 +40,7 @@ import uk.gov.service.notify.NotificationClient
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = ["keycloak.enabled=false", "spring.datasource.name=testdbB"])
+        properties = ["keycloak.enabled=false", "spring.datasource.name=testdbB", "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"])
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @TestPropertySource(properties = ["GOV_NOTIFY_CLIENT_ID = XXXX",
@@ -161,8 +165,8 @@ abstract class BaseSpec extends Specification {
         @Bean
         @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
         @Primary
-        RestTemplate keycloakRestTemplate() {
-            return new RestTemplate()
+        RestTemplate keycloakRestTemplate(RestTemplateBuilder builder) {
+            return builder.build()
         }
 
 
