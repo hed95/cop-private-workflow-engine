@@ -46,13 +46,14 @@ public class RedisConfig {
                 .builder()
                 .usePooling()
                 .poolConfig(poolConfig)
+                .and()
+                .useSsl()
                 .build();
 
 
         JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(redisStandaloneConfiguration,
                 jedisClientConfiguration);
         log.info("Initialised redis: '{}' on port '{}'", redisHostName, redisPort);
-
         return jedisConnectionFactory;
     }
 
