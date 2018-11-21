@@ -47,8 +47,8 @@ public class RedisConfig {
                 .builder()
                 .usePooling()
                 .poolConfig(poolConfig)
-//                .and()
-//                .useSsl()
+                .and()
+                .useSsl()
                 .build();
 
 
