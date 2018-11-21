@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
+import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.slf4j.MDC;
@@ -13,6 +14,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.retry.annotation.EnableRetry;
@@ -23,6 +25,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.process.ProcessDefinitionAuthorizationParserPlugin;
 import uk.gov.homeoffice.borders.workflow.security.KeycloakClient;
 
 import java.util.ArrayList;
@@ -52,6 +55,12 @@ public class ApplicationConfiguration {
     @Bean
     public PlatformDataUrlBuilder platformDataQueryBuilder() {
         return new PlatformDataUrlBuilder(platformDataBean);
+    }
+
+    @Bean
+    @Order(Ordering.DEFAULT_ORDER - 1)
+    public ProcessDefinitionAuthorizationParserPlugin processDefinitionAuthorizationParserPlugin() {
+        return new ProcessDefinitionAuthorizationParserPlugin();
     }
 
     @Bean

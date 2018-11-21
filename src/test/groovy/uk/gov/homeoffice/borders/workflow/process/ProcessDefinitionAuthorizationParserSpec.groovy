@@ -21,7 +21,6 @@ class ProcessDefinitionAuthorizationParserSpec extends Specification {
         def processDefinitionEntity = new ProcessDefinitionStatisticsEntity()
         processDefinitionEntity.key = 'processDefinitionKey'
         processDefinitionEntity.candidateStarterGroupIdExpressions = [new FixedValue("custom_role")]
-        def processElement = null
         def query = Mock(AuthorizationQuery)
 
         and:
@@ -36,7 +35,7 @@ class ProcessDefinitionAuthorizationParserSpec extends Specification {
         authorizationService.createNewAuthorization(Authorization.AUTH_TYPE_GRANT) >> authorization
 
         when:
-        underTest.parseProcess(processElement, processDefinitionEntity)
+        underTest.parseProcess(processDefinitionEntity)
 
         then:
         1 * authorizationService.saveAuthorization(authorization)
@@ -48,7 +47,6 @@ class ProcessDefinitionAuthorizationParserSpec extends Specification {
         def processDefinitionEntity = new ProcessDefinitionStatisticsEntity()
         processDefinitionEntity.key = 'processDefinitionKey'
         processDefinitionEntity.candidateStarterGroupIdExpressions = [new FixedValue("custom_role")]
-        def processElement = null
         def query = Mock(AuthorizationQuery)
 
         and:
@@ -65,7 +63,7 @@ class ProcessDefinitionAuthorizationParserSpec extends Specification {
         authorizationService.createNewAuthorization(Authorization.AUTH_TYPE_GRANT) >> authorization
 
         when:
-        underTest.parseProcess(processElement, processDefinitionEntity)
+        underTest.parseProcess(processDefinitionEntity)
 
         then:
         1 * authorizationService.deleteAuthorization('previousId')
@@ -78,7 +76,7 @@ class ProcessDefinitionAuthorizationParserSpec extends Specification {
         processDefinitionEntity.key = null
 
         when:
-        underTest.parseProcess(null, processDefinitionEntity)
+        underTest.parseProcess(processDefinitionEntity)
 
         then:
         thrown(InternalWorkflowException)

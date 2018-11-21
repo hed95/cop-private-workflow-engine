@@ -15,7 +15,7 @@ import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import java.util.Arrays;
 
 @Slf4j
-public class ProcessDefinitionAuthorizationParser extends AbstractBpmnParseListener {
+public class ProcessDefinitionAuthorizationParser {
 
     private AuthorizationService authorizationService;
 
@@ -23,7 +23,7 @@ public class ProcessDefinitionAuthorizationParser extends AbstractBpmnParseListe
         this.authorizationService = authorizationService;
     }
 
-    public void parseProcess(Element processElement, ProcessDefinitionEntity processDefinition) {
+    public void parseProcess(ProcessDefinitionEntity processDefinition) {
         log.info("Processing authorization for '{}'", processDefinition.getKey());
         if (processDefinition.getKey() == null) {
             throw new InternalWorkflowException("Process definition " + processDefinition.getName() + " does not have a key");
