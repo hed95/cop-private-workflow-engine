@@ -61,6 +61,8 @@ public class CommentsApplicationService {
         if (taskComment.getCreatedOn() == null) {
             taskComment.setCreatedOn(DateTime.now().toDate());
         }
+        taskComment.setProcessInstanceId(task.getProcessInstanceId());
+
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         try {

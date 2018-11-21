@@ -27,7 +27,7 @@ public class PlatformDataUrlBuilder {
 
     private static final String SHIFT = "/shift";
     private static final String RPC_STAFF_DETAILS = "/rpc/staffdetails";
-    private static final String COMMENTS = "/taskcomment";
+    private static final String COMMENTS = "/comment";
     private static final String LOCATION = "/rf_location";
     private static final String TEAM = "/team";
     private static final String RPC_TEAM_CHILDREN ="/rpc/teamchildren";

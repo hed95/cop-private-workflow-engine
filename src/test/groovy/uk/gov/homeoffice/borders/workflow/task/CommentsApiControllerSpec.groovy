@@ -42,7 +42,7 @@ class CommentsApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/taskcomment'
+                url '/comment'
             }
 
             response {
@@ -101,7 +101,7 @@ class CommentsApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/taskcomment'
+                url '/comment'
             }
 
             response {
@@ -115,14 +115,14 @@ class CommentsApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/taskcomment?taskid=eq.' + task.id + '&order=createdon.desc'
+                url '/comment?taskid=eq.' + task.id + '&order=createdon.desc'
             }
             response {
                 status 201
                 body """ [
                          {
                                 "taskid" : "id",
-                                "taskcomment" : "message"
+                                "comment" : "message"
                               
                               }
                          ]
@@ -157,7 +157,7 @@ class CommentsApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/taskcomment'
+                url '/comment'
             }
 
             response {
@@ -198,7 +198,7 @@ class CommentsApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/taskcomment'
+                url '/comment'
             }
 
             response {
