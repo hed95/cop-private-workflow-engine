@@ -56,8 +56,8 @@ class UserServiceSpec extends Specification {
 
         wireMockStub.stub {
             request {
-                method 'GET'
-                url '/staffview?staffid=eq.staffid'
+                method 'POST'
+                url '/rpc/staffdetails'
             }
             response {
                 status: 200
@@ -455,8 +455,8 @@ class UserServiceSpec extends Specification {
 
         wireMockStub.stub {
             request {
-                method 'GET'
-                url '/staffview?staffid=eq.staffid'
+                method 'POST'
+                url '/rpc/staffdetails'
             }
             response {
                 status: 200
@@ -601,8 +601,8 @@ class UserServiceSpec extends Specification {
 
         wireMockStub.stub {
             request {
-                method 'GET'
-                url '/staffview?staffid=eq.staffid'
+                method 'POST'
+                url '/rpc/staffdetails'
             }
             response {
                 status: 200

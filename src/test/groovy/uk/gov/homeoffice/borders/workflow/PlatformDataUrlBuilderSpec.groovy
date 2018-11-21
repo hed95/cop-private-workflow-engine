@@ -134,15 +134,12 @@ class PlatformDataUrlBuilderSpec extends Specification {
     }
 
     def 'can get staff url'() {
-        given:
-        def staffId = "staffId"
-
-        when:
-        def url = underTest.getStaffUrl(staffId)
+       when:
+        def url = underTest.getStaffUrl()
 
         then:
         url
-        url == 'http://localhost:9000/staffview?staffid=eq.staffId'
+        url == 'http://localhost:9000/rpc/staffdetails'
     }
 
     def 'can get team children url'() {

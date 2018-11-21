@@ -117,6 +117,7 @@ abstract class BaseSpec extends Specification {
         user.teams = []
         team.teamCode = 'teamA'
         user.teams << team
+        user.roles =  ['custom_role']
         identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
         user
     }

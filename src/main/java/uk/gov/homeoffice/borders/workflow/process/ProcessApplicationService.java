@@ -2,9 +2,14 @@ package uk.gov.homeoffice.borders.workflow.process;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.AuthorizationService;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.authorization.Authorization;
+import org.camunda.bpm.engine.authorization.Permissions;
+import org.camunda.bpm.engine.authorization.Resources;
+import org.camunda.bpm.engine.impl.db.PermissionCheck;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.repository.ResourceDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -20,15 +25,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import uk.gov.homeoffice.borders.workflow.PageHelper;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import javax.validation.constraints.NotNull;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,25 +43,34 @@ public class ProcessApplicationService {
     private RuntimeService runtimeService;
     private FormService formService;
     private JacksonJsonDataFormat formatter;
+    private AuthorizationService authorizationService;
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
-    /**
-     * Returns the process definitions based on user qualifications and grades.
-     *
-     * @param user
-     * @param pageable
-     * @return paged result
-     */
+
     Page<ProcessDefinition> processDefinitions(@NotNull ShiftUser user, Pageable pageable) {
         log.debug("Loading process definitions for '{}'", user.getEmail());
-        List<ProcessDefinition> processDefinitions = repositoryService
+
+        if (CollectionUtils.isEmpty(user.getRoles())) {
+            log.info("Could not find any process definition authorizations based on user roles");
+            return new PageImpl<>(new ArrayList<>(),
+                    PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), 0);
+        }
+
+        String[] processDefinitionIds = authorizationService.createAuthorizationQuery()
+                .groupIdIn(user.getRoles().toArray(new String[]{}))
+                .resourceType(Resources.PROCESS_DEFINITION)
+                .list()
+                .stream()
+                .map(Authorization::getResourceId)
+                .toArray(String[]::new);
+
+        List<ProcessDefinition> definitions = repositoryService
                 .createProcessDefinitionQuery()
+                .processDefinitionKeysIn(processDefinitionIds)
                 .latestVersion()
                 .active()
-                .list();
-        List<ProcessDefinition> definitions = processDefinitions.stream()
-                .filter(p -> !p.getKey().equalsIgnoreCase("activate-shift")
-                        && !p.getKey().equalsIgnoreCase("notifications"))
+                .listPage(PAGE_HELPER.calculatePageNumber(pageable), pageable.getPageSize())
+                .stream()
                 .filter(ProcessDefinition::hasStartFormKey)
                 .sorted(Comparator.comparing(ResourceDefinition::getName))
                 .collect(Collectors.toList());

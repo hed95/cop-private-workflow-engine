@@ -22,6 +22,7 @@ public class ShiftUser implements org.camunda.bpm.engine.identity.User {
     private String email;
     @JsonProperty("qualificationtypes")
     private List<Qualification> qualifications = new ArrayList<>();
+    private List<String> roles = new ArrayList<>();
 
     @Override
     public void setPassword(String password) {

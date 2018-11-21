@@ -70,7 +70,6 @@ class TaskApiControllerSpec extends BaseSpec {
         then:
         result.andExpect(status().is2xxSuccessful())
 
-
     }
 
 
