@@ -2,6 +2,7 @@ package uk.gov.homeoffice.borders.workflow.process;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.AuthorizationService;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.RepositoryService;
@@ -71,8 +72,9 @@ public class ProcessApplicationService {
                 .active()
                 .listPage(PAGE_HELPER.calculatePageNumber(pageable), pageable.getPageSize())
                 .stream()
+                .filter((p) -> StringUtils.isNotBlank(p.getName()))
                 .filter(ProcessDefinition::hasStartFormKey)
-                .sorted(Comparator.comparing(ResourceDefinition::getName))
+                .sorted(Comparator.comparing(ProcessDefinition::getName))
                 .collect(Collectors.toList());
 
         return new PageImpl<>(definitions, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), definitions.size());
