@@ -2,6 +2,7 @@ package uk.gov.homeoffice.borders.workflow.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
@@ -24,11 +25,16 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.process.ProcessDefinitionAuthorizationParserPlugin;
 import uk.gov.homeoffice.borders.workflow.security.KeycloakClient;
+import uk.gov.homeoffice.borders.workflow.shift.ShiftUserMethodArgumentResolver;
+import uk.gov.homeoffice.borders.workflow.task.TaskFilterCriteriaMethodArgumentResolver;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -96,4 +102,18 @@ public class ApplicationConfiguration {
         }
     }
 
+    @Configuration
+    public static class MVCMethodConfig implements WebMvcConfigurer {
+
+        @Autowired
+        private IdentityService identityService;
+
+        @Override
+        public void addArgumentResolvers(
+                List<HandlerMethodArgumentResolver> argumentResolvers) {
+            argumentResolvers.add(new ShiftUserMethodArgumentResolver(identityService));
+            argumentResolvers.add(new TaskFilterCriteriaMethodArgumentResolver());
+
+        }
+    }
 }
