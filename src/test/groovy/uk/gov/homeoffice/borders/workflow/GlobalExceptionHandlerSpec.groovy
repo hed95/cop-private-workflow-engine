@@ -29,7 +29,7 @@ class GlobalExceptionHandlerSpec extends Specification {
         def result = underTest.handleForbiddenException(forbidden)
 
         then:
-        result.code == 401
+        result.code == 403
         result.message == 'Not allowed'
     }
 
