@@ -31,7 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.error("Unauthorised exception", e);
 
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setCode(UNAUTHORIZED.value());
+        errorResponse.setCode(FORBIDDEN.value());
         errorResponse.setMessage(e.getMessage());
         errorResponse.setPayload(e.getMessage());
         return errorResponse;

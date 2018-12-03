@@ -14,7 +14,7 @@ public class ShiftUser implements org.camunda.bpm.engine.identity.User {
     private String id;
     @JsonProperty("firstname")
     private String firstName;
-    @JsonProperty("lastname")
+    @JsonProperty("surname")
     private String lastName;
     private String grade;
     private String phone;
