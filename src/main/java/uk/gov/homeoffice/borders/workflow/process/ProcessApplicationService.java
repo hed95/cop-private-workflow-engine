@@ -56,6 +56,7 @@ public class ProcessApplicationService {
             return new PageImpl<>(new ArrayList<>(),
                     PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), 0);
         }
+        log.info("User '{}' current roles {}", user.getEmail(), user.getRoles());
 
         String[] processDefinitionIds = authorizationService.createAuthorizationQuery()
                 .groupIdIn(user.getRoles().toArray(new String[]{}))
