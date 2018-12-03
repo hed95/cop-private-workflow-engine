@@ -48,9 +48,10 @@ public class KeycloakClient {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set("Authorization", authHeader());
 
-        final HttpEntity<?> entity = new HttpEntity<>(body, headers);
+        final ResponseEntity<KeycloakResult> result = restTemplate.postForEntity(authUrl,
+                new HttpEntity<>(body, headers),
+                KeycloakResult.class);
 
-        final ResponseEntity<KeycloakResult> result = restTemplate.postForEntity(authUrl, entity, KeycloakResult.class);
         return ofNullable(result.getBody()).map(KeycloakResult::getAccessToken)
                 .orElseThrow(() -> new InternalWorkflowException("Failed to get token from Keyclaok"));
     }

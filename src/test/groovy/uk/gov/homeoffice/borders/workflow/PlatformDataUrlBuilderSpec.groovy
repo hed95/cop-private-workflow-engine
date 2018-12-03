@@ -134,15 +134,12 @@ class PlatformDataUrlBuilderSpec extends Specification {
     }
 
     def 'can get staff url'() {
-        given:
-        def staffId = "staffId"
-
-        when:
-        def url = underTest.getStaffUrl(staffId)
+       when:
+        def url = underTest.getStaffUrl()
 
         then:
         url
-        url == 'http://localhost:9000/staffview?staffid=eq.staffId'
+        url == 'http://localhost:9000/rpc/staffdetails'
     }
 
     def 'can get team children url'() {
@@ -172,7 +169,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/taskcomment'
+        url == 'http://localhost:9000/comment'
     }
 
     def 'can get url for comments for task'() {
@@ -184,7 +181,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/taskcomment?taskid=eq.taskId&order=createdon.desc'
+        url == 'http://localhost:9000/comment?taskid=eq.taskId&order=createdon.desc'
     }
 
     def 'can get shift url by subcommand id'() {

@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -62,10 +63,9 @@ public class UserService {
     private ShiftUser getStaff(final ShiftInfo shiftInfo) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(httpHeaders);
 
-        ResponseEntity<ShiftUser> response = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(shiftInfo.getStaffId()),
-                HttpMethod.GET, requestEntity, ShiftUser.class);
+        ResponseEntity<ShiftUser> response = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(),
+                HttpMethod.POST, new HttpEntity<>(Collections.singletonMap("argstaffid", shiftInfo.getStaffId()), httpHeaders), ShiftUser.class);
 
         return ofNullable(response.getBody()).map(user -> {
             List<Team> teams = restTemplate

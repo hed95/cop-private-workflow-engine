@@ -3,11 +3,13 @@ package uk.gov.homeoffice.borders.workflow.task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
+import org.camunda.bpm.engine.rest.dto.task.TaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
 import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
@@ -31,6 +33,7 @@ import uk.gov.homeoffice.borders.workflow.identity.Team;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -273,5 +276,17 @@ public class TaskApplicationService {
                 .onErrorReturn(new TasksCountDto())
                 .subscribeOn(Schedulers.elastic());
 
+    }
+
+    public void updateTask(String taskId, TaskDto taskDto, ShiftUser user) {
+        log.info("User {} has requested to update task {}", user.getEmail(), taskId);
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        if (task == null) {
+            throw new ResourceNotFound(String.format("Task %s does not exist", taskId));
+        }
+        if (taskDto.getDue() != null && taskDto.getDue() != task.getDueDate()) {
+            task.setDueDate(taskDto.getDue());
+        }
+        taskService.saveTask(task);
     }
 }

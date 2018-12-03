@@ -26,10 +26,13 @@ import static java.util.Optional.ofNullable;
 public class PlatformDataUrlBuilder {
 
     private static final String SHIFT = "/shift";
-    private static final String STAFFVIEW = "/staffview";
-    private static final String COMMENTS = "/taskcomment";
+    private static final String RPC_STAFF_DETAILS = "/rpc/staffdetails";
+    private static final String COMMENTS = "/comment";
     private static final String LOCATION = "/rf_location";
     private static final String TEAM = "/team";
+    private static final String RPC_TEAM_CHILDREN ="/rpc/teamchildren";
+    private static final String STAFFVIEW="/staffview";
+
 
     private PlatformDataBean platformDataBean;
 
@@ -74,7 +77,7 @@ public class PlatformDataUrlBuilder {
         Map<String, Object> variables = new HashMap<>();
         UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataBean.getUrl()))
-                .path("/team");
+                .path(TEAM);
 
         ofNullable(team.getName()).ifPresent(name -> {
             variables.put("name", name);
@@ -134,19 +137,18 @@ public class PlatformDataUrlBuilder {
 
     }
 
-    public String getStaffUrl(String staffId) {
+    public String getStaffUrl() {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataBean.getUrl()))
-                .path(STAFFVIEW)
-                .query("staffid=eq.{staffId}")
-                .buildAndExpand(Collections.singletonMap("staffId", staffId))
+                .path(RPC_STAFF_DETAILS)
+                .build()
                 .toString();
     }
 
     public String teamChildren() {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataBean.getUrl()))
-                .path("/rpc/teamchildren")
+                .path(RPC_TEAM_CHILDREN)
                 .build()
                 .toString();
     }

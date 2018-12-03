@@ -10,9 +10,8 @@ import java.util.Date;
 @Data
 public class TaskComment {
 
-    @JsonProperty("taskcommentid")
+    @JsonProperty("commentid")
     private String id;
-    @JsonProperty("taskcomment")
     @NotBlank
     @NotNull
     private String comment;
@@ -24,4 +23,9 @@ public class TaskComment {
     @JsonProperty("staffid")
     private String staffId;
     private String email;
+    @JsonProperty("teamid")
+    private String teamId;
+    @JsonProperty("processinstanceid")
+    private String processInstanceId;
+    private boolean restricted = false;
 }

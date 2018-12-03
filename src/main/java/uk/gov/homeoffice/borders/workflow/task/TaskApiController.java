@@ -2,8 +2,10 @@ package uk.gov.homeoffice.borders.workflow.task;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
+import org.camunda.bpm.engine.rest.dto.task.TaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
 import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
@@ -44,17 +46,9 @@ public class TaskApiController {
     private PagedResourcesAssembler<Task> pagedResourcesAssembler;
 
     @GetMapping
-    public PagedResources<TaskDtoResource> tasks(@RequestParam(required = false, defaultValue = "false") Boolean assignedToMeOnly,
-                                                 @RequestParam(required = false, defaultValue = "false") Boolean unassignedOnly,
-                                                 @RequestParam(required = false, defaultValue = "false") Boolean teamOnly,
-                                                 Pageable pageable, ShiftUser shiftUser) {
-
-
-        TaskCriteria taskCriteria = new TaskCriteria();
-        taskCriteria.setAssignedToMeOnly(assignedToMeOnly);
-        taskCriteria.setTeamOnly(teamOnly);
-        taskCriteria.setUnassignedOnly(unassignedOnly);
-
+    public PagedResources<TaskDtoResource> tasks(TaskCriteria taskCriteria,
+                                                 Pageable pageable,
+                                                 ShiftUser shiftUser) {
         Page<Task> page = applicationService.tasks(shiftUser, taskCriteria, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
@@ -117,6 +111,14 @@ public class TaskApiController {
         applicationService.completeTask(shiftUser, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
+    }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity update(@PathVariable String taskId,
+                                 TaskDto taskDto,
+                                 ShiftUser shiftUser) {
+        applicationService.updateTask(taskId, taskDto, shiftUser);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/{taskId}/form/_complete", consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -14,6 +14,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean;
+import uk.gov.homeoffice.borders.workflow.task.TaskFilterCriteriaMethodArgumentResolver;
 
 import java.util.List;
 
@@ -33,16 +34,4 @@ public class ShiftConfig {
     }
 
 
-    @Configuration
-    public static class ShiftUserMethodConfig implements WebMvcConfigurer {
-
-        @Autowired
-        private IdentityService identityService;
-
-        @Override
-        public void addArgumentResolvers(
-                List<HandlerMethodArgumentResolver> argumentResolvers) {
-            argumentResolvers.add(new ShiftUserMethodArgumentResolver(identityService));
-        }
-    }
 }

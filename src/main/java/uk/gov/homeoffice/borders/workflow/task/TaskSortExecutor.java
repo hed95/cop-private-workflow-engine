@@ -12,7 +12,7 @@ import static java.util.Optional.ofNullable;
 public class TaskSortExecutor {
 
     public void applySort(TaskQuery taskQuery, Sort sort) {
-        ofNullable(sort.getOrderFor("taskName")).ifPresent(s -> {
+        ofNullable(sort.getOrderFor("name")).ifPresent(s -> {
             if (s.isAscending()) {
                 taskQuery.orderByTaskName().asc();
             } else {
@@ -28,7 +28,7 @@ public class TaskSortExecutor {
             }
         });
 
-        ofNullable(sort.getOrderFor("dueDate")).ifPresent(s -> {
+        ofNullable(sort.getOrderFor("due")).ifPresent(s -> {
             if (s.isAscending()) {
                 taskQuery.orderByDueDate().asc();
             } else {

@@ -28,12 +28,12 @@ class TaskSortExecutorSpec extends Specification {
 
         where:
         field           | propertyName                      | direction                 | size
-        "taskName"      | "NAME_"                           | Direction.ASCENDING       | 1
+        "name"          | "NAME_"                           | Direction.ASCENDING       | 1
         "created"       | "CREATE_TIME_"                    | Direction.ASCENDING       | 1
-        "taskName"      | "NAME_"                           | Direction.DESCENDING      | 1
+        "name"          | "NAME_"                           | Direction.DESCENDING      | 1
         "created"       | "CREATE_TIME_"                    | Direction.DESCENDING      | 1
-        "dueDate"       | "DUE_DATE_"                       | Direction.DESCENDING      | 1
-        "dueDate"       | "DUE_DATE_"                       | Direction.ASCENDING       | 1
+        "due"           | "DUE_DATE_"                       | Direction.DESCENDING      | 1
+        "due"           | "DUE_DATE_"                       | Direction.ASCENDING       | 1
         "priority"      | "PRIORITY_"                       | Direction.ASCENDING       | 1
         "priority"      | "PRIORITY_"                       | Direction.DESCENDING      | 1
         "assignee"      | "ASSIGNEE_"                       | Direction.ASCENDING       | 1
