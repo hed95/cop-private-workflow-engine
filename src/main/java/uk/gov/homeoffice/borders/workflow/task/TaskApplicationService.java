@@ -278,7 +278,7 @@ public class TaskApplicationService {
 
     }
 
-    public void updateTask(String taskId, TaskDto taskDto, ShiftUser user) {
+    void updateTask(String taskId, TaskDto taskDto, ShiftUser user) {
         log.info("User {} has requested to update task {}", user.getEmail(), taskId);
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         if (task == null) {

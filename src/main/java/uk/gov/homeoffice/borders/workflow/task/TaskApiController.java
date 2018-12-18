@@ -115,7 +115,7 @@ public class TaskApiController {
 
     @PutMapping("/{taskId}")
     public ResponseEntity update(@PathVariable String taskId,
-                                 TaskDto taskDto,
+                                 @RequestBody TaskDto taskDto,
                                  ShiftUser shiftUser) {
         applicationService.updateTask(taskId, taskDto, shiftUser);
         return ResponseEntity.ok().build();
