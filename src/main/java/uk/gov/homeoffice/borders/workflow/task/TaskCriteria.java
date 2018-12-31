@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.task.TaskQuery;
 import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
@@ -24,4 +25,10 @@ class TaskCriteria {
     private Date createdBefore;
     private Date createdAfter;
 
+
+    void apply(TaskQuery taskQuery) {
+        if (StringUtils.isNotBlank(name)) {
+            taskQuery.taskNameLike("%" + name + "%");
+        }
+    }
 }

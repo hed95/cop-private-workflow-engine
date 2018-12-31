@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -69,7 +70,7 @@ public class TaskApplicationService {
         }
 
         long totalResults = taskQuery.count();
-        log.info("Total results for query '{}'", totalResults);
+        log.debug("Total results for query '{}'", totalResults);
 
         if (pageable.getSort() != null) {
             taskSortExecutor.applySort(taskQuery, pageable.getSort());
@@ -80,20 +81,22 @@ public class TaskApplicationService {
     }
 
     private TaskQuery createQuery(@NotNull ShiftUser user, TaskCriteria taskCriteria, TaskQuery taskQuery) {
+            taskCriteria.apply(taskQuery);
         if (taskCriteria.getAssignedToMeOnly()) {
-            taskQuery = taskQuery.taskAssignee(user.getEmail());
+             taskQuery.taskAssignee(user.getEmail());
         } else {
             List<String> teamCodes = resolveCandidateGroups(user);
             if (taskCriteria.getUnassignedOnly()) {
-                taskQuery = taskQuery.taskCandidateGroupIn(teamCodes)
+                taskQuery.taskCandidateGroupIn(teamCodes)
                         .taskUnassigned();
             } else if (taskCriteria.getTeamOnly()) {
-                taskQuery = taskQuery.taskCandidateGroupIn(teamCodes)
+                taskQuery.taskCandidateGroupIn(teamCodes)
                         .includeAssignedTasks();
             } else {
-                taskQuery = applyUserFilters(user, taskQuery);
+                applyUserFilters(user, taskQuery);
             }
         }
+
         return taskQuery;
     }
 
