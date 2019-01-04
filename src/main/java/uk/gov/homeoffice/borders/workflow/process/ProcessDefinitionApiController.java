@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_DEFINITION_ROOT_API;
 
@@ -33,8 +33,8 @@ public class ProcessDefinitionApiController {
     private PagedResourcesAssembler<ProcessDefinition> pagedResourcesAssembler;
 
     @GetMapping(value = PROCESS_DEFINITION_ROOT_API, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PagedResources<ProcessDefinitionDtoResource> processDefinitions(Pageable  pageable, ShiftUser shiftUser) {
-        Page<ProcessDefinition> page = processApplicationService.processDefinitions(shiftUser, pageable);
+    public PagedResources<ProcessDefinitionDtoResource> processDefinitions(Pageable  pageable, PlatformUser platformUser) {
+        Page<ProcessDefinition> page = processApplicationService.processDefinitions(platformUser, pageable);
         return pagedResourcesAssembler.toResource(page, processDefinitionDtoResourceAssembler);
     }
 

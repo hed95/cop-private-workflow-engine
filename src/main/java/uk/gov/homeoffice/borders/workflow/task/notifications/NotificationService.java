@@ -8,8 +8,6 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +15,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import uk.gov.homeoffice.borders.workflow.PageHelper;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery;
 import uk.gov.homeoffice.borders.workflow.identity.UserService;
-import uk.gov.homeoffice.borders.workflow.task.TaskApplicationService;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -46,14 +43,14 @@ public class NotificationService {
     private JacksonJsonDataFormat formatter;
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
-    Page<Task> getNotifications(@NotNull ShiftUser user, Pageable pageable, boolean countOnly) {
+    Page<Task> getNotifications(@NotNull PlatformUser user, Pageable pageable, boolean countOnly) {
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(NOTIFICATIONS)
                 .processVariableValueEquals("type", NOTIFICATIONS)
                 .taskAssignee(user.getEmail())
                 .orderByTaskCreateTime()
                 .desc();
-        Long totalCount = query.count();
+        long totalCount = query.count();
         if (countOnly) {
             return new PageImpl<>(new ArrayList<>(),
                     PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
@@ -64,14 +61,12 @@ public class NotificationService {
         List<Task> tasks = query
                 .listPage(pageNumber, pageable.getPageSize());
 
-        return new PageImpl<>(tasks,  PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalCount);
+        return new PageImpl<>(tasks, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalCount);
     }
 
 
     public ProcessInstance create(Notification notification) {
-        if (notification.getCommandId() == null &&
-                notification.getSubCommandId() == null &&
-                notification.getTeamId() == null && notification.getLocationId() == null) {
+        if (notification.getTeamId() == null && notification.getLocationId() == null) {
             throw new IllegalArgumentException("No command, team or location defined for notification");
         }
         UserQuery userQuery = new UserQuery();
@@ -79,15 +74,11 @@ public class NotificationService {
 
         if (notification.getTeamId() != null) {
             userQuery.memberOfGroup(notification.getTeamId());
-        } else if (notification.getLocationId() != null) {
-            userQuery.location(notification.getLocationId());
-        } else if (notification.getSubCommandId() != null) {
-            userQuery.subCommand(notification.getSubCommandId());
         } else {
-            userQuery.command(notification.getCommandId());
+            userQuery.location(notification.getLocationId());
         }
 
-        List<ShiftUser> candidateUsers = userService.findByQuery(userQuery);
+        List<PlatformUser> candidateUsers = userService.findByQuery(userQuery);
 
         List<Notification> notifications = candidateUsers.stream().map(u -> {
             Notification updated = new Notification();
@@ -95,7 +86,7 @@ public class NotificationService {
             updated.setSubject(notification.getSubject());
             updated.setPriority(notification.getPriority());
             updated.setEmail(u.getEmail());
-            updated.setMobile(u.getPhone());
+            updated.setMobile(u.getShiftDetails().getPhone());
             return updated;
 
         }).collect(toList());
@@ -116,13 +107,13 @@ public class NotificationService {
 
     }
 
-    public void cancel(String processInstanceId, String reason) {
+    void cancel(String processInstanceId, String reason) {
         if (runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).count() != 0) {
             runtimeService.deleteProcessInstance(processInstanceId, reason);
         }
     }
 
-    public String acknowledge(@NotNull ShiftUser user, String taskId) {
+    String acknowledge(@NotNull PlatformUser user, String taskId) {
         taskService.claim(taskId, user.getEmail());
         taskService.complete(taskId);
         log.info("Notification acknowledged.");

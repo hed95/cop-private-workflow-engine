@@ -16,12 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.task.TaskChecker;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
@@ -33,7 +32,7 @@ public class CommentsApplicationService {
     private RestTemplate restTemplate;
     private ObjectMapper objectMapper;
 
-    public List<TaskComment> comments(@NotNull ShiftUser user, String taskId) {
+    public List<TaskComment> comments(@NotNull PlatformUser user, String taskId) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         applyTaskCheck(user, task);
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -47,7 +46,7 @@ public class CommentsApplicationService {
         return comments;
     }
 
-    public TaskComment create(ShiftUser user, TaskComment taskComment) {
+    public TaskComment create(PlatformUser user, TaskComment taskComment) {
         Task task = taskService.createTaskQuery().taskId(taskComment.getTaskId()).singleResult();
         applyTaskCheck(user, task);
 
@@ -76,7 +75,7 @@ public class CommentsApplicationService {
         return taskComment;
     }
 
-    private void applyTaskCheck(ShiftUser user, Task task) {
+    private void applyTaskCheck(PlatformUser user, Task task) {
         if (task == null) {
             throw new ResourceNotFound("Task does not exist");
         }

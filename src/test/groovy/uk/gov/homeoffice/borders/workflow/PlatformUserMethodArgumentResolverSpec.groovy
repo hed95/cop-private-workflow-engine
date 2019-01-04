@@ -7,11 +7,11 @@ import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.ModelAndViewContainer
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.shift.ShiftUserMethodArgumentResolver
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
-class ShiftUserMethodArgumentResolverSpec extends Specification {
+class PlatformUserMethodArgumentResolverSpec extends Specification {
 
     def identityService = Mock(IdentityService)
 
@@ -19,7 +19,7 @@ class ShiftUserMethodArgumentResolverSpec extends Specification {
 
     def 'can get user'() {
         given:
-        def user = new ShiftUser()
+        def user = new PlatformUser()
         user.id ='id'
         user.email = 'email'
         user.teams = []

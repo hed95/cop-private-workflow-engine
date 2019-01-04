@@ -5,7 +5,7 @@ import org.joda.time.LocalDateTime
 import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
@@ -107,7 +107,7 @@ class ShiftApiControllerSpec extends BaseSpec {
 
         then:
         result.andExpect(status().is2xxSuccessful())
-        ShiftInfo shiftInfo = objectMapper.readValue(result.andReturn().response.contentAsString, ShiftInfo)
+        PlatformUser.ShiftDetails shiftInfo = objectMapper.readValue(result.andReturn().response.contentAsString, PlatformUser.ShiftDetails)
         shiftInfo
         shiftInfo.getCurrentLocationName() == 'current'
 
@@ -152,14 +152,11 @@ class ShiftApiControllerSpec extends BaseSpec {
 
     def '4xx client error thrown if shift has no start time'() {
         given:
-        def shiftInfo = new ShiftInfo()
+        def shiftInfo = new  PlatformUser.ShiftDetails()
         shiftInfo.setEmail("testEmail")
         shiftInfo.setStaffId(UUID.randomUUID().toString())
-        shiftInfo.setCommandId("commandid")
-        shiftInfo.setSubCommandId("subcommandid")
         shiftInfo.setTeamId("teamid")
         shiftInfo.setLocationId("locationid")
-        shiftInfo.setCurrentLocationId("current")
         shiftInfo.setPhone("phone")
         shiftInfo.setShiftHours(1)
         shiftInfo.setShiftMinutes(0)
@@ -172,15 +169,12 @@ class ShiftApiControllerSpec extends BaseSpec {
         result.andExpect(status().is4xxClientError())
     }
 
-    def '4xx client error thrown if shift has command id'() {
+    def '4xx client error thrown if shift has locationid id'() {
         given:
-        def shiftInfo = new ShiftInfo()
+        def shiftInfo = new  PlatformUser.ShiftDetails()
         shiftInfo.setEmail("testEmail")
         shiftInfo.setStaffId(UUID.randomUUID().toString())
-        shiftInfo.setSubCommandId("subcommandid")
         shiftInfo.setTeamId("teamid")
-        shiftInfo.setLocationId("locationid")
-        shiftInfo.setCurrentLocationId("current")
         shiftInfo.setPhone("phone")
         shiftInfo.setShiftHours(1)
         shiftInfo.setShiftMinutes(0)
@@ -195,13 +189,11 @@ class ShiftApiControllerSpec extends BaseSpec {
     }
 
     def '4xx client error thrown if shift has no team id'() {
-        def shiftInfo = new ShiftInfo()
+        def shiftInfo = new  PlatformUser.ShiftDetails()
         shiftInfo.setEmail("testEmail")
         shiftInfo.setStaffId(UUID.randomUUID().toString())
-        shiftInfo.setSubCommandId("subcommandid")
-        shiftInfo.setCommandId("commandId")
         shiftInfo.setLocationId("locationid")
-        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setLocationId("current")
         shiftInfo.setPhone("phone")
         shiftInfo.setShiftHours(1)
         shiftInfo.setShiftMinutes(0)
@@ -215,13 +207,11 @@ class ShiftApiControllerSpec extends BaseSpec {
         result.andExpect(status().is4xxClientError())
     }
     def '4xx client error thrown if shift has no email'() {
-        def shiftInfo = new ShiftInfo()
+        def shiftInfo = new  PlatformUser.ShiftDetails()
         shiftInfo.setStaffId(UUID.randomUUID().toString())
-        shiftInfo.setSubCommandId("subcommandid")
-        shiftInfo.setCommandId("commandid")
         shiftInfo.setTeamId("teamid")
         shiftInfo.setLocationId("locationid")
-        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setLocationId("current")
         shiftInfo.setPhone("phone")
         shiftInfo.setShiftHours(1)
         shiftInfo.setShiftMinutes(0)
@@ -236,14 +226,12 @@ class ShiftApiControllerSpec extends BaseSpec {
     }
 
     def '4xx client error thrown if shift has no phone'() {
-        def shiftInfo = new ShiftInfo()
+        def shiftInfo = new  PlatformUser.ShiftDetails()
         shiftInfo.setEmail("email")
         shiftInfo.setStaffId(UUID.randomUUID().toString())
-        shiftInfo.setSubCommandId("subcommandid")
-        shiftInfo.setCommandId("commandid")
         shiftInfo.setTeamId("teamid")
         shiftInfo.setLocationId("locationid")
-        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setLocationId("current")
         shiftInfo.setShiftHours(1)
         shiftInfo.setShiftMinutes(0)
         shiftInfo.setStartDateTime(LocalDateTime.now().toDate())
@@ -256,8 +244,8 @@ class ShiftApiControllerSpec extends BaseSpec {
         result.andExpect(status().is4xxClientError())
     }
 
-    ShiftUser logInUser() {
-        def user = new ShiftUser()
+    PlatformUser logInUser() {
+        def user = new PlatformUser()
         user.id = 'test'
         user.email = 'testEmail'
 
@@ -269,10 +257,8 @@ class ShiftApiControllerSpec extends BaseSpec {
         user
     }
 
-    ShiftInfo createActiveShift() {
-        ShiftInfo shiftInfo = new ShiftInfo()
-        shiftInfo.setCommandId("commandid")
-        shiftInfo.setSubCommandId("subcommandid")
+    PlatformUser.ShiftDetails createActiveShift() {
+        PlatformUser.ShiftDetails shiftInfo = new  PlatformUser.ShiftDetails()
         shiftInfo.setTeamId("teamId")
         shiftInfo.setLocationId("location")
         shiftInfo.setPhone("phone")
@@ -281,7 +267,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         shiftInfo.setStaffId(UUID.randomUUID().toString())
         shiftInfo.setShiftHours(1)
         shiftInfo.setShiftMinutes(0)
-        shiftInfo.setCurrentLocationId("current")
+        shiftInfo.setLocationId("current")
         shiftInfo
     }
 }

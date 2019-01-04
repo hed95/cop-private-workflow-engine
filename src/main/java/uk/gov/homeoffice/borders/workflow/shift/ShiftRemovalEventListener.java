@@ -11,8 +11,7 @@ import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
-import uk.gov.homeoffice.borders.workflow.shift.ShiftInfo;
-import uk.gov.homeoffice.borders.workflow.task.notifications.Notification;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import static org.camunda.bpm.engine.impl.pvm.PvmEvent.EVENTNAME_END;
 
@@ -39,7 +38,7 @@ public class ShiftRemovalEventListener extends ReactorExecutionListener {
             TypedValue notification = execution.
                     getVariableTyped("shiftInfo", true);
 
-            ShiftInfo shiftInfo = Spin.S(notification.getValue(), formatter).mapTo(ShiftInfo.class);
+            PlatformUser.ShiftDetails shiftInfo = Spin.S(notification.getValue(), formatter).mapTo(PlatformUser.ShiftDetails.class);
 
             String email = shiftInfo.getEmail();
             cacheManager.getCache("shifts").evict(email);

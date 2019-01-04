@@ -8,15 +8,10 @@ import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.authorization.Authorization;
-import org.camunda.bpm.engine.authorization.Permissions;
 import org.camunda.bpm.engine.authorization.Resources;
-import org.camunda.bpm.engine.impl.db.PermissionCheck;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.camunda.bpm.engine.repository.ResourceDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.variable.VariableMap;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +19,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import uk.gov.homeoffice.borders.workflow.PageHelper;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -48,18 +42,18 @@ public class ProcessApplicationService {
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
 
-    Page<ProcessDefinition> processDefinitions(@NotNull ShiftUser user, Pageable pageable) {
+    Page<ProcessDefinition> processDefinitions(@NotNull PlatformUser user, Pageable pageable) {
         log.debug("Loading process definitions for '{}'", user.getEmail());
 
-        if (CollectionUtils.isEmpty(user.getRoles())) {
+        if (CollectionUtils.isEmpty(user.getShiftDetails().getRoles())) {
             log.info("Could not find any process definition authorizations based on user roles");
             return new PageImpl<>(new ArrayList<>(),
                     PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), 0);
         }
-        log.info("User '{}' current roles {}", user.getEmail(), user.getRoles());
+        log.info("User '{}' current roles {}", user.getEmail(), user.getShiftDetails().getRoles());
 
         String[] processDefinitionIds = authorizationService.createAuthorizationQuery()
-                .groupIdIn(user.getRoles().toArray(new String[]{}))
+                .groupIdIn(user.getShiftDetails().getRoles().toArray(new String[]{}))
                 .resourceType(Resources.PROCESS_DEFINITION)
                 .list()
                 .stream()
@@ -98,8 +92,9 @@ public class ProcessApplicationService {
     }
 
 
-    ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull ShiftUser user) {
+    ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull PlatformUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
+
 
         Spin<?> spinObject = Spin.S(processStartDto.getData(), formatter);
 
@@ -116,8 +111,8 @@ public class ProcessApplicationService {
 
     }
 
-    ProcessInstance getProcessInstance(@NotNull String processInstanceId, @NotNull ShiftUser user) {
-        log.info("ShiftUser '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
+    ProcessInstance getProcessInstance(@NotNull String processInstanceId, @NotNull PlatformUser user) {
+        log.info("PlatformUser '{}' requested process instance '{}'", user.getEmail(), processInstanceId);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         if (processInstance == null) {
             throw new ResourceNotFound("Process instance not found");
@@ -125,8 +120,8 @@ public class ProcessApplicationService {
         return processInstance;
     }
 
-    public VariableMap variables(String processInstanceId, @NotNull ShiftUser user) {
-        log.info("ShiftUser '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
+    public VariableMap variables(String processInstanceId, @NotNull PlatformUser user) {
+        log.info("PlatformUser '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
         return runtimeService.getVariablesTyped(processInstanceId, false);
     }
 

@@ -1,8 +1,8 @@
 package uk.gov.homeoffice.borders.workflow.security;
 
 import org.camunda.bpm.engine.impl.identity.Authentication;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import static java.util.stream.Collectors.toList;
 public class WorkflowAuthentication extends Authentication {
     public static final String SERVICE_ROLE = "service_role";
 
-    private ShiftUser user;
+    private PlatformUser user;
 
     public WorkflowAuthentication() {
         super();
@@ -26,7 +26,7 @@ public class WorkflowAuthentication extends Authentication {
         super(authenticatedUserId, authenticatedGroupIds, authenticatedTenantIds);
     }
 
-    public WorkflowAuthentication(ShiftUser user) {
+    public WorkflowAuthentication(PlatformUser user) {
         super(user.getEmail(), user.getTeams().stream().map(Team::getTeamCode).collect(toList()), new ArrayList<>());
         this.user = user;
     }
@@ -35,7 +35,7 @@ public class WorkflowAuthentication extends Authentication {
         return this.getGroupIds().stream().filter(SERVICE_ROLE::equalsIgnoreCase).count() == 1;
     }
 
-    public ShiftUser getUser() {
+    public PlatformUser getUser() {
         return this.user;
     }
 

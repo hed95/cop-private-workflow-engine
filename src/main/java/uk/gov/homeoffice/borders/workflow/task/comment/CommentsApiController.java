@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,12 +22,12 @@ public class CommentsApiController {
     private CommentsApplicationService commentsApplicationService;
 
     @GetMapping(path = "/api/workflow/tasks/{taskId}/comments")
-    public List<TaskComment> comments(@PathVariable String taskId, ShiftUser shiftUser) {
-        return commentsApplicationService.comments(shiftUser, taskId);
+    public List<TaskComment> comments(@PathVariable String taskId, PlatformUser platformUser) {
+        return commentsApplicationService.comments(platformUser, taskId);
     }
 
     @PostMapping(path = "/api/workflow/tasks/comments", produces = "application/json", consumes = "application/json")
-    public TaskComment create(@RequestBody @Valid TaskComment commentDto, ShiftUser shiftUser) {
-        return commentsApplicationService.create(shiftUser, commentDto);
+    public TaskComment create(@RequestBody @Valid TaskComment commentDto, PlatformUser platformUser) {
+        return commentsApplicationService.create(platformUser, commentDto);
     }
 }

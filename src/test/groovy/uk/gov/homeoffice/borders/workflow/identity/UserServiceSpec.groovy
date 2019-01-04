@@ -68,6 +68,10 @@ class UserServiceSpec extends Specification {
                           "gradetypeid": "gradetypeid",
                           "firstname": "firstname",
                           "surname": "surname",
+                          "linemanagerid": "linemanagerid",
+                          "roles" : [
+                            "systemuser"
+                          ],
                           "qualificationtypes": [
                             {
                               "qualificationname": "dummy",
@@ -78,8 +82,7 @@ class UserServiceSpec extends Specification {
                               "qualificationtype": "2"
                             }
                           ],
-                          "staffid": "staffid",
-                          "gradename": "grade"
+                          "staffid": "staffid"
                         }
                      """
                 headers {
@@ -174,8 +177,7 @@ class UserServiceSpec extends Specification {
                               "qualificationtype": "2"
                             }
                           ],
-                          "staffid": "staffid",
-                          "gradename": "grade"
+                          "staffid": "staffid"
                         }]
                      """
                 headers {
@@ -193,154 +195,6 @@ class UserServiceSpec extends Specification {
         then:
         result
         !result.isEmpty()
-    }
-
-    def 'can find by command'() {
-        given:
-        wireMockStub.stub {
-            request {
-                method 'GET'
-                url '/shift?or=(subcommandid.eq.commandId,commandid.eq.commandId)'
-            }
-
-            response {
-                status 200
-                body """ [
-                            {
-                                "shiftid" : "id",
-                                "staffid" : "staffid",
-                                "teamid" : "teamId",
-                                "phone" : "phone",
-                                "email" : "email",
-                                "commandid": "commandId"
-                              }
-                         ]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-
-        }
-
-        wireMockStub.stub {
-            request {
-                method 'GET'
-                url '/staffview?staffid=in.(staffid)'
-            }
-            response {
-                status: 200
-                body """
-                       [{
-                          "phone": "phone",
-                          "email": "email",
-                          "gradetypeid": "gradetypeid",
-                          "firstname": "firstname",
-                          "surname": "surname",
-                          "qualificationtypes": [
-                            {
-                              "qualificationname": "dummy",
-                              "qualificationtype": "1"
-                            },
-                            {
-                              "qualificationname": "staff",
-                              "qualificationtype": "2"
-                            }
-                          ],
-                          "staffid": "staffid",
-                          "gradename": "grade"
-                        }]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-        }
-
-        when:
-        def query = new UserQuery()
-        query.command("commandId")
-        def result = userService.findByQuery(query)
-
-
-        then:
-        result
-        !result.isEmpty()
-
-    }
-
-    def 'can find by subcommand'() {
-        given:
-        wireMockStub.stub {
-            request {
-                method 'GET'
-                url '/shift?subcommandid=eq.subcommand'
-            }
-
-            response {
-                status 200
-                body """ [
-                            {
-                                "shiftid" : "id",
-                                "staffid" : "staffid",
-                                "teamid" : "teamId",
-                                "phone" : "phone",
-                                "email" : "email",
-                                "subcommandid": "subcommand"
-                              }
-                         ]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-
-        }
-
-        wireMockStub.stub {
-            request {
-                method 'GET'
-                url '/staffview?staffid=in.(staffid)'
-            }
-            response {
-                status: 200
-                body """
-                       [{
-                          "phone": "phone",
-                          "email": "email",
-                          "gradetypeid": "gradetypeid",
-                          "firstname": "firstname",
-                          "surname": "surname",
-                          "qualificationtypes": [
-                            {
-                              "qualificationname": "dummy",
-                              "qualificationtype": "1"
-                            },
-                            {
-                              "qualificationname": "staff",
-                              "qualificationtype": "2"
-                            }
-                          ],
-                          "staffid": "staffid",
-                          "gradename": "grade"
-                        }]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-        }
-
-        when:
-        def query = new UserQuery()
-        query.subCommand("subcommand")
-        def result = userService.findByQuery(query)
-
-
-        then:
-        result
-        !result.isEmpty()
-
     }
 
     def 'can find by location'() {

@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.task.TaskDtoResource;
 import uk.gov.homeoffice.borders.workflow.task.TaskDtoResourceAssembler;
 import uk.gov.homeoffice.borders.workflow.task.TaskReference;
@@ -60,8 +60,8 @@ public class NotificationsApiController {
 
 
     @DeleteMapping("/task/{taskId}")
-    public ResponseEntity<TaskReference> acknowledge(@PathVariable String taskId, ShiftUser shiftUser) {
-        String id = notificationService.acknowledge(shiftUser, taskId);
+    public ResponseEntity<TaskReference> acknowledge(@PathVariable String taskId, PlatformUser platformUser) {
+        String id = notificationService.acknowledge(platformUser, taskId);
         TaskReference taskReference = new TaskReference();
         taskReference.setId(id);
         taskReference.setStatus(TaskListener.EVENTNAME_COMPLETE);
@@ -71,8 +71,8 @@ public class NotificationsApiController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedResources<TaskDtoResource> notifications(Pageable pageable,
                                                          @RequestParam(required = false, defaultValue = "false") boolean countOnly,
-                                                         ShiftUser shiftUser) {
-        Page<Task> page = notificationService.getNotifications(shiftUser, pageable, countOnly);
+                                                         PlatformUser platformUser) {
+        Page<Task> page = notificationService.getNotifications(platformUser, pageable, countOnly);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 

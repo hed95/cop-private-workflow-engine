@@ -3,7 +3,6 @@ package uk.gov.homeoffice.borders.workflow.task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.TaskService;
@@ -21,21 +20,18 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.PageHelper;
 import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -59,7 +55,7 @@ public class TaskApplicationService {
      * @param pageable page object
      * @return paged result
      */
-    public Page<Task> tasks(@NotNull ShiftUser user, TaskCriteria taskCriteria, Pageable pageable) {
+    public Page<Task> tasks(@NotNull PlatformUser user, TaskCriteria taskCriteria, Pageable pageable) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", NOTIFICATIONS)
                 .initializeFormKeys();
@@ -80,7 +76,7 @@ public class TaskApplicationService {
         return new PageImpl<>(tasks, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
     }
 
-    private TaskQuery createQuery(@NotNull ShiftUser user, TaskCriteria taskCriteria, TaskQuery taskQuery) {
+    private TaskQuery createQuery(@NotNull PlatformUser user, TaskCriteria taskCriteria, TaskQuery taskQuery) {
             taskCriteria.apply(taskQuery);
         if (taskCriteria.getAssignedToMeOnly()) {
              taskQuery.taskAssignee(user.getEmail());
@@ -101,7 +97,7 @@ public class TaskApplicationService {
     }
 
 
-    private TaskQuery applyUserFilters(@NotNull ShiftUser user, TaskQuery taskQuery) {
+    private TaskQuery applyUserFilters(@NotNull PlatformUser user, TaskQuery taskQuery) {
         return taskQuery.or()
                 .taskAssignee(user.getEmail())
                 .taskCandidateGroupIn(resolveCandidateGroups(user))
@@ -110,7 +106,7 @@ public class TaskApplicationService {
     }
 
 
-    private List<String> resolveCandidateGroups(ShiftUser user) {
+    private List<String> resolveCandidateGroups(PlatformUser user) {
         return user.getTeams().stream().map(Team::getTeamCode).collect(toList());
     }
 
@@ -120,7 +116,7 @@ public class TaskApplicationService {
      * @param user
      * @param taskId
      */
-    void claimTask(@NotNull ShiftUser user, String taskId) {
+    void claimTask(@NotNull PlatformUser user, String taskId) {
         Task task = getTask(user, taskId);
         if (task.getAssignee() != null && !task.getAssignee().equalsIgnoreCase(user.getEmail())) {
             log.info("Task id '{}' was assigned to '{}'...now being reassigned to '{}'",
@@ -141,7 +137,7 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    void completeTask(@NotNull ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
+    void completeTask(@NotNull PlatformUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
 
@@ -161,14 +157,14 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    void completeTaskWithForm(@NotNull ShiftUser user, String taskId, CompleteTaskDto completeTaskDto) {
+    void completeTaskWithForm(@NotNull PlatformUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
         VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
         formService.submitTaskForm(task.getId(), variables);
     }
 
-    private void validateTaskCanBeCompletedByUser(ShiftUser user, Task task) {
+    private void validateTaskCanBeCompletedByUser(PlatformUser user, Task task) {
         if (!task.getAssignee().equalsIgnoreCase(user.getEmail())) {
             throw new ForbiddenException("Task cannot be completed by user");
         }
@@ -181,7 +177,7 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    Task getTask(@NotNull ShiftUser user, String taskId) {
+    Task getTask(@NotNull PlatformUser user, String taskId) {
         TaskQuery taskQuery = taskService.createTaskQuery()
                 .initializeFormKeys()
                 .taskId(taskId);
@@ -196,7 +192,7 @@ public class TaskApplicationService {
      * @param user
      * @param taskId
      */
-    void unclaim(@NotNull ShiftUser user, String taskId) {
+    void unclaim(@NotNull PlatformUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskService.setAssignee(task.getId(), null);
         log.info("Task '{}' unclaimed", taskId);
@@ -210,9 +206,9 @@ public class TaskApplicationService {
      * @param pageable
      * @return
      * @see TaskQueryDto
-     * @see ShiftUser
+     * @see PlatformUser
      */
-    public Page<Task> query(@NotNull ShiftUser user, TaskQueryDto queryDto, Pageable pageable) {
+    public Page<Task> query(@NotNull PlatformUser user, TaskQueryDto queryDto, Pageable pageable) {
         TaskQuery taskQuery = queryDto.toQuery(processEngine);
         taskQuery = applyUserFilters(user, taskQuery);
         long totalResults = taskQuery.count();
@@ -232,7 +228,7 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    VariableMap getVariables(@NotNull ShiftUser user, String taskId) {
+    VariableMap getVariables(@NotNull PlatformUser user, String taskId) {
         Task task = getTask(user, taskId);
         taskExistsCheck(taskId, task);
         return taskService.getVariablesTyped(task.getId(), false);
@@ -249,7 +245,7 @@ public class TaskApplicationService {
     }
 
 
-    Mono<TasksCountDto> taskCounts(ShiftUser user) {
+    Mono<TasksCountDto> taskCounts(PlatformUser user) {
 
         List<String> teamCodes = resolveCandidateGroups(user);
 
@@ -281,7 +277,7 @@ public class TaskApplicationService {
 
     }
 
-    void updateTask(String taskId, TaskDto taskDto, ShiftUser user) {
+    void updateTask(String taskId, TaskDto taskDto, PlatformUser user) {
         log.info("User {} has requested to update task {}", user.getEmail(), taskId);
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         if (task == null) {

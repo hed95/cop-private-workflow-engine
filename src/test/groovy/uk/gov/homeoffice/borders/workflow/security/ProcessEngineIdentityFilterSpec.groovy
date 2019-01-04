@@ -7,7 +7,7 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken
 import org.keycloak.representations.AccessToken
 import org.springframework.util.AntPathMatcher
 import spock.lang.Specification
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.UserQuery
 
 import javax.servlet.FilterChain
@@ -70,7 +70,7 @@ class ProcessEngineIdentityFilterSpec extends Specification {
         token.getEmail() >> 'email'
         realmAccess.getRoles() >> ['platform']
 
-        def user = new ShiftUser()
+        def user = new PlatformUser()
         user.id ='id'
         user.email = 'email'
         user.teams = []

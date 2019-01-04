@@ -6,15 +6,12 @@ import org.camunda.bpm.engine.rest.dto.VariableValueDto
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto
 import org.camunda.bpm.engine.task.Task
-import org.camunda.bpm.engine.variable.Variables
 import org.camunda.spin.Spin
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MvcResult
-import org.springframework.test.web.servlet.ResultHandler
 import uk.gov.homeoffice.borders.workflow.BaseSpec
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
@@ -292,7 +289,7 @@ class TaskApiControllerSpec extends BaseSpec {
         taskService.addCandidateGroup(task.id, 'anotherGroup')
 
         when:
-        def user = new ShiftUser()
+        def user = new PlatformUser()
         user.id = 'test'
         user.email = 'shiftUser@shiftUser.com'
         def team = new Team()

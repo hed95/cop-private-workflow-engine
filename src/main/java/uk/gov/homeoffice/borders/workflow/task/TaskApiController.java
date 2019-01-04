@@ -2,7 +2,6 @@ package uk.gov.homeoffice.borders.workflow.task;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
@@ -20,11 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.TASKS_ROOT_API;
@@ -48,15 +46,15 @@ public class TaskApiController {
     @GetMapping
     public PagedResources<TaskDtoResource> tasks(TaskCriteria taskCriteria,
                                                  Pageable pageable,
-                                                 ShiftUser shiftUser) {
-        Page<Task> page = applicationService.tasks(shiftUser, taskCriteria, pageable);
+                                                 PlatformUser platformUser) {
+        Page<Task> page = applicationService.tasks(platformUser, taskCriteria, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
     }
 
     @GetMapping("/{taskId}")
     @SuppressWarnings("unchecked")
     public CompletableFuture<TaskDtoResource> task(@PathVariable String taskId,
-                                                   @RequestParam(required = false, defaultValue = "false") Boolean includeVariables, ShiftUser user)  {
+                                                   @RequestParam(required = false, defaultValue = "false") Boolean includeVariables, PlatformUser user)  {
         Mono<Task> task = Mono
                 .fromCallable(() -> applicationService.getTask(user, taskId))
                 .subscribeOn(Schedulers.elastic());
@@ -87,28 +85,28 @@ public class TaskApiController {
     }
 
     @GetMapping("/{taskId}/variables")
-    public Map<String, VariableValueDto> variables(@PathVariable String taskId, ShiftUser shiftUser) {
-        VariableMap variables = applicationService.getVariables(shiftUser, taskId);
+    public Map<String, VariableValueDto> variables(@PathVariable String taskId, PlatformUser platformUser) {
+        VariableMap variables = applicationService.getVariables(platformUser, taskId);
         return VariableValueDto.fromVariableMap(variables);
     }
 
     @PostMapping
-    public PagedResources<TaskDtoResource> query(@RequestBody TaskQueryDto queryDto, Pageable pageable, ShiftUser shiftUser) {
-        Page<Task> page = applicationService.query(shiftUser, queryDto, pageable);
+    public PagedResources<TaskDtoResource> query(@RequestBody TaskQueryDto queryDto, Pageable pageable, PlatformUser platformUser) {
+        Page<Task> page = applicationService.query(platformUser, queryDto, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
 
     }
 
     @PostMapping("/{taskId}/_claim")
-    public ResponseEntity claim(@PathVariable String taskId, ShiftUser shiftUser) {
-        applicationService.claimTask(shiftUser, taskId);
+    public ResponseEntity claim(@PathVariable String taskId, PlatformUser platformUser) {
+        applicationService.claimTask(platformUser, taskId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{taskId}/_complete")
     public ResponseEntity complete(@PathVariable String taskId, @RequestBody(required = false)
-            CompleteTaskDto completeTaskDto, ShiftUser shiftUser) {
-        applicationService.completeTask(shiftUser, taskId, completeTaskDto);
+            CompleteTaskDto completeTaskDto, PlatformUser platformUser) {
+        applicationService.completeTask(platformUser, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }
@@ -116,28 +114,28 @@ public class TaskApiController {
     @PutMapping("/{taskId}")
     public ResponseEntity update(@PathVariable String taskId,
                                  @RequestBody TaskDto taskDto,
-                                 ShiftUser shiftUser) {
-        applicationService.updateTask(taskId, taskDto, shiftUser);
+                                 PlatformUser platformUser) {
+        applicationService.updateTask(taskId, taskDto, platformUser);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/{taskId}/form/_complete", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto,
-                                           ShiftUser user) {
+                                           PlatformUser user) {
         applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }
 
     @PostMapping("/{taskId}/_unclaim")
-    public ResponseEntity unclaim(@PathVariable String taskId, ShiftUser shiftUser) {
-        applicationService.unclaim(shiftUser, taskId);
+    public ResponseEntity unclaim(@PathVariable String taskId, PlatformUser platformUser) {
+        applicationService.unclaim(platformUser, taskId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/_task-counts")
-    public CompletableFuture<TasksCountDto> taskCounts(ShiftUser shiftUser) {
-        return applicationService.taskCounts(shiftUser).toFuture();
+    public CompletableFuture<TasksCountDto> taskCounts(PlatformUser platformUser) {
+        return applicationService.taskCounts(platformUser).toFuture();
     }
 
 
