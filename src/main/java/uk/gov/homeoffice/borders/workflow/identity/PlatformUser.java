@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -10,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class PlatformUser implements org.camunda.bpm.engine.identity.User {
 
 
@@ -69,6 +71,7 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
     }
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class ShiftDetails {
 
         @JsonProperty("staffid")
@@ -94,6 +97,7 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
         private Integer shiftHours;
         @JsonProperty("shiftminutes")
         private Integer shiftMinutes;
+
         private String currentLocationName;
         private List<String> roles = new ArrayList<>();
     }
