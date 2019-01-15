@@ -79,6 +79,7 @@ public class ProcessApplicationService {
 
     /**
      * Get form key for given process definition key
+     *
      * @param processDefinitionId
      * @return form key
      */
@@ -101,9 +102,18 @@ public class ProcessApplicationService {
         Map<String, Object> variables = new HashMap<>();
         variables.put(processStartDto.getVariableName(), spinObject);
         variables.put("type", "non-notifications");
+        variables.put("initiatedBy", user.getEmail());
 
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
-                variables);
+        ProcessInstance processInstance;
+
+        if (processStartDto.getBusinessKey().isPresent()) {
+            processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
+                    processStartDto.getBusinessKey().get(),
+                    variables);
+        } else {
+            processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
+                    variables);
+        }
         log.info("'{}' was successfully started with id '{}' by '{}'", processStartDto.getProcessKey(),
                 processInstance.getProcessInstanceId(), user.getEmail());
 
