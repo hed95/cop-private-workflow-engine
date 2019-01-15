@@ -15,7 +15,7 @@ public class ProcessStartDto {
     private String variableName;
     @NotNull
     private Object data;
-    private Optional<String> businessKey;
+    private String businessKey;
 }
 
 

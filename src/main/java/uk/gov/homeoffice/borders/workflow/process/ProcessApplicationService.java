@@ -106,9 +106,9 @@ public class ProcessApplicationService {
 
         ProcessInstance processInstance;
 
-        if (processStartDto.getBusinessKey().isPresent()) {
+        if (StringUtils.isNotBlank(processStartDto.getBusinessKey())) {
             processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
-                    processStartDto.getBusinessKey().get(),
+                    processStartDto.getBusinessKey(),
                     variables);
         } else {
             processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
