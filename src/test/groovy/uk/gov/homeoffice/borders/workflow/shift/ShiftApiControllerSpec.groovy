@@ -127,6 +127,15 @@ class ShiftApiControllerSpec extends BaseSpec {
                 status 200
             }
         }
+        wireMockStub.stub {
+            request {
+                method 'PATCH'
+                url '/shifthistory?shifthistoryid=eq.xxxxx'
+            }
+            response {
+                status 200
+            }
+        }
         and:
         deleteShift()
 
@@ -138,6 +147,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         and:
         def instance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(shift.email).singleResult()
         runtimeService.setVariable(instance.processInstanceId, "shiftId", "xxxxx")
+        runtimeService.setVariable(instance.processInstanceId, "shiftHistoryId", "xxxxx")
 
         when:
         def result = mvc.perform(delete('/api/workflow/shift/testEmail?deletedReason=notNeeded'))

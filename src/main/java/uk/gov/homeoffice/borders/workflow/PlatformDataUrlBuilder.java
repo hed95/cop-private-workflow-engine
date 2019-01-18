@@ -26,6 +26,7 @@ import static java.util.Optional.ofNullable;
 public class PlatformDataUrlBuilder {
 
     private static final String SHIFT = "/shift";
+    private static final String SHIFT_HISTORY = "/shifthistory";
     private static final String RPC_STAFF_DETAILS = "/rpc/staffdetails";
     private static final String COMMENTS = "/comment";
     private static final String LOCATION = "/rf_location";
@@ -44,11 +45,21 @@ public class PlatformDataUrlBuilder {
                 .buildAndExpand(Collections.singletonMap("email", email))
                 .toUriString();
     }
+
     public String shiftUrlById(String id) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataBean.getUrl()))
                 .path(SHIFT)
                 .query("shiftid=eq.{id}")
+                .buildAndExpand(Collections.singletonMap("id", id))
+                .toString();
+    }
+
+    public String shiftHistoryById(String id) {
+        return UriComponentsBuilder.newInstance()
+                .uri(URI.create(platformDataBean.getUrl()))
+                .path(SHIFT_HISTORY)
+                .query("shifthistoryid=eq.{id}")
                 .buildAndExpand(Collections.singletonMap("id", id))
                 .toString();
     }
@@ -155,7 +166,7 @@ public class PlatformDataUrlBuilder {
     }
 
     public String comments() {
-         return UriComponentsBuilder
+        return UriComponentsBuilder
                 .newInstance()
                 .uri(URI.create(platformDataBean.getUrl()))
                 .path(COMMENTS)
