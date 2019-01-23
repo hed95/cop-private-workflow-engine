@@ -14,6 +14,8 @@ import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.engine.variable.VariableMap;
+import org.camunda.spin.Spin;
+import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,7 +32,9 @@ import uk.gov.homeoffice.borders.workflow.identity.Team;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -45,6 +49,7 @@ public class TaskApplicationService {
     private ProcessEngine processEngine;
     private FormService formService;
     private ObjectMapper objectMapper;
+    private JacksonJsonDataFormat formatter;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
@@ -149,6 +154,19 @@ public class TaskApplicationService {
             taskService.complete(task.getId(), variables);
         }
     }
+
+    void completeTask(@NotNull PlatformUser user, String taskId, TaskCompleteDto completeTaskDto) {
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        if (task == null) {
+            throw new ResourceNotFound(String.format("%s cannot be found", taskId));
+        }
+        Spin<?> spinObject = Spin.S(completeTaskDto.getData(), formatter);
+        Map<String, Object> variables = new HashMap<>();
+        variables.put(completeTaskDto.getVariableName(), spinObject);
+        taskService.complete(task.getId(), variables);
+        log.info("task completed by {}", user.getEmail());
+    }
+
 
     /**
      * Complete task with form data

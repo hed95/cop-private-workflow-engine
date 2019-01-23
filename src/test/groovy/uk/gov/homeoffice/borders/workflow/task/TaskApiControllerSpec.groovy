@@ -386,6 +386,48 @@ class TaskApiControllerSpec extends BaseSpec {
         variable.value == 'test'
 
     }
+    def 'can complete task with TaskCompleteDto'() {
+        given:
+        createTasks(1, 'email')
+        and:
+        logInUser()
+
+        and:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        def task = list.first()
+
+        and:
+        def variables = new TaskCompleteDto()
+        variables.variableName = 'testVariableName'
+        def data = new Data()
+        data.candidateGroup = "teamA"
+        data.name = "test 0"
+        data.description = "test 0"
+
+        variables.data = data
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/${task.id}/complete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(variables)))
+
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        and:
+        def reloded = historyService.createHistoricTaskInstanceQuery()
+                .taskId(task.id).singleResult()
+
+        def variable = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(reloded.processInstanceId)
+                .variableName("testVariableName")
+                .singleResult()
+
+        variable.name == 'testVariableName'
+        variable.value.toString() == '{"assignee":null,"candidateGroup":"teamA","name":"test 0","description":"test 0"}'
+
+    }
 
 
 }
