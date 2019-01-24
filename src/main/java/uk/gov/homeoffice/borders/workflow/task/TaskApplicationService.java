@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
@@ -50,6 +51,7 @@ public class TaskApplicationService {
     private FormService formService;
     private ObjectMapper objectMapper;
     private JacksonJsonDataFormat formatter;
+    private RuntimeService runtimeService;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
@@ -163,7 +165,8 @@ public class TaskApplicationService {
         Spin<?> spinObject = Spin.S(completeTaskDto.getData(), formatter);
         Map<String, Object> variables = new HashMap<>();
         variables.put(completeTaskDto.getVariableName(), spinObject);
-        taskService.complete(task.getId(), variables);
+        runtimeService.setVariables(task.getProcessInstanceId(), variables);
+        taskService.complete(task.getId());
         log.info("task completed by {}", user.getEmail());
     }
 

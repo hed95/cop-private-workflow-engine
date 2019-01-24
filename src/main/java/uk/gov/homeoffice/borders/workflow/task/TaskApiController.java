@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
@@ -42,6 +43,7 @@ public class TaskApiController {
     private TaskApplicationService applicationService;
     private TaskDtoResourceAssembler taskDtoResourceAssembler;
     private PagedResourcesAssembler<Task> pagedResourcesAssembler;
+    private ObjectMapper objectMapper;
 
     @GetMapping
     public PagedResources<TaskDtoResource> tasks(TaskCriteria taskCriteria,
@@ -112,7 +114,8 @@ public class TaskApiController {
 
     @PostMapping("/{taskId}/complete")
     public ResponseEntity completeTask(@PathVariable String taskId, @RequestBody(required = false)
-            TaskCompleteDto completeTaskDto, PlatformUser platformUser) {
+            TaskCompleteDto completeTaskDto, PlatformUser platformUser) throws Exception {
+        log.info("Task completed with variables {}", objectMapper.writeValueAsString(completeTaskDto));
         applicationService.completeTask(platformUser, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
