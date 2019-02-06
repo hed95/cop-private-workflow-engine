@@ -10,12 +10,10 @@ import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import javax.validation.Valid;
 import java.util.Map;
@@ -45,22 +43,22 @@ public class ProcessInstanceApiController {
     @PostMapping(
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE )
-    public ProcessInstanceDto createInstance(@RequestBody @Valid ProcessStartDto processStartDto, ShiftUser shiftUser)
+    public ProcessInstanceDto createInstance(@RequestBody @Valid ProcessStartDto processStartDto, PlatformUser platformUser)
             throws JsonProcessingException {
         log.info("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
-        ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, shiftUser);
+        ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, platformUser);
         return ProcessInstanceDto.fromProcessInstance(processInstance);
 
     }
 
     @GetMapping(value = "/{processInstanceId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    private ProcessInstanceDto processInstance(@PathVariable String processInstanceId, ShiftUser shiftUser) {
-        ProcessInstance processInstance = processApplicationService.getProcessInstance(processInstanceId, shiftUser);
+    private ProcessInstanceDto processInstance(@PathVariable String processInstanceId, PlatformUser platformUser) {
+        ProcessInstance processInstance = processApplicationService.getProcessInstance(processInstanceId, platformUser);
         return ProcessInstanceDto.fromProcessInstance(processInstance);
     }
     @GetMapping(value = "/{processInstanceId}/variables", produces = MediaType.APPLICATION_JSON_VALUE)
-    private Map<String, VariableValueDto> variables(@PathVariable String processInstanceId, ShiftUser shiftUser) {
-        VariableMap variables = processApplicationService.variables(processInstanceId, shiftUser);
+    private Map<String, VariableValueDto> variables(@PathVariable String processInstanceId, PlatformUser platformUser) {
+        VariableMap variables = processApplicationService.variables(processInstanceId, platformUser);
         return VariableValueDto.fromVariableMap(variables);
     }
 }

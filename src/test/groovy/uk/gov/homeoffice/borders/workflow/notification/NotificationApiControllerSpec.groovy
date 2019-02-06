@@ -6,7 +6,7 @@ import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto
 import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.homeoffice.borders.workflow.task.TaskReference
@@ -34,7 +34,6 @@ class NotificationApiControllerSpec extends BaseSpec {
 
         and:
         stubGetShift()
-        stubStaffView()
 
 
         when:
@@ -62,7 +61,6 @@ class NotificationApiControllerSpec extends BaseSpec {
 
         and:
         stubGetShift()
-        stubStaffView()
 
 
         and:
@@ -93,7 +91,6 @@ class NotificationApiControllerSpec extends BaseSpec {
 
         and:
         stubGetShift()
-        stubStaffView()
 
         and:
         def asString = objectMapper.writeValueAsString(notification)
@@ -121,7 +118,6 @@ class NotificationApiControllerSpec extends BaseSpec {
 
         and:
         stubGetShift()
-        stubStaffView()
 
         and:
         def asString = objectMapper.writeValueAsString(notification)
@@ -155,7 +151,9 @@ class NotificationApiControllerSpec extends BaseSpec {
                                 "shiftid" : "id",
                                 "staffid" : "staffid",
                                 "teamid" : "teamid",
-                                "phone" : "phone"
+                                "phone" : "phone",
+                                "email" : "email"
+                                
                               }
                          ]
                      """
@@ -166,41 +164,6 @@ class NotificationApiControllerSpec extends BaseSpec {
         }
     }
 
-    private stubStaffView() {
-        wireMockStub.stub {
-            request {
-                method 'GET'
-                url '/staffview?staffid=in.(staffid)'
-            }
-            response {
-                status: 200
-                body """
-                        [{
-                          "phone": "phone",
-                          "email": "email",
-                          "gradetypeid": "gradetypeid",
-                          "firstname": "firstname",
-                          "surname": "surname",
-                          "qualificationtypes": [
-                            {
-                              "qualificationname": "dummy",
-                              "qualificationtype": "1"
-                            },
-                            {
-                              "qualificationname": "staff",
-                              "qualificationtype": "2"
-                            }
-                          ],
-                          "staffid": "staffid",
-                          "gradename": "grade"
-                        }]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-        }
-    }
 
     Notification createNotification() {
         def notification = new Notification()
@@ -216,8 +179,8 @@ class NotificationApiControllerSpec extends BaseSpec {
     }
 
 
-    ShiftUser createUser() {
-        def user = new ShiftUser()
+    PlatformUser createUser() {
+        def user = new PlatformUser()
         user.email = 'email'
         def team = new Team()
         user.teams = []

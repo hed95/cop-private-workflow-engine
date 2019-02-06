@@ -3,7 +3,6 @@ package uk.gov.homeoffice.borders.workflow.shift;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,10 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
@@ -39,7 +38,7 @@ public class ShiftApiController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> startShift(@RequestBody @Valid ShiftInfo shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Void> startShift(@RequestBody @Valid ShiftDetails shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
 
         String email = shiftInfo.getEmail();
         log.info("Request to create shift for '{}'", email);
@@ -54,8 +53,8 @@ public class ShiftApiController {
     }
 
     @GetMapping(path={"/{email}", ""}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ShiftInfo shiftInfo(@PathVariable(required = false) String email, ShiftUser shiftUser) {
-        String userId = ofNullable(email).orElse(shiftUser.getEmail());
+    public ShiftDetails shiftInfo(@PathVariable(required = false) String email, PlatformUser platformUser) {
+        String userId = ofNullable(email).orElse(platformUser.getEmail());
         return shiftApplicationService.getShiftInfo(userId);
     }
 

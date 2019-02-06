@@ -6,15 +6,12 @@ import org.camunda.bpm.engine.rest.dto.VariableValueDto
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto
 import org.camunda.bpm.engine.task.Task
-import org.camunda.bpm.engine.variable.Variables
 import org.camunda.spin.Spin
 import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MvcResult
-import org.springframework.test.web.servlet.ResultHandler
 import uk.gov.homeoffice.borders.workflow.BaseSpec
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
@@ -292,7 +289,7 @@ class TaskApiControllerSpec extends BaseSpec {
         taskService.addCandidateGroup(task.id, 'anotherGroup')
 
         when:
-        def user = new ShiftUser()
+        def user = new PlatformUser()
         user.id = 'test'
         user.email = 'shiftUser@shiftUser.com'
         def team = new Team()
@@ -387,6 +384,48 @@ class TaskApiControllerSpec extends BaseSpec {
 
         variable.name == 'testOneTwoThree'
         variable.value == 'test'
+
+    }
+    def 'can complete task with TaskCompleteDto'() {
+        given:
+        createTasks(1, 'email')
+        and:
+        logInUser()
+
+        and:
+        List<Task> list = taskService.createTaskQuery()
+                .processInstanceId(processInstance.getProcessInstanceId()).list()
+        def task = list.first()
+
+        and:
+        def variables = new TaskCompleteDto()
+        variables.variableName = 'testVariableName'
+        def data = new Data()
+        data.candidateGroup = "teamA"
+        data.name = "test 0"
+        data.description = "test 0"
+
+        variables.data = data
+
+        when:
+        def result = mvc.perform(post("/api/workflow/tasks/${task.id}/complete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(variables)))
+
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        and:
+        def reloded = historyService.createHistoricTaskInstanceQuery()
+                .taskId(task.id).singleResult()
+
+        def variable = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(reloded.processInstanceId)
+                .variableName("testVariableName")
+                .singleResult()
+
+        variable.name == 'testVariableName'
+        variable.value.toString() == '{"assignee":null,"candidateGroup":"teamA","name":"test 0","description":"test 0"}'
 
     }
 

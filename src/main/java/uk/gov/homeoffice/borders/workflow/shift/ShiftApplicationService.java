@@ -5,14 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.VariableInstance;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.util.CollectionUtils;
@@ -20,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -29,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Application Service responsible for dealing with the internal
@@ -53,10 +51,10 @@ public class ShiftApplicationService {
      *
      * @param shiftInfo Contains information about a shift
      * @return processInstance created
-     * @see ShiftInfo
+     * @see ShiftDetails
      * @see ProcessInstance
      */
-    ProcessInstance startShift(@NotNull @Valid ShiftInfo shiftInfo) {
+    ProcessInstance startShift(@NotNull @Valid ShiftDetails shiftInfo) {
 
         String email = shiftInfo.getEmail();
         log.info("Starting a request to start a shift for '{}'", email);
@@ -77,7 +75,7 @@ public class ShiftApplicationService {
         return processInstance;
     }
 
-    private void setEndTime(ShiftInfo shiftInfo) {
+    private void setEndTime(ShiftDetails shiftInfo) {
         Integer shiftHours = shiftInfo.getShiftHours();
         Integer shiftMinutes = shiftInfo.getShiftMinutes();
         Date startTime = new DateTime(shiftInfo.getStartDateTime())
@@ -101,38 +99,49 @@ public class ShiftApplicationService {
 
         List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email).list();
+        HttpHeaders headers = new HttpHeaders();
+
         if (!CollectionUtils.isEmpty(instances)) {
             List<String> ids = instances.stream()
                     .map(ProcessInstance::getProcessInstanceId)
-                    .collect(Collectors.toList());
-            List<String> shifts = runtimeService.createVariableInstanceQuery()
-                    .variableName("shiftId")
+                    .collect(toList());
+            List<VariableInstance> shifts = runtimeService.createVariableInstanceQuery()
+                    .variableNameIn("shiftId", "shiftHistoryId")
                     .processInstanceIdIn(ids.toArray(new String[]{})).list()
                     .stream()
-                    .map(v -> (String) v.getValue())
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .collect(toList());
 
-            shifts.forEach(id -> {
-                restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(id),
-                        HttpMethod.DELETE, new HttpEntity<>(new HttpHeaders()), String.class);
-                log.info("active shift '{}' deleted from store...", id);
-            });
+
+            shifts.stream()
+                    .collect(Collectors.toMap(VariableInstance::getName, instance -> (String) instance.getValue()))
+                    .forEach((key, value) -> {
+                        if (key.equalsIgnoreCase("shiftId")) {
+                            restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(value),
+                                    HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
+                            log.info("Deleted shift with id {}", value);
+                        }
+                        if (key.equalsIgnoreCase("shiftHistoryId")) {
+                            HttpEntity<Map> body = new HttpEntity<>(Collections.singletonMap("enddatetime", new Date()), headers);
+                            restTemplate.exchange(platformDataUrlBuilder.shiftHistoryById(value), HttpMethod.PATCH, body, String.class);
+                            log.info("Updated shift history with id {}", value);
+                        }
+                    });
+
 
             runtimeService.deleteProcessInstances(ids, deleteReason, false, true);
 
             log.info("Shift deleted for '{}'", email);
         } else {
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            List<ShiftInfo> shifts =  restTemplate
-                    .exchange(URI.create(platformDataUrlBuilder.shiftUrlByEmail(email)), HttpMethod.GET, new HttpEntity<>(httpHeaders),
-                            new ParameterizedTypeReference<List<ShiftInfo>>() {
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            List<ShiftDetails> shifts = restTemplate
+                    .exchange(URI.create(platformDataUrlBuilder.shiftUrlByEmail(email)), HttpMethod.GET, new HttpEntity<>(headers),
+                            new ParameterizedTypeReference<List<ShiftDetails>>() {
                             }).getBody();
 
             if (!CollectionUtils.isEmpty(shifts)) {
                 ResponseEntity<String> response = restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(shifts.get(0).getShiftId()),
-                        HttpMethod.DELETE, new HttpEntity<>(httpHeaders), String.class);
+                        HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
                 log.info("No process instance found but deleted from platform data...shift {}", response.getStatusCode());
 
             }
@@ -148,9 +157,9 @@ public class ShiftApplicationService {
      * @param email
      * @return shiftInfo.
      * @throws ResourceNotFound shift info cannot be found
-     * @see ShiftInfo
+     * @see ShiftDetails
      */
-    ShiftInfo getShiftInfo(@NotNull String email) {
+    ShiftDetails getShiftInfo(@NotNull String email) {
         ProcessInstance shift = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email)
                 .singleResult();
@@ -164,17 +173,18 @@ public class ShiftApplicationService {
                 .variableName("shiftInfo").singleResult();
 
         return ofNullable(variableInstance).map(variable -> {
-            ShiftInfo shiftInfo = Spin.S(variable.getValue(), formatter).mapTo(ShiftInfo.class);
+            ShiftDetails shiftInfo = Spin.S(variable.getValue(), formatter).mapTo(ShiftDetails.class);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
 
             HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
 
-            ResponseEntity<Map<String,String>> response = restTemplate
-                    .exchange(platformDataUrlBuilder.getLocation(shiftInfo.getCurrentLocationId()),
+            ResponseEntity<Map<String, String>> response = restTemplate
+                    .exchange(platformDataUrlBuilder.getLocation(shiftInfo.getLocationId()),
                             HttpMethod.GET,
                             entity,
-                            new ParameterizedTypeReference<Map<String,String>>() {}
+                            new ParameterizedTypeReference<Map<String, String>>() {
+                            }
                     );
 
             if (response.getStatusCode().is2xxSuccessful()) {

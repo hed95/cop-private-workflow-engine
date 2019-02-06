@@ -5,7 +5,7 @@ import org.camunda.bpm.engine.impl.persistence.entity.IdentityLinkEntity
 import org.camunda.bpm.engine.task.Task
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 
 class TaskCheckerSpec extends Specification {
@@ -16,7 +16,7 @@ class TaskCheckerSpec extends Specification {
 
     def 'no exception thrown if user allowed to see task based on group'() {
         given:
-        def user = new ShiftUser()
+        def user = new PlatformUser()
         def team = new Team()
         team.id = 'teamId'
         team.teamCode = 'teamCode'
@@ -42,7 +42,7 @@ class TaskCheckerSpec extends Specification {
 
     def 'no exception thrown if user allowed to see task based on assignee'() {
         given:
-        def user = new ShiftUser()
+        def user = new PlatformUser()
         user.email = 'email'
         def team = new Team()
         team.id = 'teamId'
@@ -70,7 +70,7 @@ class TaskCheckerSpec extends Specification {
 
     def 'exception thrown if user is not assigned to task and not in team'() {
         given:
-        def user = new ShiftUser()
+        def user = new PlatformUser()
         user.email = 'email'
         def team = new Team()
         team.id = 'teamId'

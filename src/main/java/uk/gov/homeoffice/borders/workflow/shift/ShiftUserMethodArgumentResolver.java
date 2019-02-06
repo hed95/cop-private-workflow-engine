@@ -9,8 +9,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
-import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
 
 @Slf4j
@@ -21,7 +20,7 @@ public class ShiftUserMethodArgumentResolver implements HandlerMethodArgumentRes
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.getParameterType().equals(ShiftUser.class);
+        return parameter.getParameterType().equals(PlatformUser.class);
     }
 
     @Override

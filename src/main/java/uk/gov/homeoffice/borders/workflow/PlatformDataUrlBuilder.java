@@ -26,12 +26,12 @@ import static java.util.Optional.ofNullable;
 public class PlatformDataUrlBuilder {
 
     private static final String SHIFT = "/shift";
+    private static final String SHIFT_HISTORY = "/shifthistory";
     private static final String RPC_STAFF_DETAILS = "/rpc/staffdetails";
     private static final String COMMENTS = "/comment";
     private static final String LOCATION = "/rf_location";
     private static final String TEAM = "/team";
     private static final String RPC_TEAM_CHILDREN ="/rpc/teamchildren";
-    private static final String STAFFVIEW="/staffview";
 
 
     private PlatformDataBean platformDataBean;
@@ -45,11 +45,21 @@ public class PlatformDataUrlBuilder {
                 .buildAndExpand(Collections.singletonMap("email", email))
                 .toUriString();
     }
+
     public String shiftUrlById(String id) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(platformDataBean.getUrl()))
                 .path(SHIFT)
                 .query("shiftid=eq.{id}")
+                .buildAndExpand(Collections.singletonMap("id", id))
+                .toString();
+    }
+
+    public String shiftHistoryById(String id) {
+        return UriComponentsBuilder.newInstance()
+                .uri(URI.create(platformDataBean.getUrl()))
+                .path(SHIFT_HISTORY)
+                .query("shifthistoryid=eq.{id}")
                 .buildAndExpand(Collections.singletonMap("id", id))
                 .toString();
     }
@@ -127,15 +137,6 @@ public class PlatformDataUrlBuilder {
 
     }
 
-    public String queryShiftByCommandId(String commandId) {
-        return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
-                .path(SHIFT)
-                .query("or=(subcommandid.eq.{commandId},commandid.eq.{commandId})")
-                .buildAndExpand(Collections.singletonMap("commandId", commandId))
-                .toString();
-
-    }
 
     public String getStaffUrl() {
         return UriComponentsBuilder.newInstance()
@@ -153,25 +154,6 @@ public class PlatformDataUrlBuilder {
                 .toString();
     }
 
-    public String staffViewIn(List<String> staffIds) {
-        String idsToProcess = StringUtils.join(staffIds, ",");
-        return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
-                .path(STAFFVIEW)
-                .query("staffid=in.({ids})")
-                .buildAndExpand(Collections.singletonMap("ids", idsToProcess))
-                .toString();
-
-    }
-
-    public String queryShiftBySubCommandId(String subCommand) {
-        return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
-                .path(SHIFT)
-                .query("subcommandid=eq.{subCommand}")
-                .buildAndExpand(Collections.singletonMap("subCommand", subCommand))
-                .toString();
-    }
 
     public String getCommentsById(String taskId) {
         return UriComponentsBuilder
@@ -184,7 +166,7 @@ public class PlatformDataUrlBuilder {
     }
 
     public String comments() {
-         return UriComponentsBuilder
+        return UriComponentsBuilder
                 .newInstance()
                 .uri(URI.create(platformDataBean.getUrl()))
                 .path(COMMENTS)

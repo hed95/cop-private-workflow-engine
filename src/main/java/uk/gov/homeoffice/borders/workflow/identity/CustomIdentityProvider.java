@@ -21,7 +21,7 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
     private TeamService teamService;
 
     @Override
-    public ShiftUser findUserById(String userId) {
+    public PlatformUser findUserById(String userId) {
        return userService.findByUserId(userId);
     }
 
@@ -95,7 +95,7 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
     }
 
     public List<org.camunda.bpm.engine.identity.User> findUserByQueryCriteria(UserQuery query) {
-        List<ShiftUser> users = userService.findByQuery(query);
+        List<PlatformUser> users = userService.findByQuery(query);
         return new ArrayList<>(users);
     }
 

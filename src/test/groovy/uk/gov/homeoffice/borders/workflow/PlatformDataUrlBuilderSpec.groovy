@@ -121,17 +121,6 @@ class PlatformDataUrlBuilderSpec extends Specification {
         url == 'http://localhost:9000/shift?locationid=eq.locationId'
     }
 
-    def 'can get shift url by command id'() {
-        given:
-        def commandId = "commandId"
-
-        when:
-        def url = underTest.queryShiftByCommandId(commandId)
-
-        then:
-        url
-        url == 'http://localhost:9000/shift?or=(subcommandid.eq.commandId,commandid.eq.commandId)'
-    }
 
     def 'can get staff url'() {
        when:
@@ -151,17 +140,6 @@ class PlatformDataUrlBuilderSpec extends Specification {
         url == 'http://localhost:9000/rpc/teamchildren'
     }
 
-    def 'can get url for staff view in'() {
-        given:
-        def staffIds = ['staffid1', 'staffid2']
-
-        when:
-        def url = underTest.staffViewIn(staffIds)
-
-        then:
-        url
-        url == "http://localhost:9000/staffview?staffid=in.(staffid1,staffid2)"
-    }
 
     def 'can get url for comments'() {
         when:
@@ -184,17 +162,6 @@ class PlatformDataUrlBuilderSpec extends Specification {
         url == 'http://localhost:9000/comment?taskid=eq.taskId&order=createdon.desc'
     }
 
-    def 'can get shift url by subcommand id'() {
-        given:
-        def subCommandId = "subcommandId"
-
-        when:
-        def url = underTest.queryShiftBySubCommandId(subCommandId)
-
-        then:
-        url
-        url == 'http://localhost:9000/shift?subcommandid=eq.subcommandId'
-    }
 
     def 'can get shift url by email endcoded'() {
         given:

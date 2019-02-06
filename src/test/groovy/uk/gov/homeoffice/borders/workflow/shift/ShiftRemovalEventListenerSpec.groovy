@@ -8,6 +8,7 @@ import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import spock.lang.Specification
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 
 class ShiftRemovalEventListenerSpec extends Specification {
 
@@ -24,7 +25,7 @@ class ShiftRemovalEventListenerSpec extends Specification {
         execution.getProcessInstance() >> processInstanceExecution
         processInstanceExecution.isCanceled() >> false
         execution.getCurrentActivityName() >> "Remove shift record"
-        def shiftInfo = new ShiftInfo()
+        def shiftInfo = new PlatformUser.ShiftDetails()
         shiftInfo.email = 'email'
         def typeValue = new ObjectValueImpl(Spin.S(shiftInfo, formatter))
         execution.getVariableTyped("shiftInfo", true) >> typeValue

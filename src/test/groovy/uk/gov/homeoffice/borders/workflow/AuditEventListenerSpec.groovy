@@ -6,7 +6,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.audit.AuditEventListener
 import uk.gov.homeoffice.borders.workflow.audit.LogAuditProcessor
-import uk.gov.homeoffice.borders.workflow.identity.ShiftUser
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
 class AuditEventListenerSpec extends Specification {
@@ -20,7 +20,7 @@ class AuditEventListenerSpec extends Specification {
     def 'can record audit event'() {
         AuditEventListener.AuditEvent auditEvent
         given:
-        def user = new ShiftUser()
+        def user = new PlatformUser()
         user.id ='id'
         user.email = 'email'
         user.teams = []
