@@ -96,6 +96,12 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
             return super.getTaskRestService(processEngineName);
         }
 
+        @Path(DecisionDefinitionRestService.PATH)
+        public DecisionDefinitionRestService getDecisionDefinitionRestService() {
+            return super.getDecisionDefinitionRestService(processEngineName);
+        }
+
+
         @Override
         protected URI getRelativeEngineUri(String engineName) {
             return URI.create("/");
