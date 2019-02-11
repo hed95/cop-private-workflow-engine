@@ -3,7 +3,10 @@ package uk.gov.homeoffice.borders.workflow.task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.repository.ResourceDefinition;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
+import org.camunda.bpm.engine.rest.dto.repository.ProcessDefinitionDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
@@ -21,11 +24,13 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
+import uk.gov.homeoffice.borders.workflow.process.ProcessApplicationService;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static uk.gov.homeoffice.borders.workflow.task.TasksApiPaths.TASKS_ROOT_API;
 
 /**
@@ -44,13 +49,22 @@ public class TaskApiController {
     private TaskDtoResourceAssembler taskDtoResourceAssembler;
     private PagedResourcesAssembler<Task> pagedResourcesAssembler;
     private ObjectMapper objectMapper;
+    private ProcessApplicationService processApplicationService;
 
     @GetMapping
     public PagedResources<TaskDtoResource> tasks(TaskCriteria taskCriteria,
                                                  Pageable pageable,
                                                  PlatformUser platformUser) {
         Page<Task> page = applicationService.tasks(platformUser, taskCriteria, pageable);
-        return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
+        List<String> processDefinitionIds = page.getContent().stream().map(Task::getProcessDefinitionId).collect(toList());
+
+        List<ProcessDefinition> definitions = processApplicationService.getDefinitions(processDefinitionIds);
+        Map<String, ProcessDefinition> definitionIdMaps = definitions.stream().collect(toMap(ResourceDefinition::getId, v -> v));
+        PagedResources<TaskDtoResource> resources = pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
+        resources.forEach(dto -> Optional.ofNullable(definitionIdMaps.get(dto.getTaskDto().getProcessDefinitionId()))
+                .ifPresent(d -> dto.setProcessDefinition(ProcessDefinitionDto.fromProcessDefinition(d))));
+
+        return resources;
     }
 
     @GetMapping("/{taskId}")

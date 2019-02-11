@@ -41,6 +41,10 @@ public class ProcessApplicationService {
     private AuthorizationService authorizationService;
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
+    public List<ProcessDefinition> getDefinitions(List<String> processDefinitionIds) {
+        return repositoryService.createProcessDefinitionQuery()
+                .processDefinitionIdIn(processDefinitionIds.toArray(new String[]{})).list();
+    }
 
     Page<ProcessDefinition> processDefinitions(@NotNull PlatformUser user, Pageable pageable) {
         log.debug("Loading process definitions for '{}'", user.getEmail());

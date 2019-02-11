@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.task
 
+
 import org.camunda.bpm.engine.HistoryService
 import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.rest.dto.VariableValueDto
@@ -325,6 +326,20 @@ class TaskApiControllerSpec extends BaseSpec {
         !taskLoaded.variables.isEmpty()
     }
 
+    def 'can get task with process definition'() {
+        given:
+        createTasks(1, "test")
+        and:
+        logInUser()
+
+        when:
+        def result = mvc.perform(get("/api/workflow/tasks/").contentType(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().is2xxSuccessful())
+        result.andExpect(jsonPath('$._embedded.tasks[*]["process-definition"]["category"]', is(['categoryA']  )))
+
+    }
     def 'can variables for given task'() {
         given:
         createTasks(1, "test")
