@@ -101,6 +101,11 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
             return super.getDecisionDefinitionRestService(processEngineName);
         }
 
+        @Path(AuthorizationRestService.PATH)
+        public AuthorizationRestService getAuthorizationRestService() {
+            return super.getAuthorizationRestService(processEngineName);
+        }
+
 
         @Override
         protected URI getRelativeEngineUri(String engineName) {

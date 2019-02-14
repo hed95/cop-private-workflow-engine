@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
+import org.camunda.feel.CamundaFeelEnginePlugin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.slf4j.MDC;
@@ -57,6 +58,12 @@ public class ApplicationConfiguration {
     public ProcessEnginePlugin spinProcessEnginePlugin() {
         return new SpinProcessEnginePlugin();
     }
+
+    @Bean
+    public ProcessEnginePlugin feelScalaPlugin() {
+        return new CamundaFeelEnginePlugin();
+    }
+
 
     @Bean
     public PlatformDataUrlBuilder platformDataQueryBuilder() {
