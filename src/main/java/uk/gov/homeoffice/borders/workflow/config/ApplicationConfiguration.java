@@ -59,11 +59,6 @@ public class ApplicationConfiguration {
         return new SpinProcessEnginePlugin();
     }
 
-    @Bean
-    public ProcessEnginePlugin feelScalaPlugin() {
-        return new CamundaFeelEnginePlugin();
-    }
-
 
     @Bean
     public PlatformDataUrlBuilder platformDataQueryBuilder() {
