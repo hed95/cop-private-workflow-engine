@@ -9,7 +9,6 @@ import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.EnableCaching;
@@ -17,11 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.task.TaskDecorator;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.retry.annotation.EnableRetry;
-import org.springframework.retry.backoff.FixedBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
@@ -33,7 +28,6 @@ import uk.gov.homeoffice.borders.workflow.security.KeycloakClient;
 import uk.gov.homeoffice.borders.workflow.shift.ShiftUserMethodArgumentResolver;
 import uk.gov.homeoffice.borders.workflow.task.TaskFilterCriteriaMethodArgumentResolver;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -57,6 +51,7 @@ public class ApplicationConfiguration {
     public ProcessEnginePlugin spinProcessEnginePlugin() {
         return new SpinProcessEnginePlugin();
     }
+
 
     @Bean
     public PlatformDataUrlBuilder platformDataQueryBuilder() {

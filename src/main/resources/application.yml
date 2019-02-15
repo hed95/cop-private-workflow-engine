@@ -65,7 +65,7 @@ spring:
       spec: maximumSize=9000
     cache-names: shifts
   autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
   http:
     converters:
       preferred-json-mapper: jackson
@@ -88,4 +88,9 @@ logging:
     level: "%X{mdcData}%5p"
   level:
     org.springframework.web.socket: ERROR
+
+server:
+  error:
+    whitelabel:
+      enabled: false
 

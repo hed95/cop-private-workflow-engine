@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.ProcessApplicationService;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.RuntimeService;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -71,7 +73,6 @@ public class TaskApplicationService {
         } else {
             taskQuery = createQuery(user, taskCriteria, taskQuery);
         }
-
         long totalResults = taskQuery.count();
         log.debug("Total results for query '{}'", totalResults);
 

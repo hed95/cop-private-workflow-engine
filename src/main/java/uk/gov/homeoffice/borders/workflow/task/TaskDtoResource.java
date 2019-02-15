@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
+import org.camunda.bpm.engine.rest.dto.repository.ProcessDefinitionDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.hateoas.ResourceSupport;
@@ -22,5 +23,7 @@ public class TaskDtoResource extends ResourceSupport {
     @JsonProperty("candidateGroups")
     private List<String> candidateGroups;
     private Map<String, VariableValueDto> variables;
+    @JsonProperty("process-definition")
+    private ProcessDefinitionDto processDefinition;
 
 }
