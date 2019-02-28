@@ -59,7 +59,7 @@ public class TaskApiController {
         List<String> processDefinitionIds = page.getContent().stream().map(Task::getProcessDefinitionId).collect(toList());
 
         List<ProcessDefinition> definitions = processApplicationService.getDefinitions(processDefinitionIds);
-        Map<String, ProcessDefinition> definitionIdMaps = definitions.stream().collect(toMap(ResourceDefinition::getId, v -> v));
+        Map<String, ProcessDefinition> definitionIdMaps = definitions.stream().collect(toMap(ProcessDefinition::getId, v -> v));
         PagedResources<TaskDtoResource> resources = pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
         resources.forEach(dto -> Optional.ofNullable(definitionIdMaps.get(dto.getTaskDto().getProcessDefinitionId()))
                 .ifPresent(d -> dto.setProcessDefinition(ProcessDefinitionDto.fromProcessDefinition(d))));
