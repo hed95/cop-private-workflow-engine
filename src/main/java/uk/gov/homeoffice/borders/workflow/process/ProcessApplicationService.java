@@ -43,7 +43,6 @@ public class ProcessApplicationService {
 
     public List<ProcessDefinition> getDefinitions(List<String> processDefinitionIds) {
         return repositoryService.createProcessDefinitionQuery()
-                .latestVersion()
                 .processDefinitionIdIn(processDefinitionIds.toArray(new String[]{})).list();
     }
 
