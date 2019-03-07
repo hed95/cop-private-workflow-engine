@@ -128,9 +128,9 @@ public class TaskApiController {
 
     @PostMapping("/{taskId}/complete")
     public ResponseEntity completeTask(@PathVariable String taskId, @RequestBody(required = false)
-            TaskCompleteDto completeTaskDto, PlatformUser platformUser) throws Exception {
+            TaskCompleteDto completeTaskDto) throws Exception {
         log.info("Task completed with variables {}", objectMapper.writeValueAsString(completeTaskDto));
-        applicationService.completeTask(platformUser, taskId, completeTaskDto);
+        applicationService.completeTask(taskId, completeTaskDto);
         return ResponseEntity.ok().build();
 
     }

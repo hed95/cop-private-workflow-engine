@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import uk.gov.homeoffice.borders.workflow.PageHelper;
 import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
+import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
@@ -158,17 +159,20 @@ public class TaskApplicationService {
         }
     }
 
-    void completeTask(@NotNull PlatformUser user, String taskId, TaskCompleteDto completeTaskDto) {
+    void completeTask(String taskId, TaskCompleteDto completeTaskDto) {
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         if (task == null) {
             throw new ResourceNotFound(String.format("%s cannot be found", taskId));
+        }
+        if (task.getAssignee() == null) {
+            throw new InternalWorkflowException("No assignee for task " + task.getId());
         }
         Spin<?> spinObject = Spin.S(completeTaskDto.getData(), formatter);
         Map<String, Object> variables = new HashMap<>();
         variables.put(completeTaskDto.getVariableName(), spinObject);
         runtimeService.setVariables(task.getProcessInstanceId(), variables);
         taskService.complete(task.getId());
-        log.info("task completed by {}", user.getEmail());
+        log.info("task completed by {}", task.getAssignee());
     }
 
 
