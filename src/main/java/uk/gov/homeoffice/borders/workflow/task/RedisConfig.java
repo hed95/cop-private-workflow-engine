@@ -56,12 +56,14 @@ public class RedisConfig {
 
         JedisClientConfiguration jedisClientConfiguration;
         if (isLocal.isPresent()) {
+            log.info("In local mode redis configuration");
             jedisClientConfiguration = JedisClientConfiguration
                     .builder()
                     .usePooling()
                     .poolConfig(poolConfig)
                     .build();
         } else {
+            log.info("In non local mode redis configuration");
             jedisClientConfiguration = JedisClientConfiguration
                     .builder()
                     .usePooling()
