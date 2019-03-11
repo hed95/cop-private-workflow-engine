@@ -16,10 +16,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import uk.gov.homeoffice.borders.workflow.exception.ExceptionHandler;
 import uk.gov.homeoffice.borders.workflow.task.NotifyFailureException;
-import uk.gov.service.notify.NotificationClient;
-import uk.gov.service.notify.NotificationClientException;
-import uk.gov.service.notify.SendEmailResponse;
-import uk.gov.service.notify.SendSmsResponse;
+import uk.gov.service.notify.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +34,7 @@ public class NotificationTaskEventListener extends ReactorTaskListener {
     private static final String SUBJECT = "subject";
     public static final String NOTIFICATION_VARIABLE_NAME = "notification";
 
-    private NotificationClient notificationClient;
+    private NotificationClientApi notificationClient;
     private String emailNotificationTemplateId;
     private String smsNotificationTemplateId;
     private ExceptionHandler exceptionHandler;
