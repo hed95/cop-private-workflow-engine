@@ -34,7 +34,6 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableRetry
-@EnableCaching
 @EnableAsync
 @EnableConfigurationProperties(PlatformDataBean.class)
 public class ApplicationConfiguration {
