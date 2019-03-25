@@ -98,6 +98,7 @@ public class ShiftApplicationService {
     public void deleteShift(@NotNull String email, @NotNull String deleteReason) {
 
         List<ProcessInstance> instances = runtimeService.createProcessInstanceQuery()
+                .processDefinitionKey("activate-shift")
                 .processInstanceBusinessKey(email).list();
         HttpHeaders headers = new HttpHeaders();
 
