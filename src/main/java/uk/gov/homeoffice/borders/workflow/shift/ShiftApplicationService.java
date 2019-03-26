@@ -23,10 +23,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 /**
  * Application Service responsible for dealing with the internal
@@ -113,22 +114,28 @@ public class ShiftApplicationService {
                     .filter(Objects::nonNull)
                     .collect(toList());
 
-
-            shifts.stream()
-                    .collect(Collectors.toMap(VariableInstance::getName, instance -> (String) instance.getValue()))
-                    .forEach((key, value) -> {
+            shifts.stream().filter(variableInstance -> variableInstance.getName().equalsIgnoreCase("shiftId")
+                    || variableInstance.getName().equalsIgnoreCase("shiftHistoryId"))
+                    .collect(Collectors.groupingBy(VariableInstance::getName))
+                    .forEach((key, values) -> {
                         if (key.equalsIgnoreCase("shiftId")) {
-                            restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(value),
-                                    HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
-                            log.info("Deleted shift with id {}", value);
+                            values.stream().map(v ->(String) v.getValue())
+                                    .forEach(shiftId -> {
+                                        restTemplate.exchange(platformDataUrlBuilder.shiftUrlById(shiftId),
+                                                HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
+                                        log.info("Deleted shift with id {}", shiftId);
+                                    });
                         }
                         if (key.equalsIgnoreCase("shiftHistoryId")) {
-                            HttpEntity<Map> body = new HttpEntity<>(Collections.singletonMap("enddatetime", new Date()), headers);
-                            restTemplate.exchange(platformDataUrlBuilder.shiftHistoryById(value), HttpMethod.PATCH, body, String.class);
-                            log.info("Updated shift history with id {}", value);
+                            values.stream().map(v ->(String) v.getValue())
+                                    .forEach(shiftHistoryId -> {
+                                        HttpEntity<Map> body = new HttpEntity<>(Collections.singletonMap("enddatetime", new Date()), headers);
+                                        restTemplate.exchange(platformDataUrlBuilder.shiftHistoryById(shiftHistoryId), HttpMethod.PATCH, body, String.class);
+                                        log.info("Updated shift history with id {}", shiftHistoryId);
+                                    });
+
                         }
                     });
-
 
             runtimeService.deleteProcessInstances(ids, deleteReason, false, true);
 
