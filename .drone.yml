@@ -27,17 +27,6 @@ pipeline:
         - push
         - pull_request
 
-  build:
-    image: quay.io/ukhomeofficedigital/drone-docker
-    secrets:
-      - docker_name
-    commands:
-      - docker build -t $${DOCKER_NAME}:$${DRONE_COMMIT_SHA} .
-    when:
-      branch: master
-      event:
-        - push
-
   image_to_quay:
     image: quay.io/ukhomeofficedigital/drone-docker
     secrets:
@@ -98,7 +87,7 @@ pipeline:
       - export NO_LOGGING_URL_PARAMS=$${DEV_NO_LOGGING_URL_PARAMS}
       - export NO_LOGGING_BODY=$${DEV_NO_LOGGING_BODY}
       - export NO_LOGGING_RESPONSE=$${DEV_NO_LOGGING_RESPONSE}
-      - export CA_CERTS=$${{DEV_CA_CERTS}
+      - export CA_CERTS=$${DEV_CA_CERTS}
       - export KEYCLOAK_URL=$${DEV_KEYCLOAK_URL}
       - export KEYCLOAK_REALM=$${DEV_KEYCLOAK_REALM}
       - export KEYCLOAK_SECRET=$${DEV_KEYCLOAK_SECRET}
