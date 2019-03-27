@@ -35,7 +35,7 @@ spec:
              - SETUID
              - SETGID
         args:
-          - --domain={{.NAME}}.{{.KUBE_NAMESPACE}}.svc.local
+          - --domain={{.NAME}}.{{.KUBE_NAMESPACE}}.svc.cluster.local
           - --url={{.INTERNAL_CA_URL}}
           - --command=/usr/bin/create.sh
           - --tls-ca=/cacerts
