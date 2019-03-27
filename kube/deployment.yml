@@ -190,7 +190,10 @@ spec:
           - name: SPRING_PROFILES_ACTIVE
             value: "{{.SPRING}}"
           - name: ENGINE_DB_URL
-            value: "{{.ENGINE_DB_URL}}"
+            valueFrom:
+              secretKeyRef:
+                name: {{.NAME}}
+                key: engineDbUrl
           - name: ENGINE_DB_USERNAME
             valueFrom:
               secretKeyRef:
