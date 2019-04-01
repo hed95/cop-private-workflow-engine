@@ -52,12 +52,12 @@ public class ProcessInstanceApiController {
     }
 
     @GetMapping(value = "/{processInstanceId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    private ProcessInstanceDto processInstance(@PathVariable String processInstanceId, PlatformUser platformUser) {
+    public ProcessInstanceDto processInstance(@PathVariable String processInstanceId, PlatformUser platformUser) {
         ProcessInstance processInstance = processApplicationService.getProcessInstance(processInstanceId, platformUser);
         return ProcessInstanceDto.fromProcessInstance(processInstance);
     }
     @GetMapping(value = "/{processInstanceId}/variables", produces = MediaType.APPLICATION_JSON_VALUE)
-    private Map<String, VariableValueDto> variables(@PathVariable String processInstanceId, PlatformUser platformUser) {
+    public Map<String, VariableValueDto> variables(@PathVariable String processInstanceId, PlatformUser platformUser) {
         VariableMap variables = processApplicationService.variables(processInstanceId, platformUser);
         return VariableValueDto.fromVariableMap(variables);
     }

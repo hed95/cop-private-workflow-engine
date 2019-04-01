@@ -39,7 +39,6 @@ public class UserService {
      * @param userId
      * @return user
      */
-    @Cacheable(value="shifts", key="#userId", unless="#result == null")
     public PlatformUser findByUserId(String userId) {
         List<ShiftDetails> shiftDetails;
         HttpHeaders headers = new HttpHeaders();
