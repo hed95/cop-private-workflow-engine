@@ -168,9 +168,9 @@ spec:
           - name: CAMUNDA_DB_TYPE
             value: postgres
           - name: KEYCLOAK_REALM
-            value: {{.KEYCLOAK_REALM}}
+            value: "{{.KEYCLOAK_REALM}}"
           - name: KEYCLOAK_AUTH_URL
-            value: {{.KEYCLOAK_URL}}
+            value: "{{.KEYCLOAK_URL}}"
           - name: KEYCLOAK_AUTH_SECRET
             valueFrom:
               secretKeyRef:
