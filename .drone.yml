@@ -10,7 +10,6 @@ pipeline:
     commands:
       - ./gradlew test jacocoTestReport
     when:
-      branch: master
       event:
         - push
         - pull_request
@@ -22,7 +21,6 @@ pipeline:
         - failure
         - success
     when:
-      branch: master
       event:
         - push
         - pull_request
