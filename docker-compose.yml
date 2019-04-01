@@ -1,0 +1,53 @@
+---
+version: '3'
+
+volumes:
+  postgres_data_workflow:
+    driver: local
+
+services:
+  postgres_workflow:
+    image: postgres:10-alpine
+    restart: on-failure
+    container_name: postgres_workflow
+    volumes:
+      - postgres_data_workflow:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: workflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: workflow
+  redis:
+    image: redis:5-alpine
+  workflow:
+    image: quay.io/ukhomeofficedigital/cop-private-workflow-engine
+    restart: on-failure
+    container_name: workflow
+    environment:
+      JAVA_OPTS: "-XX:PermSize=4096m -Djavax.net.debug=true"
+      ENGINE_DB_DRIVER: org.postgresql.Driver
+      CAMUNDA_DB_TYPE: postgres
+      KEYCLOAK_REALM: refdata
+      KEYCLOAK_AUTH_URL: "http://keycloak:8080/keycloak/auth"
+      KEYCLOAK_AUTH_SECRET: "9d9f6718-90f3-4626-b912-bfcd655ab27f"
+      KEYCLOAK_CLIENT_ID: workflow
+      SPRING_PROFILES_ACTIVE: local
+      ENGINE_DB_URL: "jdbc:postgresql://postgres_workflow:5432/workflow"
+      ENGINE_DB_USERNAME: postgres
+      ENGINE_DB_PASSWORD: workflow
+      PLATFORM_DATA_URL: "NOTREQUIRED"
+      PUBLIC_UI_PROTOCOL: "NOTREQUIRED"
+      PUBLIC_UI_TXT_PROTOCOL: "NOTREQUIRED"
+      PRIVATE_REDIS_URL: redis
+      PRIVATE_REDIS_PORT: 6379
+      PRIVATE_REDIS_TOKEN: null
+      GOV_NOTIFY_CLIENT_ID: "NOTREQUIRED"
+      GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID: "NOTREQUIRED"
+      GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID: "NOTREQUIRED"
+    depends_on:
+      - postgres_workflow
+      - redis
+
+networks:
+  default:
+    external:
+      name: local_dev

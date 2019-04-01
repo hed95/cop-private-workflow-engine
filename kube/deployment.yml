@@ -1,0 +1,223 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.NAME}}
+spec:
+  selector:
+    matchLabels:
+      name: {{.NAME}}
+  replicas: 1
+  revisionHistoryLimit: 3
+  template:
+    metadata:
+      labels:
+        name: {{.NAME}}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+      initContainers:
+      - name: resources
+        image: {{.RESOURCES_IMAGE}}
+        securityContext:
+          runAsNonRoot: true
+        volumeMounts:
+          - name: resourcerepo
+            mountPath: /repo
+      containers:
+      - name: certs
+        image: quay.io/ukhomeofficedigital/borders-cfssl-sidekick:bd4901b5a28c
+        securityContext:
+          runAsNonRoot: true
+          capabilities:
+            drop:
+             - SETUID
+             - SETGID
+        args:
+          - --domain={{.NAME}}.{{.KUBE_NAMESPACE}}.svc.cluster.local
+          - --url={{.INTERNAL_CA_URL}}
+          - --command=/usr/bin/create.sh
+          - --tls-ca=/cacerts
+          - --tls-ca-name=ca-bundle.pem
+          - --verbose=True
+        volumeMounts:
+          - name: certs
+            mountPath: /certs
+          - name: cacerts
+            mountPath: /cacerts
+            readOnly: true
+          - name: keystore
+            mountPath: /etc/keystore
+      - name: proxy
+        image: quay.io/ukhomeofficedigital/nginx-proxy
+        imagePullPolicy: Always
+        securityContext:
+          runAsNonRoot: true
+          capabilities:
+            drop:
+             - SETUID
+             - SETGID
+        command: ["/bin/bash"]
+        args: ["-c", "/bin/cp /mnt/configmap/* /usr/local/openresty/nginx/conf/locations/; cd /usr/local/openresty; /go.sh"]
+        resources:
+         limits:
+          memory: "100Mi"
+          cpu: "100m"
+         requests:
+          memory: "50Mi"
+          cpu: "100m"
+        env:
+        - name: CUSTOM_PROXY_CONFIG
+          value: "TRUE"
+        - name: CUSTOM_SECURITY_DEFAULTS
+          value: "TRUE"
+        - name: SERVER_CERT
+          value: "/certs/tls.pem"
+        - name: SERVER_KEY
+          value: "/certs/tls-key.pem"
+        - name: SSL_CIPHERS
+          value: "ECDHE-RSA-AES128-GCM-SHA256:AES256+EECDH:AES256+EDH:!aNULL"
+        - name: ENABLE_UUID_PARAM
+          value: "FALSE"
+        - name: NAXSI_USE_DEFAULT_RULES
+          value: "FALSE"
+        - name: PORT_IN_HOST_HEADER
+          value: "FALSE"
+        - name: ERROR_REDIRECT_CODES
+          value: "599"
+        - name: ADD_NGINX_SERVER_CFG
+          value: 'gzip off; location = /reload { allow 127.0.0.1; deny all; content_by_lua_block { os.execute("touch /tmp/nginx-reload-triggered; /usr/local/openresty/nginx/sbin/nginx -s reload; touch /tmp/nginx-reload-complete;") } }'
+        - name: ADD_NGINX_LOCATION_CFG
+          value: |
+            gzip off;
+            proxy_buffer_size         128k;
+            proxy_buffers             4 256k;
+            proxy_busy_buffers_size   256k;
+        - name: LOG_FORMAT_NAME
+          value: "json"
+        - name: NO_LOGGING_URL_PARAMS
+          value: "{{.NO_LOGGING_URL_PARAMS}}"
+        - name: NO_LOGGING_BODY
+          value: "{{.NO_LOGGING_BODY}}"
+        - name: NO_LOGGING_RESPONSE
+          value: "{{.NO_LOGGING_RESPONSE}}"
+        - name: STATSD_METRICS
+          value: "FALSE"
+        ports:
+        - name: https
+          containerPort: 10443
+        volumeMounts:
+        - name: certs
+          mountPath: /certs
+        - name: cacerts
+          mountPath: /cacerts
+        - name: proxyconfigmap
+          mountPath: /mnt/configmap
+      - name: {{.NAME}}
+        image: quay.io/ukhomeofficedigital/cop-private-workflow-engine:{{.IMAGE_TAG}}
+        imagePullPolicy: Always
+        securityContext:
+          runAsNonRoot: true
+        resources:
+          requests:
+            memory: "8192Mi"
+            cpu: "2000m"
+          limits:
+            memory: "8192Mi"
+            cpu: "2000m"
+        readinessProbe:
+          httpGet:
+            path: /engine
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        volumeMounts:
+          - name: resourcerepo
+            mountPath: /workflow-resources
+          - name: keystore
+            mountPath: /etc/keystore
+        env:
+          - name: JAVA_OPTS
+            value: "-XX:PermSize=4096m -Djavax.net.ssl.trustStore=/etc/keystore/cacerts -Djavax.net.debug=true"
+          - name: PLATFORM_DATA_URL
+            value: "{{.PLATFORM_DATA_URL}}"
+          - name: PUBLIC_UI_PROTOCOL
+            value: "{{.PUBLIC_UI_PROTOCOL}}"
+          - name: PUBLIC_UI_TXT_PROTOCOL
+            value: "{{.PUBLIC_UI_TXT_PROTOCOL}}"
+          - name: PRIVATE_REDIS_URL
+            value: "{{.REDIS_URL}}"
+          - name: PRIVATE_REDIS_PORT
+            value: "{{.REDIS_PORT}}"
+          - name: PRIVATE_REDIS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{.NAME}}
+                key: redisAuthToken
+          - name: ENGINE_DB_DRIVER
+            value: org.postgresql.Driver
+          - name: CAMUNDA_DB_TYPE
+            value: postgres
+          - name: KEYCLOAK_REALM
+            value: {{.KEYCLOAK_REALM}}
+          - name: KEYCLOAK_AUTH_URL
+            value: {{.KEYCLOAK_URL}}
+          - name: KEYCLOAK_AUTH_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{.NAME}}
+                key: authClientSecret
+          - name: KEYCLOAK_CLIENT_ID
+            value: {{.NAME}}
+          - name: GOV_NOTIFY_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{.NAME}}
+                key: govNotifyApiKey
+          - name: GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
+            value: "{{.GOV_NOTIFY_EMAIL_TEMPLATE_ID}}"
+          - name: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
+            value: "{{.GOV_NOTIFY_SMS_TEMPLATE_ID}}"
+          - name: SPRING_PROFILES_ACTIVE
+            value: "{{.SPRING}}"
+          - name: ENGINE_DB_URL
+            valueFrom:
+              secretKeyRef:
+                name: {{.NAME}}
+                key: engineDbUrl
+          - name: ENGINE_DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{.NAME}}
+                key: engineDbUsername
+          - name: ENGINE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{.NAME}}
+                key: engineDbPassword
+      volumes:
+      - name: certs
+        emptyDir: {}
+      - name: resourcerepo
+        emptyDir: {}
+      - name: keystore
+        emptyDir: {}
+      - name: cacerts
+        secret:
+          secretName: {{.CA_CERTS}}
+          items:
+          - key: ca-bundle.pem
+            path: ca-bundle.pem
+            mode: 256
+      - name: proxyconfigmap
+        configMap:
+          name: {{.NAME}}
