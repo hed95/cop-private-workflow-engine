@@ -3,27 +3,27 @@ workspace:
   path: src/github.com/ukhomeoffice/cop-private-workflow-engine
 
 pipeline:
-#  test:
-#    image: quay.io/ukhomeofficedigital/openjdk8:latest
-#    environment:
-#      - GRADLE_USER_HOME=~/.gradle
-#    commands:
-#      - ./gradlew test jacocoTestReport
-#    when:
-#      event:
-#        - push
-#        - pull_request
-#
-#  sonar-scanner:
-#    image: quay.io/ukhomeofficedigital/sonar-scanner:v3.0.1
-#    when:
-#      status:
-#        - failure
-#        - success
-#    when:
-#      event:
-#        - push
-#        - pull_request
+  test:
+    image: quay.io/ukhomeofficedigital/openjdk8:latest
+    environment:
+      - GRADLE_USER_HOME=~/.gradle
+    commands:
+      - ./gradlew test jacocoTestReport
+    when:
+      event:
+        - push
+        - pull_request
+
+  sonar-scanner:
+    image: quay.io/ukhomeofficedigital/sonar-scanner:v3.0.1
+    when:
+      status:
+        - failure
+        - success
+    when:
+      event:
+        - push
+        - pull_request
 
   image_to_quay:
     image: quay.io/ukhomeofficedigital/drone-docker
@@ -109,17 +109,16 @@ pipeline:
       - export PRIVATE_TRANSLATION_SERVICE_NAME=$${DEV_PRIVATE_TRANSLATION_SERVICE_NAME}
       - export PRIVATE_API_SERVER_NAME=$${DEV_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${DEV_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
-      - export IMAGE_TAG=${DRONE_COMMIT_SHA}
+      - export IMAGE_TAG=$${DRONE_BUILD_NUMBER}
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/nginx-configmap.yml
       - kd --insecure-skip-tls-verify -f kube/service.yml
-      - kd --insecure-skip-tls-verify -f kube/deployment.yml
+      - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
     when:
       branch: master
       event:
         - push
-        - deployment
 
   deploy_to_test:
     image: quay.io/ukhomeofficedigital/kd
@@ -189,17 +188,16 @@ pipeline:
       - export PRIVATE_TRANSLATION_SERVICE_NAME=$${TEST_PRIVATE_TRANSLATION_SERVICE_NAME}
       - export PRIVATE_API_SERVER_NAME=$${TEST_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${TEST_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
-      - export IMAGE_TAG=${DRONE_COMMIT_SHA}
+      - export IMAGE_TAG=$${DRONE_BUILD_NUMBER}
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/nginx-configmap.yml
       - kd --insecure-skip-tls-verify -f kube/service.yml
-      - kd --insecure-skip-tls-verify -f kube/deployment.yml
+      - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
     when:
       branch: master
       event:
         - push
-        - deployment
 
   deploy_to_demo:
     image: quay.io/ukhomeofficedigital/kd
@@ -269,13 +267,14 @@ pipeline:
       - export PRIVATE_TRANSLATION_SERVICE_NAME=$${DEMO_PRIVATE_TRANSLATION_SERVICE_NAME}
       - export PRIVATE_API_SERVER_NAME=$${DEMO_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${DEMO_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
-      - export IMAGE_TAG=${DRONE_COMMIT_SHA}
+      - export IMAGE_TAG=$${IMAGE_TAG}
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/nginx-configmap.yml
       - kd --insecure-skip-tls-verify -f kube/service.yml
-      - kd --insecure-skip-tls-verify -f kube/deployment.yml
+      - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
     when:
-      branch: master
+      environment:
+        - demo
       event:
         - deployment
