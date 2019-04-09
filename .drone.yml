@@ -4,7 +4,7 @@ pipeline:
     environment:
       - GRADLE_USER_HOME=~/.gradle
     commands:
-      - ./gradlew test check
+      - ./gradlew test jacocoTestReport
     when:
       event:
         - push
