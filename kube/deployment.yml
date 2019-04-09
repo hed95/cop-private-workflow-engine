@@ -147,7 +147,7 @@ spec:
             mountPath: /etc/keystore
         env:
           - name: JAVA_OPTS
-            value: "-XX:PermSize=4096m -Djavax.net.ssl.trustStore=/etc/keystore/cacerts -Djavax.net.debug=true"
+            value: "-Djava.security.egd=file:/dev/./urandom -XX:PermSize=4096m -Djavax.net.ssl.trustStore=/etc/keystore/cacerts -Djavax.net.debug=true"
           - name: PLATFORM_DATA_URL
             value: "{{.PLATFORM_DATA_URL}}"
           - name: PUBLIC_UI_PROTOCOL

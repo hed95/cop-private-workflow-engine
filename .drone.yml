@@ -1,10 +1,6 @@
-workspace:
-  base: /build
-  path: src/github.com/ukhomeoffice/cop-private-workflow-engine
-
 pipeline:
   test:
-    image: quay.io/ukhomeofficedigital/openjdk8:latest
+    image: quay.io/digitalpatterns/jdk:master
     environment:
       - GRADLE_USER_HOME=~/.gradle
     commands:

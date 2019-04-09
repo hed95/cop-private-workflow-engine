@@ -1,4 +1,4 @@
-FROM quay.io/digitalpatterns/jdk:latest
+FROM quay.io/digitalpatterns/jdk:master
 
 ADD . /app/
 
@@ -12,5 +12,5 @@ EXPOSE 8080
 
 USER 1000
 
-ENTRYPOINT exec /bin/run.sh java -cp "$GITREPO" $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/dist/libs/workflow-engine.jar
+ENTRYPOINT java -cp $JAVA_OPTS -jar /app/dist/libs/workflow-engine.jar
 
