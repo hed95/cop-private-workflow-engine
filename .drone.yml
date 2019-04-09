@@ -16,7 +16,6 @@ pipeline:
       status:
         - failure
         - success
-    when:
       event:
         - push
         - pull_request
