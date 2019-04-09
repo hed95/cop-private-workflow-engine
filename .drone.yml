@@ -4,7 +4,7 @@ pipeline:
     environment:
       - GRADLE_USER_HOME=~/.gradle
     commands:
-      - ./gradlew test jacocoTestReport
+      - ./gradlew test check
     when:
       event:
         - push
@@ -16,7 +16,6 @@ pipeline:
       status:
         - failure
         - success
-    when:
       event:
         - push
         - pull_request
