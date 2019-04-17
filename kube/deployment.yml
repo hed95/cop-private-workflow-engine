@@ -20,6 +20,7 @@ spec:
       initContainers:
       - name: resources
         image: {{.RESOURCES_IMAGE}}
+        imagePullPolicy: Always
         securityContext:
           runAsNonRoot: true
         volumeMounts:
