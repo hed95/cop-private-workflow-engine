@@ -26,8 +26,8 @@ services:
       JAVA_OPTS: "-XX:PermSize=4096m -Djavax.net.debug=true"
       ENGINE_DB_DRIVER: org.postgresql.Driver
       CAMUNDA_DB_TYPE: postgres
-      KEYCLOAK_REALM: refdata
-      KEYCLOAK_AUTH_URL: "http://keycloak:8080/keycloak/auth"
+      KEYCLOAK_REALM: dev
+      KEYCLOAK_AUTH_URL: "http://docker.for.mac.localhost:8080/keycloak/auth"
       KEYCLOAK_AUTH_SECRET: "9d9f6718-90f3-4626-b912-bfcd655ab27f"
       KEYCLOAK_CLIENT_ID: workflow
       SPRING_PROFILES_ACTIVE: local
