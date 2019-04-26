@@ -16,9 +16,21 @@ services:
       POSTGRES_DB: workflow
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: workflow
-  redis:
+    networks:
+      - db
+    labels:
+      - "traefik.enable=false"
+
+  redis_workflow:
     image: redis:5-alpine
+    container_name: redis_workflow
+    networks:
+      - db
+    labels:
+      - "traefik.enable=false"
+
   workflow:
+    build: .
     image: quay.io/ukhomeofficedigital/cop-private-workflow-engine
     restart: on-failure
     container_name: workflow
@@ -27,7 +39,7 @@ services:
       ENGINE_DB_DRIVER: org.postgresql.Driver
       CAMUNDA_DB_TYPE: postgres
       KEYCLOAK_REALM: dev
-      KEYCLOAK_AUTH_URL: "http://docker.for.mac.localhost:8080/keycloak/auth"
+      KEYCLOAK_AUTH_URL: "https://keycloak.lodev.xyz/auth"
       KEYCLOAK_AUTH_SECRET: "9d9f6718-90f3-4626-b912-bfcd655ab27f"
       KEYCLOAK_CLIENT_ID: workflow
       SPRING_PROFILES_ACTIVE: local
@@ -37,7 +49,7 @@ services:
       PLATFORM_DATA_URL: "NOTREQUIRED"
       PUBLIC_UI_PROTOCOL: "NOTREQUIRED"
       PUBLIC_UI_TXT_PROTOCOL: "NOTREQUIRED"
-      PRIVATE_REDIS_URL: redis
+      PRIVATE_REDIS_URL: redis_workflow
       PRIVATE_REDIS_PORT: 6379
       PRIVATE_REDIS_TOKEN: null
       GOV_NOTIFY_CLIENT_ID: "NOTREQUIRED"
@@ -45,9 +57,21 @@ services:
       GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID: "NOTREQUIRED"
     depends_on:
       - postgres_workflow
-      - redis
+      - redis_workflow
+    networks:
+      - web
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:workflow.${DOMAINNAME}"
+      - "traefik.port=8080"
+      - "traefik.protocol=http"
+      - "traefik.docker.network=web"
 
 networks:
-  default:
+  db:
     external:
-      name: local_dev
+      name: db
+  web:
+    external:
+      name: web
