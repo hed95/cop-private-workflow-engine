@@ -51,8 +51,6 @@ spring:
     username: ${ENGINE_DB_USERNAME}
     url: ${ENGINE_DB_URL}
     hikari:
-      minimum-idle: 10
-      idle-timeout: 10000
       maximum-pool-size: 30
       data-source-properties:
         cachePrepStmts: true
