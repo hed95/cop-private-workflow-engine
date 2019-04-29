@@ -81,6 +81,9 @@ logging:
     level: "%X{mdcData}%5p"
   level:
     org.springframework.web.socket: ERROR
+    org.postgresql: TRACE
+
+
 
 server:
   error:
