@@ -24,10 +24,10 @@ public class ShiftUserMethodArgumentResolver implements HandlerMethodArgumentRes
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter,
+    public PlatformUser resolveArgument(MethodParameter parameter,
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
-                                  WebDataBinderFactory binderFactory) throws Exception {
+                                  WebDataBinderFactory binderFactory) {
 
         WorkflowAuthentication currentAuthentication = (WorkflowAuthentication) identityService.getCurrentAuthentication();
         if (currentAuthentication == null) {

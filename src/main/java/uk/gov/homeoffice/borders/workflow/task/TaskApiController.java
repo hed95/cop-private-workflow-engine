@@ -144,7 +144,7 @@ public class TaskApiController {
     }
 
     @PostMapping(value = "/{taskId}/form/_complete", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity completeWithFrom(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto,
+    public ResponseEntity completeWithForm(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto,
                                            PlatformUser user) {
         applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
         return ResponseEntity.ok().build();
