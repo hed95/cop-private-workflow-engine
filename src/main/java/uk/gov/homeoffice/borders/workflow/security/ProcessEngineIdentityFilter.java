@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
+import static uk.gov.homeoffice.borders.workflow.config.CorrelationIdInterceptor.CORRELATION_HEADER_NAME;
 import static uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication.SERVICE_ROLE;
 
 
@@ -87,7 +88,7 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
     private void configureMDC(final WorkflowAuthentication auth, final HttpServletRequest request) {
         MDC.put("userId", auth.getUserId());
         MDC.put("requestPath", request.getServletPath());
-        MDC.put("correlationId", request.getHeader("nginxId"));
+        MDC.put("correlationId", request.getHeader(CORRELATION_HEADER_NAME));
     }
 
     private void clearMDC() {

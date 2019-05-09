@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
+import uk.gov.homeoffice.borders.workflow.config.CorrelationIdInterceptor
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
@@ -166,8 +167,10 @@ abstract class BaseSpec extends Specification {
         @Bean
         @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
         @Primary
-        RestTemplate keycloakRestTemplate(RestTemplateBuilder builder) {
-            return builder.build()
+        RestTemplate keycloakRestTemplate(RestTemplateBuilder builder, CorrelationIdInterceptor interceptor) {
+            final RestTemplate restTemplate = builder.build()
+            restTemplate.getInterceptors().add(interceptor)
+            return restTemplate
         }
 
 
