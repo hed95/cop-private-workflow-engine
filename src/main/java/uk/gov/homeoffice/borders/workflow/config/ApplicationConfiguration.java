@@ -72,11 +72,14 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public RestTemplate restTemplate(KeycloakClient keycloakClient, RestTemplateBuilder builder) {
+    public RestTemplate restTemplate(KeycloakClient keycloakClient,
+                                     RestTemplateBuilder builder,
+                                     CorrelationIdInterceptor correlationIdInterceptor) {
         KeycloakBearerTokenInterceptor keycloakBearerTokenInterceptor =
                 new KeycloakBearerTokenInterceptor(keycloakClient);
         RestTemplate restTemplate = builder.build();
         restTemplate.getInterceptors().add(keycloakBearerTokenInterceptor);
+        restTemplate.getInterceptors().add(correlationIdInterceptor);
         return restTemplate;
     }
 

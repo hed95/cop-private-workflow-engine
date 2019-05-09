@@ -23,7 +23,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;

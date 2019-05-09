@@ -27,7 +27,9 @@ class ShiftApiControllerSpec extends BaseSpec {
 
         when:
         def result = mvc.perform(post('/api/workflow/shift')
-                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shift)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(shift))
+                .header("nginxId", "correlationId"))
 
         then:
         result.andExpect(status().isCreated())
@@ -39,6 +41,11 @@ class ShiftApiControllerSpec extends BaseSpec {
             request {
                 method 'GET'
                 url '/shift?email=eq.testEmail'
+                headers {
+                    "nginxId" {
+                        equalTo "correlationId"
+                    }
+                }
 
             }
             response {
@@ -58,6 +65,11 @@ class ShiftApiControllerSpec extends BaseSpec {
             request {
                 method 'DELETE'
                 url '/shift?shiftid=eq.shiftId'
+                headers {
+                    "nginxId" {
+                        equalTo "correlationId"
+                    }
+                }
 
             }
             response {
@@ -82,6 +94,11 @@ class ShiftApiControllerSpec extends BaseSpec {
             request {
                 method 'GET'
                 url '/rf_location?locationid=eq.current'
+                headers {
+                    "nginxId" {
+                        equalTo "correlationId"
+                    }
+                }
 
             }
             response {
@@ -99,11 +116,11 @@ class ShiftApiControllerSpec extends BaseSpec {
 
         and:
         mvc.perform(post('/api/workflow/shift')
-                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shift)))
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shift)).header("nginxId", "correlationId"))
 
         when:
         def result = mvc.perform(get('/api/workflow/shift/testEmail')
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).header("nginxId", "correlationId"))
 
         then:
         result.andExpect(status().is2xxSuccessful())
@@ -122,6 +139,11 @@ class ShiftApiControllerSpec extends BaseSpec {
             request {
                 method 'DELETE'
                 url '/shift?shiftid=eq.xxxxx'
+                headers {
+                    "nginxId" {
+                        equalTo "correlationId"
+                    }
+                }
             }
             response {
                 status 200
@@ -131,6 +153,11 @@ class ShiftApiControllerSpec extends BaseSpec {
             request {
                 method 'PATCH'
                 url '/shifthistory?shifthistoryid=eq.xxxxx'
+                headers {
+                    "nginxId" {
+                        equalTo "correlationId"
+                    }
+                }
             }
             response {
                 status 200
@@ -141,7 +168,9 @@ class ShiftApiControllerSpec extends BaseSpec {
 
         and:
         mvc.perform(post('/api/workflow/shift')
-                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shift)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(shift))
+                .header("nginxId", "correlationId"))
 
 
         and:
@@ -150,7 +179,8 @@ class ShiftApiControllerSpec extends BaseSpec {
         runtimeService.setVariable(instance.processInstanceId, "shiftHistoryId", "xxxxx")
 
         when:
-        def result = mvc.perform(delete('/api/workflow/shift/testEmail?deletedReason=notNeeded'))
+        def result = mvc.perform(delete('/api/workflow/shift/testEmail?deletedReason=notNeeded')
+                                .header("nginxId", "correlationId"))
 
         then:
         result.andExpect(status().is2xxSuccessful())
