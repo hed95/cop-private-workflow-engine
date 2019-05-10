@@ -204,6 +204,9 @@ spec:
                 name: {{.NAME}}
                 key: engineDbPassword
       volumes:
+      - name: bundle
+        configMap:
+          name: bundle
       - name: certs
         emptyDir: {}
       - name: resourcerepo
