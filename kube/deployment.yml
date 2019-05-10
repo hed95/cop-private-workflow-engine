@@ -70,7 +70,7 @@ spec:
           cpu: "100m"
         env:
         - name: CUSTOM_PROXY_CONFIG
-          value: "TRUE"
+          value: "FALSE"
         - name: CUSTOM_SECURITY_DEFAULTS
           value: "TRUE"
         - name: SERVER_CERT

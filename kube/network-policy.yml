@@ -5,32 +5,35 @@ metadata:
   name: {{.NAME}}
 spec:
   egress:
-    - {}
+  - {}
   ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              name: {{.PRIVATE_UI_NAME}}
-        - podSelector:
-            matchLabels:
-              name: {{.PRIVATE_POSTGREST_NAME}}
-        - podSelector:
-            matchLabels:
-              name: {{.PRIVATE_WORKFLOW_EXECUTOR_NAME}}
-        - podSelector:
-            matchLabels:
-              name: {{.PRIVATE_TRANSLATION_SERVICE_NAME}}
-        - podSelector:
-            matchLabels:
-              name: {{.PRIVATE_API_SERVER_NAME}}
-        - podSelector:
-            matchLabels:
-              name: {{.PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}}
-      ports:
-        - port: 10443
-          protocol: TCP
-        - port: 443
-          protocol: TCP
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-external
+    - podSelector:
+        matchLabels:
+          name: {{.PRIVATE_UI_NAME}}
+    - podSelector:
+        matchLabels:
+          name: {{.PRIVATE_POSTGREST_NAME}}
+    - podSelector:
+        matchLabels:
+          name: {{.PRIVATE_WORKFLOW_EXECUTOR_NAME}}
+    - podSelector:
+        matchLabels:
+          name: {{.PRIVATE_TRANSLATION_SERVICE_NAME}}
+    - podSelector:
+        matchLabels:
+          name: {{.PRIVATE_API_SERVER_NAME}}
+    - podSelector:
+        matchLabels:
+          name: {{.PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}}
+    ports:
+      - port: 10443
+        protocol: TCP
+      - port: 443
+        protocol: TCP
   podSelector:
     matchLabels:
       name: {{.NAME}}
