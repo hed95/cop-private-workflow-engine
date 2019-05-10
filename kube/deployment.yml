@@ -122,10 +122,10 @@ spec:
           runAsNonRoot: true
         resources:
           requests:
-            memory: "2048Mi"
+            memory: "2304Mi"
             cpu: "2000m"
           limits:
-            memory: "2048Mi"
+            memory: "2304Mi"
             cpu: "2000m"
         readinessProbe:
           httpGet:
