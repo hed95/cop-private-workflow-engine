@@ -54,6 +54,7 @@ pipeline:
       - DEV_INT_DOMAIN
       - DEV_EXT_DOMAIN
       - DEV_PROTOCOL
+      - DEV_WHITELIST
       - DEV_RESOURCES_IMAGE
       - DEV_PLATFORM_DATA_URL
       - DEV_REDIS_URL
@@ -90,6 +91,7 @@ pipeline:
       - export INT_DOMAIN=$${DEV_INT_DOMAIN}
       - export EXT_DOMAIN=$${DEV_EXT_DOMAIN}
       - export PROTOCOL=$${DEV_PROTOCOL}
+      - export WHITELIST=$${DEV_WHITELIST}
       - export RESOURCES_IMAGE=$${DEV_RESOURCES_IMAGE}
       - export PLATFORM_DATA_URL=$${DEV_PLATFORM_DATA_URL}
       - export REDIS_URL=$${DEV_REDIS_URL}
@@ -139,6 +141,7 @@ pipeline:
       - TEST_INT_DOMAIN
       - TEST_EXT_DOMAIN
       - TEST_PROTOCOL
+      - TEST_WHITELIST
       - TEST_RESOURCES_IMAGE
       - TEST_PLATFORM_DATA_URL
       - TEST_REDIS_URL
@@ -175,6 +178,7 @@ pipeline:
       - export INT_DOMAIN=$${TEST_INT_DOMAIN}
       - export EXT_DOMAIN=$${TEST_EXT_DOMAIN}
       - export PROTOCOL=$${TEST_PROTOCOL}
+      - export WHITELIST=$${TEST_WHITELIST}
       - export RESOURCES_IMAGE=$${TEST_RESOURCES_IMAGE}
       - export PLATFORM_DATA_URL=$${TEST_PLATFORM_DATA_URL}
       - export REDIS_URL=$${TEST_REDIS_URL}
@@ -224,6 +228,7 @@ pipeline:
       - DEMO_INT_DOMAIN
       - DEMO_EXT_DOMAIN
       - DEMO_PROTOCOL
+      - DEMO_WHITELIST
       - DEMO_RESOURCES_IMAGE
       - DEMO_PLATFORM_DATA_URL
       - DEMO_REDIS_URL
@@ -260,6 +265,7 @@ pipeline:
       - export INT_DOMAIN=$${DEMO_INT_DOMAIN}
       - export EXT_DOMAIN=$${DEMO_EXT_DOMAIN}
       - export PROTOCOL=$${DEMO_PROTOCOL}
+      - export WHITELIST=$${DEMO_WHITELIST}
       - export RESOURCES_IMAGE=$${DEMO_RESOURCES_IMAGE}
       - export PLATFORM_DATA_URL=$${DEMO_PLATFORM_DATA_URL}
       - export REDIS_URL=$${DEMO_REDIS_URL}
