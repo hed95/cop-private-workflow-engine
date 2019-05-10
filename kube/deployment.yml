@@ -104,6 +104,15 @@ spec:
           value: "{{.NO_LOGGING_RESPONSE}}"
         - name: STATSD_METRICS
           value: "FALSE"
+        ports:
+        - name: https
+          containerPort: 10443
+        volumeMounts:
+          - name: certs
+            mountPath: /certs
+          - name: bundle
+            mountPath: /etc/ssl/certs
+            readOnly: true
       - name: {{.NAME}}
         image: quay.io/ukhomeofficedigital/cop-private-workflow-engine:{{.IMAGE_TAG}}
         imagePullPolicy: Always
