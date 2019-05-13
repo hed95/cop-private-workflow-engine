@@ -10,4 +10,6 @@ import org.springframework.stereotype.Component;
 public class PlatformDataBean {
 
     private String url;
+    private int connectTimeout;
+    private int readTimeout;
 }
