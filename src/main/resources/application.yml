@@ -18,6 +18,8 @@ public-ui:
 
 platform-data:
     url: ${PLATFORM_DATA_ENDPOINT_URL}
+    connect-timeout: 500
+    read-timeout: 500
 
 gov:
   notify:

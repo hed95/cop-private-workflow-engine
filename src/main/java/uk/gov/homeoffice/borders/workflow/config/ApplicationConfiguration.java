@@ -77,6 +77,8 @@ public class ApplicationConfiguration {
                                      CorrelationIdInterceptor correlationIdInterceptor) {
         KeycloakBearerTokenInterceptor keycloakBearerTokenInterceptor =
                 new KeycloakBearerTokenInterceptor(keycloakClient);
+        builder.setConnectTimeout(platformDataBean.getConnectTimeout());
+        builder.setReadTimeout(platformDataBean.getReadTimeout());
         RestTemplate restTemplate = builder.build();
         restTemplate.getInterceptors().add(keycloakBearerTokenInterceptor);
         restTemplate.getInterceptors().add(correlationIdInterceptor);
