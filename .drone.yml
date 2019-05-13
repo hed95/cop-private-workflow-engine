@@ -75,6 +75,7 @@ pipeline:
       - DEV_PRIVATE_TRANSLATION_SERVICE_NAME
       - DEV_PRIVATE_API_SERVER_NAME
       - DEV_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME
+      - DEV_UPTIME
     commands:
       - export NAME=$${DEV_NAME}
       - export KUBE_NAMESPACE=$${DEV_KUBE_NAMESPACE}
@@ -113,6 +114,7 @@ pipeline:
       - export PRIVATE_API_SERVER_NAME=$${DEV_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${DEV_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${DRONE_BUILD_NUMBER}
+      - export UPTIME=$${DEV_UPTIME}
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/service.yml
@@ -162,6 +164,7 @@ pipeline:
       - TEST_PRIVATE_TRANSLATION_SERVICE_NAME
       - TEST_PRIVATE_API_SERVER_NAME
       - TEST_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME
+      - TEST_UPTIME
     commands:
       - export NAME=$${TEST_NAME}
       - export KUBE_NAMESPACE=$${TEST_KUBE_NAMESPACE}
@@ -200,6 +203,7 @@ pipeline:
       - export PRIVATE_API_SERVER_NAME=$${TEST_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${TEST_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${DRONE_BUILD_NUMBER}
+      - export UPTIME=$${TEST_UPTIME}
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/service.yml
@@ -249,6 +253,7 @@ pipeline:
       - DEMO_PRIVATE_TRANSLATION_SERVICE_NAME
       - DEMO_PRIVATE_API_SERVER_NAME
       - DEMO_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME
+      - DEMO_UPTIME
     commands:
       - export NAME=$${DEMO_NAME}
       - export KUBE_NAMESPACE=$${DEMO_KUBE_NAMESPACE}
@@ -287,6 +292,7 @@ pipeline:
       - export PRIVATE_API_SERVER_NAME=$${DEMO_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${DEMO_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${IMAGE_TAG}
+      - export UPTIME=$${DEMO_UPTIME}
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/nginx-configmap.yml
