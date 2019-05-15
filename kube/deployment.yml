@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: {{.NAME}}
   annotations:
-    downscaler/uptime: {{.UPTIME}}
+    downscaler/uptime: "{{.UPTIME}}"
 spec:
   selector:
     matchLabels:
