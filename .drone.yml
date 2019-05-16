@@ -57,6 +57,7 @@ pipeline:
       - DEV_WHITELIST
       - DEV_RESOURCES_IMAGE
       - DEV_PLATFORM_DATA_URL
+      - DEV_REF_DATA_URL
       - DEV_REDIS_URL
       - DEV_REDIS_PORT
       - DEV_REDIS_TOKEN
@@ -95,6 +96,7 @@ pipeline:
       - export WHITELIST=$${DEV_WHITELIST}
       - export RESOURCES_IMAGE=$${DEV_RESOURCES_IMAGE}
       - export PLATFORM_DATA_URL=$${DEV_PLATFORM_DATA_URL}
+      - export REF_DATA_URL=$${DEV_REF_DATA_URL}
       - export REDIS_URL=$${DEV_REDIS_URL}
       - export REDIS_PORT=$${DEV_REDIS_PORT}
       - export REDIS_TOKEN=$${DEV_REDIS_TOKEN}
@@ -146,6 +148,7 @@ pipeline:
 #      - TEST_WHITELIST
 #      - TEST_RESOURCES_IMAGE
 #      - TEST_PLATFORM_DATA_URL
+#      - TEST_REF_DATA_URL
 #      - TEST_REDIS_URL
 #      - TEST_REDIS_PORT
 #      - TEST_REDIS_TOKEN
@@ -184,6 +187,7 @@ pipeline:
 #      - export WHITELIST=$${TEST_WHITELIST}
 #      - export RESOURCES_IMAGE=$${TEST_RESOURCES_IMAGE}
 #      - export PLATFORM_DATA_URL=$${TEST_PLATFORM_DATA_URL}
+#      - export REF_DATA_URL=$${TEST_REF_DATA_URL}
 #      - export REDIS_URL=$${TEST_REDIS_URL}
 #      - export REDIS_PORT=$${TEST_REDIS_PORT}
 #      - export REDIS_TOKEN=$${TEST_REDIS_TOKEN}
@@ -235,6 +239,7 @@ pipeline:
       - DEMO_WHITELIST
       - DEMO_RESOURCES_IMAGE
       - DEMO_PLATFORM_DATA_URL
+      - DEMO_REF_DATA_URL
       - DEMO_REDIS_URL
       - DEMO_REDIS_PORT
       - DEMO_REDIS_TOKEN
@@ -273,6 +278,7 @@ pipeline:
       - export WHITELIST=$${DEMO_WHITELIST}
       - export RESOURCES_IMAGE=$${DEMO_RESOURCES_IMAGE}
       - export PLATFORM_DATA_URL=$${DEMO_PLATFORM_DATA_URL}
+      - export REF_DATA_URL=$${DEMO_REF_DATA_URL}
       - export REDIS_URL=$${DEMO_REDIS_URL}
       - export REDIS_PORT=$${DEMO_REDIS_PORT}
       - export REDIS_TOKEN=$${DEMO_REDIS_TOKEN}

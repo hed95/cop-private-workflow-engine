@@ -93,7 +93,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/rf_location?locationid=eq.current'
+                url '/location?locationid=eq.current'
                 headers {
                     "nginxId" {
                         equalTo "correlationId"

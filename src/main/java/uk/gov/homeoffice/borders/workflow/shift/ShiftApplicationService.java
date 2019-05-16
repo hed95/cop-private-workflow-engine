@@ -15,7 +15,7 @@ import org.springframework.http.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
-import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean;
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 
@@ -42,8 +42,8 @@ public class ShiftApplicationService {
     private RestTemplate restTemplate;
 
     private PlatformDataUrlBuilder platformDataUrlBuilder;
+    private RefDataUrlBuilder refDataUrlBuilder;
 
-    private PlatformDataBean platformDataBean;
     private JacksonJsonDataFormat formatter;
 
     /**
@@ -161,8 +161,6 @@ public class ShiftApplicationService {
     /**
      * Get shift info for given email
      *
-     * @param email
-     * @return shiftInfo.
      * @throws ResourceNotFound shift info cannot be found
      * @see ShiftDetails
      */
@@ -187,7 +185,7 @@ public class ShiftApplicationService {
             HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
 
             ResponseEntity<Map<String, String>> response = restTemplate
-                    .exchange(platformDataUrlBuilder.getLocation(shiftInfo.getLocationId()),
+                    .exchange(refDataUrlBuilder.getLocation(shiftInfo.getLocationId()),
                             HttpMethod.GET,
                             entity,
                             new ParameterizedTypeReference<Map<String, String>>() {

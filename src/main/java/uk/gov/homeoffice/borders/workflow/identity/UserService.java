@@ -2,18 +2,17 @@ package uk.gov.homeoffice.borders.workflow.identity;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 
 import javax.annotation.Resource;
 import java.net.URI;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
@@ -23,21 +22,21 @@ public class UserService {
 
     private RestTemplate restTemplate;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
+    private RefDataUrlBuilder refDataUrlBuilder;
     //Self reference to enable methods to be called within this service and be proxied by Spring
     @Resource
     private UserService self;
 
 
     @Autowired
-    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder) {
+    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder, RefDataUrlBuilder refDataUrlBuilder) {
         this.platformDataUrlBuilder = platformDataUrlBuilder;
         this.restTemplate = restTemplate;
+        this.refDataUrlBuilder = refDataUrlBuilder;
     }
 
     /**
      * Find user from using shift details
-     * @param userId
-     * @return user
      */
     public PlatformUser findByUserId(String userId) {
         List<ShiftDetails> shiftDetails;
@@ -68,7 +67,7 @@ public class UserService {
 
         return ofNullable(response.getBody()).map(user -> {
             List<Team> teams = restTemplate
-                    .exchange(platformDataUrlBuilder.teamChildren(),
+                    .exchange(refDataUrlBuilder.teamChildren(),
                             HttpMethod.POST,
                             new HttpEntity<>(Collections.singletonMap("id", shiftInfo.getTeamId())),
                             new ParameterizedTypeReference<List<Team>>() {}).getBody();
