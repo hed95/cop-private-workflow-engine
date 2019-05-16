@@ -25,10 +25,8 @@ class UserServiceSpec extends Specification {
         def platformDataBean = new PlatformDataBean()
         platformDataBean.url = "http://localhost:8911"
         def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
-        def refDataBean = new RefDataBean()
-        refDataBean.url = "http://localhost:8911"
-        def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean )
-        userService = new UserService(new RestTemplate(), platformDataUrlBuilder, refDataUrlBuilder)
+        def teamService = Mock(TeamService)
+        userService = new UserService(new RestTemplate(), platformDataUrlBuilder, teamService)
         userService.self = userService
     }
 
@@ -95,31 +93,6 @@ class UserServiceSpec extends Specification {
                 }
             }
         }
-
-        wireMockStub.stub {
-            request {
-                method 'POST'
-                url '/rpc/teamchildren'
-
-            }
-            response {
-                status: 200
-                body """
-                       [
-                          {
-                            "teamid": "teamid",
-                            "parentteamid": null,
-                            "teamname": "teamname",
-                            "teamcode": "teamcode"
-                          }
-                        ]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-        }
-
 
 
         when:
@@ -345,31 +318,6 @@ class UserServiceSpec extends Specification {
                 }
             }
         }
-
-        wireMockStub.stub {
-            request {
-                method 'POST'
-                url '/rpc/teamchildren'
-
-            }
-            response {
-                status: 200
-                body """
-                       [
-                          {
-                            "teamid": "teamid",
-                            "parentteamid": null,
-                            "teamname": "teamname",
-                            "teamcode": "teamcode"
-                          }
-                        ]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-        }
-
 
         when:
         def query = new UserQuery()

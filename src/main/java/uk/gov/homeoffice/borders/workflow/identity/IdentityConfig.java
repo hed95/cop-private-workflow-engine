@@ -26,7 +26,7 @@ public class IdentityConfig {
 
     @Bean
     public UserService userService() {
-        return new UserService(restTemplate, platformDataUrlBuilder, refDataUrlBuilder);
+        return new UserService(restTemplate, platformDataUrlBuilder, teamService());
     }
 
 

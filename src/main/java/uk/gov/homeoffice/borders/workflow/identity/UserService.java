@@ -6,7 +6,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
-import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 
@@ -22,17 +21,17 @@ public class UserService {
 
     private RestTemplate restTemplate;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
-    private RefDataUrlBuilder refDataUrlBuilder;
+    private TeamService teamService;
     //Self reference to enable methods to be called within this service and be proxied by Spring
     @Resource
     private UserService self;
 
 
     @Autowired
-    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder, RefDataUrlBuilder refDataUrlBuilder) {
+    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder, TeamService teamService) {
         this.platformDataUrlBuilder = platformDataUrlBuilder;
         this.restTemplate = restTemplate;
-        this.refDataUrlBuilder = refDataUrlBuilder;
+        this.teamService = teamService;
     }
 
     /**
@@ -66,13 +65,7 @@ public class UserService {
                 HttpMethod.POST, new HttpEntity<>(Collections.singletonMap("argstaffid", shiftInfo.getStaffId()), httpHeaders), PlatformUser.class);
 
         return ofNullable(response.getBody()).map(user -> {
-            List<Team> teams = restTemplate
-                    .exchange(refDataUrlBuilder.teamChildren(),
-                            HttpMethod.POST,
-                            new HttpEntity<>(Collections.singletonMap("id", shiftInfo.getTeamId())),
-                            new ParameterizedTypeReference<List<Team>>() {}).getBody();
-
-            user.setTeams(ofNullable(teams).orElse(new ArrayList<>()));
+            user.setTeams(teamService.teamChildren(shiftInfo.getTeamId()));
             user.setShiftDetails(shiftInfo);
             user.setEmail(shiftInfo.getEmail());
             return user;

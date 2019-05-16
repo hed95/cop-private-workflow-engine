@@ -12,10 +12,10 @@ import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 
 import javax.swing.text.html.Option;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -47,5 +47,15 @@ public class TeamService {
                 new HashMap<>()
         ).getBody();
         return new ArrayList<>(teams);
+    }
+
+    public List<Team> teamChildren(String teamId) {
+        List<Team> teams = restTemplate
+                .exchange(refDataUrlBuilder.teamChildren(),
+                        HttpMethod.POST,
+                        new HttpEntity<>(Collections.singletonMap("id", teamId)),
+                        new ParameterizedTypeReference<List<Team>>() {}).getBody();
+
+        return ofNullable(teams).orElse(emptyList());
     }
 }
