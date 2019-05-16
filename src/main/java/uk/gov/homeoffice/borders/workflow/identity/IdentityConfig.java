@@ -6,12 +6,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 
 @Configuration
 public class IdentityConfig {
 
     @Autowired
     private PlatformDataUrlBuilder platformDataUrlBuilder;
+    @Autowired
+    private RefDataUrlBuilder refDataUrlBuilder;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -23,13 +26,13 @@ public class IdentityConfig {
 
     @Bean
     public UserService userService() {
-        return new UserService(restTemplate, platformDataUrlBuilder);
+        return new UserService(restTemplate, platformDataUrlBuilder, teamService());
     }
 
 
     @Bean
     public TeamService teamService() {
-        return new TeamService(restTemplate, platformDataUrlBuilder);
+        return new TeamService(restTemplate, refDataUrlBuilder);
     }
 
     @Bean

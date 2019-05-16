@@ -16,6 +16,9 @@ public-ui:
     protocol: ${PUBLIC_UI_PROTOCOL}
     text-protocol: ${PUBLIC_UI_TXT_PROTOCOL}
 
+ref-data:
+  url: ${REF_DATA_ENDPOINT_URL}
+
 platform-data:
     url: ${PLATFORM_DATA_ENDPOINT_URL}
     connect-timeout: 500

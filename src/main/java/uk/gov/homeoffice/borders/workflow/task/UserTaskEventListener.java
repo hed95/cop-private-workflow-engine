@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import static org.springframework.transaction.support.TransactionSynchronization
 public class UserTaskEventListener extends ReactorTaskListener {
 
     private SimpMessagingTemplate messagingTemplate;
-    private PlatformDataUrlBuilder platformDataUrlBuilder;
+    private RefDataUrlBuilder refDataUrlBuilder;
     private RestTemplate restTemplate;
 
     @Override
@@ -53,7 +53,7 @@ public class UserTaskEventListener extends ReactorTaskListener {
                 httpHeaders.setContentType(MediaType.APPLICATION_JSON);
                 HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
 
-                List<Team> response = restTemplate.exchange(platformDataUrlBuilder.teamByIds(teamCodes.toArray(new String[]{})),
+                List<Team> response = restTemplate.exchange(refDataUrlBuilder.teamByIds(teamCodes.toArray(new String[]{})),
                         HttpMethod.GET, entity, new ParameterizedTypeReference<List<Team>>() {
                         }).getBody();
 

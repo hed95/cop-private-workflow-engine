@@ -8,7 +8,6 @@ import uk.gov.homeoffice.borders.workflow.identity.TeamQuery
 class PlatformDataUrlBuilderSpec extends Specification {
 
     def platformDataUrl = 'http://localhost:9000'
-    def token = "token"
     def platformDataBean = new PlatformDataBean()
 
     def underTest
@@ -43,60 +42,6 @@ class PlatformDataUrlBuilderSpec extends Specification {
         url
         url == 'http://localhost:9000/shift?shiftid=eq.uuid'
     }
-
-    def 'can get team url for team id'() {
-        given:
-        def teamId = "teamId"
-        def teamQuery = new TeamQuery().groupId(teamId)
-
-        when:
-        def url = underTest.teamQuery(teamQuery)
-
-        then:
-        url
-        url == "http://localhost:9000/team?teamid=eq.teamId"
-    }
-
-    def 'can get team url by team name'() {
-        given:
-        def teamName = "teamName"
-        def teamQuery = new TeamQuery().groupName(teamName)
-
-        when:
-        def url = underTest.teamQuery(teamQuery)
-
-        then:
-        url
-        url == "http://localhost:9000/team?teamname=eq.teamName"
-    }
-
-
-    def 'can get team url by team name like'() {
-        given:
-        def teamName = "teamName"
-        def teamQuery = new TeamQuery().groupNameLike(teamName)
-
-        when:
-        def url = underTest.teamQuery(teamQuery)
-
-        then:
-        url
-        url == "http://localhost:9000/team?teamname=like.teamName"
-    }
-
-    def 'can get team url with team ids in'() {
-        given:
-        def teamId = "teamId"
-        def teamQuery = new TeamQuery().groupIdIn(teamId)
-
-        when:
-        def url = underTest.teamQuery(teamQuery)
-
-        then:
-        url
-        url == "http://localhost:9000/team?teamid=in.(\"teamId\")"
-    }
-
     def 'can get shift url by team id'() {
         given:
         def teamId = "teamId"
@@ -130,16 +75,6 @@ class PlatformDataUrlBuilderSpec extends Specification {
         url
         url == 'http://localhost:9000/rpc/staffdetails'
     }
-
-    def 'can get team children url'() {
-        when:
-        def url = underTest.teamChildren()
-
-        then:
-        url
-        url == 'http://localhost:9000/rpc/teamchildren'
-    }
-
 
     def 'can get url for comments'() {
         when:

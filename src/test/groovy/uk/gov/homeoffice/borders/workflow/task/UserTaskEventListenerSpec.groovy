@@ -2,7 +2,6 @@ package uk.gov.homeoffice.borders.workflow.task
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
-import org.camunda.bpm.engine.delegate.DelegateExecution
 import org.camunda.bpm.engine.delegate.DelegateTask
 import org.camunda.bpm.engine.impl.persistence.entity.IdentityLinkEntity
 import org.junit.Rule
@@ -11,9 +10,8 @@ import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
-import spock.util.concurrent.PollingConditions
-import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
-import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder
+import uk.gov.homeoffice.borders.workflow.config.RefDataBean
 
 class UserTaskEventListenerSpec extends Specification {
 
@@ -30,10 +28,10 @@ class UserTaskEventListenerSpec extends Specification {
 
     def setup() {
         TransactionSynchronizationManager.initSynchronization()
-        def platformDataBean = new PlatformDataBean()
-        platformDataBean.url="http://localhost:8900"
-        def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
-        userTaskEventListener = new UserTaskEventListener(messagingTemplate, platformDataUrlBuilder, new RestTemplate())
+        def refDataBean = new RefDataBean()
+        refDataBean.url="http://localhost:8900"
+        def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean)
+        userTaskEventListener = new UserTaskEventListener(messagingTemplate, refDataUrlBuilder, new RestTemplate())
     }
 
     def 'can notify on team task'() {
