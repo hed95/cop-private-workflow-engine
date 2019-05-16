@@ -18,7 +18,6 @@ import static java.util.Optional.ofNullable;
 public class RefDataUrlBuilder {
     private static final String LOCATION = "/location"; // ref
     private static final String TEAM = "/team"; // ref
-    private static final String RPC_TEAM_CHILDREN ="/rpc/teamchildren"; // replace with function
 
     private RefDataBean refDataBean;
 
@@ -74,11 +73,12 @@ public class RefDataUrlBuilder {
 
     }
 
-    public String teamChildren() {
+    public String teamChildren(final Collection<String> teamIds) {
         return UriComponentsBuilder.newInstance()
                 .uri(URI.create(refDataBean.getUrl()))
-                .path(RPC_TEAM_CHILDREN)
-                .build()
+                .path(TEAM)
+                .query("parentteamid=in.({ids})")
+                .buildAndExpand(Collections.singletonMap("ids", teamIds))
                 .toString();
     }
 

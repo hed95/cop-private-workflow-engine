@@ -72,10 +72,10 @@ class RefDataUrlBuilderSpec extends Specification {
 
     def 'can get team children url'() {
         when:
-        def url = underTest.teamChildren()
+        def url = underTest.teamChildren(['test', 'test1'])
 
         then:
         url
-        url == 'http://localhost:9000/rpc/teamchildren'
+        url == 'http://localhost:9000/team?parentteamid=in.([test, test1])'
     }
 }

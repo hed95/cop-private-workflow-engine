@@ -92,4 +92,70 @@ class TeamServiceSpec extends Specification {
         result[0].name == 'teamname'
 
     }
+
+    def 'can find team children'() {
+        given:
+            wireMockStub.stub {
+                request {
+                    method 'GET'
+                    url '/team?parentteamid=in.(%5B1234%5D)'
+                }
+
+                response {
+                    status 200
+                    body """[{
+                                "teamid" : "5678"
+                            },{
+                                "teamid" : "4321"
+                            }]"""
+                    headers {
+                        "Content-Type" "application/vnd.pgrst.object+json"
+                    }
+                }
+            }
+            wireMockStub.stub {
+                request {
+                    method 'GET'
+                    url '/team?parentteamid=in.(%5B4321,%205678%5D)'
+                }
+
+                response {
+                    status 200
+                    body """[]"""
+                    headers {
+                        "Content-Type" "application/vnd.pgrst.object+json"
+                    }
+                }
+            }
+
+        when:
+            def teams = teamService.teamChildren('1234')
+
+        then:
+            teams.collect({t -> t.id}) == ['5678', '4321']
+    }
+
+    def 'can find no team children'() {
+        given:
+            wireMockStub.stub {
+                request {
+                    method 'GET'
+                    url '/team?parentteamid=in.(%5B1234%5D)'
+                }
+
+                response {
+                    status 200
+                    body """[]"""
+                    headers {
+                        "Content-Type" "application/vnd.pgrst.object+json"
+                    }
+                }
+            }
+
+        when:
+            def teams = teamService.teamChildren('1234')
+
+        then:
+            teams == []
+    }
 }
