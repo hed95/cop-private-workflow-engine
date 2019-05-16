@@ -125,94 +125,94 @@ pipeline:
       event:
         - push
 
-  deploy_to_test:
-    image: quay.io/ukhomeofficedigital/kd
-    secrets:
-      - TEST_NAME
-      - TEST_KUBE_NAMESPACE
-      - TEST_KUBE_SERVER
-      - TEST_KUBE_TOKEN
-      - TEST_INTERNAL_CA_URL
-      - TEST_NO_LOGGING_URL_PARAMS
-      - TEST_NO_LOGGING_BODY
-      - TEST_NO_LOGGING_RESPONSE
-      - TEST_CA_CERTS
-      - TEST_KEYCLOAK_URL
-      - TEST_KEYCLOAK_REALM
-      - TEST_KEYCLOAK_SECRET
-      - TEST_INT_DOMAIN
-      - TEST_EXT_DOMAIN
-      - TEST_PROTOCOL
-      - TEST_WHITELIST
-      - TEST_RESOURCES_IMAGE
-      - TEST_PLATFORM_DATA_URL
-      - TEST_REDIS_URL
-      - TEST_REDIS_PORT
-      - TEST_REDIS_TOKEN
-      - TEST_GOV_NOTIFY_API_KEY
-      - TEST_GOV_NOTIFY_EMAIL_TEMPLATE_ID
-      - TEST_GOV_NOTIFY_SMS_TEMPLATE_ID
-      - TEST_SPRING
-      - TEST_ENGINE_DB_URL
-      - TEST_ENGINE_DB_USERNAME
-      - TEST_ENGINE_DB_PASSWORD
-      - TEST_PUBLIC_UI_PROTOCOL
-      - TEST_PUBLIC_UI_TXT_PROTOCOL
-      - TEST_PRIVATE_UI_NAME
-      - TEST_PRIVATE_POSTGREST_NAME
-      - TEST_PRIVATE_WORKFLOW_EXECUTOR_NAME
-      - TEST_PRIVATE_TRANSLATION_SERVICE_NAME
-      - TEST_PRIVATE_API_SERVER_NAME
-      - TEST_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME
-      - TEST_UPTIME
-    commands:
-      - export NAME=$${TEST_NAME}
-      - export KUBE_NAMESPACE=$${TEST_KUBE_NAMESPACE}
-      - export KUBE_SERVER=$${TEST_KUBE_SERVER}
-      - export KUBE_TOKEN=$${TEST_KUBE_TOKEN}
-      - export INTERNAL_CA_URL=$${TEST_INTERNAL_CA_URL}
-      - export NO_LOGGING_URL_PARAMS=$${TEST_NO_LOGGING_URL_PARAMS}
-      - export NO_LOGGING_BODY=$${TEST_NO_LOGGING_BODY}
-      - export NO_LOGGING_RESPONSE=$${TEST_NO_LOGGING_RESPONSE}
-      - export CA_CERTS=$${TEST_CA_CERTS}
-      - export KEYCLOAK_URL=$${TEST_KEYCLOAK_URL}
-      - export KEYCLOAK_REALM=$${TEST_KEYCLOAK_REALM}
-      - export KEYCLOAK_SECRET=$${TEST_KEYCLOAK_SECRET}
-      - export INT_DOMAIN=$${TEST_INT_DOMAIN}
-      - export EXT_DOMAIN=$${TEST_EXT_DOMAIN}
-      - export PROTOCOL=$${TEST_PROTOCOL}
-      - export WHITELIST=$${TEST_WHITELIST}
-      - export RESOURCES_IMAGE=$${TEST_RESOURCES_IMAGE}
-      - export PLATFORM_DATA_URL=$${TEST_PLATFORM_DATA_URL}
-      - export REDIS_URL=$${TEST_REDIS_URL}
-      - export REDIS_PORT=$${TEST_REDIS_PORT}
-      - export REDIS_TOKEN=$${TEST_REDIS_TOKEN}
-      - export GOV_NOTIFY_API_KEY=$${TEST_GOV_NOTIFY_API_KEY}
-      - export GOV_NOTIFY_EMAIL_TEMPLATE_ID=$${TEST_GOV_NOTIFY_EMAIL_TEMPLATE_ID}
-      - export GOV_NOTIFY_SMS_TEMPLATE_ID=$${TEST_GOV_NOTIFY_SMS_TEMPLATE_ID}
-      - export SPRING=$${TEST_SPRING}
-      - export ENGINE_DB_URL=$${TEST_ENGINE_DB_URL}
-      - export ENGINE_DB_USERNAME=$${TEST_ENGINE_DB_USERNAME}
-      - export ENGINE_DB_PASSWORD=$${TEST_ENGINE_DB_PASSWORD}
-      - export PUBLIC_UI_PROTOCOL=$${TEST_PUBLIC_UI_PROTOCOL}
-      - export PUBLIC_UI_TXT_PROTOCOL=$${TEST_PUBLIC_UI_TXT_PROTOCOL}
-      - export PRIVATE_UI_NAME=$${TEST_PRIVATE_UI_NAME}
-      - export PRIVATE_POSTGREST_NAME=$${TEST_PRIVATE_POSTGREST_NAME}
-      - export PRIVATE_WORKFLOW_EXECUTOR_NAME=$${TEST_PRIVATE_WORKFLOW_EXECUTOR_NAME}
-      - export PRIVATE_TRANSLATION_SERVICE_NAME=$${TEST_PRIVATE_TRANSLATION_SERVICE_NAME}
-      - export PRIVATE_API_SERVER_NAME=$${TEST_PRIVATE_API_SERVER_NAME}
-      - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${TEST_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
-      - export IMAGE_TAG=$${DRONE_BUILD_NUMBER}
-      - export UPTIME=$${TEST_UPTIME}
-      - kd --insecure-skip-tls-verify -f kube/secret.yml
-      - kd --insecure-skip-tls-verify -f kube/network-policy.yml
-      - kd --insecure-skip-tls-verify -f kube/service.yml
-      - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
-      - kd --insecure-skip-tls-verify -f kube/ingress.yml
-    when:
-      branch: master
-      event:
-        - push
+#  deploy_to_test:
+#    image: quay.io/ukhomeofficedigital/kd
+#    secrets:
+#      - TEST_NAME
+#      - TEST_KUBE_NAMESPACE
+#      - TEST_KUBE_SERVER
+#      - TEST_KUBE_TOKEN
+#      - TEST_INTERNAL_CA_URL
+#      - TEST_NO_LOGGING_URL_PARAMS
+#      - TEST_NO_LOGGING_BODY
+#      - TEST_NO_LOGGING_RESPONSE
+#      - TEST_CA_CERTS
+#      - TEST_KEYCLOAK_URL
+#      - TEST_KEYCLOAK_REALM
+#      - TEST_KEYCLOAK_SECRET
+#      - TEST_INT_DOMAIN
+#      - TEST_EXT_DOMAIN
+#      - TEST_PROTOCOL
+#      - TEST_WHITELIST
+#      - TEST_RESOURCES_IMAGE
+#      - TEST_PLATFORM_DATA_URL
+#      - TEST_REDIS_URL
+#      - TEST_REDIS_PORT
+#      - TEST_REDIS_TOKEN
+#      - TEST_GOV_NOTIFY_API_KEY
+#      - TEST_GOV_NOTIFY_EMAIL_TEMPLATE_ID
+#      - TEST_GOV_NOTIFY_SMS_TEMPLATE_ID
+#      - TEST_SPRING
+#      - TEST_ENGINE_DB_URL
+#      - TEST_ENGINE_DB_USERNAME
+#      - TEST_ENGINE_DB_PASSWORD
+#      - TEST_PUBLIC_UI_PROTOCOL
+#      - TEST_PUBLIC_UI_TXT_PROTOCOL
+#      - TEST_PRIVATE_UI_NAME
+#      - TEST_PRIVATE_POSTGREST_NAME
+#      - TEST_PRIVATE_WORKFLOW_EXECUTOR_NAME
+#      - TEST_PRIVATE_TRANSLATION_SERVICE_NAME
+#      - TEST_PRIVATE_API_SERVER_NAME
+#      - TEST_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME
+#      - TEST_UPTIME
+#    commands:
+#      - export NAME=$${TEST_NAME}
+#      - export KUBE_NAMESPACE=$${TEST_KUBE_NAMESPACE}
+#      - export KUBE_SERVER=$${TEST_KUBE_SERVER}
+#      - export KUBE_TOKEN=$${TEST_KUBE_TOKEN}
+#      - export INTERNAL_CA_URL=$${TEST_INTERNAL_CA_URL}
+#      - export NO_LOGGING_URL_PARAMS=$${TEST_NO_LOGGING_URL_PARAMS}
+#      - export NO_LOGGING_BODY=$${TEST_NO_LOGGING_BODY}
+#      - export NO_LOGGING_RESPONSE=$${TEST_NO_LOGGING_RESPONSE}
+#      - export CA_CERTS=$${TEST_CA_CERTS}
+#      - export KEYCLOAK_URL=$${TEST_KEYCLOAK_URL}
+#      - export KEYCLOAK_REALM=$${TEST_KEYCLOAK_REALM}
+#      - export KEYCLOAK_SECRET=$${TEST_KEYCLOAK_SECRET}
+#      - export INT_DOMAIN=$${TEST_INT_DOMAIN}
+#      - export EXT_DOMAIN=$${TEST_EXT_DOMAIN}
+#      - export PROTOCOL=$${TEST_PROTOCOL}
+#      - export WHITELIST=$${TEST_WHITELIST}
+#      - export RESOURCES_IMAGE=$${TEST_RESOURCES_IMAGE}
+#      - export PLATFORM_DATA_URL=$${TEST_PLATFORM_DATA_URL}
+#      - export REDIS_URL=$${TEST_REDIS_URL}
+#      - export REDIS_PORT=$${TEST_REDIS_PORT}
+#      - export REDIS_TOKEN=$${TEST_REDIS_TOKEN}
+#      - export GOV_NOTIFY_API_KEY=$${TEST_GOV_NOTIFY_API_KEY}
+#      - export GOV_NOTIFY_EMAIL_TEMPLATE_ID=$${TEST_GOV_NOTIFY_EMAIL_TEMPLATE_ID}
+#      - export GOV_NOTIFY_SMS_TEMPLATE_ID=$${TEST_GOV_NOTIFY_SMS_TEMPLATE_ID}
+#      - export SPRING=$${TEST_SPRING}
+#      - export ENGINE_DB_URL=$${TEST_ENGINE_DB_URL}
+#      - export ENGINE_DB_USERNAME=$${TEST_ENGINE_DB_USERNAME}
+#      - export ENGINE_DB_PASSWORD=$${TEST_ENGINE_DB_PASSWORD}
+#      - export PUBLIC_UI_PROTOCOL=$${TEST_PUBLIC_UI_PROTOCOL}
+#      - export PUBLIC_UI_TXT_PROTOCOL=$${TEST_PUBLIC_UI_TXT_PROTOCOL}
+#      - export PRIVATE_UI_NAME=$${TEST_PRIVATE_UI_NAME}
+#      - export PRIVATE_POSTGREST_NAME=$${TEST_PRIVATE_POSTGREST_NAME}
+#      - export PRIVATE_WORKFLOW_EXECUTOR_NAME=$${TEST_PRIVATE_WORKFLOW_EXECUTOR_NAME}
+#      - export PRIVATE_TRANSLATION_SERVICE_NAME=$${TEST_PRIVATE_TRANSLATION_SERVICE_NAME}
+#      - export PRIVATE_API_SERVER_NAME=$${TEST_PRIVATE_API_SERVER_NAME}
+#      - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${TEST_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
+#      - export IMAGE_TAG=$${DRONE_BUILD_NUMBER}
+#      - export UPTIME=$${TEST_UPTIME}
+#      - kd --insecure-skip-tls-verify -f kube/secret.yml
+#      - kd --insecure-skip-tls-verify -f kube/network-policy.yml
+#      - kd --insecure-skip-tls-verify -f kube/service.yml
+#      - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
+#      - kd --insecure-skip-tls-verify -f kube/ingress.yml
+#    when:
+#      branch: master
+#      event:
+#        - push
 
   deploy_to_demo:
     image: quay.io/ukhomeofficedigital/kd
