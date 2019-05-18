@@ -151,8 +151,8 @@ spec:
             value: "-Djava.security.egd=file:/dev/./urandom -Xms1536m -Xmx1536m -XX:MaxMetaspaceSize=256m -Djavax.net.ssl.trustStore=/etc/keystore/cacerts -Djavax.net.ssl.trustStoreType=JKS"
           - name: PLATFORM_DATA_URL
             value: "{{.PLATFORM_DATA_URL}}"
-          - name: REF_DATA_URL
-            value: "{{.REF_DATA_URL}}"
+          - name: REF_DATA_ENDPOINT_URL
+            value: "{{.REF_DATA_ENDPOINT_URL}}"
           - name: PUBLIC_UI_PROTOCOL
             value: "{{.PUBLIC_UI_PROTOCOL}}"
           - name: PUBLIC_UI_TXT_PROTOCOL
