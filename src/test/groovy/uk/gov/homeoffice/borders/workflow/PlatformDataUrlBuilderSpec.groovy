@@ -7,7 +7,7 @@ import uk.gov.homeoffice.borders.workflow.identity.TeamQuery
 
 class PlatformDataUrlBuilderSpec extends Specification {
 
-    def platformDataUrl = 'http://localhost:9000'
+    def platformDataUrl = new URI('http://localhost:9000')
     def platformDataBean = new PlatformDataBean()
 
     def underTest

@@ -20,7 +20,7 @@ class TeamServiceSpec extends Specification {
 
     def setup() {
         def refDataBean = new RefDataBean()
-        refDataBean.url="http://localhost:8182"
+        refDataBean.url=new URI("http://localhost:8182")
         def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean)
         teamService = new TeamService(new RestTemplate(), refDataUrlBuilder)
     }

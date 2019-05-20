@@ -38,7 +38,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = ["keycloak.enabled=false", "spring.datasource.name=testdbB", "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"])
-@ActiveProfiles("test")
+@ActiveProfiles("test,local")
 @AutoConfigureMockMvc
 @TestPropertySource(properties = ["GOV_NOTIFY_CLIENT_ID = XXXX",
         "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX",

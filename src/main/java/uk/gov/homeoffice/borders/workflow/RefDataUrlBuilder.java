@@ -7,7 +7,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.homeoffice.borders.workflow.config.RefDataBean;
 import uk.gov.homeoffice.borders.workflow.identity.TeamQuery;
 
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,7 +22,7 @@ public class RefDataUrlBuilder {
 
     public String teamById(String teamId) {
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(refDataBean.getUrl()))
+                .uri(refDataBean.getUrl())
                 .path("/team?teamcode=eq.{teamId}")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
                 .toString();
@@ -32,7 +31,7 @@ public class RefDataUrlBuilder {
 
     public String teamByIds(String... teamIds) {
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(refDataBean.getUrl()))
+                .uri(refDataBean.getUrl())
                 .path(TEAM)
                 .query("teamcode=in.({teamIds})")
                 .buildAndExpand(Collections.singletonMap("teamIds", teamIds))
@@ -43,7 +42,7 @@ public class RefDataUrlBuilder {
     public String teamQuery(TeamQuery team) {
         Map<String, Object> variables = new HashMap<>();
         UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
-                .uri(URI.create(refDataBean.getUrl()))
+                .uri(refDataBean.getUrl())
                 .path(TEAM);
 
         ofNullable(team.getName()).ifPresent(name -> {
@@ -75,7 +74,7 @@ public class RefDataUrlBuilder {
 
     public String teamChildren(final Collection<String> teamIds) {
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(refDataBean.getUrl()))
+                .uri(refDataBean.getUrl())
                 .path(TEAM)
                 .query("parentteamid=in.({ids})")
                 .buildAndExpand(Collections.singletonMap("ids", teamIds))
@@ -86,7 +85,7 @@ public class RefDataUrlBuilder {
     public String getLocation(String currentLocationId) {
         return UriComponentsBuilder
                 .newInstance()
-                .uri(URI.create(refDataBean.getUrl()))
+                .uri(refDataBean.getUrl())
                 .path(LOCATION)
                 .query("locationid=eq.{currentLocationId}")
                 .buildAndExpand(Collections.singletonMap("currentLocationId", currentLocationId))
