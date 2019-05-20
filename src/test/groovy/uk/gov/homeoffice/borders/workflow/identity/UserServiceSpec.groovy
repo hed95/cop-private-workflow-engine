@@ -23,7 +23,7 @@ class UserServiceSpec extends Specification {
 
     def setup() {
         def platformDataBean = new PlatformDataBean()
-        platformDataBean.url = "http://localhost:8911"
+        platformDataBean.url = new URI("http://localhost:8911")
         def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
         def teamService = Mock(TeamService)
         userService = new UserService(new RestTemplate(), platformDataUrlBuilder, teamService)

@@ -29,7 +29,7 @@ class UserTaskEventListenerSpec extends Specification {
     def setup() {
         TransactionSynchronizationManager.initSynchronization()
         def refDataBean = new RefDataBean()
-        refDataBean.url="http://localhost:8900"
+        refDataBean.url=new URI("http://localhost:8900")
         def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean)
         userTaskEventListener = new UserTaskEventListener(messagingTemplate, refDataUrlBuilder, new RestTemplate())
     }

@@ -2,19 +2,13 @@ package uk.gov.homeoffice.borders.workflow;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean;
-import uk.gov.homeoffice.borders.workflow.identity.TeamQuery;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Optional.ofNullable;
+import java.util.Collections;
 
 /**
  * Central place for building urls for Platform Data.
@@ -36,7 +30,7 @@ public class PlatformDataUrlBuilder {
     public String shiftUrlByEmail(String email) {
         email = UriUtils.encode(email, StandardCharsets.UTF_8);
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
+                .uri(platformDataBean.getUrl())
                 .path(SHIFT)
                 .query("email=eq.{email}")
                 .buildAndExpand(Collections.singletonMap("email", email))
@@ -45,7 +39,7 @@ public class PlatformDataUrlBuilder {
 
     public String shiftUrlById(String id) {
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
+                .uri(platformDataBean.getUrl())
                 .path(SHIFT)
                 .query("shiftid=eq.{id}")
                 .buildAndExpand(Collections.singletonMap("id", id))
@@ -54,7 +48,7 @@ public class PlatformDataUrlBuilder {
 
     public String shiftHistoryById(String id) {
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
+                .uri(platformDataBean.getUrl())
                 .path(SHIFT_HISTORY)
                 .query("shifthistoryid=eq.{id}")
                 .buildAndExpand(Collections.singletonMap("id", id))
@@ -63,7 +57,7 @@ public class PlatformDataUrlBuilder {
 
     public String queryShiftByTeamId(String teamId) {
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
+                .uri(platformDataBean.getUrl())
                 .path(SHIFT)
                 .query("teamid=eq.{teamId}")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
@@ -73,7 +67,7 @@ public class PlatformDataUrlBuilder {
 
     public String queryShiftByLocationId(String locationId) {
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
+                .uri(platformDataBean.getUrl())
                 .path(SHIFT)
                 .query("locationid=eq.{locationId}")
                 .buildAndExpand(Collections.singletonMap("locationId", locationId))
@@ -84,7 +78,7 @@ public class PlatformDataUrlBuilder {
 
     public String getStaffUrl() {
         return UriComponentsBuilder.newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
+                .uri(platformDataBean.getUrl())
                 .path(RPC_STAFF_DETAILS)
                 .build()
                 .toString();
@@ -93,7 +87,7 @@ public class PlatformDataUrlBuilder {
     public String getCommentsById(String taskId) {
         return UriComponentsBuilder
                 .newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
+                .uri(platformDataBean.getUrl())
                 .path(COMMENTS)
                 .query("taskid=eq.{taskId}&order=createdon.desc")
                 .buildAndExpand(Collections.singletonMap("taskId", taskId))
@@ -103,7 +97,7 @@ public class PlatformDataUrlBuilder {
     public String comments() {
         return UriComponentsBuilder
                 .newInstance()
-                .uri(URI.create(platformDataBean.getUrl()))
+                .uri(platformDataBean.getUrl())
                 .path(COMMENTS)
                 .build()
                 .toString();

@@ -7,7 +7,7 @@ import uk.gov.homeoffice.borders.workflow.identity.TeamQuery
 
 class RefDataUrlBuilderSpec extends Specification {
 
-    def refDataUrl = 'http://localhost:9000'
+    def refDataUrl = new URI('http://localhost:9000')
     def refDataBean = new RefDataBean()
 
     def underTest
