@@ -126,7 +126,8 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
-        http.csrf().disable()
+        http.cors().and()
+                .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(WEB_SOCKET_TASKS).permitAll()
                 .antMatchers(SWAGGER_WHITELIST).permitAll()

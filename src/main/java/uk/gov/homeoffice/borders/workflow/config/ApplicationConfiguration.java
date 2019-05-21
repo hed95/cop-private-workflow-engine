@@ -21,6 +21,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.process.ProcessDefinitionAuthorizationParserPlugin;
@@ -106,6 +107,8 @@ public class ApplicationConfiguration {
 
         @Autowired
         private IdentityService identityService;
+        @Autowired
+        private PrivateUiBean privateUiBean;
 
         @Override
         public void addArgumentResolvers(
@@ -113,6 +116,11 @@ public class ApplicationConfiguration {
             argumentResolvers.add(new ShiftUserMethodArgumentResolver(identityService));
             argumentResolvers.add(new TaskFilterCriteriaMethodArgumentResolver());
 
+        }
+
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/api/**").allowedOrigins(privateUiBean.getUrl().toString());
         }
     }
 }

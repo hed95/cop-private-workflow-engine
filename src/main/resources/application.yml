@@ -16,6 +16,9 @@ public-ui:
     protocol: ${PUBLIC_UI_PROTOCOL}
     text-protocol: ${PUBLIC_UI_TXT_PROTOCOL}
 
+private-ui:
+  url: ${PRIVATE_UI_URL}
+
 ref-data:
   url: ${REF_DATA_ENDPOINT_URL}
 

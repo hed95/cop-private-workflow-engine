@@ -45,6 +45,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
         "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
         "PLATFORM_DATA_ENDPOINT_URL = http://localhost:8000",
         "REF_DATA_ENDPOINT_URL = http://localhost:8000",
+        "PRIVATE_UI_URL = http://localhost:8000",
         "PLATFORM_DATA_TOKEN = DB",
         "ENGINE_DB_URL=jdbc:h2:mem:testdbB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false",
         "ENGINE_DB_USERNAME=sa", "ENGINE_DB_PASSWORD=",
@@ -177,7 +178,7 @@ abstract class BaseSpec extends Specification {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.csrf().disable().authorizeRequests().anyRequest().permitAll()
+            http.csrf().disable().cors().and().authorizeRequests().anyRequest().permitAll()
         }
     }
 }
