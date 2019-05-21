@@ -154,7 +154,7 @@ spec:
           - name: REF_DATA_URL
             value: "{{.PROTOCOL}}{{.REF_DATA_URL}}"
           - name: PRIVATE_UI_URL
-            value: "{{.PROTOCOL}}{{.PRIVATE_UI_NAME}}.{{EXT_DOMAIN}}"
+            value: "{{.PROTOCOL}}{{.PRIVATE_UI_NAME}}.{{.EXT_DOMAIN}}"
           - name: PUBLIC_UI_PROTOCOL
             value: "{{.PUBLIC_UI_PROTOCOL}}"
           - name: PUBLIC_UI_TXT_PROTOCOL
