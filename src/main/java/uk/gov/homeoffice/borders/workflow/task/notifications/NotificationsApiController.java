@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.task.notifications;
 
 
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.TaskListener;
@@ -41,6 +42,7 @@ public class NotificationsApiController {
     private NotificationService notificationService;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Create a new notification.")
     public ResponseEntity<ProcessInstanceDto> notifications(@RequestBody Notification notification,
                                                             UriComponentsBuilder uriComponentsBuilder) {
         ProcessInstance processInstance = notificationService.create(notification);
@@ -53,6 +55,7 @@ public class NotificationsApiController {
     }
 
     @DeleteMapping("/{processInstanceId}")
+    @ApiOperation("Cancels an outstanding notification.")
     public ResponseEntity cancel(@PathVariable String processInstanceId, @RequestParam String reason) {
         notificationService.cancel(processInstanceId, reason);
         return ResponseEntity.ok().build();
@@ -60,6 +63,7 @@ public class NotificationsApiController {
 
 
     @DeleteMapping("/task/{taskId}")
+    @ApiOperation("Acknowledges a notification.")
     public ResponseEntity<TaskReference> acknowledge(@PathVariable String taskId, PlatformUser platformUser) {
         String id = notificationService.acknowledge(platformUser, taskId);
         TaskReference taskReference = new TaskReference();
@@ -69,6 +73,7 @@ public class NotificationsApiController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Gets notifications for the current user.")
     public PagedResources<TaskDtoResource> notifications(Pageable pageable,
                                                          @RequestParam(required = false, defaultValue = "false") boolean countOnly,
                                                          PlatformUser platformUser) {
