@@ -13,14 +13,15 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 @Configuration
-@EnableSwagger2
-@Profile("!prod")
+@EnableSwagger2()
+@Profile("swagger")
 public class SwaggerConfig {
     @Bean
     public Docket api() {
@@ -32,13 +33,15 @@ public class SwaggerConfig {
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("uk.gov.homeoffice.borders.workflow"))
                 .paths(PathSelectors.any())
+
                 .build().globalOperationParameters(newArrayList(new ParameterBuilder()
                         .name("Authorization")
                         .description("Access Token. Prefix with Bearer")
                         .modelRef(new ModelRef("string"))
                         .parameterType("header")
                         .required(true)
-                        .build()));
+                        .build()))
+                        .ignoredParameterTypes(PlatformUser.class);
 
     }
 
