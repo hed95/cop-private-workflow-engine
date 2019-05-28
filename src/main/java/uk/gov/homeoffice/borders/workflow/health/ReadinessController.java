@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.health;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
@@ -22,6 +23,7 @@ public class ReadinessController {
     private ProcessEngineConfiguration processEngineConfiguration;
 
     @GetMapping(path = "/engine", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(hidden = true, value="Shows if the workflow engine is running")
     public Map<String,String> readiness() {
         return Collections.singletonMap("engine", processEngineConfiguration.getProcessEngineName());
     }
