@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.process;
 
 
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -33,13 +34,15 @@ public class ProcessDefinitionApiController {
     private PagedResourcesAssembler<ProcessDefinition> pagedResourcesAssembler;
 
     @GetMapping(value = PROCESS_DEFINITION_ROOT_API, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PagedResources<ProcessDefinitionDtoResource> processDefinitions(Pageable  pageable, PlatformUser platformUser) {
+    @ApiOperation("Get the list of process definitions available to the current user.")
+    public PagedResources<ProcessDefinitionDtoResource> processDefinitions(Pageable pageable, PlatformUser platformUser) {
         Page<ProcessDefinition> page = processApplicationService.processDefinitions(platformUser, pageable);
         return pagedResourcesAssembler.toResource(page, processDefinitionDtoResourceAssembler);
     }
 
 
     @GetMapping(PROCESS_DEFINITION_ROOT_API + "/{processKey}")
+    @ApiOperation("Get a process definition.")
     public ProcessDefinitionDtoResource processDefinition(@PathVariable String processKey) {
         ProcessDefinition definition = processApplicationService.getDefinition(processKey);
         String formKey = processApplicationService.formKey(definition.getId());
