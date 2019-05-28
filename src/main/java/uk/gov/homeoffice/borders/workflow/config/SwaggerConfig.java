@@ -19,8 +19,8 @@ import java.util.Collections;
 import static com.google.common.collect.Lists.newArrayList;
 
 @Configuration
-@EnableSwagger2
-@Profile("!prod")
+@EnableSwagger2()
+@Profile("swagger")
 public class SwaggerConfig {
     @Bean
     public Docket api() {
