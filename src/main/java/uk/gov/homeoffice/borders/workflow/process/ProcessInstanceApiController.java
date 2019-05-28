@@ -3,6 +3,8 @@ package uk.gov.homeoffice.borders.workflow.process;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
@@ -35,7 +37,9 @@ public class ProcessInstanceApiController {
     private ObjectMapper objectMapper;
 
     @DeleteMapping("/{processInstanceId}")
-    public ResponseEntity delete(@PathVariable String processInstanceId, @RequestParam String reason) {
+    @ApiOperation("Deletes a process instance.")
+    public ResponseEntity delete(@PathVariable String processInstanceId,
+                                 @ApiParam("The reason for deletion.") @RequestParam String reason) {
         processApplicationService.delete(processInstanceId, reason);
         return ResponseEntity.ok().build();
     }
@@ -43,6 +47,7 @@ public class ProcessInstanceApiController {
     @PostMapping(
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE )
+    @ApiOperation("Start a new process.")
     public ProcessInstanceDto createInstance(@RequestBody @Valid ProcessStartDto processStartDto, PlatformUser platformUser)
             throws JsonProcessingException {
         log.info("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
@@ -52,11 +57,13 @@ public class ProcessInstanceApiController {
     }
 
     @GetMapping(value = "/{processInstanceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get a process instance.")
     public ProcessInstanceDto processInstance(@PathVariable String processInstanceId, PlatformUser platformUser) {
         ProcessInstance processInstance = processApplicationService.getProcessInstance(processInstanceId, platformUser);
         return ProcessInstanceDto.fromProcessInstance(processInstance);
     }
     @GetMapping(value = "/{processInstanceId}/variables", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Get the process variables for a process instance.")
     public Map<String, VariableValueDto> variables(@PathVariable String processInstanceId, PlatformUser platformUser) {
         VariableMap variables = processApplicationService.variables(processInstanceId, platformUser);
         return VariableValueDto.fromVariableMap(variables);
