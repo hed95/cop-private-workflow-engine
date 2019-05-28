@@ -1,5 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.shift;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -38,6 +40,7 @@ public class ShiftApiController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Start a new shift for the current user.")
     public ResponseEntity<Void> startShift(@RequestBody @Valid ShiftDetails shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
 
         String email = shiftInfo.getEmail();
@@ -53,7 +56,8 @@ public class ShiftApiController {
     }
 
     @GetMapping(path={"/{email}", ""}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ShiftDetails shiftInfo(@PathVariable(required = false) String email, PlatformUser platformUser) {
+    @ApiOperation("Get the user's shift details.")
+    public ShiftDetails shiftInfo(@PathVariable(required = false) @ApiParam("The user's e-mail, defaults to the current user if not specified.") String email, PlatformUser platformUser) {
         String userId = ofNullable(email).orElse(platformUser.getEmail());
         return shiftApplicationService.getShiftInfo(userId);
     }
@@ -61,7 +65,8 @@ public class ShiftApiController {
 
 
     @DeleteMapping("/{email}")
-    public ResponseEntity deleteShift(@PathVariable String email, @RequestParam String deletedReason) {
+    @ApiOperation("Delete the shift for the specified user.")
+    public ResponseEntity deleteShift(@PathVariable String email, @RequestParam @ApiParam(required = true, value="The reason for deletion.") String deletedReason) {
         shiftApplicationService.deleteShift(email, deletedReason);
         return ResponseEntity.ok().build();
     }
