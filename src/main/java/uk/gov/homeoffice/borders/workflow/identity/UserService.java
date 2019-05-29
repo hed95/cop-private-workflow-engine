@@ -65,7 +65,13 @@ public class UserService {
                 HttpMethod.POST, new HttpEntity<>(Collections.singletonMap("argstaffid", shiftInfo.getStaffId()), httpHeaders), PlatformUser.class);
 
         return ofNullable(response.getBody()).map(user -> {
-            user.setTeams(teamService.teamChildren(shiftInfo.getTeamId()));
+            List<Team> teams = restTemplate
+                    .exchange(platformDataUrlBuilder.teamChildren(),
+                            HttpMethod.POST,
+                            new HttpEntity<>(Collections.singletonMap("id", shiftInfo.getTeamId())),
+                            new ParameterizedTypeReference<List<Team>>() {}).getBody();
+
+            user.setTeams(ofNullable(teams).orElse(new ArrayList<>()));
             user.setShiftDetails(shiftInfo);
             user.setEmail(shiftInfo.getEmail());
             return user;

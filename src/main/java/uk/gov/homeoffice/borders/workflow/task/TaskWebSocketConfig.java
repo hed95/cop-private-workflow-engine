@@ -21,7 +21,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
-import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.security.SecurityConfig;
 
 import java.security.Principal;
@@ -39,8 +38,8 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
 
     @Bean
     public UserTaskEventListener userTaskEventListener(SimpMessagingTemplate simpMessagingTemplate,
-                                                       RefDataUrlBuilder refDataUrlBuilder, RestTemplate restTemplate) {
-        return new UserTaskEventListener(simpMessagingTemplate, refDataUrlBuilder, restTemplate);
+                                                       PlatformDataUrlBuilder platformDataUrlBuilder, RestTemplate restTemplate) {
+        return new UserTaskEventListener(simpMessagingTemplate, platformDataUrlBuilder, restTemplate);
     }
 
     @Override
