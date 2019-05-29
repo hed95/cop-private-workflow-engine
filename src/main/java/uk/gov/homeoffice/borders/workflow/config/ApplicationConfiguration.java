@@ -4,6 +4,8 @@ package uk.gov.homeoffice.borders.workflow.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
+import org.camunda.bpm.engine.rest.*;
+import org.camunda.bpm.engine.rest.history.HistoryRestService;
 import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
@@ -28,6 +30,7 @@ import uk.gov.homeoffice.borders.workflow.security.KeycloakClient;
 import uk.gov.homeoffice.borders.workflow.shift.ShiftUserMethodArgumentResolver;
 import uk.gov.homeoffice.borders.workflow.task.TaskFilterCriteriaMethodArgumentResolver;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -103,6 +106,21 @@ public class ApplicationConfiguration {
 
     @Configuration
     public static class MVCMethodConfig implements WebMvcConfigurer {
+        private static String[] corsPaths = {
+               "/api",
+                ExternalTaskRestService.PATH,
+                ExecutionRestService.PATH,
+                IncidentRestService.PATH,
+                HistoryRestService.PATH,
+                DeploymentRestService.PATH,
+                JobDefinitionRestService.PATH,
+                JobRestService.PATH,
+                ProcessInstanceRestService.PATH,
+                ProcessDefinitionRestService.PATH,
+                MessageRestService.PATH,
+                TaskRestService.PATH,
+                AuthorizationRestService.PATH
+        };
 
         @Autowired
         private IdentityService identityService;
@@ -119,8 +137,7 @@ public class ApplicationConfiguration {
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/api/**").allowedOrigins(privateUiBean.getUrl().toString());
-            registry.addMapping("/rest/**").allowedOrigins(privateUiBean.getUrl().toString());
+            Arrays.stream(corsPaths).forEach(p -> registry.addMapping(p + "/**").allowedOrigins(privateUiBean.getUrl().toString()));
         }
     }
 }

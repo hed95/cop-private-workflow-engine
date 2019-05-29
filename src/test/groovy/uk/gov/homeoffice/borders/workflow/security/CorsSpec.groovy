@@ -29,7 +29,7 @@ class CorsSpec extends BaseSpec {
             logInUser()
 
         when:
-            def result = mvc.perform(get("/rest/camunda/process-definition/key/foo")
+            def result = mvc.perform(get("/process-definition/key/foo/start")
                 .header("Origin", "http://localhost:8000")
                 .header("Access-Control-Request-Method", "GET"))
 
@@ -44,9 +44,9 @@ class CorsSpec extends BaseSpec {
             logInUser()
 
         when:
-            def result = mvc.perform(options("/rest/camunda/process-definition/key/foo")
+            def result = mvc.perform(options("/process-definition/key/foo/start")
                 .header("Origin", "http://localhost:8000")
-                .header("Access-Control-Request-Method", "GET"))
+                .header("Access-Control-Request-Method", "POST"))
 
         then:
             result.andExpect(status().is2xxSuccessful())
