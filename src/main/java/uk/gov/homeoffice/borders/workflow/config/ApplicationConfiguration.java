@@ -121,6 +121,7 @@ public class ApplicationConfiguration {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/api/**").allowedOrigins(privateUiBean.getUrl().toString());
+            registry.addMapping("/rest/**").allowedOrigins(privateUiBean.getUrl().toString());
         }
     }
 }
