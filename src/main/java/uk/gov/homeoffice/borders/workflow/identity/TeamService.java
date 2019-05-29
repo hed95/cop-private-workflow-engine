@@ -7,26 +7,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class TeamService {
 
     private RestTemplate restTemplate;
-    private RefDataUrlBuilder refDataUrlBuilder;
+    private PlatformDataUrlBuilder platformDataUrlBuilder;
 
     public Team findById(String teamId) {
-        ResponseEntity<List<Team>> response = restTemplate.exchange(refDataUrlBuilder.teamById(teamId),
-                HttpMethod.GET, httpEntity(), new ParameterizedTypeReference<List<Team>>() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
+        HttpEntity httpEntity = new HttpEntity(httpHeaders);
+        ResponseEntity<List<Team>> response = restTemplate.exchange(platformDataUrlBuilder.teamById(teamId),
+                HttpMethod.GET, httpEntity, new ParameterizedTypeReference<List<Team>>() {
                 });
         return response.getStatusCode().is2xxSuccessful() && !response.getBody().isEmpty() ? response.getBody().get(0) : null;
 
@@ -36,7 +35,7 @@ public class TeamService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         List<Team> teams = restTemplate.exchange(
-                refDataUrlBuilder.teamQuery(query),
+                platformDataUrlBuilder.teamQuery(query),
                 HttpMethod.GET,
                 new HttpEntity<>(httpHeaders),
                 new ParameterizedTypeReference<List<Team>>() {
@@ -44,30 +43,5 @@ public class TeamService {
                 new HashMap<>()
         ).getBody();
         return new ArrayList<>(teams);
-    }
-
-    public List<Team> teamChildren(String teamId) {
-        return teamChildren(singleton(teamId));
-    }
-
-    public List<Team> teamChildren(Collection<String> teamId) {
-        if (teamId.isEmpty()) {
-            return emptyList();
-        }
-        List<Team> teams = ofNullable(restTemplate
-                .exchange(refDataUrlBuilder.teamChildren(teamId),
-                        HttpMethod.GET,
-                        httpEntity(),
-                        new ParameterizedTypeReference<List<Team>>() {}).getBody()).orElse(new ArrayList<>());
-
-        final Collection<String> childIds = teams.stream().map(Team::getId).collect(toSet());
-        teams.addAll(teamChildren(childIds));
-        return teams;
-    }
-
-    private HttpEntity httpEntity() {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
-        return new HttpEntity(httpHeaders);
     }
 }

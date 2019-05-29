@@ -6,9 +6,7 @@ import org.junit.Rule
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
-import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
-import uk.gov.homeoffice.borders.workflow.config.RefDataBean
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException
 
 class UserServiceSpec extends Specification {
@@ -93,6 +91,31 @@ class UserServiceSpec extends Specification {
                 }
             }
         }
+
+        wireMockStub.stub {
+            request {
+                method 'POST'
+                url '/rpc/teamchildren'
+
+            }
+            response {
+                status: 200
+                body """
+                       [
+                          {
+                            "teamid": "teamid",
+                            "parentteamid": null,
+                            "teamname": "teamname",
+                            "teamcode": "teamcode"
+                          }
+                        ]
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
+
 
 
         when:
@@ -318,6 +341,31 @@ class UserServiceSpec extends Specification {
                 }
             }
         }
+
+        wireMockStub.stub {
+            request {
+                method 'POST'
+                url '/rpc/teamchildren'
+
+            }
+            response {
+                status: 200
+                body """
+                       [
+                          {
+                            "teamid": "teamid",
+                            "parentteamid": null,
+                            "teamname": "teamname",
+                            "teamcode": "teamcode"
+                          }
+                        ]
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
+
 
         when:
         def query = new UserQuery()
