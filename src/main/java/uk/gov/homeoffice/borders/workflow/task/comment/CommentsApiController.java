@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.task.comment;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,13 @@ public class CommentsApiController {
     private CommentsApplicationService commentsApplicationService;
 
     @GetMapping(path = "/api/workflow/tasks/{taskId}/comments")
+    @ApiOperation("Get the comments on a task.")
     public List<TaskComment> comments(@PathVariable String taskId, PlatformUser platformUser) {
         return commentsApplicationService.comments(platformUser, taskId);
     }
 
     @PostMapping(path = "/api/workflow/tasks/comments", produces = "application/json", consumes = "application/json")
+    @ApiOperation("Add a commment to a task.")
     public TaskComment create(@RequestBody @Valid TaskComment commentDto, PlatformUser platformUser) {
         return commentsApplicationService.create(platformUser, commentDto);
     }
