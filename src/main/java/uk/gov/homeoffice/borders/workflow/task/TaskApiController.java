@@ -1,10 +1,10 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.camunda.bpm.engine.repository.ResourceDefinition;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.repository.ProcessDefinitionDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
@@ -52,6 +52,7 @@ public class TaskApiController {
     private ProcessApplicationService processApplicationService;
 
     @GetMapping
+    @ApiOperation("Get all tasks for the current user.")
     public PagedResources<TaskDtoResource> tasks(TaskCriteria taskCriteria,
                                                  Pageable pageable,
                                                  PlatformUser platformUser) {
@@ -69,6 +70,7 @@ public class TaskApiController {
 
     @GetMapping("/{taskId}")
     @SuppressWarnings("unchecked")
+    @ApiOperation("Get a task.")
     public CompletableFuture<TaskDtoResource> task(@PathVariable String taskId,
                                                    @RequestParam(required = false, defaultValue = "false") Boolean includeVariables, PlatformUser user)  {
         Mono<Task> task = Mono
@@ -101,12 +103,14 @@ public class TaskApiController {
     }
 
     @GetMapping("/{taskId}/variables")
+    @ApiOperation("Get the variables available to a task.")
     public Map<String, VariableValueDto> variables(@PathVariable String taskId, PlatformUser platformUser) {
         VariableMap variables = applicationService.getVariables(platformUser, taskId);
         return VariableValueDto.fromVariableMap(variables);
     }
 
     @PostMapping
+    @ApiOperation("Query tasks for the current user.")
     public PagedResources<TaskDtoResource> query(@RequestBody TaskQueryDto queryDto, Pageable pageable, PlatformUser platformUser) {
         Page<Task> page = applicationService.query(platformUser, queryDto, pageable);
         return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
@@ -114,12 +118,14 @@ public class TaskApiController {
     }
 
     @PostMapping("/{taskId}/_claim")
+    @ApiOperation("Claims a task for the current user.")
     public ResponseEntity claim(@PathVariable String taskId, PlatformUser platformUser) {
         applicationService.claimTask(platformUser, taskId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{taskId}/_complete")
+    @ApiOperation("Completes a task for the current user.")
     public ResponseEntity complete(@PathVariable String taskId, @RequestBody(required = false)
             CompleteTaskDto completeTaskDto, PlatformUser platformUser) {
         applicationService.completeTask(platformUser, taskId, completeTaskDto);
@@ -127,6 +133,7 @@ public class TaskApiController {
     }
 
     @PostMapping("/{taskId}/complete")
+    @ApiOperation("Completes an external system task. ")
     public ResponseEntity completeTask(@PathVariable String taskId, @RequestBody(required = false)
             TaskCompleteDto completeTaskDto) throws Exception {
         log.info("Task completed with variables {}", objectMapper.writeValueAsString(completeTaskDto));
@@ -144,6 +151,7 @@ public class TaskApiController {
     }
 
     @PostMapping(value = "/{taskId}/form/_complete", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Completes a task for the current user with the specified form data.")
     public ResponseEntity completeWithForm(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto,
                                            PlatformUser user) {
         applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
@@ -152,12 +160,14 @@ public class TaskApiController {
     }
 
     @PostMapping("/{taskId}/_unclaim")
+    @ApiOperation("Unclaims a task for the current user.")
     public ResponseEntity unclaim(@PathVariable String taskId, PlatformUser platformUser) {
         applicationService.unclaim(platformUser, taskId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/_task-counts")
+    @ApiOperation("Gets the count of tasks for the current user.")
     public CompletableFuture<TasksCountDto> taskCounts(PlatformUser platformUser) {
         return applicationService.taskCounts(platformUser).toFuture();
     }
