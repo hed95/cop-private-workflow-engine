@@ -66,7 +66,7 @@ class UserServiceSpec extends Specification {
                        {
                           "phone": "phone",
                           "email": "email",
-                          "gradetypeid": "gradetypeid",
+                          "gradeid": "gradeid",
                           "firstname": "firstname",
                           "surname": "surname",
                           "linemanagerid": "linemanagerid",
@@ -165,7 +165,7 @@ class UserServiceSpec extends Specification {
                        [{
                           "phone": "phone",
                           "email": "email",
-                          "gradetypeid": "gradetypeid",
+                          "gradeid": "gradeid",
                           "firstname": "firstname",
                           "surname": "surname",
                           "qualificationtypes": [
@@ -237,7 +237,7 @@ class UserServiceSpec extends Specification {
                        [{
                           "phone": "phone",
                           "email": "email",
-                          "gradetypeid": "gradetypeid",
+                          "gradeid": "gradeid",
                           "firstname": "firstname",
                           "surname": "surname",
                           "qualificationtypes": [
@@ -319,7 +319,7 @@ class UserServiceSpec extends Specification {
                        {
                           "phone": "phone",
                           "email": "email",
-                          "gradetypeid": "gradetypeid",
+                          "gradeid": "gradeid",
                           "firstname": "firstname",
                           "surname": "surname",
                           "qualificationtypes": [

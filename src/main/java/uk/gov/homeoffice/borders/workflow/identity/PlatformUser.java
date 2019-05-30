@@ -42,8 +42,8 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
     private String divisionId;
     @JsonProperty("commandid")
     private String commandId;
-    @JsonProperty("gradetypeid")
-    private String gradeTypeId;
+    @JsonProperty("gradeid")
+    private String gradeId;
     @JsonProperty("identityid")
     private String identityId;
     private ShiftDetails shiftDetails;
