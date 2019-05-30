@@ -68,7 +68,7 @@ public class UserService {
             List<Team> teams = restTemplate
                     .exchange(platformDataUrlBuilder.teamChildren(),
                             HttpMethod.POST,
-                            new HttpEntity<>(Collections.singletonMap("id", shiftInfo.getTeamId())),
+                            new HttpEntity<>(Collections.singletonMap("inputid", shiftInfo.getTeamId())),
                             new ParameterizedTypeReference<List<Team>>() {}).getBody();
 
             user.setTeams(ofNullable(teams).orElse(new ArrayList<>()));
