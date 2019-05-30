@@ -1,7 +1,5 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
-import io.swagger.v3.jaxrs2.SwaggerSerializers;
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.*;
 import org.camunda.bpm.engine.rest.history.HistoryRestService;
