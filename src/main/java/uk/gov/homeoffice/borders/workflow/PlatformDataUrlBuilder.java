@@ -65,7 +65,7 @@ public class PlatformDataUrlBuilder {
     public String teamById(String teamId) {
         return UriComponentsBuilder.newInstance()
                 .uri(platformDataBean.getUrl())
-                .path("/team?teamcode=eq.{teamId}")
+                .path("/team?code=eq.{teamId}")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
                 .toString();
 
@@ -75,7 +75,7 @@ public class PlatformDataUrlBuilder {
         return UriComponentsBuilder.newInstance()
                 .uri(platformDataBean.getUrl())
                 .path(TEAM)
-                .query("teamcode=in.({teamIds})")
+                .query("code=in.({teamIds})")
                 .buildAndExpand(Collections.singletonMap("teamIds", teamIds))
                 .toString();
 

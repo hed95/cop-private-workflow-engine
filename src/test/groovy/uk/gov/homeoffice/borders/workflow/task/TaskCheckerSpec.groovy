@@ -19,7 +19,7 @@ class TaskCheckerSpec extends Specification {
         def user = new PlatformUser()
         def team = new Team()
         team.id = 'teamId'
-        team.teamCode = 'teamCode'
+        team.code = 'teamCode'
         user.teams = [team]
 
         and:
@@ -46,7 +46,7 @@ class TaskCheckerSpec extends Specification {
         user.email = 'email'
         def team = new Team()
         team.id = 'teamId'
-        team.teamCode = 'teamCode'
+        team.code = 'teamCode'
         user.teams = [team]
 
         and:
@@ -74,7 +74,7 @@ class TaskCheckerSpec extends Specification {
         user.email = 'email'
         def team = new Team()
         team.id = 'teamId'
-        team.teamCode = 'teamCodeA'
+        team.code = 'teamCodeA'
         user.teams = [team]
 
         and:

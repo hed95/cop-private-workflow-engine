@@ -70,7 +70,7 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
         Team team = new Team();
         team.setName(SERVICE_ROLE);
         team.setType(SERVICE_ROLE);
-        team.setTeamCode(SERVICE_ROLE);
+        team.setCode(SERVICE_ROLE);
         platformUser.setTeams(Collections.singletonList(team));
         return new WorkflowAuthentication(platformUser);
     }

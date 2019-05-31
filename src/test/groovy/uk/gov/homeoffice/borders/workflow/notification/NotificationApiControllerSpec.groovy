@@ -184,7 +184,7 @@ class NotificationApiControllerSpec extends BaseSpec {
         user.email = 'email'
         def team = new Team()
         user.teams = []
-        team.teamCode = 'teamA'
+        team.code = 'teamA'
         user.teams << team
 
         user

@@ -27,7 +27,7 @@ public class WorkflowAuthentication extends Authentication {
     }
 
     public WorkflowAuthentication(PlatformUser user) {
-        super(user.getEmail(), user.getTeams().stream().map(Team::getTeamCode).collect(toList()), new ArrayList<>());
+        super(user.getEmail(), user.getTeams().stream().map(Team::getCode).collect(toList()), new ArrayList<>());
         this.user = user;
     }
 

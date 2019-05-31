@@ -21,7 +21,7 @@ public class IdentityHelper {
         WorkflowAuthentication currentAuthentication = (WorkflowAuthentication) identityService.getCurrentAuthentication();
 
         return ofNullable(currentAuthentication).map((authentication) -> {
-            List<String> teamCodes = authentication.getUser().getTeams().stream().map(Team::getTeamCode).collect(toList());
+            List<String> teamCodes = authentication.getUser().getTeams().stream().map(Team::getCode).collect(toList());
             return String.join(",", teamCodes);
         }).orElse("");
     }

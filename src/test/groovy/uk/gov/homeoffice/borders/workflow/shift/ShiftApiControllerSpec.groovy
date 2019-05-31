@@ -291,7 +291,7 @@ class ShiftApiControllerSpec extends BaseSpec {
 
         def team = new Team()
         user.teams = []
-        team.teamCode = 'teamA'
+        team.code = 'teamA'
         user.teams << team
         identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
         user

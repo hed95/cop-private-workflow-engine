@@ -59,7 +59,7 @@ public class UserTaskEventListener extends ReactorTaskListener {
 
                 if (response != null) {
                     teamIds.addAll(response.stream()
-                            .filter(team -> !team.getTeamCode().equalsIgnoreCase("STAFF"))
+                            .filter(team -> !team.getCode().equalsIgnoreCase("STAFF"))
                             .map(Team::getId).collect(Collectors.toList()));
                     log.info("teamids {}", teamIds);
                 }

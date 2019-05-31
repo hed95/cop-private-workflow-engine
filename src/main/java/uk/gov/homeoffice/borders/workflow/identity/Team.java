@@ -11,7 +11,7 @@ public class Team implements org.camunda.bpm.engine.identity.Group {
     private String id;
     @JsonProperty("teamname")
     private String name;
-    @JsonProperty("teamcode")
-    private String teamCode;
+    @JsonProperty("code")
+    private String code;
     private String type;
 }

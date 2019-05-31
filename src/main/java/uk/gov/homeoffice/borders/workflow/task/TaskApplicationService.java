@@ -114,7 +114,7 @@ public class TaskApplicationService {
 
 
     private List<String> resolveCandidateGroups(PlatformUser user) {
-        return user.getTeams().stream().map(Team::getTeamCode).collect(toList());
+        return user.getTeams().stream().map(Team::getCode).collect(toList());
     }
 
     /**

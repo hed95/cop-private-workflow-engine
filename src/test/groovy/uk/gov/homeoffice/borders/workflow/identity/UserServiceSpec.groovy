@@ -106,7 +106,7 @@ class UserServiceSpec extends Specification {
                             "teamid": "teamid",
                             "parentteamid": null,
                             "teamname": "teamname",
-                            "teamcode": "teamcode"
+                            "code": "teamcode"
                           }
                         ]
                      """
@@ -356,7 +356,7 @@ class UserServiceSpec extends Specification {
                             "teamid": "teamid",
                             "parentteamid": null,
                             "teamname": "teamname",
-                            "teamcode": "teamcode"
+                            "code": "teamcode"
                           }
                         ]
                      """
