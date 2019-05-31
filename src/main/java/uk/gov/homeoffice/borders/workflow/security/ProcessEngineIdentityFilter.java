@@ -47,6 +47,7 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
                 .findFirst();
 
         String userId = keycloakSecurityContext.getToken().getEmail();
+        configureMDC(userId, request);
 
         WorkflowAuthentication workflowAuthentication = serviceRole.map(role -> {
             log.debug("Service account user...'{}'", userId);
@@ -55,7 +56,6 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
                 orElse(new WorkflowAuthentication(userId, new ArrayList<>())));
 
         identityService.setAuthentication(workflowAuthentication);
-        configureMDC(workflowAuthentication, request);
         try {
             chain.doFilter(request, response);
         } finally {
@@ -85,8 +85,8 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
         return (PlatformUser) identityService.createUserQuery().userId(userId).singleResult();
     }
 
-    private void configureMDC(final WorkflowAuthentication auth, final HttpServletRequest request) {
-        MDC.put("userId", auth.getUserId());
+    private void configureMDC(final String userId, final HttpServletRequest request) {
+        MDC.put("userId", userId);
         MDC.put("requestPath", request.getServletPath());
         MDC.put("correlationId", request.getHeader(CORRELATION_HEADER_NAME));
     }
