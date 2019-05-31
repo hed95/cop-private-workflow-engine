@@ -59,9 +59,9 @@ class UserTaskEventListenerSpec extends Specification {
                 status 200
                 body """ [
                             {
-                                "teamid" : "id",
+                                "id" : "id",
                                 "code" : "teamA",
-                                "teamname" : "teamA"
+                                "name" : "teamA"
                             }
                          ]
                      """

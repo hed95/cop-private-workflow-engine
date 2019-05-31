@@ -37,9 +37,9 @@ class TeamServiceSpec extends Specification {
                 status 200
                 body """ [
                             {
-                                "teamid" : "id",
+                                "id" : "id",
                                 "code" : "code",
-                                "teamname" : "teamname"
+                                "name" : "teamname"
                             }
                          ]
                      """
@@ -63,16 +63,16 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/team?teamname=eq.teamname'
+                url '/team?name=eq.name'
             }
 
             response {
                 status 200
                 body """ [
                             {
-                                "teamid" : "id",
+                                "id" : "id",
                                 "code" : "code",
-                                "teamname" : "teamname"
+                                "name" : "teamname"
                             }
                          ]
                      """
@@ -83,7 +83,7 @@ class TeamServiceSpec extends Specification {
 
         }
         when:
-        def teamQuery = new TeamQuery().groupName("teamname")
+        def teamQuery = new TeamQuery().groupName("name")
         def result = teamService.findByQuery(teamQuery)
 
         then:
