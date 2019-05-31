@@ -103,10 +103,10 @@ class UserServiceSpec extends Specification {
                 body """
                        [
                           {
-                            "teamid": "teamid",
+                            "id": "teamid",
                             "parentteamid": null,
-                            "teamname": "teamname",
-                            "teamcode": "teamcode"
+                            "name": "teamname",
+                            "code": "teamcode"
                           }
                         ]
                      """
@@ -353,10 +353,10 @@ class UserServiceSpec extends Specification {
                 body """
                        [
                           {
-                            "teamid": "teamid",
+                            "id": "teamid",
                             "parentteamid": null,
-                            "teamname": "teamname",
-                            "teamcode": "teamcode"
+                            "name": "teamname",
+                            "code": "teamcode"
                           }
                         ]
                      """

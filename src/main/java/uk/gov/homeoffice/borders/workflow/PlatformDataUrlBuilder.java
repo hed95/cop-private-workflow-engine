@@ -65,7 +65,7 @@ public class PlatformDataUrlBuilder {
     public String teamById(String teamId) {
         return UriComponentsBuilder.newInstance()
                 .uri(platformDataBean.getUrl())
-                .path("/team?teamcode=eq.{teamId}")
+                .path("/team?code=eq.{teamId}")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
                 .toString();
 
@@ -75,7 +75,7 @@ public class PlatformDataUrlBuilder {
         return UriComponentsBuilder.newInstance()
                 .uri(platformDataBean.getUrl())
                 .path(TEAM)
-                .query("teamcode=in.({teamIds})")
+                .query("code=in.({teamIds})")
                 .buildAndExpand(Collections.singletonMap("teamIds", teamIds))
                 .toString();
 
@@ -89,23 +89,23 @@ public class PlatformDataUrlBuilder {
 
         ofNullable(team.getName()).ifPresent(name -> {
             variables.put("name", name);
-            builder.query("teamname=eq.{name}");
+            builder.query("name=eq.{name}");
         });
 
         ofNullable(team.getId()).ifPresent(id -> {
             variables.put("id", id);
-            builder.query("teamid=eq.{id}");
+            builder.query("id=eq.{id}");
         });
 
         ofNullable(team.getNameLike()).ifPresent(nameLike -> {
             variables.put("nameLike", nameLike);
-            builder.query("teamname=like.{nameLike}");
+            builder.query("name=like.{nameLike}");
         });
         ofNullable(team.getIds()).ifPresent(ids -> {
             List<String> idsForProcessing = Arrays.stream(ids).map(id -> "\"" + id + "\"").collect(Collectors.toList());
             String idsToProcess = StringUtils.join(idsForProcessing, ",");
             variables.put("ids", idsToProcess);
-            builder.query("teamid=in.({ids})");
+            builder.query("id=in.({ids})");
         });
 
         return builder

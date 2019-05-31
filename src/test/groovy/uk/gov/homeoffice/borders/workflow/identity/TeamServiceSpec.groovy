@@ -30,16 +30,16 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/team?teamcode=eq.teamcode'
+                url '/team?code=eq.code'
             }
 
             response {
                 status 200
                 body """ [
                             {
-                                "teamid" : "id",
-                                "teamcode" : "teamcode",
-                                "teamname" : "teamname"
+                                "id" : "id",
+                                "code" : "code",
+                                "name" : "teamname"
                             }
                          ]
                      """
@@ -50,12 +50,12 @@ class TeamServiceSpec extends Specification {
 
         }
         when:
-        def result = teamService.findById("teamcode")
+        def result = teamService.findById("code")
 
         then:
         result
         result.name == 'teamname'
-        result.teamCode == 'teamcode'
+        result.code == 'code'
     }
 
     def 'can find by query'() {
@@ -63,16 +63,16 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/team?teamname=eq.teamname'
+                url '/team?name=eq.name'
             }
 
             response {
                 status 200
                 body """ [
                             {
-                                "teamid" : "id",
-                                "teamcode" : "teamcode",
-                                "teamname" : "teamname"
+                                "id" : "id",
+                                "code" : "code",
+                                "name" : "teamname"
                             }
                          ]
                      """
@@ -83,7 +83,7 @@ class TeamServiceSpec extends Specification {
 
         }
         when:
-        def teamQuery = new TeamQuery().groupName("teamname")
+        def teamQuery = new TeamQuery().groupName("name")
         def result = teamService.findByQuery(teamQuery)
 
         then:

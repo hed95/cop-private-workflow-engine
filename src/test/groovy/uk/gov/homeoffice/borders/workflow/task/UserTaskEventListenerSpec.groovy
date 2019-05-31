@@ -11,9 +11,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
-import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
-import uk.gov.homeoffice.borders.workflow.config.RefDataBean
 
 class UserTaskEventListenerSpec extends Specification {
 
@@ -54,16 +52,16 @@ class UserTaskEventListenerSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/team?teamcode=in.(teamA)'
+                url '/team?code=in.(teamA)'
             }
 
             response {
                 status 200
                 body """ [
                             {
-                                "teamid" : "id",
-                                "teamcode" : "teamA",
-                                "teamname" : "teamA"
+                                "id" : "id",
+                                "code" : "teamA",
+                                "name" : "teamA"
                             }
                          ]
                      """
