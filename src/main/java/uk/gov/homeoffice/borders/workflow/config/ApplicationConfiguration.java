@@ -137,7 +137,9 @@ public class ApplicationConfiguration {
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {
-            Arrays.stream(corsPaths).forEach(p -> registry.addMapping(p + "/**").allowedOrigins(privateUiBean.getUrl().toString(), "http://localhost:8080"));
+            Arrays.stream(corsPaths).forEach(p -> registry.addMapping(p + "/**")
+                                                          .allowedOrigins(privateUiBean.getUrl().toString(), "http://localhost:8080")
+                                                          .allowedMethods("HEAD", "GET", "POST", "DELETE"));
         }
     }
 }
