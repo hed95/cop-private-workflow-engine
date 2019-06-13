@@ -69,10 +69,10 @@ spec:
           memory: "50Mi"
           cpu: "100m"
         env:
-        - name: PROXY_SERVICE_HOST
-          value: "127.0.0.1"
-        - name: PROXY_SERVICE_PORT
-          value: "8080"
+        - name: CUSTOM_PROXY_CONFIG
+          value: "TRUE"
+        - name: CUSTOM_SECURITY_DEFAULTS
+          value: "TRUE"
         - name: SERVER_CERT
           value: "/certs/tls.pem"
         - name: SERVER_KEY
@@ -115,6 +115,8 @@ spec:
           - name: bundle
             mountPath: /etc/ssl/certs
             readOnly: true
+          - name: proxyconfigmap
+            mountPath: /mnt/configmap
       - name: {{.NAME}}
         image: quay.io/ukhomeofficedigital/cop-private-workflow-engine:{{.IMAGE_TAG}}
         imagePullPolicy: Always
