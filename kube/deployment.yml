@@ -68,6 +68,9 @@ spec:
          requests:
           memory: "50Mi"
           cpu: "100m"
+        command: ["/bin/bash"]
+        args: ["-c", "/bin/cp /mnt/configmap/* /usr/local/openresty/nginx/conf/locations/; cd /usr/local/openresty; /go.sh"]
+
         env:
         - name: CUSTOM_PROXY_CONFIG
           value: "TRUE"
