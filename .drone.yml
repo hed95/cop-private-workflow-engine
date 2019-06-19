@@ -10,16 +10,6 @@ pipeline:
         - push
         - pull_request
 
-  sonar-scanner:
-    image: quay.io/ukhomeofficedigital/sonar-scanner:v3.0.1
-    when:
-      status:
-        - failure
-        - success
-      event:
-        - push
-        - pull_request
-
   image_to_quay:
     image: quay.io/ukhomeofficedigital/drone-docker
     secrets:
