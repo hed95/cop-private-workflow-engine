@@ -1,4 +1,4 @@
-FROM quay.io/digitalpatterns/jdk:master
+FROM digitalpatterns/jdk:1
 
 ADD . /app/
 
