@@ -1,6 +1,6 @@
 pipeline:
   test:
-    image: quay.io/digitalpatterns/jdk:master
+    image: digitalpatterns/jdk:1
     environment:
       - GRADLE_USER_HOME=~/.gradle
     commands:
