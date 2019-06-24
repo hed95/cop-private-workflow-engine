@@ -115,8 +115,6 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 20
         volumeMounts:
-          - name: keystore
-            mountPath: /etc/keystore
           - name: certs
             mountPath: /certs
             readOnly: true
