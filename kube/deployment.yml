@@ -44,7 +44,7 @@ spec:
           - name: keystore
             mountPath: /etc/keystore
       containers:
-      - name: certs
+      - name: certs1
         image: quay.io/ukhomeofficedigital/borders-cfssl-sidekick:bd4901b5a28c
         securityContext:
           runAsNonRoot: true
