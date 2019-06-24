@@ -107,6 +107,7 @@ pipeline:
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${DEV_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${DRONE_COMMIT_SHA}
       - export UPTIME=$${DEV_UPTIME}
+      - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/service.yml
@@ -198,6 +199,7 @@ pipeline:
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${STAGING_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${DRONE_COMMIT_SHA}
       - export UPTIME=$${STAGING_UPTIME}
+      - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/service.yml
@@ -289,6 +291,7 @@ pipeline:
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${PRODUCTION_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${DRONE_COMMIT_SHA}
       - export UPTIME=$${PRODUCTION_UPTIME}
+      - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
       - kd --insecure-skip-tls-verify -f kube/service.yml
