@@ -206,8 +206,8 @@ spec:
         configMap:
           name: bundle
       - name: certs
-        secret: "{{.NAME}}-pod-tls"
-          secretName: tls
+        secret:
+          secretName: "{{.NAME}}-pod-tls"
       - name: keystore
         emptyDir: {}
       - name: proxyconfigmap
