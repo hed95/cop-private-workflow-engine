@@ -20,14 +20,29 @@ spec:
         runAsUser: 1000
         fsGroup: 1000
       initContainers:
-      - name: resources
-        image: {{.RESOURCES_IMAGE}}
-        imagePullPolicy: Always
+      - name: certs
+        image: quay.io/ukhomeofficedigital/borders-cfssl-sidekick:bd4901b5a28c
         securityContext:
           runAsNonRoot: true
+          capabilities:
+            drop:
+             - SETUID
+             - SETGID
+        args:
+          - --domain={{.NAME}}.{{.KUBE_NAMESPACE}}.svc.cluster.local
+          - --url={{.INTERNAL_CA_URL}}
+          - --command=/usr/bin/create.sh
+          - --tls-ca=/cacerts
+          - --tls-ca-name=ca-bundle.pem
+          - --verbose=True
         volumeMounts:
-          - name: resourcerepo
-            mountPath: /repo
+          - name: certs
+            mountPath: /certs
+          - name: cacerts
+            mountPath: /cacerts
+            readOnly: true
+          - name: keystore
+            mountPath: /etc/keystore
       containers:
       - name: certs
         image: quay.io/ukhomeofficedigital/borders-cfssl-sidekick:bd4901b5a28c
