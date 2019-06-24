@@ -190,8 +190,6 @@ spec:
       - name: certs
         secret:
           secretName: "{{.NAME}}-pod-tls"
-      - name: keystore
-        emptyDir: {}
       - name: cacerts
         secret:
           secretName: {{.CA_CERTS}}

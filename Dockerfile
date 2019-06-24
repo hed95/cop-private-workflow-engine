@@ -6,7 +6,9 @@ WORKDIR /app
 
 USER root
 
-RUN ./gradlew clean build -x test
+RUN ./gradlew clean build -x test && \
+    mkdir /etc/keystore && \
+    chown 1000 /etc/keystore
 
 EXPOSE 8080
 
