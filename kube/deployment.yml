@@ -206,7 +206,7 @@ spec:
         configMap:
           name: bundle
       - name: certs
-        secret: {{.NAME}}-pod-tls
+        secret: "{{.NAME}}-pod-tls"
           secretName: tls
       - name: keystore
         emptyDir: {}

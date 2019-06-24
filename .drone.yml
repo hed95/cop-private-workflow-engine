@@ -1,30 +1,30 @@
 pipeline:
-  test:
-    image: digitalpatterns/jdk:1
-    environment:
-      - GRADLE_USER_HOME=~/.gradle
-    commands:
-      - ./gradlew test jacocoTestReport
-    when:
-      event:
-        - push
-        - pull_request
-
-  image_to_quay:
-    image: quay.io/ukhomeofficedigital/drone-docker
-    secrets:
-      - DOCKER_USERNAME
-      - DOCKER_PASSWORD
-    registry: quay.io
-    repo: quay.io/ukhomeofficedigital/cop-private-workflow-engine
-    tags:
-      - ${DRONE_BUILD_NUMBER}
-      - ${DRONE_COMMIT_SHA}
-      - latest
-    when:
-      branch: master
-      event:
-        - push
+#  test:
+#    image: digitalpatterns/jdk:1
+#    environment:
+#      - GRADLE_USER_HOME=~/.gradle
+#    commands:
+#      - ./gradlew test jacocoTestReport
+#    when:
+#      event:
+#        - push
+#        - pull_request
+#
+#  image_to_quay:
+#    image: quay.io/ukhomeofficedigital/drone-docker
+#    secrets:
+#      - DOCKER_USERNAME
+#      - DOCKER_PASSWORD
+#    registry: quay.io
+#    repo: quay.io/ukhomeofficedigital/cop-private-workflow-engine
+#    tags:
+#      - ${DRONE_BUILD_NUMBER}
+#      - ${DRONE_COMMIT_SHA}
+#      - latest
+#    when:
+#      branch: master
+#      event:
+#        - push
 
   deploy_to_dev:
     image: quay.io/ukhomeofficedigital/kd
