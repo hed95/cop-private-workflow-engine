@@ -34,14 +34,14 @@ spec:
           - --domain={{.NAME}}.{.KUBE_NAMESPACE}.svc.cluster.local
           - --domain=localhost
           - --onetime=true
-      volumeMounts:
-        - name: certs
-          mountPath: /certs
-        - name: keystore
-          mountPath: /etc/keystore
-        - name: bundle
-          mountPath: /etc/ssl/certs
-          readOnly: true
+        volumeMounts:
+          - name: certs
+            mountPath: /certs
+          - name: keystore
+            mountPath: /etc/keystore
+          - name: bundle
+            mountPath: /etc/ssl/certs
+            readOnly: true
       containers:
       - name: proxy
         image: quay.io/ukhomeofficedigital/nginx-proxy
