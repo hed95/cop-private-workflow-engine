@@ -91,7 +91,7 @@ spec:
         imagePullPolicy: Always
         securityContext:
           runAsNonRoot: true
-        command: ["/usr/bin/run/sh"]
+        command: ["/usr/bin/run.sh"]
         args: ["-cp", "/workflow-resources", "$JAVA_OPTS", "-jar", "/app/dist/libs/workflow-engine.jar"]
         resources:
           requests:
