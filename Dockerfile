@@ -1,4 +1,4 @@
-FROM digitalpatterns/jdk:2
+FROM digitalpatterns/jdk:4
 
 ADD . /app/
 
@@ -6,9 +6,7 @@ WORKDIR /app
 
 USER root
 
-RUN ./gradlew clean build -x test && \
-    mkdir /etc/keystore && \
-    chown 1000 /etc/keystore
+RUN ./gradlew clean build -x test
 
 EXPOSE 8080
 
