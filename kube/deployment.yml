@@ -120,7 +120,8 @@ spec:
             readOnly: true
           - name: cacerts
             mountPath: /cacerts
-            readOnly: true
+          - name: trustedcerts
+            mountPath: /trustedcerts
         env:
           - name: JAVA_OPTS
             value: "-Djava.security.egd=file:/dev/./urandom -Xms1536m -Xmx1536m -XX:MaxMetaspaceSize=256m -XX:MaxJavaStackTraceDepth=15 -Djavax.net.ssl.trustStore=/etc/keystore/cacerts -Djavax.net.ssl.trustStoreType=JKS"
@@ -188,13 +189,11 @@ spec:
       - name: certs
         secret:
           secretName: "{{.NAME}}-pod-tls"
+      - name: trustedcerts
+        configMap:
+          name: {{.NAME}}-certs
       - name: cacerts
-        secret:
-          secretName: {{.CA_CERTS}}
-          items:
-          - key: ca-bundle.pem
-            path: ca-bundle.pem
-            mode: 256
+        emptyDir: {}
       - name: proxyconfigmap
         configMap:
           name: {{.NAME}}
