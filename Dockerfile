@@ -1,4 +1,4 @@
-FROM digitalpatterns/jdk:5
+FROM digitalpatterns/jdk:6
 
 ADD . /app/
 
