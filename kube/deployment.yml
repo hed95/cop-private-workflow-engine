@@ -19,6 +19,15 @@ spec:
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
+      initcontainers:
+      - name: resources
+        image: {{.RESOURCES_IMAGE}}
+        imagePullPolicy: Always
+        securityContext:
+          runAsNonRoot: true
+        volumeMounts:
+          - name: resourcerepo
+            mountPath: /repo
       containers:
       - name: proxy
         image: quay.io/ukhomeofficedigital/nginx-proxy
@@ -92,7 +101,7 @@ spec:
         securityContext:
           runAsNonRoot: true
         command: ["/usr/bin/run.sh"]
-        args: ["-Djava.security.egd=file:/dev/./urandom", "-Xms1536m", "-Xmx1536m", "-XX:MaxMetaspaceSize=256m", "-XX:MaxJavaStackTraceDepth=15", "-Djavax.net.ssl.trustStorePassword=changeit", "-Djavax.net.ssl.trustStore=/etc/keystore/cacerts", "-jar", "/app/dist/libs/workflow-engine.jar"]
+        args: ["-cp /workflow-resources -Djava.security.egd=file:/dev/./urandom", "-Xms1536m", "-Xmx1536m", "-XX:MaxMetaspaceSize=256m", "-XX:MaxJavaStackTraceDepth=15", "-Djavax.net.ssl.trustStorePassword=changeit", "-Djavax.net.ssl.trustStore=/etc/keystore/cacerts", "-jar", "/app/dist/libs/workflow-engine.jar"]
         resources:
           requests:
             memory: "2304Mi"
@@ -115,6 +124,8 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 20
         volumeMounts:
+          - name: resourcerepo
+            mountPath: /workflow-resources
           - name: certs
             mountPath: /certs
             readOnly: true
@@ -184,6 +195,8 @@ spec:
                 name: {{.NAME}}
                 key: engineDbPassword
       volumes:
+      - name: resourcerepo
+        emptyDir: {}
       - name: certs
         secret:
           secretName: "{{.NAME}}-pod-tls"
