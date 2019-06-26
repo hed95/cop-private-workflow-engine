@@ -19,7 +19,7 @@ spec:
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
-      initcontainers:
+      initContainers:
       - name: resources
         image: {{.RESOURCES_IMAGE}}
         imagePullPolicy: Always
