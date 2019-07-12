@@ -66,7 +66,6 @@ pipeline:
       - DEV_PRIVATE_TRANSLATION_SERVICE_NAME
       - DEV_PRIVATE_API_SERVER_NAME
       - DEV_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME
-      - DEV_UPTIME
     commands:
       - export NAME=$${DEV_NAME}
       - export KUBE_NAMESPACE=$${DEV_KUBE_NAMESPACE}
@@ -106,7 +105,6 @@ pipeline:
       - export PRIVATE_API_SERVER_NAME=$${DEV_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${DEV_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${DRONE_COMMIT_SHA}
-      - export UPTIME=$${DEV_UPTIME}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
@@ -159,7 +157,6 @@ pipeline:
       - STAGING_PRIVATE_TRANSLATION_SERVICE_NAME
       - STAGING_PRIVATE_API_SERVER_NAME
       - STAGING_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME
-      - STAGING_UPTIME
     commands:
       - export NAME=$${STAGING_NAME}
       - export KUBE_NAMESPACE=$${STAGING_KUBE_NAMESPACE}
@@ -199,7 +196,6 @@ pipeline:
       - export PRIVATE_API_SERVER_NAME=$${STAGING_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${STAGING_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${DRONE_COMMIT_SHA}
-      - export UPTIME=$${STAGING_UPTIME}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
@@ -252,7 +248,6 @@ pipeline:
       - PRODUCTION_PRIVATE_TRANSLATION_SERVICE_NAME
       - PRODUCTION_PRIVATE_API_SERVER_NAME
       - PRODUCTION_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME
-      - PRODUCTION_UPTIME
     commands:
       - export NAME=$${PRODUCTION_NAME}
       - export KUBE_NAMESPACE=$${PRODUCTION_KUBE_NAMESPACE}
@@ -292,7 +287,6 @@ pipeline:
       - export PRIVATE_API_SERVER_NAME=$${PRODUCTION_PRIVATE_API_SERVER_NAME}
       - export PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME=$${PRODUCTION_PRIVATE_SERVICE_INTERFACE_GATEWAY_NAME}
       - export IMAGE_TAG=$${DRONE_COMMIT_SHA}
-      - export UPTIME=$${PRODUCTION_UPTIME}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
