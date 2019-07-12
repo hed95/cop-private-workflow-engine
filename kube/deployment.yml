@@ -3,8 +3,6 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: {{.NAME}}
-  annotations:
-    downscaler/uptime: "{{.UPTIME}}"
 spec:
   selector:
     matchLabels:
