@@ -27,7 +27,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/shift?email=eq.myemail%40host.com'
+        url == 'http://localhost:9000/v1/shift?email=eq.myemail%40host.com'
 
     }
 
@@ -40,7 +40,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/shift?shiftid=eq.uuid'
+        url == 'http://localhost:9000/v1/shift?shiftid=eq.uuid'
     }
     def 'can get shift url by team id'() {
         given:
@@ -51,7 +51,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/shift?teamid=eq.teamId'
+        url == 'http://localhost:9000/v1/shift?teamid=eq.teamId'
     }
 
     def 'can get shift url by location id'() {
@@ -63,7 +63,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/shift?locationid=eq.locationId'
+        url == 'http://localhost:9000/v1/shift?locationid=eq.locationId'
     }
 
 
@@ -73,7 +73,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/rpc/staffdetails'
+        url == 'http://localhost:9000/v1/rpc/staffdetails'
     }
 
     def 'can get url for comments'() {
@@ -82,7 +82,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/comment'
+        url == 'http://localhost:9000/v1/comment'
     }
 
     def 'can get url for comments for task'() {
@@ -94,11 +94,11 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/comment?taskid=eq.taskId&order=createdon.desc'
+        url == 'http://localhost:9000/v1/comment?taskid=eq.taskId&order=createdon.desc'
     }
 
 
-    def 'can get shift url by email endcoded'() {
+    def 'can get shift url by email encoded'() {
         given:
         def email = "my+email+abc@host.com"
 
@@ -107,7 +107,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
         then:
         url
-        url == 'http://localhost:9000/shift?email=eq.my%2Bemail%2Babc%40host.com'
+        url == 'http://localhost:9000/v1/shift?email=eq.my%2Bemail%2Babc%40host.com'
 
     }
 
