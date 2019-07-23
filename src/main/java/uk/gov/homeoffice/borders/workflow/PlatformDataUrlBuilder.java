@@ -24,12 +24,12 @@ import static java.util.Optional.ofNullable;
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class PlatformDataUrlBuilder {
 
-    private static final String SHIFT = "/shift";
-    private static final String SHIFT_HISTORY = "/shifthistory";
-    private static final String RPC_STAFF_DETAILS = "/rpc/staffdetails";
-    private static final String COMMENTS = "/comment";
-    private static final String TEAM = "/team";
-    private static final String RPC_TEAM_CHILDREN ="/rpc/teamchildren";
+    private static final String SHIFT = "/v1/shift";
+    private static final String SHIFT_HISTORY = "/v1/shifthistory";
+    private static final String RPC_STAFF_DETAILS = "/v1/rpc/staffdetails";
+    private static final String COMMENTS = "/v1/comment";
+    private static final String TEAM = "/v1/team";
+    private static final String RPC_TEAM_CHILDREN ="/v1/rpc/teamchildren";
 
 
     private PlatformDataBean platformDataBean;
@@ -65,7 +65,8 @@ public class PlatformDataUrlBuilder {
     public String teamById(String teamId) {
         return UriComponentsBuilder.newInstance()
                 .uri(platformDataBean.getUrl())
-                .path("/team?code=eq.{teamId}")
+                .path(TEAM)
+                .query("code=eq.{teamId}")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
                 .toString();
 

@@ -40,7 +40,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/shift?email=eq.testEmail'
+                url '/v1/shift?email=eq.testEmail'
                 headers {
                     "nginxId" {
                         equalTo "correlationId"
@@ -64,7 +64,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'DELETE'
-                url '/shift?shiftid=eq.shiftId'
+                url '/v1/shift?shiftid=eq.shiftId'
                 headers {
                     "nginxId" {
                         equalTo "correlationId"
@@ -138,7 +138,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'DELETE'
-                url '/shift?shiftid=eq.xxxxx'
+                url '/v1/shift?shiftid=eq.xxxxx'
                 headers {
                     "nginxId" {
                         equalTo "correlationId"
@@ -152,7 +152,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'PATCH'
-                url '/shifthistory?shifthistoryid=eq.xxxxx'
+                url '/v1/shifthistory?shifthistoryid=eq.xxxxx'
                 headers {
                     "nginxId" {
                         equalTo "correlationId"
