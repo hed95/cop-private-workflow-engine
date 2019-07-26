@@ -20,14 +20,14 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
     def 'can get shift url by email'() {
         given:
-        def email = "myemail@host.com"
+        def email = 'myemail@host.com'
 
         when:
         def url = underTest.shiftUrlByEmail(email)
 
         then:
         url
-        url == 'http://localhost:9000/v1/shift?email=eq.myemail%40host.com'
+        url == 'http://localhost:9000/v1/shift?email=eq.myemail@host.com'
 
     }
 
@@ -98,16 +98,17 @@ class PlatformDataUrlBuilderSpec extends Specification {
     }
 
 
-    def 'can get shift url by email encoded'() {
+    def 'can get shift url by email'() {
+
         given:
-        def email = "my+email+abc@host.com"
+        def email = 'my+email+abc@host.com'
 
         when:
         def url = underTest.shiftUrlByEmail(email)
 
         then:
         url
-        url == 'http://localhost:9000/v1/shift?email=eq.my%2Bemail%2Babc%40host.com'
+        url == 'http://localhost:9000/v1/shift?email=eq.my+email+abc@host.com'
 
     }
 

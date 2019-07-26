@@ -142,7 +142,7 @@ public class ShiftApplicationService {
         } else {
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             List<ShiftDetails> shifts = restTemplate
-                    .exchange(URI.create(platformDataUrlBuilder.shiftUrlByEmail(email)), HttpMethod.GET, new HttpEntity<>(headers),
+                    .exchange(platformDataUrlBuilder.shiftUrlByEmail(email), HttpMethod.GET, new HttpEntity<>(headers),
                             new ParameterizedTypeReference<List<ShiftDetails>>() {
                             }).getBody();
 
