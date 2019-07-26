@@ -20,7 +20,7 @@ class PlatformDataUrlBuilderSpec extends Specification {
 
     def 'can get shift url by email'() {
         given:
-        def email = "myemail@host.com"
+        def email = 'myemail@host.com'
 
         when:
         def url = underTest.shiftUrlByEmail(email)
@@ -98,9 +98,9 @@ class PlatformDataUrlBuilderSpec extends Specification {
     }
 
 
-    def 'can get shift url by email endcoded'() {
+    def 'can get shift url by email'() {
         given:
-        def email = "my+email+abc@host.com"
+        def email = 'my+email+abc@host.com'
 
         when:
         def url = underTest.shiftUrlByEmail(email)
