@@ -44,7 +44,7 @@ public class UserService {
 
         try {
             shiftDetails = restTemplate
-                    .exchange(URI.create(platformDataUrlBuilder.shiftUrlByEmail(userId)), HttpMethod.GET, new HttpEntity<>(headers),
+                    .exchange(platformDataUrlBuilder.shiftUrlByEmail(userId), HttpMethod.GET, new HttpEntity<>(headers),
                             new ParameterizedTypeReference<List<ShiftDetails>>() {
                             }).getBody();
         } catch (Exception e) {
