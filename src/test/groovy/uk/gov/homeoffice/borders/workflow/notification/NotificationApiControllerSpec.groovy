@@ -142,7 +142,7 @@ class NotificationApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method "GET"
-                url "/shift?teamid=eq.teamA"
+                url "/v1/shift?teamid=eq.teamA"
             }
             response {
                 status 200

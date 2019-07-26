@@ -33,7 +33,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/shift?email=eq.email'
+                url '/v1/shift?email=eq.email'
             }
 
             response {
@@ -58,7 +58,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/rpc/staffdetails'
+                url '/v1/rpc/staffdetails'
             }
             response {
                 status: 200
@@ -95,7 +95,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/rpc/teamchildren'
+                url '/v1/rpc/teamchildren'
 
             }
             response {
@@ -132,7 +132,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/shift?teamid=eq.teamId'
+                url '/v1/shift?teamid=eq.teamId'
             }
 
             response {
@@ -157,7 +157,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/staffview?staffid=in.(staffid)'
+                url '/v1/staffview?staffid=in.(staffid)'
             }
             response {
                 status: 200
@@ -203,7 +203,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/shift?locationid=eq.locationId'
+                url '/v1/shift?locationid=eq.locationId'
             }
 
             response {
@@ -229,7 +229,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/staffview?staffid=in.(staffid)'
+                url '/v1/staffview?staffid=in.(staffid)'
             }
             response {
                 status: 200
@@ -286,7 +286,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/shift?email=eq.email'
+                url '/v1/shift?email=eq.email'
             }
 
             response {
@@ -311,7 +311,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/rpc/staffdetails'
+                url '/v1/rpc/staffdetails'
             }
             response {
                 status: 200
@@ -345,7 +345,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/rpc/teamchildren'
+                url '/v1/rpc/teamchildren'
 
             }
             response {
@@ -383,7 +383,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/shift?email=eq.email'
+                url '/v1/shift?email=eq.email'
             }
 
             response {
@@ -407,7 +407,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/shift?email=eq.email'
+                url '/v1/shift?email=eq.email'
             }
 
             response {
@@ -432,7 +432,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/shift?email=eq.email'
+                url '/v1/shift?email=eq.email'
             }
 
             response {
@@ -457,7 +457,7 @@ class UserServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'POST'
-                url '/rpc/staffdetails'
+                url '/v1/rpc/staffdetails'
             }
             response {
                 status: 200
