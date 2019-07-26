@@ -35,7 +35,6 @@ public class PlatformDataUrlBuilder {
     private PlatformDataBean platformDataBean;
 
     public String shiftUrlByEmail(String email) {
-        email = UriUtils.encode(email, StandardCharsets.UTF_8);
         return UriComponentsBuilder.newInstance()
                 .uri(platformDataBean.getUrl())
                 .path(SHIFT)
