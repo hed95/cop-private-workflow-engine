@@ -15,26 +15,12 @@ data:
         proxy_set_header Host $host;
         proxy_set_header X-Username "";
         proxy_set_header X-Real-IP $remote_addr;
-    }
-  2.conf: |
-    location /ws {
-        gzip off; proxy_buffer_size 128k; proxy_buffers 4 256k; proxy_busy_buffers_size 256k;
-        error_page 599 /nginx-proxy/599.shtml;
-        set $proxy_address "http://127.0.0.1:8080";
-        set $backend_upstream "$proxy_address";
-        proxy_pass $backend_upstream;
-        proxy_redirect  off;
-        proxy_intercept_errors on;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Host $host;
-        proxy_set_header X-Username "";
-        proxy_set_header X-Real-IP $remote_addr;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         add_header X-Frame-Options "";
         proxy_read_timeout 240s;
+        add_header       X-Frame-Options 'ALLOW-FROM {{.PROTOCOL}}{{.PRIVATE_UI_NAME}}.{{.EXT_DOMAIN}}' always;
     }
 kind: ConfigMap
 metadata:
