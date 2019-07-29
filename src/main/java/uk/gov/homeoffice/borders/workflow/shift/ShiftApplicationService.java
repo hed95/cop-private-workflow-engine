@@ -180,7 +180,7 @@ public class ShiftApplicationService {
         return ofNullable(variableInstance).map(variable -> {
             ShiftDetails shiftInfo = Spin.S(variable.getValue(), formatter).mapTo(ShiftDetails.class);
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("Accept", "application/vnd.pgrst.object+json");
+            httpHeaders.set("Accept", "application/json");
 
             HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
 
@@ -188,9 +188,7 @@ public class ShiftApplicationService {
                     .exchange(refDataUrlBuilder.getLocation(shiftInfo.getLocationId()),
                             HttpMethod.GET,
                             entity,
-                            new ParameterizedTypeReference<Map<String, String>>() {
-                            }
-                    );
+                            new ParameterizedTypeReference<Map<String, String>>() {});
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 String locationName = ofNullable(response.getBody())
