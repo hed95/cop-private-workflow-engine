@@ -67,7 +67,7 @@ public class NotificationService {
 
     public ProcessInstance create(Notification notification) {
         if (notification.getTeamId() == null && notification.getLocationId() == null) {
-            throw new IllegalArgumentException("No command, team or location defined for notification");
+            throw new IllegalArgumentException("No team or location defined for notification");
         }
         UserQuery userQuery = new UserQuery();
 
