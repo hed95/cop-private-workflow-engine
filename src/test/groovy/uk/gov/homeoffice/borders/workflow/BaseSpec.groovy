@@ -40,22 +40,28 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
         properties = ["keycloak.enabled=false", "spring.datasource.name=testdbB", "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"])
 @ActiveProfiles("test,local")
 @AutoConfigureMockMvc
-@TestPropertySource(properties = ["GOV_NOTIFY_CLIENT_ID = XXXX",
-        "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX",
-        "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
+@TestPropertySource(properties = ["GOV_NOTIFY_API_KEY = XXXX",
+        "GOV_NOTIFY_API_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX",
+        "GOV_NOTIFY_API_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
         "PLATFORM_DATA_ENDPOINT_URL = http://localhost:8000",
-        "REF_DATA_ENDPOINT_URL = http://localhost:8000",
+        "API_REF_URL = localhost",
+        "API_REF_PROTOCOL = http://",
+        "API_REF_PORT = 8080",
         "PRIVATE_UI_URL = http://localhost:8000",
         "PLATFORM_DATA_TOKEN = DB",
         "ENGINE_DB_URL=jdbc:h2:mem:testdbB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false",
-        "ENGINE_DB_USERNAME=sa", "ENGINE_DB_PASSWORD=",
-        "ENGINE_DB_DRIVER=org.h2.Driver", "CAMUNDA_DB_TYPE=h2",
+        "DB_ENGINE_DEFAULT_USERNAME=sa",
+        "DB_ENGINE_DEFAULT_PASSWORD=",
+        "DB_ENGINE_DRIVER=org.h2.Driver",
+        "DB_ENGINE_DEFAULT_DBNAME=postgres",
+        "DB_ENGINE_TYPE=h2",
         "PUBLIC_UI_PROTOCOL=https://",
         "PUBLIC_UI_TXT_PROTOCOL=awb://",
-        "KEYCLOAK_AUTH_URL=http://localhost:9000/auth",
+        "ENGINE_NAME=cop",
+        "KEYCLOAK_URL=http://localhost:9000/auth",
         "KEYCLOAK_REALM=myRealm",
-        "KEYCLOAK_AUTH_SECRET=very_secret",
-        "KEYCLOAK_CLIENT_ID=client_id"])
+        "ENGINE_KEYCLOAK_CLIENT_SECRET=very_secret",
+        "ENGINE_KEYCLOAK_CLIENT_ID=client_id"])
 abstract class BaseSpec extends Specification {
 
     @Autowired

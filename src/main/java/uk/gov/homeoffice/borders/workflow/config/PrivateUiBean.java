@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URI;
 
-@ConfigurationProperties(prefix = "private-ui")
+@ConfigurationProperties(prefix = "www")
 @Component
 @Data
 public class PrivateUiBean {

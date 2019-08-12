@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URI;
 
-@ConfigurationProperties(prefix = "ref-data")
+@ConfigurationProperties(prefix = "api-ref")
 @Component
 @Data
 public class RefDataBean {
