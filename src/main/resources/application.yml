@@ -1,5 +1,5 @@
 keycloak:
-  auth-server-url: ${KEYCLOAK_PROTOCOL}${KEYCLOAK_URL}
+  auth-server-url: ${KEYCLOAK_URI}
   public-client: false
   realm: ${KEYCLOAK_REALM}
   resource: ${ENGINE_KEYCLOAK_CLIENT_ID}
@@ -20,10 +20,10 @@ www:
   url: ${WWW_URL}
 
 api-ref:
-  url: ${API_REF_URL}
+  url: ${API_REF_URI}
 
 api-cop:
-    url: ${API_COP_URL}
+    url: ${API_COP_URI}
     connect-timeout: 5000
     read-timeout: 5000
 
@@ -57,7 +57,7 @@ spring:
     driver-class-name: ${DB_ENGINE_DRIVER}
     password: ${DB_ENGINE_DEFAULT_PASSWORD}
     username: ${DB_ENGINE_DEFAULT_USERNAME}
-    url: ${DB_ENGINE_JDBC_PROTOCOL}${DB_ENGINE_HOSTNAME}/${DB_ENGINE_DEFAULT_DBNAME}${DB_ENGINE_JDBC_OPTIONS}
+    url: ${DB_ENGINE_URI}
     hikari:
       maximum-pool-size: 30
       data-source-properties:
