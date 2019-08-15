@@ -17,7 +17,7 @@ public-ui:
     text-protocol: ${WWW_UI_TXT_PROTOCOL}
 
 www: 
-  url: ${WWW_URL}
+  url: ${WWW_URI}
 
 api-ref:
   url: ${API_REF_URI}
