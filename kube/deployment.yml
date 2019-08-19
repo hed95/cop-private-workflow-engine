@@ -149,7 +149,7 @@ spec:
           - name: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
             value: "{{.GOV_NOTIFY_SMS_TEMPLATE_ID}}"
           - name: ENGINE_SPRING_PROFILES_ACTIVE
-            value: "{{.SPRING}}"
+            value: "{{.ENGINE_SPRING_PROFILES_ACTIVE}}"
           - name: DB_ENGINE_JDBC_PROTOCOL
             value: "{{.DB_ENGINE_JDBC_PROTOCOL}}"
           - name: DB_ENGINE_HOSTNAME
