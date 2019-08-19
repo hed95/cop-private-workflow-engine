@@ -25,7 +25,7 @@ class NotificationTaskEventListenerSpec extends Specification {
 
     def setup() {
         underTest = new NotificationTaskEventListener(notificationClient, "emailNotificationTemplateId", "smsNotificationTemplateId",
-        new ExceptionHandler(), new JacksonJsonDataFormat("application/jackson", new ObjectMapper()), "https://", "awb://")
+        new ExceptionHandler(), new JacksonJsonDataFormat("application/jackson", new ObjectMapper()), "http://", "awb://")
     }
 
     def 'can handle standard notification'() {
