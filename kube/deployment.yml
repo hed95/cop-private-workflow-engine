@@ -105,9 +105,9 @@ spec:
           - name: trustedcerts
             mountPath: /trustedcerts
         env:
-          - name: API_COP_URL
+          - name: API_COP_URI
             value: "{{.API_COP_PROTOCOL}}{{.API_COP_URL}}"
-          - name: API_REF_URL
+          - name: API_REF_URI
             value: "{{.API_REF_PROTOCOL}}{{.API_REF_URL}}"
           - name: WWW_URL
             value: "{{.WWW_PROTOCOL}}{{.WWW_URL}}"
@@ -130,7 +130,7 @@ spec:
             value: {{.DB_ENGINE_TYPE}}
           - name: KEYCLOAK_REALM
             value: "{{.KEYCLOAK_REALM}}"
-          - name: KEYCLOAK_URL
+          - name: KEYCLOAK_URI
             value: "{{.KEYCLOAK_PROTOCOL}}{{.KEYCLOAK_URL}}"
           - name: ENGINE_KEYCLOAK_CLIENT_SECRET
             valueFrom:
@@ -150,14 +150,8 @@ spec:
             value: "{{.GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID}}"
           - name: ENGINE_SPRING_PROFILES_ACTIVE
             value: "{{.ENGINE_SPRING_PROFILES_ACTIVE}}"
-          - name: DB_ENGINE_JDBC_PROTOCOL
-            value: "{{.DB_ENGINE_JDBC_PROTOCOL}}"
-          - name: DB_ENGINE_HOSTNAME
-            value: "{{.DB_ENGINE_HOSTNAME}}"
-          - name: DB_ENGINE_DEFAULT_DBNAME
-            value: "{{.DB_ENGINE_DEFAULT_DBNAME}}"
-          - name: DB_ENGINE_JDBC_OPTIONS
-            value: "{{.DB_ENGINE_JDBC_OPTIONS}}"
+          - name: DB_ENGINE_URI
+            value: "{{.DB_ENGINE_JDBC_PROTOCOL}}{{.DB_ENGINE_HOSTNAME}}:{{.DB_ENGINE_PORT}}/{{}.DB_ENGINE_DEFAULT_DBNAME}}{{.DB_ENGINE_JDBC_OPTIONS}}"
           - name: DB_ENGINE_DEFAULT_USERNAME
             value: "{{.DB_ENGINE_DEFAULT_USERNAME}}"
           - name: DB_ENGINE_DEFAULT_PASSWORD
