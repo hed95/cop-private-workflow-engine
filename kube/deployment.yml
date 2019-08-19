@@ -117,8 +117,8 @@ spec:
             value: "{{.WWW_UI_TXT_PROTOCOL}}"
           - name: REDIS_URL
             value: "{{.REDIS_URL}}"
-          - name: REDIS_PORT
-            value: "{{.REDIS_PORT}}"
+          - name: REDIS_SSL
+            value: "{{.REDIS_SSL}}"
           - name: REDIS_TOKEN
             valueFrom:
               secretKeyRef:
