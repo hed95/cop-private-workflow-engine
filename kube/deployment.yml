@@ -105,6 +105,8 @@ spec:
           - name: trustedcerts
             mountPath: /trustedcerts
         env:
+          - name: ENGINE_NAME
+            value: "{{.ENGINE_NAME}}"
           - name: API_COP_URI
             value: "{{.API_COP_PROTOCOL}}{{.API_COP_URL}}"
           - name: API_REF_URI
