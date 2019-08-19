@@ -1,45 +1,45 @@
 keycloak:
-  auth-server-url: ${KEYCLOAK_AUTH_URL}
+  auth-server-url: ${KEYCLOAK_URI}
   public-client: false
   realm: ${KEYCLOAK_REALM}
-  resource: ${KEYCLOAK_CLIENT_ID}
+  resource: ${ENGINE_KEYCLOAK_CLIENT_ID}
   bearer-only: true
   ssl-required: external
   use-resource-role-mappings: true
   principal-attribute: preferred_username
   enable-basic-auth: true
   credentials:
-    secret: ${KEYCLOAK_AUTH_SECRET}
+    secret: ${ENGINE_KEYCLOAK_CLIENT_SECRET}
 
 
 public-ui:
-    protocol: ${PUBLIC_UI_PROTOCOL}
-    text-protocol: ${PUBLIC_UI_TXT_PROTOCOL}
+    protocol: ${WWW_UI_PROTOCOL}
+    text-protocol: ${WWW_UI_TXT_PROTOCOL}
 
-private-ui:
-  url: ${PRIVATE_UI_URL}
+cors: 
+  origins: ${ENGINE_CORS}
 
-ref-data:
-  url: ${REF_DATA_ENDPOINT_URL}
+api-ref:
+  url: ${API_REF_URI}
 
-platform-data:
-    url: ${PLATFORM_DATA_ENDPOINT_URL}
+api-cop:
+    url: ${API_COP_URI}
     connect-timeout: 5000
     read-timeout: 5000
 
 gov:
   notify:
     api:
-      key: ${GOV_NOTIFY_CLIENT_ID}
+      key: ${GOV_NOTIFY_API_KEY}
       notification:
         emailTemplateId: ${GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID}
         smsTemplateId:  ${GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID}
 
 camunda:
   bpm:
-    process-engine-name: borders
+    process-engine-name: ${ENGINE_NAME}
     database:
-      type: ${CAMUNDA_DB_TYPE}
+      type: ${DB_ENGINE_TYPE}
     deployment-resource-pattern:
     - classpath*:**/*.bpmn
     - classpath*:**/*.bpmn20.xml
@@ -54,10 +54,10 @@ camunda:
 
 spring:
   datasource:
-    driver-class-name: ${ENGINE_DB_DRIVER}
-    password: ${ENGINE_DB_PASSWORD}
-    username: ${ENGINE_DB_USERNAME}
-    url: ${ENGINE_DB_URL}
+    driver-class-name: ${DB_ENGINE_DRIVER}
+    password: ${DB_ENGINE_DEFAULT_PASSWORD}
+    username: ${DB_ENGINE_DEFAULT_USERNAME}
+    url: ${DB_ENGINE_URI}
     hikari:
       maximum-pool-size: 30
       data-source-properties:

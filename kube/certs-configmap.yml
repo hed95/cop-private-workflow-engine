@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{.NAME}}-certs
+  name: {{.ENGINE_NAME}}-certs
 data:
   kubernetes.pem: |
     -----BEGIN CERTIFICATE-----

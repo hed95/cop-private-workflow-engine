@@ -11,6 +11,7 @@ import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -124,8 +125,8 @@ public class ApplicationConfiguration {
 
         @Autowired
         private IdentityService identityService;
-        @Autowired
-        private PrivateUiBean privateUiBean;
+        @Value("${cors.origins}")
+        private String[] corsOrigins;
 
         @Override
         public void addArgumentResolvers(
@@ -137,9 +138,12 @@ public class ApplicationConfiguration {
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {
+
             Arrays.stream(corsPaths).forEach(p -> registry.addMapping(p + "/**")
-                                                          .allowedOrigins(privateUiBean.getUrl().toString(), "http://localhost:8080")
-                                                          .allowedMethods("HEAD", "GET", "POST", "DELETE"));
+            .allowedOrigins(corsOrigins)
+            .allowedMethods("HEAD", "GET", "POST", "DELETE"));
+
+        
         }
     }
 }

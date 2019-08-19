@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URI;
 
-@ConfigurationProperties(prefix = "platform-data")
+@ConfigurationProperties(prefix = "api-cop")
 @Component
 @Data
 public class PlatformDataBean {

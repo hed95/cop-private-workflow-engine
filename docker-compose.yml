@@ -29,32 +29,38 @@ services:
     labels:
       - "traefik.enable=false"
 
-  workflow:
+  engine:
     build: .
     image: quay.io/ukhomeofficedigital/cop-private-workflow-engine
     restart: on-failure
-    container_name: workflow
+    container_name: engine
     environment:
-      JAVA_OPTS: "-XX:PermSize=4096m -Djavax.net.debug=true"
-      ENGINE_DB_DRIVER: org.postgresql.Driver
-      CAMUNDA_DB_TYPE: postgres
-      KEYCLOAK_REALM: dev
-      KEYCLOAK_AUTH_URL: "https://keycloak.lodev.xyz/auth"
-      KEYCLOAK_AUTH_SECRET: "9d9f6718-90f3-4626-b912-bfcd655ab27f"
-      KEYCLOAK_CLIENT_ID: workflow
-      SPRING_PROFILES_ACTIVE: local
-      ENGINE_DB_URL: "jdbc:postgresql://postgres_workflow:5432/workflow"
-      ENGINE_DB_USERNAME: postgres
-      ENGINE_DB_PASSWORD: workflow
-      PLATFORM_DATA_URL: "NOTREQUIRED"
-      PUBLIC_UI_PROTOCOL: "NOTREQUIRED"
-      PUBLIC_UI_TXT_PROTOCOL: "NOTREQUIRED"
-      PRIVATE_REDIS_URL: redis_workflow
-      PRIVATE_REDIS_PORT: 6379
-      PRIVATE_REDIS_TOKEN: null
-      GOV_NOTIFY_CLIENT_ID: "NOTREQUIRED"
-      GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID: "NOTREQUIRED"
-      GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID: "NOTREQUIRED"
+      ENGINE_NAME: engine
+      ENGINE_JAVA_OPTS: "-XX:PermSize=4096m -Djavax.net.debug=true"
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_PROTOCOL: ${KEYCLOAK_PROTOCOL}
+      ENGINE_KEYCLOAK_CLIENT_SECRET: "9d9f6718-90f3-4626-b912-bfcd655ab27f"
+      ENGINE_KEYCLOAK_CLIENT_ID: workflow
+      ENGINE_SPRING_PROFILES_ACTIVE: local
+      DB_ENGINE_DRIVER: ${DB_ENGINE_DRIVER}
+      DB_ENGINE_JDBC_PROTOCOL: ${DB_ENGINE_JDBC_PROTOCOL}
+      DB_ENGINE_HOSTNAME: ${DB_ENGINE_HOSTNAME}
+      DB_ENGINE_DEFAULT_USERNAME: ${DB_ENGINE_DEFAULT_USERNAME}
+      DB_ENGINE_DEFAULT_PASSWORD: ${DB_ENGINE_DEFAULT_PASSWORD}
+      DB_ENGINE_DEFAULT_DBNAME: ${DB_ENGINE_DEFAULT_DBNAME}
+      DB_ENGINE_TYPE: ${DB_ENGINE_TYPE}
+      WWW_UI_PROTOCOL: ${WWW_UI_PROTOCOL}
+      WWW_UI_TXT_PROTOCOL: ${WWW_UI_TXT_PROTOCOL}
+      WWW_URL: ${WWW_PROTOCOL}${WWW_URL}
+      API_COP_URL: ${API_COP_PROTOCOL}${API_COP_URL}
+      API_REF_URL: ${API_REF_PROTOCOL}${API_REF_URL} 
+      REDIS_URL: ${REDIS_URL}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_TOKEN: ${REDIS_TOKEN}
+      GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY}
+      GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID: ${GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID}
+      GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID: ${GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID}
     depends_on:
       - postgres_workflow
       - redis_workflow
