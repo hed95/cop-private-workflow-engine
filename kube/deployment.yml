@@ -107,6 +107,19 @@ spec:
         env:
           - name: ENGINE_NAME
             value: "{{.ENGINE_NAME}}"
+          - name: ENGINE_CORS
+            value: "{{.ENGINE_CORS}}"
+          - name: ENGINE_PORT
+            value: "{{.ENGINE_PORT}}"
+          - name: ENGINE_KEYCLOAK_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: "{{.ENGINE_NAME}}"
+                key: authClientSecret
+          - name: ENGINE_KEYCLOAK_CLIENT_ID
+            value: "{{.ENGINE_KEYCLOAK_CLIENT_ID}}"
+          - name: ENGINE_SPRING_PROFILES_ACTIVE
+            value: "{{.ENGINE_SPRING_PROFILES_ACTIVE}}"
           - name: API_COP_URI
             value: "{{.API_COP_PROTOCOL}}{{.API_COP_URL}}"
           - name: API_REF_URI
@@ -124,34 +137,25 @@ spec:
           - name: REDIS_TOKEN
             valueFrom:
               secretKeyRef:
-                name: {{.ENGINE_NAME}}
+                name: "{{.ENGINE_NAME}}"
                 key: redisAuthToken
           - name: DB_ENGINE_DRIVER
-            value: {{.DB_ENGINE_DRIVER}}
+            value: "{{.DB_ENGINE_DRIVER}}"
           - name: DB_ENGINE_TYPE
-            value: {{.DB_ENGINE_TYPE}}
+            value: "{{.DB_ENGINE_TYPE}}"
           - name: KEYCLOAK_REALM
             value: "{{.KEYCLOAK_REALM}}"
           - name: KEYCLOAK_URI
             value: "{{.KEYCLOAK_PROTOCOL}}{{.KEYCLOAK_URL}}"
-          - name: ENGINE_KEYCLOAK_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: {{.ENGINE_NAME}}
-                key: authClientSecret
-          - name: ENGINE_KEYCLOAK_CLIENT_ID
-            value: {{.ENGINE_NAME}}
           - name: GOV_NOTIFY_API_KEY
             valueFrom:
               secretKeyRef:
-                name: {{.ENGINE_NAME}}
+                name: "{{.ENGINE_NAME}}"
                 key: govNotifyApiKey
           - name: GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
             value: "{{.GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID}}"
           - name: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
             value: "{{.GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID}}"
-          - name: ENGINE_SPRING_PROFILES_ACTIVE
-            value: "{{.ENGINE_SPRING_PROFILES_ACTIVE}}"
           - name: DB_ENGINE_URI
             value: "{{.DB_ENGINE_JDBC_PROTOCOL}}{{.DB_ENGINE_HOSTNAME}}:{{.DB_ENGINE_PORT}}/{{.DB_ENGINE_DEFAULT_DBNAME}}{{.DB_ENGINE_JDBC_OPTIONS}}"
           - name: DB_ENGINE_DEFAULT_USERNAME
