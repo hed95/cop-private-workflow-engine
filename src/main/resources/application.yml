@@ -16,8 +16,8 @@ public-ui:
     protocol: ${WWW_UI_PROTOCOL}
     text-protocol: ${WWW_UI_TXT_PROTOCOL}
 
-www: 
-  url: ${WWW_URI}
+cors: 
+  origins: ${ENGINE_CORS}
 
 api-ref:
   url: ${API_REF_URI}
