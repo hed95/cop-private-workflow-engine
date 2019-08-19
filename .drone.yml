@@ -71,6 +71,7 @@ pipeline:
       - DEV_ENGINE_KUBE_NAMESPACE
       - DEV_ENGINE_PORT
       - DEV_ENGINE_JAVA_OPTS
+      - DEV_ENGINE_CORS
     commands:
       - export KUBE_NAMESPACE=$${DEV_ENGINE_KUBE_NAMESPACE}
       - export KUBE_SERVER=$${DEV_KUBE_SERVER}
@@ -117,6 +118,7 @@ pipeline:
       - export ENGINE_KUBE_NAMESPACE=$${DEV_ENGINE_KUBE_NAMESPACE}
       - export ENGINE_PORT=$${DEV_ENGINE_PORT}
       - export ENGINE_JAVA_OPTS=$${DEV_ENGINE_JAVA_OPTS}
+      - export ENGINE_CORS=$${DEV_ENGINE_CORS}
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
@@ -177,6 +179,7 @@ pipeline:
       - STAGING_ENGINE_KUBE_NAMESPACE
       - STAGING_ENGINE_PORT
       - STAGING_ENGINE_JAVA_OPTS
+      - STAGING_ENGINE_CORS
     commands:
       - export KUBE_NAMESPACE=$${STAGING_ENGINE_KUBE_NAMESPACE}
       - export KUBE_SERVER=$${STAGING_KUBE_SERVER}
@@ -223,6 +226,7 @@ pipeline:
       - export ENGINE_KUBE_NAMESPACE=$${STAGING_ENGINE_KUBE_NAMESPACE}
       - export ENGINE_PORT=$${STAGING_ENGINE_PORT}
       - export ENGINE_JAVA_OPTS=$${STAGING_ENGINE_JAVA_OPTS}
+      - export ENGINE_CORS=$${STAGING_ENGINE_CORS}
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
@@ -283,6 +287,7 @@ pipeline:
       - PRODUCTION_ENGINE_KUBE_NAMESPACE
       - PRODUCTION_ENGINE_PORT
       - PRODUCTION_ENGINE_JAVA_OPTS
+      - PRODUCTION_ENGINE_CORS
     commands:
       - export KUBE_NAMESPACE=$${PRODUCTION_ENGINE_KUBE_NAMESPACE}
       - export KUBE_SERVER=$${PRODUCTION_KUBE_SERVER}
@@ -329,6 +334,7 @@ pipeline:
       - export ENGINE_KUBE_NAMESPACE=$${PRODUCTION_ENGINE_KUBE_NAMESPACE}
       - export ENGINE_PORT=$${PRODUCTION_ENGINE_PORT}
       - export ENGINE_JAVA_OPTS=$${PRODUCTION_ENGINE_JAVA_OPTS}
+      - export ENGINE_CORS=$${PRODUCTION_ENGINE_CORS}
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
