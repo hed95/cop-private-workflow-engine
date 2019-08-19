@@ -20,7 +20,7 @@ data:
         proxy_set_header Connection "upgrade";
         add_header X-Frame-Options "";
         proxy_read_timeout 240s;
-        add_header       X-Frame-Options 'ALLOW-FROM {{.PROTOCOL}}{{.WWW_URL}}' always;
+        add_header       X-Frame-Options 'ALLOW-FROM {{.WWW_PROTOCOL}}{{.WWW_URL}}' always;
     }
 kind: ConfigMap
 metadata:
