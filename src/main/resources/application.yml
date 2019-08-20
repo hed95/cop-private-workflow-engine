@@ -37,7 +37,7 @@ gov:
 
 camunda:
   bpm:
-    process-engine-name: ${ENGINE_NAME}
+    process-engine-name: borders
     database:
       type: ${DB_ENGINE_TYPE}
     deployment-resource-pattern:
