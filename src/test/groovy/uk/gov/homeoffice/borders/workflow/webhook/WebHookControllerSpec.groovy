@@ -110,5 +110,40 @@ class WebHookControllerSpec extends BaseSpec {
 
     }
 
+    def 'throws not found if business key does not relate to a running process instance'() {
+        given: 'A process definition with a message is created'
+        def businessKey = UUID.randomUUID().toString()
+        BpmnModelInstance modelInstance = Bpmn.createExecutableProcess("messageWorkflow")
+                .startEvent()
+                .scriptTask()
+                .scriptFormat("Groovy")
+                .scriptText("println 'Hello Message'")
+                .intermediateCatchEvent()
+                .message("messageWaiting")
+                .scriptTask()
+                .scriptFormat("Groovy")
+                .scriptText("println 'After Message'")
+                .endEvent()
+                .done()
+
+
+        and: 'the process definition has been uploaded to the camunda engine'
+        repositoryService.createDeployment().addModelInstance("messageWorkflow.bpmn", modelInstance).deploy()
+        runtimeService.startProcessInstanceByKey('messageWorkflow', businessKey)
+
+        when: 'A message web-hook post has been peformed'
+        def eventPayload = '''{"event": "pdf-generated",
+                          "data": {
+                             "location": "http://s3/location/myfile.pdf"
+                          }
+                        }'''
+        def result = mvc.perform(post("/v1/api/workflow/web-hook/invalidBusinessKey/message/messageWaiting?variableName=testVariableMessage")
+                .content(eventPayload)
+                .contentType(MediaType.APPLICATION_JSON))
+
+        then: 'Response should be 404'
+        result.andExpect(status().isNotFound())
+    }
+
 
 }
