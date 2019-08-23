@@ -30,7 +30,7 @@ public class WebHookController {
     private RuntimeService runtimeService;
     private JacksonJsonDataFormat formatter;
 
-    @PostMapping("/{businessKey}/message/{messageKey}")
+    @PostMapping(value = "/{businessKey}/message/{messageKey}", consumes = "application/json")
     @ApiOperation(value = "Web hook notification endpoint. Converts payload into a Spin object for Camunda",
             httpMethod = "POST")
     public void handleMessage(@PathVariable
@@ -43,7 +43,7 @@ public class WebHookController {
                               @ApiParam(required = true,
                                       value = "The message that is defined in the process definition",
                                       name = "messageKey") String messageKey,
-                              @RequestParam
+                              @RequestParam()
                               @ApiParam(required = true,
                                       value = "Variable name that is required by Camunda." +
                                               " The payload is wrapped with the variable name",
@@ -53,7 +53,7 @@ public class WebHookController {
                                       name = "payload",
                                       value = "The event as JSON string") String payload) {
 
-        log.info("Received web-hook message notification");
+        log.info("Received web-hook message notification for '{}' and message key '{}'", businessKey, messageKey);
 
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(businessKey)
