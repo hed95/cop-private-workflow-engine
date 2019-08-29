@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_19qoxp7" targetNamespace="platform" exporter="Camunda Modeler" exporterVersion="3.0.0-0">
+  <bpmn:collaboration id="Collaboration_0gzwlu0">
+    <bpmn:participant id="Participant_1t14ck7" name="New User" processRef="onboard-user">
+      <bpmn:documentation>Onboard user to Central Operational Platform</bpmn:documentation>
+    </bpmn:participant>
+    <bpmn:participant id="Participant_0mszm6x" name="GovNotify" />
+    <bpmn:participant id="Participant_0vu9dew" name="Central Operational Platform" />
+    <bpmn:messageFlow id="MessageFlow_0dl2agw" sourceRef="Participant_0vu9dew" targetRef="StartEvent_1" />
+    <bpmn:messageFlow id="MessageFlow_1n1pxig" sourceRef="Task_0mzjwo9" targetRef="Participant_0mszm6x" />
+  </bpmn:collaboration>
+  <bpmn:process id="onboard-user" name="Onboard User" isExecutable="true">
+    <bpmn:documentation>Onboard user to Central Operational Platform</bpmn:documentation>
+    <bpmn:sequenceFlow id="SequenceFlow_0t1kinu" sourceRef="Task_0mzjwo9" targetRef="EndEvent_0yx7s5t" />
+    <bpmn:sequenceFlow id="SequenceFlow_13sdl82" sourceRef="Task_19olpl6" targetRef="Task_0mzjwo9" />
+    <bpmn:startEvent id="StartEvent_1" camunda:formKey="onboardUser">
+      <bpmn:outgoing>SequenceFlow_1nr6eqc</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1nr6eqc" sourceRef="StartEvent_1" targetRef="Task_1ggf8ao" />
+    <bpmn:serviceTask id="Task_1ggf8ao" name="Create staff record" camunda:type="external" camunda:topic="create-staff-record">
+      <bpmn:incoming>SequenceFlow_1nr6eqc</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0eyitsc</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_1g6ot4i">
+        <bpmn:targetRef>DataStoreReference_0a1huq2</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_19olpl6" name="Onboard user" camunda:type="external" camunda:topic="onboard-user">
+      <bpmn:incoming>SequenceFlow_0eyitsc</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_13sdl82</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_08dqrfa">
+        <bpmn:targetRef>DataStoreReference_0a1huq2</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_0mzjwo9" name="Notify user onboarding success" camunda:type="external" camunda:topic="send-notification">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="subject">Your request to onboard onto the Central Ops Platform has been approved.</camunda:inputParameter>
+          <camunda:inputParameter name="payload">Your onboarding request has been approved. Please visit the Central Ops Platform for activities and procedures.</camunda:inputParameter>
+          <camunda:inputParameter name="externalLink" />
+          <camunda:inputParameter name="email">${S(onboardUser).prop('email').stringValue()}</camunda:inputParameter>
+          <camunda:inputParameter name="phone">${S(onboardUser).prop('phone').stringValue()}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_13sdl82</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0t1kinu</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_0yx7s5t">
+      <bpmn:incoming>SequenceFlow_0t1kinu</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:dataStoreReference id="DataStoreReference_0a1huq2" name="platform data store" />
+    <bpmn:sequenceFlow id="SequenceFlow_0eyitsc" sourceRef="Task_1ggf8ao" targetRef="Task_19olpl6" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0gzwlu0">
+      <bpmndi:BPMNShape id="Participant_1t14ck7_di" bpmnElement="Participant_1t14ck7">
+        <dc:Bounds x="80" y="340" width="1160" height="521" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="131" y="569" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1bfvy13_di" bpmnElement="Task_19olpl6">
+        <dc:Bounds x="556" y="547" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_1voeltw_di" bpmnElement="Participant_0mszm6x">
+        <dc:Bounds x="358" y="912" width="600" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_1t1r2cm_di" bpmnElement="Participant_0vu9dew">
+        <dc:Bounds x="80" y="105" width="495" height="177" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="MessageFlow_0dl2agw_di" bpmnElement="MessageFlow_0dl2agw">
+        <di:waypoint x="149" y="282" />
+        <di:waypoint x="149" y="569" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="DataStoreReference_0a1huq2_di" bpmnElement="DataStoreReference_0a1huq2">
+        <dc:Bounds x="675" y="381" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="667" y="344" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_08dqrfa_di" bpmnElement="DataOutputAssociation_08dqrfa">
+        <di:waypoint x="606" y="547" />
+        <di:waypoint x="606" y="406" />
+        <di:waypoint x="675" y="406" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0t1kinu_di" bpmnElement="SequenceFlow_0t1kinu">
+        <di:waypoint x="800" y="587" />
+        <di:waypoint x="914" y="587" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_13sdl82_di" bpmnElement="SequenceFlow_13sdl82">
+        <di:waypoint x="656" y="587" />
+        <di:waypoint x="700" y="587" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0pqstlb_di" bpmnElement="Task_0mzjwo9">
+        <dc:Bounds x="700" y="547" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="MessageFlow_1n1pxig_di" bpmnElement="MessageFlow_1n1pxig">
+        <di:waypoint x="750" y="627" />
+        <di:waypoint x="750" y="912" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1nr6eqc_di" bpmnElement="SequenceFlow_1nr6eqc">
+        <di:waypoint x="167" y="587" />
+        <di:waypoint x="188" y="587" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1qau349_di" bpmnElement="Task_1ggf8ao">
+        <dc:Bounds x="188" y="547" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_1g6ot4i_di" bpmnElement="DataOutputAssociation_1g6ot4i">
+        <di:waypoint x="238" y="547" />
+        <di:waypoint x="238" y="405" />
+        <di:waypoint x="675" y="406" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0yx7s5t_di" bpmnElement="EndEvent_0yx7s5t">
+        <dc:Bounds x="914" y="569" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0eyitsc_di" bpmnElement="SequenceFlow_0eyitsc">
+        <di:waypoint x="288" y="587" />
+        <di:waypoint x="556" y="587" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
