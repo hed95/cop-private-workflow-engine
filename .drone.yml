@@ -151,7 +151,7 @@ pipeline:
       target: ENGINE_SPRING_PROFILES_ACTIVE
     - source: DEV_ENGINE_KUBE_NAMESPACE
       target: KUBE_NAMESPACE
-    - source: DEV_ENGINE_PORT
+    - source: ENGINE_PORT
       target: ENGINE_PORT
     - source: DEV_ENGINE_JAVA_OPTS
       target: ENGINE_JAVA_OPTS
@@ -254,7 +254,7 @@ pipeline:
       target: ENGINE_SPRING_PROFILES_ACTIVE
     - source: STAGING_ENGINE_KUBE_NAMESPACE
       target: KUBE_NAMESPACE
-    - source: STAGING_ENGINE_PORT
+    - source: ENGINE_PORT
       target: ENGINE_PORT
     - source: STAGING_ENGINE_JAVA_OPTS
       target: ENGINE_JAVA_OPTS
@@ -357,7 +357,7 @@ pipeline:
       target: ENGINE_SPRING_PROFILES_ACTIVE
     - source: PRODUCTION_ENGINE_KUBE_NAMESPACE
       target: KUBE_NAMESPACE
-    - source: PRODUCTION_ENGINE_PORT
+    - source: ENGINE_PORT
       target: ENGINE_PORT
     - source: PRODUCTION_ENGINE_JAVA_OPTS
       target: ENGINE_JAVA_OPTS
