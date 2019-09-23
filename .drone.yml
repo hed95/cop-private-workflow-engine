@@ -115,7 +115,7 @@ pipeline:
       target: API_REF_PROTOCOL
     - source: DEV_API_REF_URL
       target: API_REF_URL
-    - source: DB_ENGINE_PROTOCOL
+    - source: DEV_DB_ENGINE_PROTOCOL
       target: DB_ENGINE_PROTOCOL
     - source: DEV_DB_ENGINE_JDBC_PROTOCOL
       target: DB_ENGINE_JDBC_PROTOCOL
@@ -218,7 +218,7 @@ pipeline:
       target: API_REF_PROTOCOL
     - source: STAGING_API_REF_URL
       target: API_REF_URL
-    - source: DB_ENGINE_PROTOCOL
+    - source: STAGING_DB_ENGINE_PROTOCOL
       target: DB_ENGINE_PROTOCOL
     - source: STAGING_DB_ENGINE_JDBC_PROTOCOL
       target: DB_ENGINE_JDBC_PROTOCOL
@@ -321,7 +321,7 @@ pipeline:
       target: API_REF_PROTOCOL
     - source: PRODUCTION_API_REF_URL
       target: API_REF_URL
-    - source: DB_ENGINE_PROTOCOL
+    - source: PRODUCTION_DB_ENGINE_PROTOCOL
       target: DB_ENGINE_PROTOCOL
     - source: PRODUCTION_DB_ENGINE_JDBC_PROTOCOL
       target: DB_ENGINE_JDBC_PROTOCOL
