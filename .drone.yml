@@ -169,7 +169,7 @@ pipeline:
       - kd --insecure-skip-tls-verify -f kube/service.yml
       - kd --insecure-skip-tls-verify -f kube/nginx-configmap.yml
       - kd --insecure-skip-tls-verify -f kube/certs-configmap.yml
-      - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
+      - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m --debug --debug-templates
       - kd --insecure-skip-tls-verify -f kube/ingress.yml
     when:
       branch: master
