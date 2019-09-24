@@ -75,6 +75,10 @@ pipeline:
       target: KUBE_SERVER
     - source: DEV_KUBE_TOKEN
       target: KUBE_TOKEN
+    - source: QUAY_USERNAME
+      target: QUAY_USERNAME
+    - source: QUAY_PASSWORD
+      target: QUAY_PASSWORD
     - source: DEV_WHITELIST
       target: WHITELIST
     - source: DEV_KEYCLOAK_URL
@@ -178,6 +182,10 @@ pipeline:
       target: KUBE_SERVER
     - source: STAGING_KUBE_TOKEN
       target: KUBE_TOKEN
+    - source: QUAY_USERNAME
+      target: QUAY_USERNAME
+    - source: QUAY_PASSWORD
+      target: QUAY_PASSWORD
     - source: STAGING_WHITELIST
       target: WHITELIST
     - source: STAGING_KEYCLOAK_URL
@@ -281,6 +289,10 @@ pipeline:
       target: KUBE_SERVER
     - source: PRODUCTION_KUBE_TOKEN
       target: KUBE_TOKEN
+    - source: QUAY_USERNAME
+      target: QUAY_USERNAME
+    - source: QUAY_PASSWORD
+      target: QUAY_PASSWORD
     - source: PRODUCTION_WHITELIST
       target: WHITELIST
     - source: PRODUCTION_KEYCLOAK_URL
