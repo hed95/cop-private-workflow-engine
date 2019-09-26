@@ -6,6 +6,8 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -24,9 +26,11 @@ public class CorrelationIdInterceptor implements ClientHttpRequestInterceptor {
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body,
                                         ClientHttpRequestExecution execution) throws IOException {
-        final String correlationId = this.request.getHeader("nginxId");
-        if (correlationId != null) {
-            request.getHeaders().set(CORRELATION_HEADER_NAME, correlationId);
+        if (RequestContextHolder.getRequestAttributes() != null) {
+            final String correlationId = this.request.getHeader("nginxId");
+            if (correlationId != null) {
+                request.getHeaders().set(CORRELATION_HEADER_NAME, correlationId);
+            }
         }
         return execution.execute(request, body);
     }
