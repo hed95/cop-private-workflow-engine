@@ -52,7 +52,7 @@ class UserTaskEventListenerSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/v2/team?code=in.(teamA)'
+                url '/v1/team?code=in.(teamA)'
             }
 
             response {
