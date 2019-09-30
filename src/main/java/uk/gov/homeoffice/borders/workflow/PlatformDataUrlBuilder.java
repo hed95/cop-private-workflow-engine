@@ -28,7 +28,7 @@ public class PlatformDataUrlBuilder {
     private static final String SHIFT_HISTORY = "/v1/shifthistory";
     private static final String RPC_STAFF_DETAILS = "/v1/rpc/staffdetails";
     private static final String COMMENTS = "/v1/comment";
-    private static final String TEAM = "/v1/team";
+    private static final String TEAM = "/v2/team";
     private static final String RPC_TEAM_CHILDREN ="/v1/rpc/teamchildren";
 
 

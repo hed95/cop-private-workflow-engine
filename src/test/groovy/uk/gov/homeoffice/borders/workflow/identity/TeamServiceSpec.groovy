@@ -30,7 +30,7 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/v1/team?code=eq.code'
+                url '/v2/team?code=eq.code'
             }
 
             response {
@@ -63,7 +63,7 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/v1/team?name=eq.name'
+                url '/v2/team?name=eq.name'
             }
 
             response {
