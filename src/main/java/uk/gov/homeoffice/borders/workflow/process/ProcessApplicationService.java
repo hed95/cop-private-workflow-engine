@@ -29,6 +29,8 @@ import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
+
 @Service
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -63,6 +65,8 @@ public class ProcessApplicationService {
                 .stream()
                 .map(Authorization::getResourceId)
                 .toArray(String[]::new);
+
+        log.info("Process definitions based on authorizations {} ", asList(processDefinitionIds));
 
         List<ProcessDefinition> definitions = repositoryService
                 .createProcessDefinitionQuery()
