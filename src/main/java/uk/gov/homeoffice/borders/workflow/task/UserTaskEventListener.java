@@ -40,12 +40,19 @@ public class UserTaskEventListener extends ReactorTaskListener {
     public void notify(DelegateTask delegateTask) {
         try {
             final String assignee = delegateTask.getAssignee();
-
             final List<String> teamCodes = delegateTask.
                     getCandidates()
                     .stream()
                     .map(IdentityLink::getGroupId)
                     .collect(toList());
+
+
+            final List<String> candidateUsers = delegateTask.
+                    getCandidates()
+                    .stream()
+                    .map(IdentityLink::getUserId)
+                    .collect(toList());
+
 
             final List<String> teamIds = new ArrayList<>();
             if (!teamCodes.isEmpty()) {
@@ -74,8 +81,11 @@ public class UserTaskEventListener extends ReactorTaskListener {
                 @Override
                 public void afterCompletion(int status) {
                     super.afterCompletion(status);
+                    candidateUsers.forEach(user -> messagingTemplate.convertAndSendToUser(user,
+                            "/queue/task", taskReference));
+
                     ofNullable(assignee)
-                            .ifPresent(a -> messagingTemplate.convertAndSendToUser(a,
+                                        .ifPresent(a -> messagingTemplate.convertAndSendToUser(a,
                                     "/queue/task", taskReference));
 
                     teamIds.forEach(team ->
