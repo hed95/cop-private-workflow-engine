@@ -66,8 +66,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
         "ENGINE_CORS=http://localhost:8000",
         "KEYCLOAK_URI=http://localhost:9000/auth",
         "KEYCLOAK_REALM=myRealm",
-        "ENGINE_PRIVATE_DIR_PATH=/keys/private_key.der",
-        "ENGINE_PUBLIC_DIR_PATH=/keys/public_key.der",
+        "ENGINE_PRIVATE_DER_PATH=/keys/private_key.der",
+        "ENGINE_PUBLIC_DER_PATH=/keys/public_key.der",
         "ENGINE_KEYCLOAK_CLIENT_SECRET=very_secret",
         "ENGINE_KEYCLOAK_CLIENT_ID=client_id"])
 abstract class BaseSpec extends Specification {
