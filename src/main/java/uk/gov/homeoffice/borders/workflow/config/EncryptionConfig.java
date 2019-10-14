@@ -30,7 +30,7 @@ public class EncryptionConfig {
 
     @Bean
     public ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor() {
-        log.info("Path to public key '{}'", pathToPrivateKey);
+        log.info("Path to public key '{}'", pathToPublicKey);
         return new ProcessInstanceSpinVariableEncryptor(pathToPublicKey);
     }
 
