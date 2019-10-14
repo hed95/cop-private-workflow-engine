@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.process;
 
 import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
+import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,9 @@ public class ProcessApplicationService {
     private JacksonJsonDataFormat formatter;
     private AuthorizationService authorizationService;
     private ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor;
+    private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
     private ProcessDefinitionEncryptionParser processDefinitionEncryptionParser;
+
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
@@ -147,8 +150,11 @@ public class ProcessApplicationService {
         return processInstance;
     }
 
-    public VariableMap variables(String processInstanceId, @NotNull PlatformUser user) {
+    public VariableMap variables(String processInstanceId, boolean decrypt, @NotNull PlatformUser user) {
         log.info("PlatformUser '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
+        if (user.isServiceUser() && decrypt) {
+            return processInstanceSpinVariableDecryptor.decrypt(runtimeService.getVariables(processInstanceId));
+        }
         return runtimeService.getVariablesTyped(processInstanceId, false);
     }
 

@@ -72,7 +72,9 @@ public class TaskApiController {
     @SuppressWarnings("unchecked")
     @ApiOperation("Get a task.")
     public CompletableFuture<TaskDtoResource> task(@PathVariable String taskId,
-                                                   @RequestParam(required = false, defaultValue = "false") Boolean includeVariables, PlatformUser user)  {
+                                                   @RequestParam(required = false, defaultValue = "false") Boolean includeVariables,
+                                                   @RequestParam(required = false, defaultValue = "false") Boolean decrypt,
+                                                   PlatformUser user) {
         Mono<Task> task = Mono
                 .fromCallable(() -> applicationService.getTask(user, taskId))
                 .subscribeOn(Schedulers.elastic());
@@ -84,13 +86,14 @@ public class TaskApiController {
                 .subscribeOn(Schedulers.elastic());
 
         if (includeVariables) {
-            Mono<Map<String, VariableValueDto>> variableMap = Mono.fromCallable(() -> applicationService.getVariables(user, taskId))
+            Mono<Map<String, VariableValueDto>> variableMap = Mono.fromCallable(() ->
+                    applicationService.getVariables(user, taskId, decrypt))
                     .map(VariableValueDto::fromVariableMap)
                     .subscribeOn(Schedulers.elastic());
             return Mono.zip(Arrays.asList(task, identities, variableMap), (Object[] args) -> {
                 TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource((Task) args[0]);
                 taskDtoResource.setCandidateGroups((List<String>) args[1]);
-                taskDtoResource.setVariables((Map<String, VariableValueDto>)args[2]);
+                taskDtoResource.setVariables((Map<String, VariableValueDto>) args[2]);
                 return taskDtoResource;
             }).subscribeOn(Schedulers.elastic()).toFuture();
         }
@@ -104,8 +107,10 @@ public class TaskApiController {
 
     @GetMapping("/{taskId}/variables")
     @ApiOperation("Get the variables available to a task.")
-    public Map<String, VariableValueDto> variables(@PathVariable String taskId, PlatformUser platformUser) {
-        VariableMap variables = applicationService.getVariables(platformUser, taskId);
+    public Map<String, VariableValueDto> variables(@PathVariable String taskId,
+                                                   @RequestParam(required = false, defaultValue = "false") Boolean decrypt,
+                                                   PlatformUser platformUser) {
+        VariableMap variables = applicationService.getVariables(platformUser, taskId, decrypt);
         return VariableValueDto.fromVariableMap(variables);
     }
 
