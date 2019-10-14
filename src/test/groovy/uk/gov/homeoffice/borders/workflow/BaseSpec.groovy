@@ -137,6 +137,7 @@ abstract class BaseSpec extends Specification {
         String candidateGroup
         String name
         String description
+        String candidateUser
 
     }
 

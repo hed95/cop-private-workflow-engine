@@ -18,7 +18,8 @@ class TaskApplicationServiceSpec extends BaseSpec {
     @Autowired
     HistoryService historyService
     @Autowired
-    TaskApplicationService applicationService;
+    TaskApplicationService applicationService
+
 
     void createTasks(number, assignee) {
         def tasks = []
@@ -34,7 +35,7 @@ class TaskApplicationServiceSpec extends BaseSpec {
         def objectValue =
                 Spin.S(tasks, "application/json")
 
-        def variables = [:]
+        def variables = new HashMap<String,Object>()
         variables['collectionOfData'] = objectValue
         variables['type'] = 'non-notification'
         processInstance = runtimeService.startProcessInstanceByKey("test",
@@ -104,5 +105,54 @@ class TaskApplicationServiceSpec extends BaseSpec {
         then:
         result.totalElements == 1
         result.first().assignee == 'assigneeOneTwoThree'
+    }
+
+    def 'can get tasks for candidate user'() {
+        given:
+        def tasks = []
+        1.times {
+            def data = new Data()
+            data.candidateUser = 'candidateUserABC'
+            data.candidateGroup = "teamA"
+            data.name = "test ${it}"
+            data.description = "test ${it}"
+            tasks << data
+        }
+
+        def objectValue =
+                Spin.S(tasks, "application/json")
+
+        def variables = new HashMap<String,Object>()
+        variables['collectionOfData'] = objectValue
+        variables['type'] = 'non-notification'
+        processInstance = runtimeService.startProcessInstanceByKey("testCandidateUser",
+                variables)
+        and:
+        def taskCriteria = new TaskCriteria()
+        taskCriteria.assignedToMeOnly = true
+
+        and:
+        def user = new PlatformUser()
+        user.id = 'candidateUserABC'
+        user.email = 'candidateUserABC'
+
+        def shift = new PlatformUser.ShiftDetails()
+        shift.roles = ['custom_role']
+        user.shiftDetails = shift
+
+        def team = new Team()
+        user.teams = []
+        team.code = 'teamA'
+        user.teams << team
+        user.roles = ['custom_role']
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+        user
+
+        when:
+        def result = applicationService.tasks(user, taskCriteria, PageRequest.of(0, 20))
+
+        then:
+        result.totalElements == 1
+
     }
 }
