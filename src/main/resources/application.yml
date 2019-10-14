@@ -13,8 +13,8 @@ keycloak:
 
 encryption:
   keys:
-    private-path: ${ENGINE_PRIVATE_DIR_PATH}
-    public-path:  ${ENGINE_PUBLIC_DIR_PATH}
+    private-path: ${ENGINE_PRIVATE_DER_PATH}
+    public-path:  ${ENGINE_PUBLIC_DER_PATH}
 
 public-ui:
     protocol: ${WWW_UI_PROTOCOL}
