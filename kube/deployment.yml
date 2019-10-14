@@ -104,6 +104,10 @@ spec:
             mountPath: /cacerts
           - name: trustedcerts
             mountPath: /trustedcerts
+          - name: privatederkey
+            mountPath: "{{ .ENGINE_PRIVATE_DER_KEY }}"
+          - name: publicderkey
+            mountPath: "{{ .ENGINE_PUBLIC_DER_KEY }}"
         env:
           - name: ENGINE_NAME
             value: "{{.ENGINE_NAME}}"
@@ -120,6 +124,10 @@ spec:
             value: "{{.ENGINE_KEYCLOAK_CLIENT_ID}}"
           - name: ENGINE_SPRING_PROFILES_ACTIVE
             value: "{{.ENGINE_SPRING_PROFILES_ACTIVE}}"
+          - name: ENGINE_PUBLIC_DER_PATH
+            value:
+          - name: ENGINE_PRIVATE_DER_PATH
+            value:
           - name: API_COP_URI
             value: "{{.API_COP_PROTOCOL}}{{.API_COP_URL}}"
           - name: API_REF_URI
@@ -177,3 +185,9 @@ spec:
       - name: proxyconfigmap
         configMap:
           name: {{.ENGINE_NAME}}
+      - name: privatederkey
+        secret:
+          secretName: privateDerKey
+      - name: publicderkey
+        secret:
+          secretName: publicDerKey

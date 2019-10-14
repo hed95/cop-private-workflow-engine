@@ -157,6 +157,14 @@ pipeline:
       target: ENGINE_JAVA_OPTS
     - source: DEV_ENGINE_CORS
       target: ENGINE_CORS
+    - source: DEV_ENGINE_PRIVATE_DER_KEY
+      target: ENGINE_PRIVATE_DER_KEY
+    - source: DEV_ENGINE_PRIVATE_DER_KEY
+      target: ENGINE_PRIVATE_DER_KEY
+    - source: DEV_ENGINE_PRIVATE_DER_PATH
+      target: ENGINE_PRIVATE_DER_PATH
+    - source: DEV_ENGINE_PRIVATE_DER_PATH
+      target: ENGINE_PRIVATE_DER_PATH
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
