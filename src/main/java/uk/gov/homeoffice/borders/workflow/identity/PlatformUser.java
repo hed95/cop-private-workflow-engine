@@ -3,15 +3,17 @@ package uk.gov.homeoffice.borders.workflow.identity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PlatformUser implements org.camunda.bpm.engine.identity.User {
 
 
@@ -49,6 +51,13 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
     private ShiftDetails shiftDetails;
 
 
+    public boolean isServiceUser() {
+        Optional<Team> serviceRole = this.getTeams()
+                .stream()
+                .filter(t -> t.getCode().equalsIgnoreCase(WorkflowAuthentication.SERVICE_ROLE))
+                .findFirst();
+        return serviceRole.isPresent();
+    }
 
     @Override
     public void setPassword(String password) {
@@ -61,7 +70,7 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
     }
 
     @Data
-    public static class Qualification implements Serializable{
+    public static class Qualification implements Serializable {
         private static final long serialVersionUID = 1L;
 
         @JsonProperty("qualificationtype")
@@ -71,7 +80,7 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
     }
 
     @Data
-    @JsonIgnoreProperties(ignoreUnknown=true)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ShiftDetails {
 
         @JsonProperty("staffid")

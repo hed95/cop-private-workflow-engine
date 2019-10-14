@@ -11,12 +11,16 @@ keycloak:
   credentials:
     secret: ${ENGINE_KEYCLOAK_CLIENT_SECRET}
 
+encryption:
+  keys:
+    private-path: ${ENGINE_PRIVATE_DIR_PATH}
+    public-path:  ${ENGINE_PUBLIC_DIR_PATH}
 
 public-ui:
     protocol: ${WWW_UI_PROTOCOL}
     text-protocol: ${WWW_UI_TXT_PROTOCOL}
 
-cors: 
+cors:
   origins: ${ENGINE_CORS}
 
 api-ref:
