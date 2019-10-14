@@ -17,6 +17,7 @@ class TaskCheckerSpec extends Specification {
     def 'no exception thrown if user allowed to see task based on group'() {
         given:
         def user = new PlatformUser()
+        user.email = 'email@email.com'
         def team = new Team()
         team.id = 'teamId'
         team.code = 'teamCode'
@@ -31,6 +32,11 @@ class TaskCheckerSpec extends Specification {
         identityLink.taskId = task.id
         identityLink.groupId = 'teamCode'
         taskService.getIdentityLinksForTask(task.id) >> [identityLink]
+
+        def userIdentityLink = IdentityLinkEntity.newIdentityLink()
+        userIdentityLink.taskId = task.id
+        userIdentityLink.userId = 'email@email.com'
+        taskService.getIdentityLinksForTask(task.id) >> [userIdentityLink]
 
         when:
         underTest.checkUserAuthorized(user, task)

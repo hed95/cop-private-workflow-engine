@@ -73,7 +73,7 @@ public class TaskApplicationService {
             taskQuery = createQuery(user, taskCriteria, taskQuery);
         }
         long totalResults = taskQuery.count();
-        log.debug("Total results for query '{}'", totalResults);
+        log.info("Total results for query '{}'", totalResults);
 
         if (pageable.getSort() != null) {
             taskSortExecutor.applySort(taskQuery, pageable.getSort());
@@ -86,7 +86,9 @@ public class TaskApplicationService {
     private TaskQuery createQuery(@NotNull PlatformUser user, TaskCriteria taskCriteria, TaskQuery taskQuery) {
             taskCriteria.apply(taskQuery);
         if (taskCriteria.getAssignedToMeOnly()) {
-             taskQuery.taskAssignee(user.getEmail());
+             taskQuery.or()
+                     .taskAssignee(user.getEmail())
+                     .taskCandidateUser(user.getEmail()).endOr();
         } else {
             List<String> teamCodes = resolveCandidateGroups(user);
             if (taskCriteria.getUnassignedOnly()) {
@@ -106,6 +108,7 @@ public class TaskApplicationService {
 
     private TaskQuery applyUserFilters(@NotNull PlatformUser user, TaskQuery taskQuery) {
         return taskQuery.or()
+                .taskCandidateUser(user.getEmail())
                 .taskAssignee(user.getEmail())
                 .taskCandidateGroupIn(resolveCandidateGroups(user))
                 .includeAssignedTasks()
@@ -275,7 +278,11 @@ public class TaskApplicationService {
 
         Mono<Long> assignedToUser = Mono.fromCallable(() -> taskService.createTaskQuery()
                 .processVariableValueNotEquals("type", NOTIFICATIONS)
-                .taskAssignee(user.getEmail()).count()).subscribeOn(Schedulers.elastic());
+                .or()
+                .taskAssignee(user.getEmail())
+                .taskCandidateUser(user.getEmail())
+                .endOr()
+                .count()).subscribeOn(Schedulers.elastic());
 
         Mono<Long> unassignedTasks = Mono.fromCallable(() -> taskService.createTaskQuery()
                 .taskCandidateGroupIn(teamCodes)

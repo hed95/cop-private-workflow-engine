@@ -28,8 +28,10 @@ public class TaskChecker {
 
         List<String> teams = user.getTeams().stream().map(Team::getCode).collect(toList());
         List<IdentityLink> identities = identityLinks.stream().filter(i -> teams.contains(i.getGroupId())).collect(toList());
+        List<IdentityLink> candidateUsers = identityLinks.stream().filter(i -> user.getEmail().equalsIgnoreCase(i.getUserId())).collect(toList());
 
-        if (identities.isEmpty() && (!user.getEmail().equalsIgnoreCase(task.getAssignee()))) {
+        if (candidateUsers.isEmpty() &&
+                identities.isEmpty() && (!user.getEmail().equalsIgnoreCase(task.getAssignee()))) {
             throw new ForbiddenException("User not authorized to action task");
         }
     }
