@@ -84,11 +84,11 @@ public class TaskApplicationService {
     }
 
     private TaskQuery createQuery(@NotNull PlatformUser user, TaskCriteria taskCriteria, TaskQuery taskQuery) {
-            taskCriteria.apply(taskQuery);
+        taskCriteria.apply(taskQuery);
         if (taskCriteria.getAssignedToMeOnly()) {
-             taskQuery.or()
-                     .taskAssignee(user.getEmail())
-                     .taskCandidateUser(user.getEmail()).endOr();
+            taskQuery.or()
+                    .taskAssignee(user.getEmail())
+                    .taskCandidateUser(user.getEmail()).endOr();
         } else {
             List<String> teamCodes = resolveCandidateGroups(user);
             if (taskCriteria.getUnassignedOnly()) {
@@ -256,7 +256,12 @@ public class TaskApplicationService {
      * @return
      */
     VariableMap getVariables(@NotNull PlatformUser user, String taskId) {
-        Task task = getTask(user, taskId);
+        Task task;
+        if (user.isServiceUser()) {
+            task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        } else {
+            task = getTask(user, taskId);
+        }
         taskExistsCheck(taskId, task);
         return taskService.getVariablesTyped(task.getId(), false);
     }
