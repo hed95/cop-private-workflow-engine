@@ -1,8 +1,10 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
+import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptionPlugin;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
+import org.camunda.bpm.engine.RepositoryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,9 +27,14 @@ public class EncryptionConfig {
 
     @Bean
     public ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor() {
-        return new ProcessInstanceSpinVariableEncryptor(pathToPrivateKey);
+        return new ProcessInstanceSpinVariableEncryptor(pathToPublicKey);
     }
 
+
+    @Bean
+    public ProcessDefinitionEncryptionParser processDefinitionEncryptionParser(RepositoryService repositoryService) {
+        return new ProcessDefinitionEncryptionParser(repositoryService);
+    }
 
     @Bean
     public ProcessInstanceSpinVariableEncryptionPlugin plugin() {
