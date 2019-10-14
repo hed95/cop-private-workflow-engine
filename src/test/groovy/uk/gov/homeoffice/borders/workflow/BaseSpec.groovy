@@ -3,10 +3,12 @@ package uk.gov.homeoffice.borders.workflow
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
+import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptionPlugin
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor
 import org.camunda.bpm.engine.IdentityService
+import org.camunda.bpm.engine.RepositoryService
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.runtime.ProcessInstance
@@ -174,6 +176,10 @@ abstract class BaseSpec extends Specification {
                     processInstanceSpinVariableDecryptor())
         }
 
+        @Bean
+        ProcessDefinitionEncryptionParser processDefinitionEncryptionParser(RepositoryService repositoryService) {
+            return new ProcessDefinitionEncryptionParser(repositoryService)
+        }
 
         @Bean
         MockPostProcessor mockPostProcessor() {
