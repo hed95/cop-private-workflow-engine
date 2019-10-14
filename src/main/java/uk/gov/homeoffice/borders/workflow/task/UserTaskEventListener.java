@@ -51,6 +51,7 @@ public class UserTaskEventListener extends ReactorTaskListener {
                     getCandidates()
                     .stream()
                     .map(IdentityLink::getUserId)
+                    .filter(id -> id != null && !id.equalsIgnoreCase(""))
                     .collect(toList());
 
 
@@ -81,8 +82,12 @@ public class UserTaskEventListener extends ReactorTaskListener {
                 @Override
                 public void afterCompletion(int status) {
                     super.afterCompletion(status);
-                    candidateUsers.forEach(user -> messagingTemplate.convertAndSendToUser(user,
-                            "/queue/task", taskReference));
+                    candidateUsers.forEach(user -> {
+                        if (user != null && !user.equalsIgnoreCase("")) {
+                            messagingTemplate.convertAndSendToUser(user,
+                                    "/queue/task", taskReference);
+                        }
+                    });
 
                     ofNullable(assignee)
                                         .ifPresent(a -> messagingTemplate.convertAndSendToUser(a,
