@@ -105,9 +105,9 @@ spec:
           - name: trustedcerts
             mountPath: /trustedcerts
           - name: privateder
-            mountPath: "{{ .ENGINE_PRIVATE_DER }}"
+            mountPath: "{{ .ENGINE_PRIVATE_DER_PATH }}"
           - name: publicder
-            mountPath: "{{ .ENGINE_PUBLIC_DER }}"
+            mountPath: "{{ .ENGINE_PUBLIC_DER_PATH }}"
         env:
           - name: ENGINE_NAME
             value: "{{.ENGINE_NAME}}"
@@ -125,9 +125,9 @@ spec:
           - name: ENGINE_SPRING_PROFILES_ACTIVE
             value: "{{.ENGINE_SPRING_PROFILES_ACTIVE}}"
           - name: ENGINE_PUBLIC_DER_PATH
-            value:
+            value: "{{ .ENGINE_PUBLIC_DER_PATH }}"
           - name: ENGINE_PRIVATE_DER_PATH
-            value:
+            value: "{{ .ENGINE_PRIVATE_DER_PATH }}"
           - name: API_COP_URI
             value: "{{.API_COP_PROTOCOL}}{{.API_COP_URL}}"
           - name: API_REF_URI
