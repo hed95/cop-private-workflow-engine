@@ -4,6 +4,7 @@ import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptionPlugin;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("!test")
+@Slf4j
 public class EncryptionConfig {
 
     @Value("${encryption.keys.private-path}")
@@ -22,11 +24,13 @@ public class EncryptionConfig {
 
     @Bean
     public ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor() {
+        log.info("Path to private key '{}'", pathToPrivateKey);
         return new ProcessInstanceSpinVariableDecryptor(pathToPrivateKey);
     }
 
     @Bean
     public ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor() {
+        log.info("Path to public key '{}'", pathToPrivateKey);
         return new ProcessInstanceSpinVariableEncryptor(pathToPublicKey);
     }
 
