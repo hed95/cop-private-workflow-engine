@@ -104,10 +104,8 @@ spec:
             mountPath: /cacerts
           - name: trustedcerts
             mountPath: /trustedcerts
-          - name: privateder
-            mountPath: "{{ .ENGINE_PRIVATE_DER_PATH }}"
-          - name: publicder
-            mountPath: "{{ .ENGINE_PUBLIC_DER_PATH }}"
+          - name: der
+            mountPath: "/app/dist/resources"
         env:
           - name: ENGINE_NAME
             value: "{{.ENGINE_NAME}}"
@@ -185,9 +183,6 @@ spec:
       - name: proxyconfigmap
         configMap:
           name: {{.ENGINE_NAME}}
-      - name: privateder
+      - name: der
         secret:
-          secretName: privateDer
-      - name: publicder
-        secret:
-          secretName: publicDer
+          secretName: {{.ENGINE_NAME}}
