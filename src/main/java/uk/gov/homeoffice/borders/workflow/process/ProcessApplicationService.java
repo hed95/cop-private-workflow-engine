@@ -1,5 +1,8 @@
 package uk.gov.homeoffice.borders.workflow.process;
 
+import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
+import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
+import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +44,11 @@ public class ProcessApplicationService {
     private FormService formService;
     private JacksonJsonDataFormat formatter;
     private AuthorizationService authorizationService;
+    private ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor;
+    private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
+    private ProcessDefinitionEncryptionParser processDefinitionEncryptionParser;
+
+
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
     public List<ProcessDefinition> getDefinitions(List<String> processDefinitionIds) {
@@ -103,14 +111,18 @@ public class ProcessApplicationService {
 
     ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull PlatformUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
-
-
-        Spin<?> spinObject = Spin.S(processStartDto.getData(), formatter);
-
         Map<String, Object> variables = new HashMap<>();
-        variables.put(processStartDto.getVariableName(), spinObject);
         variables.put("type", "non-notifications");
         variables.put("initiatedBy", user.getEmail());
+        if (processDefinitionEncryptionParser.shouldEncrypt(processStartDto.getProcessKey(),
+                "encryptVariables")) {
+            variables.put(processStartDto.getVariableName(), processInstanceSpinVariableEncryptor.encrypt(
+                    processStartDto.getData()
+            ));
+        } else {
+            Spin<?> spinObject = Spin.S(processStartDto.getData(), formatter);
+            variables.put(processStartDto.getVariableName(), spinObject);
+        }
 
         ProcessInstance processInstance;
 
@@ -138,8 +150,11 @@ public class ProcessApplicationService {
         return processInstance;
     }
 
-    public VariableMap variables(String processInstanceId, @NotNull PlatformUser user) {
+    public VariableMap variables(String processInstanceId, boolean decrypt, @NotNull PlatformUser user) {
         log.info("PlatformUser '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
+        if (user.isServiceUser() && decrypt) {
+            return processInstanceSpinVariableDecryptor.decrypt(runtimeService.getVariables(processInstanceId));
+        }
         return runtimeService.getVariablesTyped(processInstanceId, false);
     }
 

@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.FormService;
@@ -53,6 +54,7 @@ public class TaskApplicationService {
     private ObjectMapper objectMapper;
     private JacksonJsonDataFormat formatter;
     private RuntimeService runtimeService;
+    private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
@@ -255,14 +257,16 @@ public class TaskApplicationService {
      * @param taskId
      * @return
      */
-    VariableMap getVariables(@NotNull PlatformUser user, String taskId) {
+    VariableMap getVariables(@NotNull PlatformUser user, String taskId, boolean decrypt) {
         Task task;
-        if (user.isServiceUser()) {
+        if (user.isServiceUser() && decrypt) {
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
+            taskExistsCheck(taskId, task);
+            return processInstanceSpinVariableDecryptor.decrypt(
+                    taskService.getVariables(taskId));
         } else {
             task = getTask(user, taskId);
         }
-        taskExistsCheck(taskId, task);
         return taskService.getVariablesTyped(task.getId(), false);
     }
 
