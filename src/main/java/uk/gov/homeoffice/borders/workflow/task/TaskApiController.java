@@ -73,7 +73,6 @@ public class TaskApiController {
     @ApiOperation("Get a task.")
     public CompletableFuture<TaskDtoResource> task(@PathVariable String taskId,
                                                    @RequestParam(required = false, defaultValue = "false") Boolean includeVariables,
-                                                   @RequestParam(required = false, defaultValue = "false") Boolean decrypt,
                                                    PlatformUser user) {
         Mono<Task> task = Mono
                 .fromCallable(() -> applicationService.getTask(user, taskId))
@@ -87,7 +86,7 @@ public class TaskApiController {
 
         if (includeVariables) {
             Mono<Map<String, VariableValueDto>> variableMap = Mono.fromCallable(() ->
-                    applicationService.getVariables(user, taskId, decrypt))
+                    applicationService.getVariables(user, taskId))
                     .map(VariableValueDto::fromVariableMap)
                     .subscribeOn(Schedulers.elastic());
             return Mono.zip(Arrays.asList(task, identities, variableMap), (Object[] args) -> {
@@ -108,9 +107,8 @@ public class TaskApiController {
     @GetMapping("/{taskId}/variables")
     @ApiOperation("Get the variables available to a task.")
     public Map<String, VariableValueDto> variables(@PathVariable String taskId,
-                                                   @RequestParam(required = false, defaultValue = "false") Boolean decrypt,
                                                    PlatformUser platformUser) {
-        VariableMap variables = applicationService.getVariables(platformUser, taskId, decrypt);
+        VariableMap variables = applicationService.getVariables(platformUser, taskId);
         return VariableValueDto.fromVariableMap(variables);
     }
 
