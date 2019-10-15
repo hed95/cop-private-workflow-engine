@@ -3,6 +3,7 @@ pipeline:
     image: quay.io/ukhomeofficedigital/cop-secrets
     environment:
       - DRONE_SERVER=https://drone.acp.homeoffice.gov.uk
+      - DEPLOY_ENV=dev
     secrets:
       - source: DEV_DRONE_AWS_ACCESS_KEY_ID
         target: AWS_ACCESS_KEY_ID
@@ -17,6 +18,7 @@ pipeline:
     image: quay.io/ukhomeofficedigital/cop-secrets
     environment:
       - DRONE_SERVER=https://drone.acp.homeoffice.gov.uk
+      - DEPLOY_ENV=staging
     secrets:
       - source: STAGING_DRONE_AWS_ACCESS_KEY_ID
         target: AWS_ACCESS_KEY_ID
@@ -25,13 +27,14 @@ pipeline:
       - source: DRONE_PUBLIC_TOKEN
         target: DRONE_TOKEN
     when:
-      event: deployment
-      environment: staging
+      branch: master
+      event: push
 
   synch_production_secrets:
     image: quay.io/ukhomeofficedigital/cop-secrets
     environment:
       - DRONE_SERVER=https://drone.acp.homeoffice.gov.uk
+      - DEPLOY_ENV=production
     secrets:
       - source: PRODUCTION_DRONE_AWS_ACCESS_KEY_ID
         target: AWS_ACCESS_KEY_ID
@@ -40,8 +43,8 @@ pipeline:
       - source: DRONE_PUBLIC_TOKEN
         target: DRONE_TOKEN
     when:
-      event: deployment
-      environment: production
+      branch: master
+      event: push
 
   test:
     image: digitalpatterns/jdk:1
@@ -81,7 +84,7 @@ pipeline:
       target: KEYCLOAK_URL
     - source: DEV_KEYCLOAK_REALM
       target: KEYCLOAK_REALM
-    - source: DEV_KEYCLOAK_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: KEYCLOAK_PROTOCOL
     - source: NGINX_IMAGE
       target: NGINX_IMAGE
@@ -101,23 +104,23 @@ pipeline:
       target: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
     - source: DEV_WWW_URL
       target: WWW_URL
-    - source: WWW_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: WWW_PROTOCOL
-    - source: WWW_UI_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: WWW_UI_PROTOCOL
-    - source: WWW_UI_TXT_PROTOCOL
+    - source: PROTOCOL_AWBS
       target: WWW_UI_TXT_PROTOCOL
-    - source: DEV_API_COP_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: API_COP_PROTOCOL
     - source: DEV_API_COP_URL
       target: API_COP_URL
-    - source: DEV_API_REF_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: API_REF_PROTOCOL
     - source: DEV_API_REF_URL
       target: API_REF_URL
-    - source: DEV_DB_ENGINE_PROTOCOL
+    - source: PROTOCOL_POSTGRES
       target: DB_ENGINE_PROTOCOL
-    - source: DEV_DB_ENGINE_JDBC_PROTOCOL
+    - source: PROTOCOL_JDBC
       target: DB_ENGINE_JDBC_PROTOCOL
     - source: DEV_DB_ENGINE_PORT
       target: DB_ENGINE_PORT
@@ -149,7 +152,7 @@ pipeline:
       target: ENGINE_KEYCLOAK_CLIENT_SECRET
     - source: DEV_ENGINE_SPRING_PROFILES_ACTIVE
       target: ENGINE_SPRING_PROFILES_ACTIVE
-    - source: DEV_ENGINE_KUBE_NAMESPACE
+    - source: DEV_KUBE_NAMESPACE_PRIVATE_COP
       target: KUBE_NAMESPACE
     - source: ENGINE_PORT
       target: ENGINE_PORT
@@ -161,9 +164,9 @@ pipeline:
       target: ENGINE_PRIVATE_DER
     - source: DEV_ENGINE_PUBLIC_DER
       target: ENGINE_PUBLIC_DER
-    - source: DEV_ENGINE_PRIVATE_DER_PATH
+    - source: ENGINE_PRIVATE_DER_PATH
       target: ENGINE_PRIVATE_DER_PATH
-    - source: DEV_ENGINE_PUBLIC_DER_PATH
+    - source: ENGINE_PUBLIC_DER_PATH
       target: ENGINE_PUBLIC_DER_PATH
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
@@ -192,7 +195,7 @@ pipeline:
       target: KEYCLOAK_URL
     - source: STAGING_KEYCLOAK_REALM
       target: KEYCLOAK_REALM
-    - source: STAGING_KEYCLOAK_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: KEYCLOAK_PROTOCOL
     - source: NGINX_IMAGE
       target: NGINX_IMAGE
@@ -212,23 +215,23 @@ pipeline:
       target: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
     - source: STAGING_WWW_URL
       target: WWW_URL
-    - source: WWW_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: WWW_PROTOCOL
-    - source: WWW_UI_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: WWW_UI_PROTOCOL
-    - source: WWW_UI_TXT_PROTOCOL
+    - source: PROTOCOL_AWBS
       target: WWW_UI_TXT_PROTOCOL
-    - source: STAGING_API_COP_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: API_COP_PROTOCOL
     - source: STAGING_API_COP_URL
       target: API_COP_URL
-    - source: STAGING_API_REF_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: API_REF_PROTOCOL
     - source: STAGING_API_REF_URL
       target: API_REF_URL
-    - source: STAGING_DB_ENGINE_PROTOCOL
+    - source: PROTOCOL_POSTGRES
       target: DB_ENGINE_PROTOCOL
-    - source: STAGING_DB_ENGINE_JDBC_PROTOCOL
+    - source: PROTOCOL_JDBC
       target: DB_ENGINE_JDBC_PROTOCOL
     - source: STAGING_DB_ENGINE_PORT
       target: DB_ENGINE_PORT
@@ -260,7 +263,7 @@ pipeline:
       target: ENGINE_KEYCLOAK_CLIENT_SECRET
     - source: STAGING_ENGINE_SPRING_PROFILES_ACTIVE
       target: ENGINE_SPRING_PROFILES_ACTIVE
-    - source: STAGING_ENGINE_KUBE_NAMESPACE
+    - source: STAGING_KUBE_NAMESPACE_PRIVATE_COP
       target: KUBE_NAMESPACE
     - source: ENGINE_PORT
       target: ENGINE_PORT
@@ -268,6 +271,14 @@ pipeline:
       target: ENGINE_JAVA_OPTS
     - source: STAGING_ENGINE_CORS
       target: ENGINE_CORS
+    - source: STAGING_ENGINE_PRIVATE_DER
+      target: ENGINE_PRIVATE_DER
+    - source: STAGING_ENGINE_PUBLIC_DER
+      target: ENGINE_PUBLIC_DER
+    - source: ENGINE_PRIVATE_DER_PATH
+      target: ENGINE_PRIVATE_DER_PATH
+    - source: ENGINE_PUBLIC_DER_PATH
+      target: ENGINE_PUBLIC_DER_PATH
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
@@ -295,7 +306,7 @@ pipeline:
       target: KEYCLOAK_URL
     - source: PRODUCTION_KEYCLOAK_REALM
       target: KEYCLOAK_REALM
-    - source: PRODUCTION_KEYCLOAK_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: KEYCLOAK_PROTOCOL
     - source: NGINX_IMAGE
       target: NGINX_IMAGE
@@ -315,23 +326,23 @@ pipeline:
       target: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
     - source: PRODUCTION_WWW_URL
       target: WWW_URL
-    - source: WWW_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: WWW_PROTOCOL
-    - source: WWW_UI_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: WWW_UI_PROTOCOL
-    - source: WWW_UI_TXT_PROTOCOL
+    - source: PROTOCOL_AWBS
       target: WWW_UI_TXT_PROTOCOL
-    - source: PRODUCTION_API_COP_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: API_COP_PROTOCOL
     - source: PRODUCTION_API_COP_URL
       target: API_COP_URL
-    - source: PRODUCTION_API_REF_PROTOCOL
+    - source: PROTOCOL_HTTPS
       target: API_REF_PROTOCOL
     - source: PRODUCTION_API_REF_URL
       target: API_REF_URL
-    - source: PRODUCTION_DB_ENGINE_PROTOCOL
+    - source: PROTOCOL_POSTGRES
       target: DB_ENGINE_PROTOCOL
-    - source: PRODUCTION_DB_ENGINE_JDBC_PROTOCOL
+    - source: PROTOCOL_JDBC
       target: DB_ENGINE_JDBC_PROTOCOL
     - source: PRODUCTION_DB_ENGINE_PORT
       target: DB_ENGINE_PORT
@@ -363,7 +374,7 @@ pipeline:
       target: ENGINE_KEYCLOAK_CLIENT_SECRET
     - source: PRODUCTION_ENGINE_SPRING_PROFILES_ACTIVE
       target: ENGINE_SPRING_PROFILES_ACTIVE
-    - source: PRODUCTION_ENGINE_KUBE_NAMESPACE
+    - source: PRODUCTION_KUBE_NAMESPACE_PRIVATE_COP
       target: KUBE_NAMESPACE
     - source: ENGINE_PORT
       target: ENGINE_PORT
@@ -371,6 +382,14 @@ pipeline:
       target: ENGINE_JAVA_OPTS
     - source: PRODUCTION_ENGINE_CORS
       target: ENGINE_CORS
+    - source: PRODUCTION_ENGINE_PRIVATE_DER
+      target: ENGINE_PRIVATE_DER
+    - source: PRODUCTION_ENGINE_PUBLIC_DER
+      target: ENGINE_PUBLIC_DER
+    - source: ENGINE_PRIVATE_DER_PATH
+      target: ENGINE_PRIVATE_DER_PATH
+    - source: ENGINE_PUBLIC_DER_PATH
+      target: ENGINE_PUBLIC_DER_PATH
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
