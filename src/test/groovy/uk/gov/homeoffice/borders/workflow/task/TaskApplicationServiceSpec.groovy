@@ -2,6 +2,8 @@ package uk.gov.homeoffice.borders.workflow.task
 
 import org.camunda.bpm.engine.HistoryService
 import org.camunda.bpm.engine.IdentityService
+import org.camunda.bpm.engine.rest.dto.VariableValueDto
+import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto
 import org.camunda.spin.Spin
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -208,6 +210,66 @@ class TaskApplicationServiceSpec extends BaseSpec {
         taskData.description = "taskDataDesc"
         completeTaskDto.data = taskData
         applicationService.completeTask(task.id,completeTaskDto)
+
+
+        and:
+        def variables = processApplicationService
+                .variables(processInstance.id, user)
+
+        then:
+        !(variables.get('myTaskVariable') instanceof SealedObject)
+
+    }
+
+    def 'can complete with form for encrypted process'() {
+        given:
+        def processStartDto = new ProcessStartDto()
+        processStartDto.processKey = 'encryption'
+        processStartDto.variableName = 'collectionOfData'
+        def data = new Data()
+        data.candidateGroup = "teamA"
+        data.name = "test 0"
+        data.description = "test 0"
+        processStartDto.data = [data]
+        processStartDto
+
+        and:
+        def user = new PlatformUser()
+        user.id = 'assigneeOneTwoThree'
+        user.email = 'assigneeOneTwoThree'
+
+        def shift = new PlatformUser.ShiftDetails()
+        shift.roles = ['custom_role']
+        user.shiftDetails = shift
+
+        def team = new Team()
+        user.teams = []
+        team.code = 'teamA'
+        user.teams << team
+        user.roles = ['custom_role']
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+        user
+
+        and:
+        def processInstance = processApplicationService.createInstance(processStartDto, user)
+
+
+        when:
+        def task = taskService.createTaskQuery()
+                .processInstanceId(processInstance.id).singleResult()
+        taskService.setAssignee(task.id, user.email)
+
+        def completeTaskDto = new CompleteTaskDto()
+        completeTaskDto.variables = new HashMap<String,VariableValueDto>()
+
+        def taskData = new Data()
+        taskData.candidateGroup = "taskDataA"
+        taskData.name = "taskDataName"
+        taskData.description = "taskDataDesc"
+        def dto = new VariableValueDto()
+        dto.value = data
+        completeTaskDto.variables.put('myTaskVariable', dto)
+        applicationService.completeTaskWithForm(user, task.id,completeTaskDto)
 
 
         and:
