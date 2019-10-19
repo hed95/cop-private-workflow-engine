@@ -9,29 +9,25 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("!test")
 @Slf4j
 public class EncryptionConfig {
 
-    @Value("${encryption.keys.private-path}")
-    private String pathToPrivateKey;
+    @Value("${encryption.passPhrase}")
+    private String passPhrase;
 
-    @Value("${encryption.keys.public-path}")
-    private String pathToPublicKey;
+    @Value("${encryption.salt}")
+    private String salt;
 
     @Bean
     public ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor() {
-        log.info("Path to private key '{}'", pathToPrivateKey);
-        return new ProcessInstanceSpinVariableDecryptor(pathToPrivateKey);
+        return new ProcessInstanceSpinVariableDecryptor(passPhrase, salt);
     }
 
     @Bean
     public ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor() {
-        log.info("Path to public key '{}'", pathToPublicKey);
-        return new ProcessInstanceSpinVariableEncryptor(pathToPublicKey);
+        return new ProcessInstanceSpinVariableEncryptor(passPhrase, salt);
     }
 
 
@@ -42,6 +38,7 @@ public class EncryptionConfig {
 
     @Bean
     public ProcessInstanceSpinVariableEncryptionPlugin plugin() {
-        return new ProcessInstanceSpinVariableEncryptionPlugin(processInstanceSpinVariableEncryptor(), processInstanceSpinVariableDecryptor());
+        return new ProcessInstanceSpinVariableEncryptionPlugin(processInstanceSpinVariableEncryptor(),
+                processInstanceSpinVariableDecryptor());
     }
 }

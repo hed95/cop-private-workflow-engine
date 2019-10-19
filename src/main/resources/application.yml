@@ -12,9 +12,8 @@ keycloak:
     secret: ${ENGINE_KEYCLOAK_CLIENT_SECRET}
 
 encryption:
-  keys:
-    private-path: ${ENGINE_PRIVATE_DIR_PATH}
-    public-path:  ${ENGINE_PUBLIC_DIR_PATH}
+  passPhrase: ${ENGINE_ENCRYPTION_PASSPHRASE}
+  salt:  ${ENGINE_ENCRYPTION_SALT}
 
 public-ui:
     protocol: ${WWW_UI_PROTOCOL}

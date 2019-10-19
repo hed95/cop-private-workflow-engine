@@ -108,7 +108,7 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.10'
     compile 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
 
-    compile 'io.digitalpatterns:camunda-process-variable-encryption:1.1.Final'
+    compile 'io.digitalpatterns:camunda-process-variable-encryption:1.2.Final'
 
     testCompile ('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
