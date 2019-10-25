@@ -214,7 +214,7 @@ public class TaskApplicationService {
             completeTaskDto.getVariables().keySet().forEach(variableName ->
                     variables.putValue(variableName,
                             processInstanceSpinVariableEncryptor.encrypt(completeTaskDto
-                                    .getVariables().get(variableName))));
+                                    .getVariables().get(variableName).getValue())));
         } else {
             variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
         }

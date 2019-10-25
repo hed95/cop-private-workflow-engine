@@ -67,7 +67,6 @@ spring:
         cachePrepStmts: true
         prepStmtCacheSqlLimit: 2048
         prepStmtCacheSize: 250
-
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
   http:
@@ -99,4 +98,5 @@ server:
   error:
     whitelabel:
       enabled: false
+  port: ${ENGINE_PORT}
 

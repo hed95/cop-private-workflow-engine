@@ -50,7 +50,7 @@ public class ProcessInstanceApiController {
     @ApiOperation("Start a new process.")
     public ProcessInstanceDto createInstance(@RequestBody @Valid ProcessStartDto processStartDto, PlatformUser platformUser)
             throws JsonProcessingException {
-        log.info("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
+        log.debug("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
         ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, platformUser);
         return ProcessInstanceDto.fromProcessInstance(processInstance);
 
