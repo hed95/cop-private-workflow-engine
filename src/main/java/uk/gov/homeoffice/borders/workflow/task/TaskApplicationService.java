@@ -160,7 +160,15 @@ public class TaskApplicationService {
             taskService.complete(task.getId());
             log.info("task completed without any variables");
         } else {
-            VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
+            VariableMap variables;
+            if (hasEncryption(task)) {
+                variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
+                variables.keySet().stream().forEach((key) -> variables.replace(key,
+                        processInstanceSpinVariableEncryptor.encrypt(variables.get(key))));
+
+            } else {
+                variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
+            }
             taskService.complete(task.getId(), variables);
         }
     }
@@ -278,7 +286,8 @@ public class TaskApplicationService {
         return new PageImpl<>(tasks, pageable, totalResults);
     }
 
-    /**ProcessApplicationServiceSpec
+    /**
+     * ProcessApplicationServiceSpec
      * Return variables associated with task
      *
      * @param user
