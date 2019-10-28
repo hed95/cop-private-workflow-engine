@@ -12,9 +12,8 @@ keycloak:
     secret: ${ENGINE_KEYCLOAK_CLIENT_SECRET}
 
 encryption:
-  keys:
-    private-path: ${ENGINE_PRIVATE_DER_PATH}
-    public-path:  ${ENGINE_PUBLIC_DER_PATH}
+  passPhrase: ${ENGINE_ENCRYPTION_PASSPHRASE}
+  salt:  ${ENGINE_ENCRYPTION_SALT}
 
 public-ui:
     protocol: ${WWW_UI_PROTOCOL}
@@ -68,7 +67,6 @@ spring:
         cachePrepStmts: true
         prepStmtCacheSqlLimit: 2048
         prepStmtCacheSize: 250
-
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
   http:
@@ -100,4 +98,5 @@ server:
   error:
     whitelabel:
       enabled: false
+  port: ${ENGINE_PORT}
 

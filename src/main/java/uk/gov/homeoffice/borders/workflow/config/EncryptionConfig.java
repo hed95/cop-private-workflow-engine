@@ -1,37 +1,30 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
-import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
-import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
-import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptionPlugin;
-import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
+import io.digitalpatterns.camunda.encryption.*;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("!test")
 @Slf4j
 public class EncryptionConfig {
 
-    @Value("${encryption.keys.private-path}")
-    private String pathToPrivateKey;
+    @Value("${encryption.passPhrase}")
+    private String passPhrase;
 
-    @Value("${encryption.keys.public-path}")
-    private String pathToPublicKey;
+    @Value("${encryption.salt}")
+    private String salt;
 
     @Bean
     public ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor() {
-        log.info("Path to private key '{}'", pathToPrivateKey);
-        return new ProcessInstanceSpinVariableDecryptor(pathToPrivateKey);
+        return new DefaultProcessInstanceSpinVariableDecryptor(passPhrase, salt);
     }
 
     @Bean
     public ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor() {
-        log.info("Path to public key '{}'", pathToPublicKey);
-        return new ProcessInstanceSpinVariableEncryptor(pathToPublicKey);
+        return new DefaultProcessInstanceSpinVariableEncryptor(passPhrase, salt);
     }
 
 
@@ -42,6 +35,7 @@ public class EncryptionConfig {
 
     @Bean
     public ProcessInstanceSpinVariableEncryptionPlugin plugin() {
-        return new ProcessInstanceSpinVariableEncryptionPlugin(processInstanceSpinVariableEncryptor(), processInstanceSpinVariableDecryptor());
+        return new ProcessInstanceSpinVariableEncryptionPlugin(processInstanceSpinVariableEncryptor(),
+                processInstanceSpinVariableDecryptor());
     }
 }

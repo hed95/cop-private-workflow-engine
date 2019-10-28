@@ -109,7 +109,7 @@ public class ProcessApplicationService {
     }
 
 
-    ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull PlatformUser user) {
+    public ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull PlatformUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
         Map<String, Object> variables = new HashMap<>();
         variables.put("type", "non-notifications");
@@ -150,9 +150,9 @@ public class ProcessApplicationService {
         return processInstance;
     }
 
-    public VariableMap variables(String processInstanceId, boolean decrypt, @NotNull PlatformUser user) {
+    public VariableMap variables(String processInstanceId, @NotNull PlatformUser user) {
         log.info("PlatformUser '{}' requested process instance variables for '{}'", user.getEmail(), processInstanceId);
-        if (user.isServiceUser() && decrypt) {
+        if (hasEncryption(processInstanceId)) {
             return processInstanceSpinVariableDecryptor.decrypt(runtimeService.getVariables(processInstanceId));
         }
         return runtimeService.getVariablesTyped(processInstanceId, false);
@@ -168,4 +168,17 @@ public class ProcessApplicationService {
         }
         return processDefinition;
     }
+
+    private boolean hasEncryption(String processInstanceId) {
+        ProcessInstance processInstance = runtimeService
+                .createProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+        ProcessDefinition processDefinition = repositoryService
+                .createProcessDefinitionQuery()
+                .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult();
+        return processDefinitionEncryptionParser.shouldEncrypt(processDefinition,
+                "encryptVariables");
+    }
+
 }

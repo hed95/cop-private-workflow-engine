@@ -50,7 +50,7 @@ public class ProcessInstanceApiController {
     @ApiOperation("Start a new process.")
     public ProcessInstanceDto createInstance(@RequestBody @Valid ProcessStartDto processStartDto, PlatformUser platformUser)
             throws JsonProcessingException {
-        log.info("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
+        log.debug("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
         ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, platformUser);
         return ProcessInstanceDto.fromProcessInstance(processInstance);
 
@@ -65,10 +65,8 @@ public class ProcessInstanceApiController {
     @GetMapping(value = "/{processInstanceId}/variables", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the process variables for a process instance.")
     public Map<String, VariableValueDto> variables(@PathVariable String processInstanceId,
-                                                   @RequestParam(name = "decrypt", required = false,
-                                                   defaultValue = "false") boolean decrypt,
                                                    PlatformUser platformUser) {
-        VariableMap variables = processApplicationService.variables(processInstanceId, decrypt, platformUser);
+        VariableMap variables = processApplicationService.variables(processInstanceId, platformUser);
         return VariableValueDto.fromVariableMap(variables);
     }
 }

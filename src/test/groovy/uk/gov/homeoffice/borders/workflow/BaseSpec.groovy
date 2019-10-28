@@ -3,12 +3,7 @@ package uk.gov.homeoffice.borders.workflow
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
-import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser
-import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor
-import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptionPlugin
-import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor
 import org.camunda.bpm.engine.IdentityService
-import org.camunda.bpm.engine.RepositoryService
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.runtime.ProcessInstance
@@ -25,7 +20,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Scope
-import org.springframework.core.io.ClassPathResource
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.test.context.ActiveProfiles
@@ -66,8 +60,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
         "ENGINE_CORS=http://localhost:8000",
         "KEYCLOAK_URI=http://localhost:9000/auth",
         "KEYCLOAK_REALM=myRealm",
-        "ENGINE_PRIVATE_DER_PATH=/keys/private_key.der",
-        "ENGINE_PUBLIC_DER_PATH=/keys/public_key.der",
+        "ENGINE_ENCRYPTION_PASSPHRASE=secret",
+        "ENGINE_ENCRYPTION_SALT=a9v5n38s",
         "ENGINE_KEYCLOAK_CLIENT_SECRET=very_secret",
         "ENGINE_KEYCLOAK_CLIENT_ID=client_id"])
 abstract class BaseSpec extends Specification {
@@ -134,7 +128,7 @@ abstract class BaseSpec extends Specification {
         user.teams = []
         team.code = 'teamA'
         user.teams << team
-        user.roles =  ['custom_role']
+        user.roles = ['custom_role']
         identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
         user
     }
@@ -153,33 +147,6 @@ abstract class BaseSpec extends Specification {
     static class StubConfig {
         def detachedMockFactory = new DetachedMockFactory()
 
-        @Bean
-        ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor() {
-            return new ProcessInstanceSpinVariableDecryptor(
-                    new ClassPathResource("/keys/private_key.der")
-                        .getFile().getAbsolutePath()
-            )
-        }
-
-        @Bean
-        ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor() {
-            return new ProcessInstanceSpinVariableEncryptor(
-                    new ClassPathResource("/keys/public_key.der")
-                            .getFile().getAbsolutePath()
-            )
-        }
-
-
-        @Bean
-        ProcessInstanceSpinVariableEncryptionPlugin plugin() {
-            return new ProcessInstanceSpinVariableEncryptionPlugin(processInstanceSpinVariableEncryptor(),
-                    processInstanceSpinVariableDecryptor())
-        }
-
-        @Bean
-        ProcessDefinitionEncryptionParser processDefinitionEncryptionParser(RepositoryService repositoryService) {
-            return new ProcessDefinitionEncryptionParser(repositoryService)
-        }
 
         @Bean
         MockPostProcessor mockPostProcessor() {

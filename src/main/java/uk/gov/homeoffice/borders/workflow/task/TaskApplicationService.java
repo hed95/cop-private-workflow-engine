@@ -1,13 +1,12 @@
 package uk.gov.homeoffice.borders.workflow.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
+import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.FormService;
-import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
@@ -16,6 +15,7 @@ import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.engine.variable.VariableMap;
+import org.camunda.bpm.engine.variable.impl.VariableMapImpl;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +55,9 @@ public class TaskApplicationService {
     private JacksonJsonDataFormat formatter;
     private RuntimeService runtimeService;
     private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
+    private ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor;
+    private ProcessDefinitionEncryptionParser processDefinitionEncryptionParser;
+    private RepositoryService repositoryService;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
@@ -157,7 +160,15 @@ public class TaskApplicationService {
             taskService.complete(task.getId());
             log.info("task completed without any variables");
         } else {
-            VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
+            VariableMap variables;
+            if (hasEncryption(task)) {
+                variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
+                variables.keySet().stream().forEach((key) -> variables.replace(key,
+                        processInstanceSpinVariableEncryptor.encrypt(variables.get(key))));
+
+            } else {
+                variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
+            }
             taskService.complete(task.getId(), variables);
         }
     }
@@ -170,9 +181,16 @@ public class TaskApplicationService {
         if (task.getAssignee() == null) {
             throw new InternalWorkflowException("No assignee for task " + task.getId());
         }
-        Spin<?> spinObject = Spin.S(completeTaskDto.getData(), formatter);
+
+
         Map<String, Object> variables = new HashMap<>();
-        variables.put(completeTaskDto.getVariableName(), spinObject);
+        if (hasEncryption(task)) {
+            variables.put(completeTaskDto.getVariableName(),
+                    processInstanceSpinVariableEncryptor.encrypt(completeTaskDto.getData()));
+        } else {
+            Spin<?> spinObject = Spin.S(completeTaskDto.getData(), formatter);
+            variables.put(completeTaskDto.getVariableName(), spinObject);
+        }
         runtimeService.setVariables(task.getProcessInstanceId(), variables);
         taskService.complete(task.getId());
         log.info("task completed by {}", task.getAssignee());
@@ -189,8 +207,26 @@ public class TaskApplicationService {
     void completeTaskWithForm(@NotNull PlatformUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
-        VariableMap variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
+
+        VariableMap variables;
+        if (hasEncryption(task)) {
+            variables = new VariableMapImpl();
+            completeTaskDto.getVariables().keySet().forEach(variableName ->
+                    variables.putValue(variableName,
+                            processInstanceSpinVariableEncryptor.encrypt(completeTaskDto
+                                    .getVariables().get(variableName).getValue())));
+        } else {
+            variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
+        }
+
         formService.submitTaskForm(task.getId(), variables);
+    }
+
+    private boolean hasEncryption(Task task) {
+        return processDefinitionEncryptionParser.shouldEncrypt(repositoryService
+                .createProcessDefinitionQuery()
+                .processDefinitionId(task.getProcessDefinitionId())
+                .singleResult().getKey(), "encryptVariables");
     }
 
     private void validateTaskCanBeCompletedByUser(PlatformUser user, Task task) {
@@ -251,23 +287,21 @@ public class TaskApplicationService {
     }
 
     /**
+     * ProcessApplicationServiceSpec
      * Return variables associated with task
      *
      * @param user
      * @param taskId
      * @return
      */
-    VariableMap getVariables(@NotNull PlatformUser user, String taskId, boolean decrypt) {
-        Task task;
-        if (user.isServiceUser() && decrypt) {
-            task = taskService.createTaskQuery().taskId(taskId).singleResult();
-            taskExistsCheck(taskId, task);
-            return processInstanceSpinVariableDecryptor.decrypt(
-                    taskService.getVariables(taskId));
+    VariableMap getVariables(@NotNull PlatformUser user, String taskId) {
+        Task task = getTask(user, taskId);
+        taskExistsCheck(taskId, task);
+        if (hasEncryption(task)) {
+            return processInstanceSpinVariableDecryptor.decrypt(taskService.getVariables(taskId));
         } else {
-            task = getTask(user, taskId);
+            return taskService.getVariablesTyped(task.getId(), false);
         }
-        return taskService.getVariablesTyped(task.getId(), false);
     }
 
     private void taskExistsCheck(String taskId, Task task) {
