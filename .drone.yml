@@ -169,6 +169,10 @@ pipeline:
       target: ENGINE_PRIVATE_DER_PATH
     - source: ENGINE_PUBLIC_DER_PATH
       target: ENGINE_PUBLIC_DER_PATH
+    - source: DEV_ENGINE_ENCRYPTION_PASSPHRASE
+      target: ENGINE_ENCRYPTION_PASSPHRASE
+    - source: DEV_ENGINE_ENCRYPTION_SALT
+      target: ENGINE_ENCRYPTION_SALT
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
@@ -280,6 +284,10 @@ pipeline:
       target: ENGINE_PRIVATE_DER_PATH
     - source: ENGINE_PUBLIC_DER_PATH
       target: ENGINE_PUBLIC_DER_PATH
+    - source: STAGING_ENGINE_ENCRYPTION_PASSPHRASE
+      target: ENGINE_ENCRYPTION_PASSPHRASE
+    - source: STAGING_ENGINE_ENCRYPTION_SALT
+      target: ENGINE_ENCRYPTION_SALT
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
@@ -391,6 +399,10 @@ pipeline:
       target: ENGINE_PRIVATE_DER_PATH
     - source: ENGINE_PUBLIC_DER_PATH
       target: ENGINE_PUBLIC_DER_PATH
+    - source: PRODUCTION_ENGINE_ENCRYPTION_PASSPHRASE
+      target: ENGINE_ENCRYPTION_PASSPHRASE
+    - source: PRODUCTION_ENGINE_ENCRYPTION_SALT
+      target: ENGINE_ENCRYPTION_SALT
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml

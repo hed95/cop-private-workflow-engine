@@ -129,6 +129,16 @@ spec:
               secretKeyRef:
                 name: "{{.ENGINE_NAME}}"
                 key: publicDer
+          - name: ENGINE_ENCRYPTION_PASSPHRASE
+            valueFrom:
+              secretKeyRef:
+                name: "{{.ENGINE_NAME}}"
+                key: encryptionPassphrase
+          - name: NGINE_ENCRYPTION_SALT
+            valueFrom:
+              secretKeyRef:
+                name: "{{.ENGINE_NAME}}"
+                key: encryptionSalt
           - name: ENGINE_PRIVATE_DER
             valueFrom:
               secretKeyRef:
