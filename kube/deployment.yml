@@ -134,7 +134,7 @@ spec:
               secretKeyRef:
                 name: "{{.ENGINE_NAME}}"
                 key: encryptionPassphrase
-          - name: NGINE_ENCRYPTION_SALT
+          - name: ENGINE_ENCRYPTION_SALT
             valueFrom:
               secretKeyRef:
                 name: "{{.ENGINE_NAME}}"
