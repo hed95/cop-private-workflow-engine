@@ -1,7 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.task
 
 import io.vavr.Tuple2
-import org.apache.tomcat.jni.Proc
 import org.camunda.bpm.engine.HistoryService
 import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.rest.dto.VariableValueDto
@@ -275,7 +274,7 @@ class TaskApplicationServiceSpec extends BaseSpec {
         def dto = new VariableValueDto()
         dto.value = data
         completeTaskDto.variables.put('myTaskVariable', dto)
-        applicationService.completeTaskWithForm(user, task.id,completeTaskDto)
+        def result = applicationService.completeTaskWithForm(user, task.id,completeTaskDto)
 
 
         and:
@@ -284,6 +283,7 @@ class TaskApplicationServiceSpec extends BaseSpec {
 
         then:
         !(variables.get('myTaskVariable') instanceof SealedObject)
+        result.size() != 0
 
     }
 }

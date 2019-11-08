@@ -157,8 +157,9 @@ public class TaskApiController {
     @ApiOperation("Completes a task for the current user with the specified form data.")
     public ResponseEntity completeWithForm(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto,
                                            PlatformUser user) {
-        applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
-        return ResponseEntity.ok().build();
+        List<Task> tasks = applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
+        List<TaskDto> response = tasks.stream().map(TaskDto::fromEntity).collect(toList());
+        return ResponseEntity.ok(response);
 
     }
 
