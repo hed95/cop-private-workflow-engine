@@ -11,8 +11,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
+import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceWithVariablesDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,14 +59,16 @@ public class ProcessInstanceApiController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE )
     @ApiOperation("Start a new process.")
-    public ProcessInstanceResponse createInstance(@RequestBody @Valid ProcessStartDto processStartDto, PlatformUser platformUser)
+    public ProcessInstanceResponse createInstance(@RequestBody @Valid ProcessStartDto processStartDto,
+                                                  PlatformUser platformUser)
             throws JsonProcessingException {
         log.debug("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
-        Tuple2<ProcessInstance, List<Task>> response = processApplicationService.createInstance(processStartDto, platformUser);
+        Tuple2<ProcessInstance, List<Task>> response = processApplicationService.createInstance(processStartDto,
+                platformUser);
 
         List<TaskDto> tasks = response._2().stream().map(TaskDto::fromEntity).collect(toList());
-        ProcessInstanceDto processInstance = ProcessInstanceDto.fromProcessInstance(response._1());
-        return new ProcessInstanceResponse(processInstance, tasks);
+        return new ProcessInstanceResponse((ProcessInstanceWithVariablesDto) ProcessInstanceWithVariablesDto
+                .fromProcessInstance((ProcessInstanceWithVariables)response._1()), tasks);
 
     }
 
