@@ -170,6 +170,7 @@ public class TaskApplicationService {
                 variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
             }
             taskService.complete(task.getId(), variables);
+
         }
     }
 
