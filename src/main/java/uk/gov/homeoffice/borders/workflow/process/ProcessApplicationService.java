@@ -3,17 +3,18 @@ package uk.gov.homeoffice.borders.workflow.process;
 import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
+import io.vavr.Tuple;
+import io.vavr.Tuple1;
+import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.camunda.bpm.engine.AuthorizationService;
-import org.camunda.bpm.engine.FormService;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.authorization.Authorization;
 import org.camunda.bpm.engine.authorization.Resources;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
@@ -47,7 +48,7 @@ public class ProcessApplicationService {
     private ProcessInstanceSpinVariableEncryptor processInstanceSpinVariableEncryptor;
     private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
     private ProcessDefinitionEncryptionParser processDefinitionEncryptionParser;
-
+    private TaskService taskService;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
@@ -109,7 +110,7 @@ public class ProcessApplicationService {
     }
 
 
-    public ProcessInstance createInstance(@NotNull ProcessStartDto processStartDto, @NotNull PlatformUser user) {
+    public Tuple2<ProcessInstance, List<Task>> createInstance(@NotNull ProcessStartDto processStartDto, @NotNull PlatformUser user) {
         ProcessDefinition processDefinition = getDefinition(processStartDto.getProcessKey());
         Map<String, Object> variables = new HashMap<>();
         variables.put("type", "non-notifications");
@@ -137,7 +138,12 @@ public class ProcessApplicationService {
         log.info("'{}' was successfully started with id '{}' by '{}'", processStartDto.getProcessKey(),
                 processInstance.getProcessInstanceId(), user.getEmail());
 
-        return processInstance;
+        List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstance.getId())
+                .taskAssignee(user.getEmail())
+                .initializeFormKeys().list();
+
+        return Tuple.of(processInstance, tasks);
+
 
     }
 

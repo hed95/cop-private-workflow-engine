@@ -5,21 +5,30 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
+import org.camunda.bpm.engine.rest.dto.task.TaskDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
+import uk.gov.homeoffice.borders.workflow.task.TaskDtoResource;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_INSTANCE_ROOT_API;
 
 /**
@@ -48,11 +57,14 @@ public class ProcessInstanceApiController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE )
     @ApiOperation("Start a new process.")
-    public ProcessInstanceDto createInstance(@RequestBody @Valid ProcessStartDto processStartDto, PlatformUser platformUser)
+    public ProcessInstanceResponse createInstance(@RequestBody @Valid ProcessStartDto processStartDto, PlatformUser platformUser)
             throws JsonProcessingException {
         log.debug("Process data received '{}'", objectMapper.writeValueAsString(processStartDto));
-        ProcessInstance processInstance = processApplicationService.createInstance(processStartDto, platformUser);
-        return ProcessInstanceDto.fromProcessInstance(processInstance);
+        Tuple2<ProcessInstance, List<Task>> response = processApplicationService.createInstance(processStartDto, platformUser);
+
+        List<TaskDto> tasks = response._2().stream().map(TaskDto::fromEntity).collect(toList());
+        ProcessInstanceDto processInstance = ProcessInstanceDto.fromProcessInstance(response._1());
+        return new ProcessInstanceResponse(processInstance, tasks);
 
     }
 

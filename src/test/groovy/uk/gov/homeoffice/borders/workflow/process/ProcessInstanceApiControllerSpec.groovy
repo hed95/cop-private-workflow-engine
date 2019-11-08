@@ -1,16 +1,15 @@
 package uk.gov.homeoffice.borders.workflow.process
 
+
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto
 import org.springframework.http.MediaType
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.core.IsNull.notNullValue
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class ProcessInstanceApiControllerSpec extends BaseSpec {
 
@@ -40,23 +39,23 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
         def processStartDto = createProcessStartDto()
 
         and:
-        def user = logInUser()
+        logInUser()
 
         and:
         def result = mvc.perform(post("/api/workflow/process-instances")
                 .content(objectMapper.writeValueAsString(processStartDto))
                 .contentType(MediaType.APPLICATION_JSON))
 
-        def processInstanceDto = objectMapper.readValue(result.andReturn().response.contentAsString, ProcessInstanceDto)
+        def response = objectMapper.readValue(result.andReturn().response.contentAsString, ProcessInstanceResponse)
 
         when:
-        def processInstance = objectMapper.readValue(mvc.perform(get("/api/workflow/process-instances/${processInstanceDto.id}")
+        def processInstance = objectMapper.readValue(mvc.perform(get("/api/workflow/process-instances/${response.processInstance.id}")
                 .contentType(MediaType.APPLICATION_JSON)).andReturn().response.contentAsString, ProcessInstanceDto)
 
 
         then:
         processInstance
-        processInstance.id == processInstanceDto.id
+        processInstance.id == response.processInstance.id
 
     }
 
@@ -73,15 +72,16 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
                 .content(objectMapper.writeValueAsString(processStartDto))
                 .contentType(MediaType.APPLICATION_JSON))
 
-        def processInstanceDto = objectMapper.readValue(result.andReturn().response.contentAsString, ProcessInstanceDto)
+        def dto = objectMapper.readValue(result.andReturn().response.contentAsString, ProcessInstanceResponse)
 
+        def processInstanceId = dto.processInstance.id
         when:
-        mvc.perform(delete("/api/workflow/process-instances/${processInstanceDto.id}?reason=finised")
+        mvc.perform(delete("/api/workflow/process-instances/${processInstanceId}?reason=finised")
                 .contentType(MediaType.APPLICATION_JSON))
 
 
         then:
-        def response = mvc.perform(get("/api/workflow/process-instances/${processInstanceDto.id}")
+        def response = mvc.perform(get("/api/workflow/process-instances/${processInstanceId}")
                 .contentType(MediaType.APPLICATION_JSON))
 
         response.andExpect(status().isNotFound())
@@ -99,10 +99,10 @@ class ProcessInstanceApiControllerSpec extends BaseSpec {
                 .content(objectMapper.writeValueAsString(processStartDto))
                 .contentType(MediaType.APPLICATION_JSON))
 
-        def processInstanceDto = objectMapper.readValue(result.andReturn().response.contentAsString, ProcessInstanceDto)
+        def dto = objectMapper.readValue(result.andReturn().response.contentAsString, ProcessInstanceResponse)
 
         when:
-        def response = mvc.perform(get("/api/workflow/process-instances/${processInstanceDto.id}/variables")
+        def response = mvc.perform(get("/api/workflow/process-instances/${dto.processInstance.id}/variables")
                 .contentType(MediaType.APPLICATION_JSON))
 
         then:
