@@ -2,18 +2,13 @@ package uk.gov.homeoffice.borders.workflow;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean;
-import uk.gov.homeoffice.borders.workflow.identity.TeamQuery;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Optional.ofNullable;
 
 /**
  * Central place for building urls for Platform Data.
@@ -28,9 +23,6 @@ public class PlatformDataUrlBuilder {
     private static final String SHIFT_HISTORY = "/v1/shifthistory";
     private static final String RPC_STAFF_DETAILS = "/v1/rpc/staffdetails";
     private static final String COMMENTS = "/v1/comment";
-    private static final String TEAM = "/v1/team";
-    private static final String RPC_TEAM_CHILDREN ="/v1/rpc/teamchildren";
-
 
     private PlatformDataBean platformDataBean;
 
@@ -61,60 +53,6 @@ public class PlatformDataUrlBuilder {
                 .toString();
     }
 
-    public String teamById(String teamId) {
-        return UriComponentsBuilder.newInstance()
-                .uri(platformDataBean.getUrl())
-                .path(TEAM)
-                .query("code=eq.{teamId}")
-                .buildAndExpand(Collections.singletonMap("teamId", teamId))
-                .toString();
-
-    }
-
-    public String teamByIds(String... teamIds) {
-        return UriComponentsBuilder.newInstance()
-                .uri(platformDataBean.getUrl())
-                .path(TEAM)
-                .query("code=in.({teamIds})")
-                .buildAndExpand(Collections.singletonMap("teamIds", teamIds))
-                .toString();
-
-    }
-
-    public String teamQuery(TeamQuery team) {
-        Map<String, Object> variables = new HashMap<>();
-        UriComponentsBuilder builder = UriComponentsBuilder.newInstance()
-                .uri(platformDataBean.getUrl())
-                .path(TEAM);
-
-        ofNullable(team.getName()).ifPresent(name -> {
-            variables.put("name", name);
-            builder.query("name=eq.{name}");
-        });
-
-        ofNullable(team.getId()).ifPresent(id -> {
-            variables.put("id", id);
-            builder.query("id=eq.{id}");
-        });
-
-        ofNullable(team.getNameLike()).ifPresent(nameLike -> {
-            variables.put("nameLike", nameLike);
-            builder.query("name=like.{nameLike}");
-        });
-        ofNullable(team.getIds()).ifPresent(ids -> {
-            List<String> idsForProcessing = Arrays.stream(ids).map(id -> "\"" + id + "\"").collect(Collectors.toList());
-            String idsToProcess = StringUtils.join(idsForProcessing, ",");
-            variables.put("ids", idsToProcess);
-            builder.query("id=in.({ids})");
-        });
-
-        return builder
-                .buildAndExpand(variables)
-                .toString();
-
-    }
-
-
     public String queryShiftByTeamId(String teamId) {
         return UriComponentsBuilder.newInstance()
                 .uri(platformDataBean.getUrl())
@@ -135,7 +73,6 @@ public class PlatformDataUrlBuilder {
 
     }
 
-
     public String getStaffUrl() {
         return UriComponentsBuilder.newInstance()
                 .uri(platformDataBean.getUrl())
@@ -143,15 +80,6 @@ public class PlatformDataUrlBuilder {
                 .build()
                 .toString();
     }
-
-    public String teamChildren() {
-        return UriComponentsBuilder.newInstance()
-                .uri(platformDataBean.getUrl())
-                .path(RPC_TEAM_CHILDREN)
-                .build()
-                .toString();
-    }
-
 
     public String getCommentsById(String taskId) {
         return UriComponentsBuilder
