@@ -13,7 +13,6 @@ public class IdentityConfig {
 
     @Autowired
     private PlatformDataUrlBuilder platformDataUrlBuilder;
-    private RefDataUrlBuilder refDataUrlBuilder;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -25,13 +24,13 @@ public class IdentityConfig {
 
     @Bean
     public UserService userService() {
-        return new UserService(restTemplate, platformDataUrlBuilder, refDataUrlBuilder, teamService());
+        return new UserService(restTemplate, platformDataUrlBuilder, teamService());
     }
 
 
     @Bean
     public TeamService teamService() {
-        return new TeamService(restTemplate, refDataUrlBuilder);
+        return new TeamService(restTemplate, platformDataUrlBuilder);
     }
 
     @Bean

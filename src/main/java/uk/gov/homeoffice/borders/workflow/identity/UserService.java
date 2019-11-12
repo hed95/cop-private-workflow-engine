@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
-import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 
@@ -25,7 +24,6 @@ public class UserService {
 
     private RestTemplate restTemplate;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
-    private RefDataUrlBuilder refDataUrlBuilder;
     private TeamService teamService;
     //Self reference to enable methods to be called within this service and be proxied by Spring
     @Resource
@@ -33,10 +31,9 @@ public class UserService {
 
 
     @Autowired
-    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder, RefDataUrlBuilder refDataUrlBuilder, TeamService teamService) {
-        this.restTemplate = restTemplate;
+    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder, TeamService teamService) {
         this.platformDataUrlBuilder = platformDataUrlBuilder;
-        this.refDataUrlBuilder = refDataUrlBuilder;
+        this.restTemplate = restTemplate;
         this.teamService = teamService;
     }
 
@@ -64,6 +61,8 @@ public class UserService {
     }
 
     private PlatformUser getStaff(final ShiftDetails shiftInfo) {
+
+
         HttpHeaders httpHeaders = new HttpHeaders();
 
         List<PlatformUser> users = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(),
@@ -74,33 +73,20 @@ public class UserService {
         if (CollectionUtils.isEmpty(users)) {
             throw new InternalWorkflowException(String.format("Could not find platform user for %s", shiftInfo.getStaffId()));
         }
-
         PlatformUser platformUser = users.get(0);
-        String teamId = shiftInfo.getTeamId();
-
-        List<Team> parentTeams = restTemplate
-                .exchange(refDataUrlBuilder.teamById(teamId),
-                        HttpMethod.GET,
-                        null,
+        List<Team> teams = restTemplate
+                .exchange(platformDataUrlBuilder.teamChildren(),
+                        HttpMethod.POST,
+                        new HttpEntity<>(Collections.singletonMap("inputid", shiftInfo.getTeamId())),
                         new ParameterizedTypeReference<List<Team>>() {
                         }).getBody();
-
-        List<Team> childTeams = restTemplate
-                .exchange(refDataUrlBuilder.teamChildrenByParentTeamId(teamId),
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<Team>>() {
-                        }).getBody();
-
-        List<Team> teams = new ArrayList<Team>();
-        teams.addAll(parentTeams);
-        teams.addAll(childTeams);
 
         platformUser.setTeams(ofNullable(teams).orElse(new ArrayList<>()));
         platformUser.setShiftDetails(shiftInfo);
         platformUser.setEmail(shiftInfo.getEmail());
 
         return platformUser;
+
     }
 
     public List<PlatformUser> findByQuery(UserQuery query) {
