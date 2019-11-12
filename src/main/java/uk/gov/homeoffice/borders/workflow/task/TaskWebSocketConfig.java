@@ -20,7 +20,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
-import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.security.SecurityConfig;
 
 import java.security.Principal;
@@ -38,8 +38,8 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
 
     @Bean
     public UserTaskEventListener userTaskEventListener(SimpMessagingTemplate simpMessagingTemplate,
-                                                       PlatformDataUrlBuilder platformDataUrlBuilder, RestTemplate restTemplate) {
-        return new UserTaskEventListener(simpMessagingTemplate, platformDataUrlBuilder, restTemplate);
+                                                       RefDataUrlBuilder refDataUrlBuilder, RestTemplate restTemplate) {
+        return new UserTaskEventListener(simpMessagingTemplate, refDataUrlBuilder, restTemplate);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class TaskWebSocketConfig extends AbstractSessionWebSocketMessageBrokerCo
         te.setPoolSize(2);
         te.setThreadNamePrefix("wss-heartbeat-thread-");
         te.initialize();
-        
+
         config.setApplicationDestinationPrefixes("/ws");
         config.enableSimpleBroker("/topic", "/queue")
                 .setTaskScheduler(te)

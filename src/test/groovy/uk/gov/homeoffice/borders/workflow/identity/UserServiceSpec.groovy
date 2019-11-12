@@ -7,30 +7,40 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
 import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder
+import uk.gov.homeoffice.borders.workflow.config.RefDataBean
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException
 
 class UserServiceSpec extends Specification {
 
-    def wmPort = 8911
+    def platformDataPort = 8911
+    def refDataPort = 8912
 
     @Rule
-    WireMockRule wireMockRule = new WireMockRule(wmPort)
+    WireMockRule platformDataMockRule = new WireMockRule(platformDataPort)
 
-    def wireMockStub = new WireMockGroovy(wmPort)
+    @Rule
+    WireMockRule refDataMockRule = new WireMockRule(refDataPort)
+
+    def platformDataMockStub = new WireMockGroovy(platformDataPort)
+    def refDataMockStub = new WireMockGroovy(refDataPort)
     def userService
 
     def setup() {
         def platformDataBean = new PlatformDataBean()
-        platformDataBean.url = new URI("http://localhost:8911")
+        platformDataBean.url = new URI("http://localhost:" + platformDataPort)
         def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
+        def refDataBean = new RefDataBean()
+        refDataBean.url = new URI("http://localhost:" + refDataPort)
+        def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean)
         def teamService = Mock(TeamService)
-        userService = new UserService(new RestTemplate(), platformDataUrlBuilder, teamService)
+        userService = new UserService(new RestTemplate(), platformDataUrlBuilder, refDataUrlBuilder, teamService)
         userService.self = userService
     }
 
     def 'can find user by id'() {
         given:
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/shift?email=eq.email'
@@ -55,7 +65,7 @@ class UserServiceSpec extends Specification {
 
         }
 
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'POST'
                 url '/v1/rpc/staffdetails'
@@ -92,10 +102,10 @@ class UserServiceSpec extends Specification {
             }
         }
 
-        wireMockStub.stub {
+        refDataMockStub.stub {
             request {
-                method 'POST'
-                url '/v1/rpc/teamchildren'
+                method 'GET'
+                url '/team?parentteamid=eq.teamid'
 
             }
             response {
@@ -116,7 +126,29 @@ class UserServiceSpec extends Specification {
             }
         }
 
+        refDataMockStub.stub {
+            request {
+                method 'GET'
+                url '/team?id=eq.teamid'
 
+            }
+            response {
+                status: 200
+                body """
+                       [
+                          {
+                            "id": "teamid",
+                            "parentteamid": null,
+                            "name": "teamname",
+                            "code": "teamcode"
+                          }
+                        ]
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
 
         when:
         def result = userService.findByUserId("email")
@@ -124,12 +156,11 @@ class UserServiceSpec extends Specification {
         then:
         result
         result.email == 'email'
-
     }
 
     def 'can find by team id'() {
         given:
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/shift?teamid=eq.teamId'
@@ -154,7 +185,7 @@ class UserServiceSpec extends Specification {
 
         }
 
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/staffview?staffid=in.(staffid)'
@@ -200,7 +231,7 @@ class UserServiceSpec extends Specification {
 
     def 'can find by location'() {
         given:
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/shift?locationid=eq.locationId'
@@ -226,7 +257,7 @@ class UserServiceSpec extends Specification {
 
         }
 
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/staffview?staffid=in.(staffid)'
@@ -283,7 +314,7 @@ class UserServiceSpec extends Specification {
 
     def 'can find by user id in query'() {
         given:
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/shift?email=eq.email'
@@ -308,7 +339,7 @@ class UserServiceSpec extends Specification {
 
         }
 
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'POST'
                 url '/v1/rpc/staffdetails'
@@ -342,10 +373,10 @@ class UserServiceSpec extends Specification {
             }
         }
 
-        wireMockStub.stub {
+        refDataMockStub.stub {
             request {
-                method 'POST'
-                url '/v1/rpc/teamchildren'
+                method 'GET'
+                url '/team?parentteamid=eq.teamid'
 
             }
             response {
@@ -366,6 +397,29 @@ class UserServiceSpec extends Specification {
             }
         }
 
+        refDataMockStub.stub {
+            request {
+                method 'GET'
+                url '/team?id=eq.teamid'
+
+            }
+            response {
+                status: 200
+                body """
+                       [
+                          {
+                            "id": "teamid",
+                            "parentteamid": null,
+                            "name": "teamname",
+                            "code": "teamcode"
+                          }
+                        ]
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
 
         when:
         def query = new UserQuery()
@@ -380,7 +434,7 @@ class UserServiceSpec extends Specification {
 
     def 'no shift info returned if remote service throws Exception'() {
         given:
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/shift?email=eq.email'
@@ -404,7 +458,7 @@ class UserServiceSpec extends Specification {
 
     def 'no shift info returned if remote service returns empty result'() {
         given:
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/shift?email=eq.email'
@@ -429,7 +483,7 @@ class UserServiceSpec extends Specification {
 
     def 'exception thrown if staff details cannot be located'() {
         given:
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'GET'
                 url '/v1/shift?email=eq.email'
@@ -454,7 +508,7 @@ class UserServiceSpec extends Specification {
 
         }
 
-        wireMockStub.stub {
+        platformDataMockStub.stub {
             request {
                 method 'POST'
                 url '/v1/rpc/staffdetails'

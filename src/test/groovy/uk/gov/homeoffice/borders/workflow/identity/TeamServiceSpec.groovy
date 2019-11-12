@@ -5,8 +5,8 @@ import com.github.tomjankes.wiremock.WireMockGroovy
 import org.junit.Rule
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
-import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
-import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder
+import uk.gov.homeoffice.borders.workflow.config.RefDataBean
 
 class TeamServiceSpec extends Specification {
 
@@ -19,10 +19,10 @@ class TeamServiceSpec extends Specification {
     def teamService
 
     def setup() {
-        def platformDataBean = new PlatformDataBean()
-        platformDataBean.url=new URI("http://localhost:8182")
-        def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
-        teamService = new TeamService(new RestTemplate(), platformDataUrlBuilder)
+        def refDataBean = new RefDataBean()
+        refDataBean.url=new URI("http://localhost:" + wmPort)
+        def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean)
+        teamService = new TeamService(new RestTemplate(), refDataUrlBuilder)
     }
 
     def 'can find by id'() {
@@ -30,7 +30,7 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/v1/team?code=eq.code'
+                url '/team?code=eq.code'
             }
 
             response {
@@ -63,7 +63,7 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/v1/team?name=eq.name'
+                url '/team?name=eq.name'
             }
 
             response {
