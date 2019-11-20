@@ -31,6 +31,7 @@ import spock.mock.DetachedMockFactory
 import uk.gov.homeoffice.borders.workflow.config.CorrelationIdInterceptor
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
+import uk.gov.homeoffice.borders.workflow.identity.UserService
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.service.notify.NotificationClient
 

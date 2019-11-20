@@ -1,7 +1,11 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +20,7 @@ import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 import uk.gov.homeoffice.borders.workflow.shift.ShiftApplicationService;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.swing.text.html.Option;
 import java.util.*;
@@ -29,10 +34,11 @@ public class UserService {
     private RestTemplate restTemplate;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
     private RefDataUrlBuilder refDataUrlBuilder;
-    private ShiftApplicationService shiftApplicationService;
     //Self reference to enable methods to be called within this service and be proxied by Spring
     @Resource
     private UserService self;
+
+    private ShiftApplicationService shiftApplicationService;
 
 
     @Autowired
@@ -50,7 +56,7 @@ public class UserService {
     public PlatformUser findByUserId(String userId) {
         ShiftDetails shiftDetails = null;
         try {
-            shiftDetails = shiftApplicationService.getShiftInfo(userId);
+            shiftDetails = this.shiftApplicationService.getShiftInfo(userId);
         } catch (ResourceNotFound e) {
             log.warn("Shift for {} not found", userId);
         }
