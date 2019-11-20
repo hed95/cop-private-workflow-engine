@@ -10,8 +10,8 @@ import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.client.RestTemplate
 import spock.lang.Specification
-import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder
-import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
+import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder
+import uk.gov.homeoffice.borders.workflow.config.RefDataBean
 
 class UserTaskEventListenerSpec extends Specification {
 
@@ -28,10 +28,10 @@ class UserTaskEventListenerSpec extends Specification {
 
     def setup() {
         TransactionSynchronizationManager.initSynchronization()
-        def platformDataBean = new PlatformDataBean()
-        platformDataBean.url=new URI("http://localhost:8900")
-        def platformDataUrlBuilder = new PlatformDataUrlBuilder(platformDataBean)
-        userTaskEventListener = new UserTaskEventListener(messagingTemplate, platformDataUrlBuilder, new RestTemplate())
+        def refDataBean = new RefDataBean()
+        refDataBean.url=new URI("http://localhost:" + wmPort)
+        def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean)
+        userTaskEventListener = new UserTaskEventListener(messagingTemplate, refDataUrlBuilder, new RestTemplate())
     }
 
     def 'can notify on team task'() {
@@ -52,18 +52,18 @@ class UserTaskEventListenerSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/v1/team?code=in.(teamA)'
+                url '/v2/entities/team?filter=code%3Din.(teamA)&mode=dataOnly'
             }
 
             response {
                 status 200
-                body """ [
+                body """ {"data": [
                             {
                                 "id" : "id",
                                 "code" : "teamA",
                                 "name" : "teamA"
                             }
-                         ]
+                         ]}
                      """
                 headers {
                     "Content-Type" "application/json"

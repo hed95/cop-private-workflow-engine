@@ -51,9 +51,7 @@ camunda:
     - classpath*:**/*.cmmn
     - classpath*:**/*.cmmn10.xml
     - classpath*:**/*.cmmn11.xml
-    - file:///workflow-resources/bpmn/**/*.bpmn
-    - file:///workflow-resources/cmmn/**/*.cmmn
-    - file:///workflow-resources/dmn/**/*.dmn
+    - file:///models/*.*mn
 
 spring:
   datasource:
