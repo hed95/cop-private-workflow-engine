@@ -19,6 +19,7 @@ import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 
+import javax.swing.text.html.Option;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
@@ -179,22 +180,17 @@ public class ShiftApplicationService {
 
         return ofNullable(variableInstance).map(variable -> {
             ShiftDetails shiftInfo = Spin.S(variable.getValue(), formatter).mapTo(ShiftDetails.class);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("Accept", "application/json");
+            LocationsDto locationsDto = restTemplate.
+                    getForEntity(refDataUrlBuilder.getLocation(shiftInfo.getLocationId()), LocationsDto.class).getBody();
 
-            HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
-
-            ResponseEntity<Map<String, String>> response = restTemplate
-                    .exchange(refDataUrlBuilder.getLocation(shiftInfo.getLocationId()),
-                            HttpMethod.GET,
-                            entity,
-                            new ParameterizedTypeReference<Map<String, String>>() {});
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                String locationName = ofNullable(response.getBody())
-                        .orElse(Collections.singletonMap("locationname", "Unknown")).get("locationname");
-                shiftInfo.setCurrentLocationName(locationName);
-            }
+            String locationName = Optional.ofNullable(locationsDto).map( locations -> {
+               if (locations.getData().isEmpty()) {
+                   return "Unknown";
+               } else {
+                   return locations.getData().get(0).getName();
+               }
+            }).orElseGet(() -> "Unknown");
+            shiftInfo.setCurrentLocationName(locationName);
             return shiftInfo;
         }).orElseThrow(() -> new ResourceNotFound("Shift data could not be found"));
 
