@@ -20,6 +20,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.server.support.AbstractHandshakeHandler;
+import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.security.SecurityConfig;
 

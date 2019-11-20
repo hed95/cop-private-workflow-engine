@@ -17,7 +17,7 @@ import static java.util.Optional.ofNullable;
 @Component
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class RefDataUrlBuilder {
-    private static final String LOCATION = "/v2/entities/location"; // ref
+    private static final String LOCATION = "/v2/entities/location";
     private static final String TEAM = "/v2/entities/team";
 
     private RefDataBean refDataBean;
