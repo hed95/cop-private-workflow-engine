@@ -274,7 +274,7 @@ class TaskApplicationServiceSpec extends BaseSpec {
         def dto = new VariableValueDto()
         dto.value = data
         completeTaskDto.variables.put('myTaskVariable', dto)
-        def result = applicationService.completeTaskWithForm(user, task.id,completeTaskDto)
+        applicationService.completeTaskWithForm(user, task.id,completeTaskDto)
 
 
         and:
@@ -283,7 +283,6 @@ class TaskApplicationServiceSpec extends BaseSpec {
 
         then:
         !(variables.get('myTaskVariable') instanceof SealedObject)
-        result.size() != 0
 
     }
 }

@@ -222,7 +222,9 @@ public class TaskApplicationService {
 
         formService.submitTaskForm(task.getId(), variables);
 
-        return taskService.createTaskQuery().initializeFormKeys()
+        return taskService.createTaskQuery()
+                .processInstanceId(task.getProcessInstanceId())
+                .initializeFormKeys()
                 .taskAssignee(user.getEmail())
                 .list();
 

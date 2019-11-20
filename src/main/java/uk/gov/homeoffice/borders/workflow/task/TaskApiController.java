@@ -20,6 +20,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -158,9 +159,16 @@ public class TaskApiController {
     public ResponseEntity completeWithForm(@PathVariable String taskId, @RequestBody CompleteTaskDto completeTaskDto,
                                            PlatformUser user) {
         List<Task> tasks = applicationService.completeTaskWithForm(user, taskId, completeTaskDto);
-        List<TaskDto> response = tasks.stream().map(TaskDto::fromEntity).collect(toList());
-        return ResponseEntity.ok(response);
-
+        if (CollectionUtils.isEmpty(tasks)) {
+            return ResponseEntity.ok().build();
+        }
+        Task nextTask = tasks.get(0);
+        TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(nextTask);
+        if (!CollectionUtils.isEmpty(tasks)) {
+            VariableMap variables = applicationService.getVariables(user, nextTask.getId());
+            taskDtoResource.setVariables(VariableValueDto.fromVariableMap(variables));
+        }
+        return ResponseEntity.ok(taskDtoResource);
     }
 
     @PostMapping("/{taskId}/_unclaim")
