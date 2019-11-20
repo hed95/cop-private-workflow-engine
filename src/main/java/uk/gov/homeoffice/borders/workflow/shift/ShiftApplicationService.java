@@ -165,7 +165,7 @@ public class ShiftApplicationService {
      * @throws ResourceNotFound shift info cannot be found
      * @see ShiftDetails
      */
-    ShiftDetails getShiftInfo(@NotNull String email) {
+    public ShiftDetails getShiftInfo(@NotNull String email) {
         ProcessInstance shift = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email)
                 .singleResult();

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
+import uk.gov.homeoffice.borders.workflow.shift.ShiftApplicationService;
 
 @Configuration
 public class IdentityConfig {
@@ -19,6 +20,9 @@ public class IdentityConfig {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private ShiftApplicationService shiftApplicationService;
+
     @Bean
     public CustomIdentityProviderPlugin identityProviderPlugin() {
         return new CustomIdentityProviderPlugin(customIdentityProviderFactory());
@@ -26,7 +30,7 @@ public class IdentityConfig {
 
     @Bean
     public UserService userService() {
-        return new UserService(restTemplate, platformDataUrlBuilder, refDataUrlBuilder);
+        return new UserService(restTemplate, platformDataUrlBuilder, refDataUrlBuilder, shiftApplicationService);
     }
 
 

@@ -55,11 +55,13 @@ public class ShiftApiController {
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    @GetMapping(path={"/{email}", ""}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path="/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the user's shift details.")
-    public ShiftDetails shiftInfo(@PathVariable(required = false) @ApiParam("The user's e-mail, defaults to the current user if not specified.") String email, PlatformUser platformUser) {
-        String userId = ofNullable(email).orElse(platformUser.getEmail());
-        return shiftApplicationService.getShiftInfo(userId);
+    public ShiftDetails shiftInfo(@PathVariable String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("Email required");
+        }
+        return shiftApplicationService.getShiftInfo(email);
     }
 
 

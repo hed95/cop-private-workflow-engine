@@ -12,7 +12,9 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
+import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
+import uk.gov.homeoffice.borders.workflow.shift.ShiftApplicationService;
 
 import javax.annotation.Resource;
 import javax.swing.text.html.Option;
@@ -27,39 +29,35 @@ public class UserService {
     private RestTemplate restTemplate;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
     private RefDataUrlBuilder refDataUrlBuilder;
+    private ShiftApplicationService shiftApplicationService;
     //Self reference to enable methods to be called within this service and be proxied by Spring
     @Resource
     private UserService self;
 
 
     @Autowired
-    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder, RefDataUrlBuilder refDataUrlBuilder) {
+    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder,
+                       RefDataUrlBuilder refDataUrlBuilder, ShiftApplicationService shiftApplicationService) {
         this.restTemplate = restTemplate;
         this.platformDataUrlBuilder = platformDataUrlBuilder;
         this.refDataUrlBuilder = refDataUrlBuilder;
+        this.shiftApplicationService = shiftApplicationService;
     }
 
     /**
      * Find user from using shift details
      */
     public PlatformUser findByUserId(String userId) {
-        List<ShiftDetails> shiftDetails;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
+        ShiftDetails shiftDetails = null;
         try {
-            shiftDetails = restTemplate
-                    .exchange(platformDataUrlBuilder.shiftUrlByEmail(userId), HttpMethod.GET, new HttpEntity<>(headers),
-                            new ParameterizedTypeReference<List<ShiftDetails>>() {
-                            }).getBody();
-        } catch (Exception e) {
-            log.error("Failed to get user", e);
-            return null;
+            shiftDetails = shiftApplicationService.getShiftInfo(userId);
+        } catch (ResourceNotFound e) {
+            log.warn("Shift for {} not found", userId);
         }
-        return ofNullable(shiftDetails)
-                .filter(s -> !s.isEmpty())
-                .map(s -> getStaff(shiftDetails.get(0)))
-                .orElse(null);
+        if (shiftDetails != null) {
+            return getStaff(shiftDetails);
+        }
+        return null;
     }
 
     private PlatformUser getStaff(final ShiftDetails shiftInfo) {
