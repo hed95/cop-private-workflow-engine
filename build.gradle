@@ -8,9 +8,6 @@ buildscript {
         classpath 'com.tngtech.jgiven:jgiven-gradle-plugin:0.15.3'
 
     }
-
-
-
 }
 
 plugins {
@@ -66,9 +63,7 @@ dependencies {
     compile('org.camunda.connect:camunda-connect-core:1.0.7')
     compile('org.camunda.bpm:camunda-engine-plugin-connect:7.10.0')
     compile 'org.jsoup:jsoup:1.11.2'
-
     compile('org.springframework.security:spring-security-messaging')
-
     compile ('org.springframework.boot:spring-boot-configuration-processor') {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
     }
@@ -84,7 +79,6 @@ dependencies {
     compile group: 'redis.clients', name: 'jedis', version: '2.9.0'
     compile group: 'org.springframework.session', name: 'spring-session-data-redis', version: '2.0.6.RELEASE'
     compile('net.logstash.logback:logstash-logback-encoder:5.3')
-
     compile('com.github.ben-manes.caffeine:caffeine')
     compile('org.springframework.data:spring-data-commons:2.0.7.RELEASE')
     compile('org.springframework.retry:spring-retry:1.2.2.RELEASE')
@@ -107,9 +101,7 @@ dependencies {
     annotationProcessor('org.springframework.boot:spring-boot-configuration-processor')
     compile 'org.codehaus.groovy:groovy-all:2.4.10'
     compile 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
-
     compile 'io.digitalpatterns:camunda-process-variable-encryption:1.6.Final'
-
     testCompile ('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
     }

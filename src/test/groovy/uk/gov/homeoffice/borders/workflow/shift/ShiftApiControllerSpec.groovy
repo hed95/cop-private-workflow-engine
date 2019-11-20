@@ -93,7 +93,7 @@ class ShiftApiControllerSpec extends BaseSpec {
          wireMockStub.stub {
              request {
                  method 'GET'
-                 url '/location?locationid=eq.current'
+                 url '/v2/entities/location?filter=id%3Deq.current&mode=dataOnly'
                  headers {
                      "nginxId" {
                          equalTo "correlationId"
@@ -106,11 +106,12 @@ class ShiftApiControllerSpec extends BaseSpec {
                  headers {
                      "Content-Type" "application/json"
                  }
-                 body '''
+                 body """
+                         {"data":[
                          {
-                          "locationname" : "current"
-                         }
-                     '''
+                          "name" : "current"
+                         }]}
+                     """
              }
          }
 

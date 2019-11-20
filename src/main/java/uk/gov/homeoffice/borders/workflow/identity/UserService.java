@@ -15,6 +15,7 @@ import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
 
 import javax.annotation.Resource;
+import javax.swing.text.html.Option;
 import java.util.*;
 
 import static java.util.Optional.ofNullable;
@@ -26,18 +27,16 @@ public class UserService {
     private RestTemplate restTemplate;
     private PlatformDataUrlBuilder platformDataUrlBuilder;
     private RefDataUrlBuilder refDataUrlBuilder;
-    private TeamService teamService;
     //Self reference to enable methods to be called within this service and be proxied by Spring
     @Resource
     private UserService self;
 
 
     @Autowired
-    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder, RefDataUrlBuilder refDataUrlBuilder, TeamService teamService) {
+    public UserService(RestTemplate restTemplate, PlatformDataUrlBuilder platformDataUrlBuilder, RefDataUrlBuilder refDataUrlBuilder) {
         this.restTemplate = restTemplate;
         this.platformDataUrlBuilder = platformDataUrlBuilder;
         this.refDataUrlBuilder = refDataUrlBuilder;
-        this.teamService = teamService;
     }
 
     /**
@@ -78,25 +77,14 @@ public class UserService {
         PlatformUser platformUser = users.get(0);
         String teamId = shiftInfo.getTeamId();
 
-        List<Team> parentTeams = restTemplate
-                .exchange(refDataUrlBuilder.teamById(teamId),
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<Team>>() {
-                        }).getBody();
+        TeamsDto parentTeamsDto = restTemplate.getForEntity(refDataUrlBuilder.teamById(teamId), TeamsDto.class).getBody();
+        TeamsDto childTeamsDto = restTemplate.getForEntity(refDataUrlBuilder.teamChildrenByParentTeamId(teamId), TeamsDto.class).getBody();
 
-        List<Team> childTeams = restTemplate
-                .exchange(refDataUrlBuilder.teamChildrenByParentTeamId(teamId),
-                        HttpMethod.GET,
-                        null,
-                        new ParameterizedTypeReference<List<Team>>() {
-                        }).getBody();
+        List<Team> teams = new ArrayList<>();
+        teams.addAll(ofNullable(parentTeamsDto).orElseGet(TeamsDto::new).getData());
+        teams.addAll(ofNullable(childTeamsDto).orElseGet(TeamsDto::new).getData());
 
-        List<Team> teams = new ArrayList<Team>();
-        teams.addAll(parentTeams);
-        teams.addAll(childTeams);
-
-        platformUser.setTeams(ofNullable(teams).orElse(new ArrayList<>()));
+        platformUser.setTeams(teams);
         platformUser.setShiftDetails(shiftInfo);
         platformUser.setEmail(shiftInfo.getEmail());
 
@@ -111,7 +99,7 @@ public class UserService {
         List<ShiftDetails> shifts = restTemplate.exchange(url,
                 HttpMethod.GET, null, new ParameterizedTypeReference<List<ShiftDetails>>() {
                 }, new HashMap<>()).getBody();
-        return Optional.ofNullable(shifts).map((shiftDetails -> shiftDetails.stream().map(shift -> {
+        return ofNullable(shifts).map((shiftDetails -> shiftDetails.stream().map(shift -> {
             PlatformUser platformUser = new PlatformUser();
             platformUser.setShiftDetails(shift);
             platformUser.setId(shift.getStaffId());

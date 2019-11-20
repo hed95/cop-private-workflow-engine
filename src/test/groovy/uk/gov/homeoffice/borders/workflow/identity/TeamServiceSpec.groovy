@@ -30,18 +30,18 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/team?code=eq.code'
+                url '/v2/entities/team?filter=code%3Deq.code&mode=dataOnly'
             }
 
             response {
                 status 200
-                body """ [
+                body """ {"data":[
                             {
                                 "id" : "id",
                                 "code" : "code",
                                 "name" : "teamname"
                             }
-                         ]
+                         ]}
                      """
                 headers {
                     "Content-Type" "application/json"
@@ -63,18 +63,18 @@ class TeamServiceSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/team?name=eq.name'
+                url '/v2/entities/team?filter=name%3Deq.name&mode=dataOnly'
             }
 
             response {
                 status 200
-                body """ [
+                body """ {"data":[
                             {
                                 "id" : "id",
                                 "code" : "code",
                                 "name" : "teamname"
                             }
-                         ]
+                         ]}
                      """
                 headers {
                     "Content-Type" "application/json"

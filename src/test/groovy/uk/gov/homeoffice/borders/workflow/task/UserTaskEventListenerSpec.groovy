@@ -52,18 +52,18 @@ class UserTaskEventListenerSpec extends Specification {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/team?code=in.(teamA)'
+                url '/v2/entities/team?filter=code%3Din.(teamA)&mode=dataOnly'
             }
 
             response {
                 status 200
-                body """ [
+                body """ {"data": [
                             {
                                 "id" : "id",
                                 "code" : "teamA",
                                 "name" : "teamA"
                             }
-                         ]
+                         ]}
                      """
                 headers {
                     "Content-Type" "application/json"

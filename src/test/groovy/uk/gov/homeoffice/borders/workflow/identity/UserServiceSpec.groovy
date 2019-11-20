@@ -33,8 +33,7 @@ class UserServiceSpec extends Specification {
         def refDataBean = new RefDataBean()
         refDataBean.url = new URI("http://localhost:" + refDataPort)
         def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean)
-        def teamService = Mock(TeamService)
-        userService = new UserService(new RestTemplate(), platformDataUrlBuilder, refDataUrlBuilder, teamService)
+        userService = new UserService(new RestTemplate(), platformDataUrlBuilder, refDataUrlBuilder)
         userService.self = userService
     }
 
@@ -105,20 +104,19 @@ class UserServiceSpec extends Specification {
         refDataMockStub.stub {
             request {
                 method 'GET'
-                url '/team?parentteamid=eq.teamid'
-
+                url '/v2/entities/team?filter=id%3Deq.teamid&mode=dataOnly'
             }
             response {
                 status: 200
                 body """
-                       [
+                       {"data":[
                           {
                             "id": "teamid",
                             "parentteamid": null,
                             "name": "teamname",
                             "code": "teamcode"
                           }
-                        ]
+                        ]}
                      """
                 headers {
                     "Content-Type" "application/json"
@@ -129,26 +127,28 @@ class UserServiceSpec extends Specification {
         refDataMockStub.stub {
             request {
                 method 'GET'
-                url '/team?id=eq.teamid'
+                url '/v2/entities/team?filter=parentteamid%3Deq.teamid&mode=dataOnly'
 
             }
             response {
                 status: 200
                 body """
-                       [
+                       {"data":[
                           {
                             "id": "teamid",
                             "parentteamid": null,
                             "name": "teamname",
                             "code": "teamcode"
                           }
-                        ]
+                        ]}
                      """
                 headers {
                     "Content-Type" "application/json"
                 }
             }
         }
+
+
 
         when:
         def result = userService.findByUserId("email")
@@ -376,20 +376,20 @@ class UserServiceSpec extends Specification {
         refDataMockStub.stub {
             request {
                 method 'GET'
-                url '/team?parentteamid=eq.teamid'
+                url '/v2/entities/team?filter=parentteamid%3Deq.teamid&mode=dataOnly'
 
             }
             response {
                 status: 200
                 body """
-                       [
+                       { "data": [
                           {
                             "id": "teamid",
                             "parentteamid": null,
                             "name": "teamname",
                             "code": "teamcode"
                           }
-                        ]
+                        ]}
                      """
                 headers {
                     "Content-Type" "application/json"
@@ -400,20 +400,20 @@ class UserServiceSpec extends Specification {
         refDataMockStub.stub {
             request {
                 method 'GET'
-                url '/team?id=eq.teamid'
+                url '/v2/entities/team?filter=id%3Deq.teamid&mode=dataOnly'
 
             }
             response {
                 status: 200
                 body """
-                       [
+                       { "data": [
                           {
                             "id": "teamid",
                             "parentteamid": null,
                             "name": "teamname",
                             "code": "teamcode"
                           }
-                        ]
+                        ]}
                      """
                 headers {
                     "Content-Type" "application/json"

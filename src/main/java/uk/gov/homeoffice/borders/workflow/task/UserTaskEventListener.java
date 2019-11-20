@@ -17,6 +17,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.identity.Team;
+import uk.gov.homeoffice.borders.workflow.identity.TeamsDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,12 +62,13 @@ public class UserTaskEventListener extends ReactorTaskListener {
                 httpHeaders.setContentType(MediaType.APPLICATION_JSON);
                 HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
 
-                List<Team> response = restTemplate.exchange(refDataUrlBuilder.teamByCodeIds(teamCodes.toArray(new String[]{})),
-                        HttpMethod.GET, entity, new ParameterizedTypeReference<List<Team>>() {
-                        }).getBody();
+                TeamsDto response = restTemplate
+                        .getForEntity(refDataUrlBuilder
+                                .teamByCodeIds(teamCodes.toArray(new String[]{})), TeamsDto.class)
+                        .getBody();
 
                 if (response != null) {
-                    teamIds.addAll(response.stream()
+                    teamIds.addAll(response.getData().stream()
                             .filter(team -> !team.getCode().equalsIgnoreCase("STAFF"))
                             .map(Team::getId).collect(Collectors.toList()));
                     log.info("teamids {}", teamIds);

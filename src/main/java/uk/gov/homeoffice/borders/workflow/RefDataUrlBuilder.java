@@ -17,8 +17,8 @@ import static java.util.Optional.ofNullable;
 @Component
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class RefDataUrlBuilder {
-    private static final String LOCATION = "/location"; // ref
-    private static final String TEAM = "/team";
+    private static final String LOCATION = "/v2/entities/location"; // ref
+    private static final String TEAM = "/v2/entities/team";
 
     private RefDataBean refDataBean;
 
@@ -27,7 +27,8 @@ public class RefDataUrlBuilder {
                 .newInstance()
                 .uri(refDataBean.getUrl())
                 .path(LOCATION)
-                .query("locationid=eq.{currentLocationId}")
+                .query("filter=id=eq.{currentLocationId}")
+                .query("mode=dataOnly")
                 .buildAndExpand(Collections.singletonMap("currentLocationId", currentLocationId))
                 .toString();
     }
@@ -36,7 +37,8 @@ public class RefDataUrlBuilder {
         return UriComponentsBuilder.newInstance()
                 .uri(refDataBean.getUrl())
                 .path(TEAM)
-                .query("code=eq.{teamId}")
+                .query("filter=code=eq.{teamId}")
+                .query("mode=dataOnly")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
                 .toString();
     }
@@ -45,7 +47,8 @@ public class RefDataUrlBuilder {
         return UriComponentsBuilder.newInstance()
                 .uri(refDataBean.getUrl())
                 .path(TEAM)
-                .query("code=in.({teamIds})")
+                .query("filter=code=in.({teamIds})")
+                .query("mode=dataOnly")
                 .buildAndExpand(Collections.singletonMap("teamIds", teamIds))
                 .toString();
     }
@@ -58,23 +61,23 @@ public class RefDataUrlBuilder {
 
         ofNullable(team.getName()).ifPresent(name -> {
             variables.put("name", name);
-            builder.query("name=eq.{name}");
+            builder.query("filter=name=eq.{name}&mode=dataOnly");
         });
 
         ofNullable(team.getId()).ifPresent(id -> {
             variables.put("id", id);
-            builder.query("id=eq.{id}");
+            builder.query("filter=id=eq.{id}");
         });
 
         ofNullable(team.getNameLike()).ifPresent(nameLike -> {
             variables.put("nameLike", nameLike);
-            builder.query("name=like.{nameLike}");
+            builder.query("filter=name=like.{nameLike}");
         });
         ofNullable(team.getIds()).ifPresent(ids -> {
             List<String> idsForProcessing = Arrays.stream(ids).map(id -> "\"" + id + "\"").collect(Collectors.toList());
             String idsToProcess = StringUtils.join(idsForProcessing, ",");
             variables.put("ids", idsToProcess);
-            builder.query("id=in.({ids})");
+            builder.query("filter=id=in.({ids})");
         });
 
         return builder
@@ -86,7 +89,8 @@ public class RefDataUrlBuilder {
         return UriComponentsBuilder.newInstance()
                 .uri(refDataBean.getUrl())
                 .path(TEAM)
-                .query("id=eq.{teamId}")
+                .query("filter=id=eq.{teamId}")
+                .query("mode=dataOnly")
                 .buildAndExpand(Collections.singletonMap("teamId", teamId))
                 .toString();
     }
@@ -95,7 +99,8 @@ public class RefDataUrlBuilder {
         return UriComponentsBuilder.newInstance()
                 .uri(refDataBean.getUrl())
                 .path(TEAM)
-                .query("parentteamid=eq.{parentTeamId}")
+                .query("filter=parentteamid=eq.{parentTeamId}")
+                .query("mode=dataOnly")
                 .buildAndExpand(Collections.singletonMap("parentTeamId", parentTeamId))
                 .toString();
     }
