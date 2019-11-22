@@ -106,6 +106,9 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
         private Integer shiftHours;
         @JsonProperty("shiftminutes")
         private Integer shiftMinutes;
+        @JsonProperty("gradeid")
+        private String gradeId;
+
 
         private String currentLocationName;
         private List<String> roles = new ArrayList<>();
