@@ -3,7 +3,6 @@ package uk.gov.homeoffice.borders.workflow.shift
 
 import org.joda.time.LocalDateTime
 import org.springframework.http.MediaType
-import spock.lang.Ignore
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
@@ -15,7 +14,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Title("Shift API Spec")
-@Ignore
 class ShiftApiControllerSpec extends BaseSpec {
 
     def 'can create a shift at /api/workflow/shift'() {
