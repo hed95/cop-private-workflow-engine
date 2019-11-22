@@ -66,12 +66,17 @@ public class TaskDtoResourceAssembler implements ResourceAssembler<Task, TaskDto
     }
 
     private Map<String, String> extract(ExtensionElements extensionElements) {
-        return extensionElements.getElementsQuery()
+        final Map<String,String> properties = new HashMap<>();
+         extensionElements.getElementsQuery()
                 .filterByType(CamundaProperties.class)
-                .singleResult().getCamundaProperties()
-                .stream()
-                .collect(Collectors.toMap(CamundaProperty::getCamundaName,
-                        CamundaProperty::getCamundaValue));
+                .list().forEach(camundaProperties -> {
+                 Map<String, String> props = camundaProperties.getCamundaProperties().stream()
+                     .collect(Collectors.toMap(CamundaProperty::getCamundaName,
+                             CamundaProperty::getCamundaValue));
+
+             properties.putAll(props);
+         });
+        return properties;
 
     }
 }
