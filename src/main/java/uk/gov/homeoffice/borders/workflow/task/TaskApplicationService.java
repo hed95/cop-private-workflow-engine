@@ -170,6 +170,7 @@ public class TaskApplicationService {
                 variables = VariableValueDto.toMap(completeTaskDto.getVariables(), processEngine, objectMapper);
             }
             taskService.complete(task.getId(), variables);
+
         }
     }
 
@@ -204,7 +205,7 @@ public class TaskApplicationService {
      * @param taskId
      * @param completeTaskDto
      */
-    void completeTaskWithForm(@NotNull PlatformUser user, String taskId, CompleteTaskDto completeTaskDto) {
+    List<Task> completeTaskWithForm(@NotNull PlatformUser user, String taskId, CompleteTaskDto completeTaskDto) {
         Task task = getTask(user, taskId);
         validateTaskCanBeCompletedByUser(user, task);
 
@@ -220,6 +221,13 @@ public class TaskApplicationService {
         }
 
         formService.submitTaskForm(task.getId(), variables);
+
+        return taskService.createTaskQuery()
+                .processInstanceId(task.getProcessInstanceId())
+                .initializeFormKeys()
+                .taskAssignee(user.getEmail())
+                .list();
+
     }
 
     private boolean hasEncryption(Task task) {

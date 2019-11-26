@@ -7,6 +7,7 @@ import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.junit.ClassRule
 import org.junit.Rule
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,19 +21,25 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Scope
+import org.springframework.http.client.ClientHttpRequestFactory
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 import uk.gov.homeoffice.borders.workflow.config.CorrelationIdInterceptor
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
+import uk.gov.homeoffice.borders.workflow.identity.UserService
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.service.notify.NotificationClient
+
+import java.util.function.Supplier
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 
@@ -85,9 +92,10 @@ abstract class BaseSpec extends Specification {
     public IdentityService identityService
 
 
-    def wmPort = 8000
+    def static wmPort = 8000
 
-    @Rule
+    @ClassRule
+    @Shared
     WireMockRule wireMockRule = new WireMockRule(wmPort)
 
     public wireMockStub = new WireMockGroovy(wmPort)

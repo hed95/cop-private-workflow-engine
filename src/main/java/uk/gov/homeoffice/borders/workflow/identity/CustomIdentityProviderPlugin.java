@@ -7,6 +7,7 @@ import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import uk.gov.homeoffice.borders.workflow.shift.ShiftApplicationService;
 
 @Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))

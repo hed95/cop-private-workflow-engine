@@ -10,6 +10,7 @@ import uk.gov.homeoffice.borders.workflow.config.PlatformDataBean
 import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder
 import uk.gov.homeoffice.borders.workflow.config.RefDataBean
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException
+import uk.gov.homeoffice.borders.workflow.shift.ShiftApplicationService
 
 class UserServiceSpec extends Specification {
 
@@ -25,7 +26,7 @@ class UserServiceSpec extends Specification {
     def platformDataMockStub = new WireMockGroovy(platformDataPort)
     def refDataMockStub = new WireMockGroovy(refDataPort)
     def userService
-
+    def shiftApplicationService = Mock(ShiftApplicationService)
     def setup() {
         def platformDataBean = new PlatformDataBean()
         platformDataBean.url = new URI("http://localhost:" + platformDataPort)
@@ -33,36 +34,18 @@ class UserServiceSpec extends Specification {
         def refDataBean = new RefDataBean()
         refDataBean.url = new URI("http://localhost:" + refDataPort)
         def refDataUrlBuilder = new RefDataUrlBuilder(refDataBean)
-        userService = new UserService(new RestTemplate(), platformDataUrlBuilder, refDataUrlBuilder)
+        userService = new UserService(new RestTemplate(), platformDataUrlBuilder, refDataUrlBuilder, shiftApplicationService)
         userService.self = userService
     }
 
     def 'can find user by id'() {
         given:
-        platformDataMockStub.stub {
-            request {
-                method 'GET'
-                url '/v1/shift?email=eq.email'
-            }
+        def shift = new PlatformUser.ShiftDetails();
+        shift.staffId = 'staffid';
+        shift.teamId = 'teamid';
+        shift.email = 'email';
 
-            response {
-                status 200
-                body """ [
-                            {
-                                "shiftid" : "id",
-                                "staffid" : "staffid",
-                                "teamid" : "teamid",
-                                "phone" : "phone",
-                                "email" : "email"
-                              }
-                         ]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-
-        }
+        1 * shiftApplicationService.getShiftInfo("email") >> shift
 
         platformDataMockStub.stub {
             request {
@@ -483,30 +466,13 @@ class UserServiceSpec extends Specification {
 
     def 'exception thrown if staff details cannot be located'() {
         given:
-        platformDataMockStub.stub {
-            request {
-                method 'GET'
-                url '/v1/shift?email=eq.email'
-            }
+        def shift = new PlatformUser.ShiftDetails();
+        shift.staffId = 'staffid';
+        shift.teamId = 'teamid';
+        shift.email = 'email';
 
-            response {
-                status 200
-                body """ [
-                            {
-                                "shiftid" : "id",
-                                "staffid" : "staffid",
-                                "teamid" : "teamid",
-                                "phone" : "phone",
-                                "email" : "email"
-                              }
-                         ]
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
+        1 * shiftApplicationService.getShiftInfo("email") >> shift
 
-        }
 
         platformDataMockStub.stub {
             request {

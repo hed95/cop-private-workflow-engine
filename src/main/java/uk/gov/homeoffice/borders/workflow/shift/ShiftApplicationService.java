@@ -17,7 +17,9 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.PlatformDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.RefDataUrlBuilder;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
+import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
+import uk.gov.homeoffice.borders.workflow.identity.UserService;
 
 import javax.swing.text.html.Option;
 import javax.validation.Valid;
@@ -58,6 +60,11 @@ public class ShiftApplicationService {
     ProcessInstance startShift(@NotNull @Valid ShiftDetails shiftInfo) {
 
         String email = shiftInfo.getEmail();
+
+        PlatformUser user = getStaff(shiftInfo.getStaffId());
+        shiftInfo.setRoles(user.getRoles());
+        shiftInfo.setGradeId(user.getGradeId());
+
         log.info("Starting a request to start a shift for '{}'", email);
 
         deleteShift(email, "new-shift");
@@ -74,6 +81,21 @@ public class ShiftApplicationService {
                 .startProcessInstanceByKey("activate-shift", email, variables);
         log.info("Shift process for '{}' has started '{}'", email, processInstance.getProcessInstanceId());
         return processInstance;
+    }
+
+    private PlatformUser getStaff(String staffId) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+
+        List<PlatformUser> users = restTemplate.exchange(platformDataUrlBuilder.getStaffUrl(),
+                HttpMethod.POST, new HttpEntity<>(Collections.singletonMap("argstaffid", staffId), httpHeaders),
+                new ParameterizedTypeReference<List<PlatformUser>>() {
+                }).getBody();
+
+        if (users == null || users.isEmpty()) {
+            throw new IllegalStateException("Could not find user with id " + staffId);
+        }
+        return users.get(0);
+
     }
 
     private void setEndTime(ShiftDetails shiftInfo) {
@@ -165,13 +187,12 @@ public class ShiftApplicationService {
      * @throws ResourceNotFound shift info cannot be found
      * @see ShiftDetails
      */
-    ShiftDetails getShiftInfo(@NotNull String email) {
+    public ShiftDetails getShiftInfo(@NotNull String email) {
         ProcessInstance shift = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(email)
                 .singleResult();
-
         if (shift == null) {
-            throw new ResourceNotFound("Shift detail not found for '" + email + "'");
+            return null;
         }
 
         VariableInstance variableInstance = runtimeService.createVariableInstanceQuery()

@@ -1,9 +1,12 @@
 package uk.gov.homeoffice.borders.workflow.task
 
+import io.vavr.Tuple2
 import org.camunda.bpm.engine.HistoryService
 import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.rest.dto.VariableValueDto
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto
+import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.camunda.bpm.engine.task.Task
 import org.camunda.spin.Spin
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -196,12 +199,13 @@ class TaskApplicationServiceSpec extends BaseSpec {
         user
 
         and:
-        def processInstance = processApplicationService.createInstance(processStartDto, user)
+        Tuple2<ProcessInstance, List<Task>> response = processApplicationService.createInstance(processStartDto, user)
 
 
+        def processInstance = response._1().id
         when:
         def task = taskService.createTaskQuery()
-                .processInstanceId(processInstance.id).singleResult()
+                .processInstanceId(processInstance).singleResult()
         def completeTaskDto = new TaskCompleteDto()
         completeTaskDto.variableName = 'myTaskVariable'
         def taskData = new Data()
@@ -214,7 +218,7 @@ class TaskApplicationServiceSpec extends BaseSpec {
 
         and:
         def variables = processApplicationService
-                .variables(processInstance.id, user)
+                .variables(processInstance, user)
 
         then:
         !(variables.get('myTaskVariable') instanceof SealedObject)
@@ -251,12 +255,13 @@ class TaskApplicationServiceSpec extends BaseSpec {
         user
 
         and:
-        def processInstance = processApplicationService.createInstance(processStartDto, user)
+        Tuple2<ProcessInstance, List<Task>> response = processApplicationService.createInstance(processStartDto, user)
 
 
+        def processInstanceId = response._1().id
         when:
         def task = taskService.createTaskQuery()
-                .processInstanceId(processInstance.id).singleResult()
+                .processInstanceId(processInstanceId).singleResult()
         taskService.setAssignee(task.id, user.email)
 
         def completeTaskDto = new CompleteTaskDto()
@@ -274,7 +279,7 @@ class TaskApplicationServiceSpec extends BaseSpec {
 
         and:
         def variables = processApplicationService
-                .variables(processInstance.id, user)
+                .variables(processInstanceId, user)
 
         then:
         !(variables.get('myTaskVariable') instanceof SealedObject)

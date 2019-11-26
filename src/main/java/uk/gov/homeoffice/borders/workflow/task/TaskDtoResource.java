@@ -10,9 +10,14 @@ import org.camunda.bpm.engine.variable.VariableMap;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * task information should return extension data as follows:
+ * "extensionData":{"someKey2":"someValue2","someKey":"someValue"}
+ */
 @Data
 @Relation(collectionRelation = "tasks")
 @EqualsAndHashCode(callSuper = false)
@@ -25,5 +30,6 @@ public class TaskDtoResource extends ResourceSupport {
     private Map<String, VariableValueDto> variables;
     @JsonProperty("process-definition")
     private ProcessDefinitionDto processDefinition;
+    private Map<String,String> extensionData = new HashMap<>();
 
 }

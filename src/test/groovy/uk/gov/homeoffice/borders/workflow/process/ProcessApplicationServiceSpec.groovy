@@ -44,9 +44,10 @@ class ProcessApplicationServiceSpec extends BaseSpec {
         user
 
         when:
-        def processInstance = applicationService.createInstance(processStartDto, user)
+        def response = applicationService.createInstance(processStartDto, user)
+        def processInstanceId = response._1().id
         def result = runtimeService.createVariableInstanceQuery()
-                .processInstanceIdIn(processInstance.id)
+                .processInstanceIdIn(processInstanceId)
                 .variableName('collectionOfData').singleResult()
 
 
@@ -58,11 +59,51 @@ class ProcessApplicationServiceSpec extends BaseSpec {
         team = new Team()
         team.code = WorkflowAuthentication.SERVICE_ROLE
         user.teams = [team]
-        def variables = applicationService.variables(processInstance.id, user)
+        def variables = applicationService.variables(processInstanceId, user)
 
         then:
         !(variables.get('collectionOfData') instanceof SealedObject)
 
+    }
+
+    def 'can get tasks after creating a process instance'() {
+        given:
+        def processStartDto = createProcessStartDto()
+        and:
+        def user = new PlatformUser()
+        user.id = 'assigneeOneTwoThree'
+        user.email = 'assigneeOneTwoThree'
+
+        def shift = new PlatformUser.ShiftDetails()
+        shift.roles = ['custom_role']
+        user.shiftDetails = shift
+
+        def team = new Team()
+        user.teams = []
+        team.code = 'teamA'
+        user.teams << team
+        user.roles = ['custom_role']
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+
+        when:
+        def result = applicationService.createInstance(processStartDto, user)
+
+        then:
+        result._2().size() == 1
+    }
+
+
+    ProcessStartDto createProcessStartDto() {
+        def processStartDto = new ProcessStartDto()
+        processStartDto.processKey = 'test'
+        processStartDto.variableName = 'collectionOfData'
+        def data = new Data()
+        data.candidateGroup = "teamA"
+        data.name = "test 0"
+        data.description = "test 0"
+        data.assignee = "assigneeOneTwoThree"
+        processStartDto.data = [data]
+        processStartDto
     }
 
 }

@@ -4,7 +4,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceWithVariablesDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,7 +43,7 @@ public class ShiftApiController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Start a new shift for the current user.")
-    public ResponseEntity<Void> startShift(@RequestBody @Valid ShiftDetails shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<?> startShift(@RequestBody @Valid ShiftDetails shiftInfo, UriComponentsBuilder uriComponentsBuilder) {
 
         String email = shiftInfo.getEmail();
         log.info("Request to create shift for '{}'", email);
@@ -50,23 +52,25 @@ public class ShiftApiController {
         UriComponents uriComponents =
                 uriComponentsBuilder.path("/api/workflow/shift/{shiftIdentifier}").buildAndExpand(email);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(uriComponents.toUri());
-        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+        return ResponseEntity.created(uriComponents.toUri())
+                .body((ProcessInstanceWithVariablesDto) ProcessInstanceWithVariablesDto
+                        .fromProcessInstance((ProcessInstanceWithVariables) shiftInstance));
+
     }
 
-    @GetMapping(path={"/{email}", ""}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the user's shift details.")
-    public ShiftDetails shiftInfo(@PathVariable(required = false) @ApiParam("The user's e-mail, defaults to the current user if not specified.") String email, PlatformUser platformUser) {
-        String userId = ofNullable(email).orElse(platformUser.getEmail());
-        return shiftApplicationService.getShiftInfo(userId);
+    public ShiftDetails shiftInfo(@PathVariable String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("Email required");
+        }
+        return shiftApplicationService.getShiftInfo(email);
     }
-
 
 
     @DeleteMapping("/{email}")
     @ApiOperation("Delete the shift for the specified user.")
-    public ResponseEntity deleteShift(@PathVariable String email, @RequestParam @ApiParam(required = true, value="The reason for deletion.") String deletedReason) {
+    public ResponseEntity deleteShift(@PathVariable String email, @RequestParam @ApiParam(required = true, value = "The reason for deletion.") String deletedReason) {
         shiftApplicationService.deleteShift(email, deletedReason);
         return ResponseEntity.ok().build();
     }
