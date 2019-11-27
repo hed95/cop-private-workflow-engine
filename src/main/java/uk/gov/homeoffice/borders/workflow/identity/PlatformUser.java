@@ -30,7 +30,7 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
     private List<Qualification> qualifications = new ArrayList<>();
     private List<String> roles = new ArrayList<>();
 
-    private Integer adelphi;
+    private String adelphi;
     @JsonProperty("linemanagerid")
     private String lineManagerId;
 
