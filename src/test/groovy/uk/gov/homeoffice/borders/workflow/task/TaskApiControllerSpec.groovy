@@ -46,7 +46,7 @@ class TaskApiControllerSpec extends BaseSpec {
         def objectValue =
                 Spin.S(tasks, "application/json")
 
-        def variables = [:]
+        def variables = new HashMap()
         variables['collectionOfData'] = objectValue
         variables['type'] = 'non-notification'
         processInstance = runtimeService.startProcessInstanceByKey("test",

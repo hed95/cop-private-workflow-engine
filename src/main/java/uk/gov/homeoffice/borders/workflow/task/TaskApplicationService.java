@@ -11,6 +11,7 @@ import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.task.CompleteTaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
 import org.camunda.bpm.engine.rest.dto.task.TaskQueryDto;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.IdentityLink;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
@@ -221,6 +222,18 @@ public class TaskApplicationService {
         }
 
         formService.submitTaskForm(task.getId(), variables);
+
+        List<ProcessInstance> processInstances = runtimeService.createProcessInstanceQuery()
+                .superProcessInstanceId(task.getProcessInstanceId())
+                .listPage(0, 1);
+
+        if (processInstances != null && !processInstances.isEmpty()) {
+            return taskService.createTaskQuery()
+                    .processInstanceId(processInstances.get(0).getProcessInstanceId())
+                    .initializeFormKeys()
+                    .taskAssignee(user.getEmail())
+                    .list();
+        }
 
         return taskService.createTaskQuery()
                 .processInstanceId(task.getProcessInstanceId())
