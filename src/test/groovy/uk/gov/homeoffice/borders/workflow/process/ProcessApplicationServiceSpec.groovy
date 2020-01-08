@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.process
 
-
+import org.camunda.bpm.engine.HistoryService
 import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
@@ -13,6 +13,9 @@ class ProcessApplicationServiceSpec extends BaseSpec {
 
     @Autowired
     ProcessApplicationService applicationService
+
+    @Autowired
+    HistoryService historyService
 
     def 'can encrypt variables'() {
         given:
@@ -63,6 +66,8 @@ class ProcessApplicationServiceSpec extends BaseSpec {
 
         then:
         !(variables.get('collectionOfData') instanceof SealedObject)
+        def history = historyService.createHistoricVariableInstanceQuery().list()
+        history.size() != 0
 
     }
 

@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.homeoffice.borders.workflow.form.FormEngineService;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import static uk.gov.homeoffice.borders.workflow.process.ProcessApiPaths.PROCESS_DEFINITION_ROOT_API;
@@ -32,6 +33,7 @@ public class ProcessDefinitionApiController {
     private ProcessApplicationService processApplicationService;
     private ProcessDefinitionDtoResourceAssembler processDefinitionDtoResourceAssembler;
     private PagedResourcesAssembler<ProcessDefinition> pagedResourcesAssembler;
+    private FormEngineService formEngineService;
 
     @GetMapping(value = PROCESS_DEFINITION_ROOT_API, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the list of process definitions available to the current user.")
@@ -46,9 +48,10 @@ public class ProcessDefinitionApiController {
     public ProcessDefinitionDtoResource processDefinition(@PathVariable String processKey) {
         ProcessDefinition definition = processApplicationService.getDefinition(processKey);
         String formKey = processApplicationService.formKey(definition.getId());
+        String formId = formEngineService.getFormId(formKey);
         ProcessDefinitionDtoResource processDefinitionDtoResource = new ProcessDefinitionDtoResource();
         processDefinitionDtoResource.setProcessDefinitionDto(ProcessDefinitionDto.fromProcessDefinition(definition));
-        processDefinitionDtoResource.setFormKey(formKey);
+        processDefinitionDtoResource.setFormKey(formId);
         return processDefinitionDtoResource;
     }
 

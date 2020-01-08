@@ -16,6 +16,7 @@ import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 
+import static com.github.tomakehurst.wiremock.http.Response.response
 import static org.hamcrest.Matchers.greaterThanOrEqualTo
 import static org.hamcrest.Matchers.is
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -118,6 +119,28 @@ class TaskApiControllerSpec extends BaseSpec {
         createTasks(1, "test")
         and:
         logInUser()
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/form?name=formKey'
+            }
+            response {
+                status: 200
+                body """
+                       {
+                        "total": 1,
+                        "forms": [{
+                          "id": "uuid",
+                          "name": "test"
+                        }]
+                       }
+                       
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
 
         when:
         List<Task> list = taskService.createTaskQuery()
@@ -130,6 +153,7 @@ class TaskApiControllerSpec extends BaseSpec {
         def taskLoaded = result.andReturn().asyncResult
         taskLoaded
         !taskLoaded.candidateGroups.isEmpty()
+        taskLoaded.formKey == 'uuid'
     }
 
 

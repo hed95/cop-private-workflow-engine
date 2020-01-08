@@ -5,6 +5,7 @@ import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 
+import static com.github.tomakehurst.wiremock.http.Response.response
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -14,6 +15,28 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
     def 'can get process definitions from /api/workflow/process-definitions'() {
         given:
         logInUser()
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/form?name=test'
+            }
+            response {
+                status: 200
+                body """
+                       {
+                        "total": 1,
+                        "forms": [{
+                          "id": "uuid",
+                          "name": "test"
+                        }]
+                       }
+                       
+                     """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions')
@@ -29,6 +52,29 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
     def 'can get process definition /api/workflow/process-definitions/test'() {
         given:
         logInUser()
+        wireMockStub.stub {
+            request {
+                method 'GET'
+                url '/form?name=test'
+            }
+            response {
+                status: 200
+                body """
+                      {
+                      "total": 1,
+                      "forms": [
+                        {
+                          "id": "uuid",
+                          "name": "test"
+                        }
+                      ]
+                     }
+                      """
+                headers {
+                    "Content-Type" "application/json"
+                }
+            }
+        }
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions/test')
@@ -37,7 +83,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
         then:
         result.andExpect(status().is2xxSuccessful())
         def processDefinitionDtoResource = objectMapper.readValue(result.andReturn().response.contentAsString, ProcessDefinitionDtoResource)
-        processDefinitionDtoResource.formKey == 'test'
+        processDefinitionDtoResource.formKey == 'uuid'
         processDefinitionDtoResource.processDefinitionDto.key == 'test'
     }
 
