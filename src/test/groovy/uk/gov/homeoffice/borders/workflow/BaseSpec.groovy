@@ -115,12 +115,18 @@ abstract class BaseSpec extends Specification {
     }
 
     def setup() {
-        def instances = runtimeService.createProcessInstanceQuery().list() as ProcessInstance[]
-        def ids = instances.collect {
-            it -> it.processInstanceId
-        }
-        runtimeService.deleteProcessInstances(ids, "testclean", true, true)
         stubKeycloak()
+    }
+
+    def cleanup() {
+        def instances = runtimeService.createProcessInstanceQuery().list() as ProcessInstance[]
+        instances.each {
+            it -> it.processInstanceId
+            if (runtimeService.createProcessInstanceQuery().processInstanceId(it.processInstanceId).count() != 0) {
+                runtimeService.deleteProcessInstance(it.processInstanceId, "testclean", false, true)
+            }
+         }
+
     }
 
     PlatformUser logInUser() {
