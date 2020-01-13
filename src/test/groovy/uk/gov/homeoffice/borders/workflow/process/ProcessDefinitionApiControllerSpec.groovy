@@ -18,7 +18,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/form?name=test'
+                url '/form?name=test&select=id,name&limit=1'
             }
             response {
                 status: 200

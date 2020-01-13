@@ -122,7 +122,7 @@ class TaskApiControllerSpec extends BaseSpec {
         wireMockStub.stub {
             request {
                 method 'GET'
-                url '/form?name=formKey'
+                url '/form?name=formKey&select=id,name&limit=1'
             }
             response {
                 status: 200
