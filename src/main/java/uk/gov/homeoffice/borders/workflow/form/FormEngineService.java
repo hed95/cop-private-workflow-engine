@@ -19,11 +19,13 @@ public class FormEngineService {
 
     public String getFormId(String formKey) {
         if (formKey != null) {
+            log.info("Looking for {}");
             String url = formEngineRefBean.getUrl() + "/form?name=" + formKey;
             FormListDto forms = restTemplate.getForEntity(url, FormListDto.class).getBody();
             if (forms == null || forms.getTotal() == 0) {
                 throw new InternalWorkflowException("Could not find form for name " + formKey);
             }
+            log.info("Form {} found...returning id");
             return forms.getForms().get(0).getId();
         }
         return null;
