@@ -19,7 +19,7 @@ public class FormEngineService {
 
     public String getFormId(String formKey) {
         if (formKey != null) {
-            log.info("Looking for {}");
+            log.info("Looking for {}", formKey);
             String url = formEngineRefBean.getUrl() + "/form?name=" + formKey;
             FormListDto forms = restTemplate.getForEntity(url, FormListDto.class).getBody();
             if (forms == null || forms.getTotal() == 0) {
