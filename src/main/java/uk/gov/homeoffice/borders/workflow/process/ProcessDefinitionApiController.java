@@ -33,7 +33,6 @@ public class ProcessDefinitionApiController {
     private ProcessApplicationService processApplicationService;
     private ProcessDefinitionDtoResourceAssembler processDefinitionDtoResourceAssembler;
     private PagedResourcesAssembler<ProcessDefinition> pagedResourcesAssembler;
-    private FormEngineService formEngineService;
 
     @GetMapping(value = PROCESS_DEFINITION_ROOT_API, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the list of process definitions available to the current user.")
@@ -48,10 +47,9 @@ public class ProcessDefinitionApiController {
     public ProcessDefinitionDtoResource processDefinition(@PathVariable String processKey) {
         ProcessDefinition definition = processApplicationService.getDefinition(processKey);
         String formKey = processApplicationService.formKey(definition.getId());
-        String formId = formEngineService.getFormId(formKey);
         ProcessDefinitionDtoResource processDefinitionDtoResource = new ProcessDefinitionDtoResource();
         processDefinitionDtoResource.setProcessDefinitionDto(ProcessDefinitionDto.fromProcessDefinition(definition));
-        processDefinitionDtoResource.setFormKey(formId);
+        processDefinitionDtoResource.setFormKey(formKey);
         return processDefinitionDtoResource;
     }
 

@@ -31,6 +31,5 @@ public class TaskDtoResource extends ResourceSupport {
     @JsonProperty("process-definition")
     private ProcessDefinitionDto processDefinition;
     private Map<String,String> extensionData = new HashMap<>();
-    private String formKey;
 
 }

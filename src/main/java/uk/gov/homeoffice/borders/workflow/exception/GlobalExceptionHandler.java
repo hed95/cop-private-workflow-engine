@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,7 +30,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = ForbiddenException.class)
     public ErrorResponse handleForbiddenException(ForbiddenException e) {
         log.error("Unauthorised exception", e);
-
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setCode(FORBIDDEN.value());
         errorResponse.setMessage(e.getMessage());
@@ -45,6 +45,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorResponse.setCode(BAD_REQUEST.value());
         errorResponse.setMessage(e.getMessage());
         errorResponse.setPayload(e.getMessage());
+        return errorResponse;
+    }
+
+    @ExceptionHandler(value = DuplicateBusinessKeyException.class)
+    @ResponseStatus(CONFLICT)
+    public ErrorResponse handleDuplicateKeyException(DuplicateBusinessKeyException e){
+        log.error("Duplicate key error", e);
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setCode(CONFLICT.value());
+        errorResponse.setMessage(e.getMessage());
+        errorResponse.setPayload(e.getBusinessKey());
         return errorResponse;
     }
 

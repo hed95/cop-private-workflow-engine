@@ -101,8 +101,6 @@ public class TaskApiController {
         return Mono.zip(Arrays.asList(task, identities), (Object[] args) -> {
             Task taskFromMono = (Task) args[0];
             TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(taskFromMono);
-            String formId = formEngineService.getFormId(taskFromMono.getFormKey());
-            taskDtoResource.setFormKey(formId);
             taskDtoResource.setCandidateGroups((List<String>) args[1]);
 
             return taskDtoResource;

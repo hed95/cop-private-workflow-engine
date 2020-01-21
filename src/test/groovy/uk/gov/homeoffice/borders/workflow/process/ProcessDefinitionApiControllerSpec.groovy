@@ -15,28 +15,6 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
     def 'can get process definitions from /api/workflow/process-definitions'() {
         given:
         logInUser()
-        wireMockStub.stub {
-            request {
-                method 'GET'
-                url '/form?name=test&select=id,name&limit=1'
-            }
-            response {
-                status: 200
-                body """
-                       {
-                        "total": 1,
-                        "forms": [{
-                          "id": "uuid",
-                          "name": "test"
-                        }]
-                       }
-                       
-                     """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-        }
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions')
@@ -52,29 +30,6 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
     def 'can get process definition /api/workflow/process-definitions/test'() {
         given:
         logInUser()
-        wireMockStub.stub {
-            request {
-                method 'GET'
-                url '/form?name=test'
-            }
-            response {
-                status: 200
-                body """
-                      {
-                      "total": 1,
-                      "forms": [
-                        {
-                          "id": "uuid",
-                          "name": "test"
-                        }
-                      ]
-                     }
-                      """
-                headers {
-                    "Content-Type" "application/json"
-                }
-            }
-        }
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions/test')
@@ -83,7 +38,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
         then:
         result.andExpect(status().is2xxSuccessful())
         def processDefinitionDtoResource = objectMapper.readValue(result.andReturn().response.contentAsString, ProcessDefinitionDtoResource)
-        processDefinitionDtoResource.formKey == 'uuid'
+        processDefinitionDtoResource.formKey == 'test'
         processDefinitionDtoResource.processDefinitionDto.key == 'test'
     }
 
