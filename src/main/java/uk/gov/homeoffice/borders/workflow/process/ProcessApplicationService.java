@@ -13,10 +13,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.authorization.Authorization;
 import org.camunda.bpm.engine.authorization.Resources;
+import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
+import org.camunda.bpm.engine.impl.persistence.entity.ProcessInstanceWithVariablesImpl;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.variable.VariableMap;
+import org.camunda.bpm.engine.variable.impl.VariableMapImpl;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,6 +156,29 @@ public class ProcessApplicationService {
         }
         log.info("'{}' was successfully started with id '{}' by '{}'", processStartDto.getProcessKey(),
                 processInstance.getProcessInstanceId(), user.getEmail());
+
+        List<ProcessInstance> processInstances = runtimeService.createProcessInstanceQuery()
+                .superProcessInstanceId(processInstance.getProcessInstanceId())
+                .listPage(0, 1);
+
+        if (processInstances != null && !processInstances.isEmpty()) {
+
+            ExecutionEntity subProcessInstance = (ExecutionEntity)processInstances.get(0);
+            VariableMap variableMap = new VariableMapImpl();
+            runtimeService.createVariableInstanceQuery()
+                    .processInstanceIdIn(subProcessInstance.getProcessInstanceId())
+                    .list()
+                    .forEach(
+                            (v) -> variableMap.putValueTyped(v.getName(), v.getTypedValue())
+                    );
+
+            ProcessInstanceWithVariablesImpl withVariables = new ProcessInstanceWithVariablesImpl(
+                    subProcessInstance, variableMap);
+            List<Task> tasks = taskService.createTaskQuery().processInstanceId(subProcessInstance.getId())
+                    .taskAssignee(user.getEmail())
+                    .initializeFormKeys().list();
+            return Tuple.of(withVariables, tasks);
+        }
 
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstance.getId())
                 .taskAssignee(user.getEmail())

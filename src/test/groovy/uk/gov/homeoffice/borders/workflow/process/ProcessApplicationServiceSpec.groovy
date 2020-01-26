@@ -137,6 +137,40 @@ class ProcessApplicationServiceSpec extends BaseSpec {
         result._2().size() == 1
     }
 
+    def 'can get task of sub process'() {
+        given:
+        def processStartDto = new ProcessStartDto()
+        processStartDto.processKey = 'testSubProcess'
+        processStartDto.variableName ='testVariable'
+        def data = new Data()
+        data.candidateGroup = "teamA"
+        data.name = "test 0"
+        data.description = "test 0"
+        data.assignee = "user"
+        processStartDto.data = [data]
+
+        and:
+        def user = new PlatformUser()
+        user.id = 'user'
+        user.email = 'user'
+
+        def shift = new PlatformUser.ShiftDetails()
+        shift.roles = ['custom_role']
+        user.shiftDetails = shift
+
+        def team = new Team()
+        user.teams = []
+        team.code = 'teamA'
+        user.teams << team
+        user.roles = ['custom_role']
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+
+        when:
+        def result = applicationService.createInstance(processStartDto, user)
+
+        then:
+        result._2().size() == 1
+    }
 
     ProcessStartDto createProcessStartDto() {
         def processStartDto = new ProcessStartDto()
