@@ -134,6 +134,10 @@ pipeline:
     - source: DEV_API_COP_URL
       target: API_COP_URL
     - source: PROTOCOL_HTTPS
+      target: API_FORM_PROTOCOL
+    - source: DEV_API_FORM_URL
+      target: API_FORM_URL
+    - source: PROTOCOL_HTTPS
       target: API_REF_PROTOCOL
     - source: DEV_API_REF_URL
       target: API_REF_URL
@@ -241,6 +245,10 @@ pipeline:
     - source: STAGING_API_COP_URL
       target: API_COP_URL
     - source: PROTOCOL_HTTPS
+      target: API_FORM_PROTOCOL
+    - source: STAGING_API_FORM_URL
+      target: API_FORM_URL
+    - source: PROTOCOL_HTTPS
       target: API_REF_PROTOCOL
     - source: STAGING_API_REF_URL
       target: API_REF_URL
@@ -347,6 +355,10 @@ pipeline:
       target: API_COP_PROTOCOL
     - source: PRODUCTION_API_COP_URL
       target: API_COP_URL
+    - source: PROTOCOL_HTTPS
+      target: API_FORM_PROTOCOL
+    - source: PRODUCTION_API_FORM_URL
+      target: API_FORM_URL
     - source: PROTOCOL_HTTPS
       target: API_REF_PROTOCOL
     - source: PRODUCTION_API_REF_URL

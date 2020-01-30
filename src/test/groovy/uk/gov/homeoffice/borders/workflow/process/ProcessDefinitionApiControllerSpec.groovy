@@ -5,6 +5,7 @@ import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 
+import static com.github.tomakehurst.wiremock.http.Response.response
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 

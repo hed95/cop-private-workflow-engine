@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import uk.gov.homeoffice.borders.workflow.form.FormEngineService;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.process.ProcessApplicationService;
 
@@ -51,7 +52,7 @@ public class TaskApiController {
     private PagedResourcesAssembler<Task> pagedResourcesAssembler;
     private ObjectMapper objectMapper;
     private ProcessApplicationService processApplicationService;
-
+    private FormEngineService formEngineService;
     @GetMapping
     @ApiOperation("Get all tasks for the current user.")
     public PagedResources<TaskDtoResource> tasks(TaskCriteria taskCriteria,
@@ -98,8 +99,10 @@ public class TaskApiController {
             }).subscribeOn(Schedulers.elastic()).toFuture();
         }
         return Mono.zip(Arrays.asList(task, identities), (Object[] args) -> {
-            TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource((Task) args[0]);
+            Task taskFromMono = (Task) args[0];
+            TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(taskFromMono);
             taskDtoResource.setCandidateGroups((List<String>) args[1]);
+
             return taskDtoResource;
         }).subscribeOn(Schedulers.elastic()).toFuture();
 

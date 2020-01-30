@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.process;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
@@ -23,6 +24,7 @@ import org.camunda.bpm.engine.variable.impl.VariableMapImpl;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import uk.gov.homeoffice.borders.workflow.PageHelper;
+import uk.gov.homeoffice.borders.workflow.exception.DuplicateBusinessKeyException;
 import uk.gov.homeoffice.borders.workflow.exception.ResourceNotFound;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
@@ -37,6 +40,7 @@ import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 @Service
@@ -119,6 +123,7 @@ public class ProcessApplicationService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("type", "non-notifications");
         variables.put("initiatedBy", user.getEmail());
+
         if (processDefinitionEncryptionParser.shouldEncrypt(processStartDto.getProcessKey(),
                 "encryptVariables")) {
             variables.put(processStartDto.getVariableName(), processInstanceSpinVariableEncryptor.encrypt(
@@ -131,9 +136,19 @@ public class ProcessApplicationService {
 
         ProcessInstance processInstance;
 
-        if (StringUtils.isNotBlank(processStartDto.getBusinessKey())) {
+        String businessKey = processStartDto.getBusinessKey();
+        if (StringUtils.isNotBlank(businessKey)) {
+            long runningInstancesWithBusinessKey = runtimeService.createProcessInstanceQuery()
+                    .processDefinitionKey(processStartDto.getProcessKey())
+                    .variableValueEquals("initiatedBy", user.getEmail())
+                    .processInstanceBusinessKey(businessKey).count();
+
+            if (runningInstancesWithBusinessKey >= 1) {
+                throw new DuplicateBusinessKeyException(format("There is a running process instance with business key %s",
+                        businessKey), businessKey);
+            }
             processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
-                    processStartDto.getBusinessKey(),
+                    businessKey,
                     variables);
         } else {
             processInstance = runtimeService.startProcessInstanceByKey(processDefinition.getKey(),
@@ -197,7 +212,7 @@ public class ProcessApplicationService {
                 .latestVersion()
                 .processDefinitionKey(processKey).singleResult();
         if (processDefinition == null) {
-            throw new ResourceNotFound(String.format("%s definition does not exist in workflow engine", processKey));
+            throw new ResourceNotFound(format("%s definition does not exist in workflow engine", processKey));
         }
         return processDefinition;
     }
