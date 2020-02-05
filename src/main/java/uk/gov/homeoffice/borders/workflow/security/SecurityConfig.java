@@ -17,6 +17,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
@@ -41,6 +42,9 @@ import static org.springframework.web.util.TagUtils.SCOPE_REQUEST;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true
+)
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 @Profile("!test")
 @EnableRedisHttpSession

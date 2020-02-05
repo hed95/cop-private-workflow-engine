@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.*
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.test.context.ActiveProfiles
@@ -197,6 +198,9 @@ abstract class BaseSpec extends Specification {
     }
 
     @Configuration
+    @EnableGlobalMethodSecurity(
+            prePostEnabled = true
+    )
     static class TestConfig extends WebSecurityConfigurerAdapter {
 
 

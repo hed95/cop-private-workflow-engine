@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import uk.gov.homeoffice.borders.workflow.PageHelper;
@@ -42,7 +43,6 @@ public class CasesApplicationService {
     private HistoryService historyService;
     private ApplicationEventPublisher applicationEventPublisher;
     private AmazonS3 amazonS3Client;
-
     private AWSConfig awsConfig;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
@@ -75,7 +75,7 @@ public class CasesApplicationService {
 
     }
 
-
+    @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
     public CaseDetail getByKey(String businessKey, PlatformUser platformUser) {
 
         log.info("Beginning case detail fetch");
@@ -124,6 +124,7 @@ public class CasesApplicationService {
                 }).collect(Collectors.toList());
 
         caseDetail.setProcessInstances(instanceReferences);
+
         applicationEventPublisher.publishEvent(new CaseAudit(this,
                 businessKey,
                 "GET_CASE", platformUser));

@@ -12,6 +12,10 @@ import org.camunda.spin.json.SpinJsonNode
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.data.domain.PageRequest
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.context.SecurityContextImpl
+import springfox.documentation.spi.service.contexts.SecurityContext
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
@@ -181,6 +185,10 @@ class CasesApplicationServiceSpec extends BaseSpec {
         amazonS3Client.createBucket("events")
 
         def user = logInUser()
+        def token = new TestingAuthenticationToken(user, "test")
+        token.setAuthenticated(true)
+        SecurityContextHolder.setContext(new SecurityContextImpl(token))
+
         def processStartDto = new ProcessStartDto()
         processStartDto.processKey = 'encryption'
         processStartDto.variableName = 'collectionOfData'
