@@ -1,5 +1,10 @@
 package uk.gov.homeoffice.borders.workflow
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.client.builder.AwsClientBuilder
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
@@ -8,7 +13,6 @@ import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.runtime.ProcessInstance
 import org.junit.ClassRule
-import org.junit.Rule
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
@@ -17,12 +21,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
-import org.springframework.context.annotation.Scope
-import org.springframework.http.client.ClientHttpRequestFactory
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
+import org.springframework.context.annotation.*
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.test.context.ActiveProfiles
@@ -35,11 +34,8 @@ import spock.mock.DetachedMockFactory
 import uk.gov.homeoffice.borders.workflow.config.CorrelationIdInterceptor
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
-import uk.gov.homeoffice.borders.workflow.identity.UserService
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.service.notify.NotificationClient
-
-import java.util.function.Supplier
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 
@@ -72,6 +68,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
         "ENGINE_CORS=http://localhost:8000",
         "KEYCLOAK_URI=http://localhost:9000/auth",
         "KEYCLOAK_REALM=myRealm",
+        "S3_AWS_REGION=eu-west-2",
+        "S3_AWS_ACCESS_KEY_ID=accessKey",
+        "S3_AWS_SECRET_ACCESS_KEY=secretAccessKey",
+        "S3_CASE_BUCKET_NAME=events",
         "ENGINE_ENCRYPTION_PASSPHRASE=secret",
         "ENGINE_ENCRYPTION_SALT=a9v5n38s",
         "ENGINE_KEYCLOAK_CLIENT_SECRET=very_secret",
@@ -105,6 +105,7 @@ abstract class BaseSpec extends Specification {
 
     public wireMockStub = new WireMockGroovy(wmPort)
 
+
     def stubKeycloak() {
         stubFor(post("/realms/myRealm/protocol/openid-connect/token")
                 .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded;charset=UTF-8"))
@@ -119,18 +120,21 @@ abstract class BaseSpec extends Specification {
                                         """)))
     }
 
+
     def setup() {
         stubKeycloak()
+
     }
 
     def cleanup() {
         def instances = runtimeService.createProcessInstanceQuery().list() as ProcessInstance[]
         instances.each {
-            it -> it.processInstanceId
-            if (runtimeService.createProcessInstanceQuery().processInstanceId(it.processInstanceId).count() != 0) {
-                runtimeService.deleteProcessInstance(it.processInstanceId, "testclean", false, true)
-            }
-         }
+            it ->
+                it.processInstanceId
+                if (runtimeService.createProcessInstanceQuery().processInstanceId(it.processInstanceId).count() != 0) {
+                    runtimeService.deleteProcessInstance(it.processInstanceId, "testclean", false, true)
+                }
+        }
 
     }
 
@@ -194,6 +198,22 @@ abstract class BaseSpec extends Specification {
 
     @Configuration
     static class TestConfig extends WebSecurityConfigurerAdapter {
+
+
+        @Bean
+        @Primary
+        AmazonS3 awsS3Client() {
+            final BasicAWSCredentials credentials = new BasicAWSCredentials("accessKey", "secretAccessKey")
+
+            def amazonS3 = AmazonS3ClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:8323",
+                    'eu-west-2'))
+                    .enablePathStyleAccess()
+                    .build()
+
+            return amazonS3
+        }
 
 
         @Bean
