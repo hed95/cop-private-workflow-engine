@@ -3,12 +3,15 @@ package uk.gov.homeoffice.borders.workflow.cases
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
+
 import io.findify.s3mock.S3Mock
+import org.apache.commons.io.IOUtils
 import org.camunda.bpm.engine.RepositoryService
+import org.camunda.spin.Spin
+import org.camunda.spin.json.SpinJsonNode
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.data.domain.PageRequest
-import spock.lang.Shared
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
@@ -82,7 +85,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         applicationService.createInstance(processStartDto, user)
 
         when:
-        def result = service.findBy('businessKey', PageRequest.of(0, 20))
+        def result = service.queryByKey('businessKey', PageRequest.of(0, 20))
 
         then:
         result.size() != 0
@@ -124,7 +127,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         applicationService.createInstance(processStartDto, user)
 
         when:
-        def result = service.findBy('BF-2020%', PageRequest.of(0, 20))
+        def result = service.queryByKey('BF-2020%', PageRequest.of(0, 20))
 
         then:
         result.size() != 0
@@ -166,7 +169,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         applicationService.createInstance(processStartDto, user)
 
         when:
-        def result = service.findBy('apples%', PageRequest.of(0, 20))
+        def result = service.queryByKey('apples%', PageRequest.of(0, 20))
 
         then:
         result.size() == 0
@@ -238,6 +241,14 @@ class CasesApplicationServiceSpec extends BaseSpec {
         caseDetails
         caseDetails.getProcessInstances().size() != 0
         caseDetails.getBusinessKey() == 'BF-20200120-555'
+
+        when:
+        SpinJsonNode submissionData = service
+                .getSubmissionData('BF-20200120-555', "BF-20200120-555/journeyEaB/20120101-xx@x.com.json", user)
+
+        then:
+        def asSpin = Spin.JSON(IOUtils.toString(new ClassPathResource("data.json").getInputStream(), "UTF-8"))
+        submissionData.toString() == asSpin.toString()
     }
 
     ProcessStartDto createProcessStartDto() {

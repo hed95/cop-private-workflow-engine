@@ -29,5 +29,6 @@ public class CaseDetail {
         private String versionId;
         private String dataPath;
         private String submissionDate;
+        private String submittedBy;
     }
 }

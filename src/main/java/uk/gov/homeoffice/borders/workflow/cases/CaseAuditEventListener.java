@@ -11,7 +11,8 @@ public class CaseAuditEventListener {
 
     @EventListener
     public void handle(CaseAudit caseAudit) {
-        log.info("'{}' requested to see case with business key '{}'", caseAudit.getRequestBy().getEmail(),
+        log.info("'{}' performed '{}' for business key '{}'", caseAudit.getRequestBy().getEmail(),
+                caseAudit.getType(),
                 caseAudit.getRequestBy().getEmail());
     }
 }
