@@ -64,7 +64,7 @@ public class CasesApplicationService {
             Case caseDto = new Case();
             caseDto.setBusinessKey(key);
             List<HistoricProcessInstance> instances = groupedByBusinessKey.get(key);
-            caseDto.setAssociatedProcessInstances(instances
+            caseDto.setProcessInstances(instances
                     .stream()
                     .map(HistoricProcessInstanceDto::fromHistoricProcessInstance).collect(Collectors.toList()));
             return caseDto;
