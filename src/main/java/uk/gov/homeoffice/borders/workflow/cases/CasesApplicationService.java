@@ -112,6 +112,7 @@ public class CasesApplicationService {
                 .stream()
                 .map(historicProcessInstance -> {
                     CaseDetail.ProcessInstanceReference reference = new CaseDetail.ProcessInstanceReference();
+                    reference.setId(historicProcessInstance.getId());
                     reference.setDefinitionId(historicProcessInstance.getProcessDefinitionId());
                     reference.setName(historicProcessInstance.getProcessDefinitionName());
                     reference.setKey(historicProcessInstance.getProcessDefinitionKey());

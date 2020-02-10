@@ -14,6 +14,7 @@ public class CaseDetail {
 
     @Data
     public static class ProcessInstanceReference {
+        private String id;
         private String key;
         private String name;
         private String definitionId;
