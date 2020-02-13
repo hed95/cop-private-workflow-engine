@@ -45,8 +45,9 @@ public class CasesApplicationService {
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
-    @AuditableCaseEvent(type = "SEARCH_CASES")
+    @AuditableCaseEvent
     public Page<Case> queryByKey(String businessKeyQuery, Pageable pageable, PlatformUser platformUser) {
+        log.info("Performing search by {}", platformUser.getEmail());
         HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery()
                 .processInstanceBusinessKeyLike(businessKeyQuery);
 
@@ -69,12 +70,12 @@ public class CasesApplicationService {
             return caseDto;
         }).collect(Collectors.toList());
 
-        log.info("Number of cases returned for '{}' is '{}'", businessKeyQuery, cases.size());
+        log.info("Number of cases returned for '{}' is '{}'", businessKeyQuery, totalResults);
         return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
 
     }
 
-    @AuditableCaseEvent(type = "GET_CASE")
+    @AuditableCaseEvent
     @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
     public CaseDetail getByKey(String businessKey, PlatformUser platformUser) {
 
@@ -156,7 +157,7 @@ public class CasesApplicationService {
         return references;
     }
 
-    @AuditableCaseEvent(type = "GET_SUBMISSION_DATA")
+    @AuditableCaseEvent
     @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
     public SpinJsonNode getSubmissionData(String businessKey, String submissionDataKey, PlatformUser platformUser) {
 

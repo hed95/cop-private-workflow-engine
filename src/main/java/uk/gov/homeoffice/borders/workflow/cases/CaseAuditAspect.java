@@ -33,7 +33,7 @@ public class CaseAuditAspect {
                 joinPoint.getTarget(),
                 args,
                 platformUser,
-                auditableCaseEvent.type());
+                joinPoint.getSignature().toShortString());
         try {
             return joinPoint.proceed();
         } finally {
