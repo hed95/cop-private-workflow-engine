@@ -187,6 +187,10 @@ pipeline:
       target: ENGINE_ENCRYPTION_PASSPHRASE
     - source: DEV_ENGINE_ENCRYPTION_SALT
       target: ENGINE_ENCRYPTION_SALT
+    - source: DEV_ENGINE_RO_AWS_ACCESS_KEY_ID
+      target: RO_AWS_ACCESS_KEY_ID
+    - source: DEV_ENGINE_RO_AWS_SECRET_ACCESS_KEY
+      target: RO_AWS_SECRET_ACCESS_KEY
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
@@ -298,6 +302,10 @@ pipeline:
       target: ENGINE_ENCRYPTION_PASSPHRASE
     - source: STAGING_ENGINE_ENCRYPTION_SALT
       target: ENGINE_ENCRYPTION_SALT
+    - source: STAGING_ENGINE_RO_AWS_ACCESS_KEY_ID
+      target: RO_AWS_ACCESS_KEY_ID
+    - source: STAGING_ENGINE_RO_AWS_SECRET_ACCESS_KEY
+      target: RO_AWS_SECRET_ACCESS_KEY
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
@@ -409,6 +417,10 @@ pipeline:
       target: ENGINE_ENCRYPTION_PASSPHRASE
     - source: PRODUCTION_ENGINE_ENCRYPTION_SALT
       target: ENGINE_ENCRYPTION_SALT
+    - source: PRODUCTION_ENGINE_RO_AWS_ACCESS_KEY_ID
+      target: RO_AWS_ACCESS_KEY_ID
+    - source: PRODUCTION_ENGINE_RO_AWS_SECRET_ACCESS_KEY
+      target: RO_AWS_SECRET_ACCESS_KEY
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
