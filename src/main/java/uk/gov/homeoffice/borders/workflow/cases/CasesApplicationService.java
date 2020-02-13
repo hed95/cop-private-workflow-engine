@@ -41,13 +41,13 @@ import static java.lang.String.format;
 public class CasesApplicationService {
 
     private HistoryService historyService;
-    private ApplicationEventPublisher applicationEventPublisher;
     private AmazonS3 amazonS3Client;
     private AWSConfig awsConfig;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
-    public Page<Case> queryByKey(String businessKeyQuery, Pageable pageable) {
+    @AuditableCaseEvent(type = "SEARCH_CASES")
+    public Page<Case> queryByKey(String businessKeyQuery, Pageable pageable, PlatformUser platformUser) {
         HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery()
                 .processInstanceBusinessKeyLike(businessKeyQuery);
 
@@ -75,6 +75,7 @@ public class CasesApplicationService {
 
     }
 
+    @AuditableCaseEvent(type = "GET_CASE")
     @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
     public CaseDetail getByKey(String businessKey, PlatformUser platformUser) {
 
@@ -126,10 +127,6 @@ public class CasesApplicationService {
 
         caseDetail.setProcessInstances(instanceReferences);
 
-        applicationEventPublisher.publishEvent(new CaseAudit(this,
-                businessKey,
-                "GET_CASE", platformUser));
-
         stopWatch.stop();
 
         log.info("Total time taken to get case details for '{}' was '{}' seconds", businessKey,
@@ -160,14 +157,13 @@ public class CasesApplicationService {
         return references;
     }
 
-
+    @AuditableCaseEvent(type = "GET_SUBMISSION_DATA")
+    @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
     public SpinJsonNode getSubmissionData(String businessKey, String submissionDataKey, PlatformUser platformUser) {
 
         S3Object object = amazonS3Client.getObject(awsConfig.getCaseBucketName(), submissionDataKey);
         try {
             String asJsonString = IOUtils.toString(object.getObjectContent(), "UTF-8");
-            applicationEventPublisher.publishEvent(new CaseAudit(this, businessKey, "GET_SUBMISSION_DATA",
-                    platformUser));
             return Spin.JSON(asJsonString);
         } catch (IOException e) {
             throw new InternalWorkflowException(e);

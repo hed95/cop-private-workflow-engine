@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.context.SecurityContextImpl
-import springfox.documentation.spi.service.contexts.SecurityContext
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
@@ -89,11 +88,11 @@ class CasesApplicationServiceSpec extends BaseSpec {
         applicationService.createInstance(processStartDto, user)
 
         when:
-        def result = service.queryByKey('businessKey', PageRequest.of(0, 20))
+        def result = service.queryByKey('businessKey', PageRequest.of(0, 20), user)
 
         then:
         result.size() != 0
-        result.content.get(0).associatedProcessInstances.size() == 1
+        result.content.get(0).processInstances.size() == 1
 
     }
 
@@ -131,7 +130,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         applicationService.createInstance(processStartDto, user)
 
         when:
-        def result = service.queryByKey('BF-2020%', PageRequest.of(0, 20))
+        def result = service.queryByKey('BF-2020%', PageRequest.of(0, 20), user)
 
         then:
         result.size() != 0
@@ -173,7 +172,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         applicationService.createInstance(processStartDto, user)
 
         when:
-        def result = service.queryByKey('apples%', PageRequest.of(0, 20))
+        def result = service.queryByKey('apples%', PageRequest.of(0, 20), user)
 
         then:
         result.size() == 0

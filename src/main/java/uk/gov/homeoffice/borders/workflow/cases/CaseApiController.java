@@ -28,9 +28,9 @@ public class CaseApiController {
 
     @GetMapping
     public PagedResources<Case> getCases(Pageable pageable,
-                                         @RequestParam String businessKeyQuery) {
+                                         @RequestParam String businessKeyQuery, PlatformUser platformUser) {
 
-        Page<Case> cases = casesApplicationService.queryByKey(businessKeyQuery, pageable);
+        Page<Case> cases = casesApplicationService.queryByKey(businessKeyQuery, pageable, platformUser);
         return pagedResourcesAssembler.toResource(cases, entity -> entity);
     }
 

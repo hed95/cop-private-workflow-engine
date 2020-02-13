@@ -10,19 +10,19 @@ import java.util.Date;
 @Getter
 public class CaseAudit extends ApplicationEvent {
 
-    private PlatformUser requestBy;
-    private String businessKey;
+    private Object[] args;
+    private PlatformUser platformUser;
     private Date date;
     private String type;
 
     public CaseAudit(Object source,
-                     String businessKey,
-                     String type,
-                     PlatformUser requestBy) {
+                     Object[] args,
+                     PlatformUser platformUser,
+                     String type) {
         super(source);
         this.type = type;
-        this.requestBy = requestBy;
-        this.businessKey = businessKey;
+        this.args = args;
+        this.platformUser = platformUser;
         this.date = new Date();
     }
 }
