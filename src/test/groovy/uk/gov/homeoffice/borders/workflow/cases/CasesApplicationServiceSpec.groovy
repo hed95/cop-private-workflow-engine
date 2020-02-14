@@ -92,7 +92,6 @@ class CasesApplicationServiceSpec extends BaseSpec {
 
         then:
         result.size() != 0
-        result.content.get(0).processInstances.size() == 1
 
     }
 

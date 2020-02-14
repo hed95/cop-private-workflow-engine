@@ -27,6 +27,8 @@ import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +105,7 @@ public class CasesApplicationService {
 
         Map<String, List<ObjectMetadata>> byProcessDefinitionIds = metadata
                 .stream()
-                .collect(Collectors.groupingBy(meta -> meta.getUserMetaDataOf("processDefinitionId")));
+                .collect(Collectors.groupingBy(meta -> meta.getUserMetaDataOf("processdefinitionid")));
 
 
         List<HistoricProcessInstance> processInstances = historyService.createHistoricProcessInstanceQuery()
@@ -145,12 +147,15 @@ public class CasesApplicationService {
 
         references.addAll(metadataByProcessDefinition.stream().map(metadata -> {
             CaseDetail.FormReference formReference = new CaseDetail.FormReference();
-            formReference.setVersionId(metadata.getUserMetaDataOf("formVersionId"));
+            formReference.setVersionId(metadata.getUserMetaDataOf("formversionid"));
             formReference.setName(metadata.getUserMetaDataOf("name"));
             formReference.setTitle(metadata.getUserMetaDataOf("title"));
             formReference.setDataPath(metadata.getUserMetaDataOf("key"));
-            formReference.setSubmissionDate(metadata.getUserMetaDataOf("submissionDate"));
-            formReference.setSubmittedBy(metadata.getUserMetaDataOf("submittedBy"));
+            formReference.setSubmissionDate(metadata.getUserMetaDataOf("submissiondate"));
+            if (metadata.getUserMetaDataOf("submittedby") != null) {
+                formReference.setSubmittedBy(URLDecoder.decode(metadata.getUserMetaDataOf("submittedby"),
+                        Charset.forName("UTF-8")));
+            }
             return formReference;
         }).collect(Collectors.toList()));
 
