@@ -101,9 +101,9 @@ server:
   port: ${ENGINE_PORT}
 
 aws:
-  region: ${S3_AWS_REGION:eu-west-2}
-  caseBucketName: ${S3_CASE_BUCKET_NAME}
+  region: ${ENGINE_S3_REGION:eu-west-2}
+  caseBucketName: ${ENGINE_S3_CASE_BUCKET_NAME}
   credentials:
-    accessKey: ${S3_AWS_ACCESS_KEY_ID}
-    secretKey: ${S3_AWS_SECRET_ACCESS_KEY}
+    accessKey: ${RO_AWS_ACCESS_KEY_ID}
+    secretKey: ${RO_AWS_SECRET_ACCESS_KEY}
 
