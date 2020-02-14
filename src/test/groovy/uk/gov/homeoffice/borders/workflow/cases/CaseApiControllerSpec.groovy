@@ -62,7 +62,7 @@ class CaseApiControllerSpec extends BaseSpec {
         ObjectMetadata metadata = new ObjectMetadata()
         metadata.addUserMetadata('name', 'formNameA')
         metadata.addUserMetadata('title', 'formNameA')
-        metadata.addUserMetadata('formversionId', 'formNameA')
+        metadata.addUserMetadata('formversionid', 'formNameA')
         metadata.addUserMetadata('processdefinitionid', definition)
 
         amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/eventAtBorder/20120101-xx@x.com.json",
@@ -72,7 +72,7 @@ class CaseApiControllerSpec extends BaseSpec {
         metadata = new ObjectMetadata()
         metadata.addUserMetadata('name', 'formNameB')
         metadata.addUserMetadata('title', 'formNameB')
-        metadata.addUserMetadata('formversionId', 'formNameB')
+        metadata.addUserMetadata('formversionid', 'formNameB')
         metadata.addUserMetadata('processdefinitionid', definition)
 
         amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/peopleEaB/20120101-xx@x.com.json",
@@ -82,7 +82,7 @@ class CaseApiControllerSpec extends BaseSpec {
         metadata = new ObjectMetadata()
         metadata.addUserMetadata('name', 'formNameC')
         metadata.addUserMetadata('title', 'formNameC')
-        metadata.addUserMetadata('formversionId', 'formNameC')
+        metadata.addUserMetadata('formversionid', 'formNameC')
         metadata.addUserMetadata('processdefinitionid', definition)
         amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/itemsEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
@@ -91,7 +91,7 @@ class CaseApiControllerSpec extends BaseSpec {
         metadata = new ObjectMetadata()
         metadata.addUserMetadata('name', 'formNameD')
         metadata.addUserMetadata('title', 'formNameD')
-        metadata.addUserMetadata('formversionId', 'formNameD')
+        metadata.addUserMetadata('formversionid', 'formNameD')
         metadata.addUserMetadata('processdefinitionid', definition)
         amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/journeyEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
