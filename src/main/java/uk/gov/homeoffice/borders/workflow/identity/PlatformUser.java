@@ -95,6 +95,8 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
         @JsonProperty("teamid")
         @NotNull
         private String teamId;
+        @JsonProperty("team")
+        private Team team;
         @JsonProperty("shiftid")
         private String shiftId;
         @NotNull

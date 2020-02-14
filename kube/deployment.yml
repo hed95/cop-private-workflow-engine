@@ -18,7 +18,7 @@ spec:
         runAsUser: 1000
         fsGroup: 1000
       containers:
-      - name: proxy
+      - name: {{.ENGINE_NAME}}-proxy
         image: {{.NGINX_IMAGE}}:{{.NGINX_TAG}}
         imagePullPolicy: Always
         securityContext:
@@ -107,6 +107,8 @@ spec:
         env:
           - name: ENGINE_NAME
             value: "{{.ENGINE_NAME}}"
+          - name: ENGINE_S3_CASE_BUCKET_NAME
+            value: "{{.ENGINE_S3_CASE_BUCKET_NAME}}"
           - name: ENGINE_CORS
             value: "{{.ENGINE_CORS}}"
           - name: ENGINE_PORT
@@ -177,6 +179,16 @@ spec:
               secretKeyRef:
                 name: {{.ENGINE_NAME}}
                 key: engineDbPassword
+          - name: RO_AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{.ENGINE_NAME}}
+                key: roAwsAccessKeyId
+          - name: RO_AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{.ENGINE_NAME}}
+                key: roAwsSecretAccessKey
       volumes:
       - name: certs
         secret:
