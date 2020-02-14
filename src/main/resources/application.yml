@@ -104,6 +104,6 @@ aws:
   region: ${ENGINE_S3_REGION:eu-west-2}
   caseBucketName: ${ENGINE_S3_CASE_BUCKET_NAME}
   credentials:
-    accessKey: ${RO_AWS_ACCESS_KEY_ID}
-    secretKey: ${RO_AWS_SECRET_ACCESS_KEY}
+    accessKey: ${ENGINE_RO_AWS_ACCESS_KEY_ID}
+    secretKey: ${ENGINE_RO_AWS_SECRET_ACCESS_KEY}
 
