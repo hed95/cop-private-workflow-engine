@@ -33,6 +33,13 @@ api-cop:
     connect-timeout: 5000
     read-timeout: 5000
 
+aws:
+  region: ${ENGINE_S3_REGION:eu-west-2}
+  case-bucket-name: ${ENGINE_S3_CASE_BUCKET_NAME}
+  credentials:
+    access-key: ${ENGINE_RO_AWS_ACCESS_KEY_ID}
+    secret-Key: ${ENGINE_RO_AWS_SECRET_ACCESS_KEY}
+
 gov:
   notify:
     api:
@@ -100,10 +107,4 @@ server:
       enabled: false
   port: ${ENGINE_PORT}
 
-aws:
-  region: ${ENGINE_S3_REGION:eu-west-2}
-  caseBucketName: ${ENGINE_S3_CASE_BUCKET_NAME}
-  credentials:
-    accessKey: ${ENGINE_RO_AWS_ACCESS_KEY_ID}
-    secretKey: ${ENGINE_RO_AWS_SECRET_ACCESS_KEY}
 
