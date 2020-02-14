@@ -179,7 +179,7 @@ spec:
               secretKeyRef:
                 name: {{.ENGINE_NAME}}
                 key: engineDbPassword
-          - name: ENGINE_RO_AWS_ACCESS _KEY_ID
+          - name: ENGINE_RO_AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
                 name: {{.ENGINE_NAME}}
