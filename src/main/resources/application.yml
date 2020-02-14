@@ -94,10 +94,16 @@ logging:
     org.springframework.web.socket: ERROR
 
 
-
 server:
   error:
     whitelabel:
       enabled: false
   port: ${ENGINE_PORT}
+
+aws:
+  region: ${ENGINE_S3_REGION:eu-west-2}
+  caseBucketName: ${ENGINE_S3_CASE_BUCKET_NAME}
+  credentials:
+    accessKey: ${ENGINE_RO_AWS_ACCESS_KEY_ID}
+    secretKey: ${ENGINE_RO_AWS_SECRET_ACCESS_KEY}
 
