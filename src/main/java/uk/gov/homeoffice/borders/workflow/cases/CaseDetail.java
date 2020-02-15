@@ -3,14 +3,23 @@ package uk.gov.homeoffice.borders.workflow.cases;
 
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 public class CaseDetail {
 
     private String businessKey;
-    private List<ProcessInstanceReference> processInstances;
+    private List<ProcessInstanceReference> processInstances = new ArrayList<>();
+    private List<Action> actions = new ArrayList<>();
+
+
+    @Data
+    public static class Action {
+        private String id;
+        private String name;
+        private String url;
+        private Map<String, Object> extensionData = new HashMap<>();
+    }
 
     @Data
     public static class ProcessInstanceReference {

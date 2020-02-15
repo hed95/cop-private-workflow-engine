@@ -21,7 +21,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 import uk.gov.homeoffice.borders.workflow.PageHelper;
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
@@ -32,9 +31,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
@@ -47,6 +48,14 @@ public class CasesApplicationService {
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
+    /**
+     * Query for cases that match a key. Each case is a collection of process instance pointers. No internal data
+     * is returned.
+     * @param businessKeyQuery
+     * @param pageable
+     * @param platformUser
+     * @return a list of cases.
+     */
     @AuditableCaseEvent
     public Page<Case> queryByKey(String businessKeyQuery, Pageable pageable, PlatformUser platformUser) {
         log.info("Performing search by {}", platformUser.getEmail());
@@ -68,14 +77,15 @@ public class CasesApplicationService {
             List<HistoricProcessInstance> instances = groupedByBusinessKey.get(key);
             caseDto.setProcessInstances(instances
                     .stream()
-                    .map(HistoricProcessInstanceDto::fromHistoricProcessInstance).collect(Collectors.toList()));
+                    .map(HistoricProcessInstanceDto::fromHistoricProcessInstance).collect(toList()));
             return caseDto;
-        }).collect(Collectors.toList());
+        }).collect(toList());
 
         log.info("Number of cases returned for '{}' is '{}'", businessKeyQuery, totalResults);
         return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
 
     }
+
 
     @AuditableCaseEvent
     @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
@@ -110,24 +120,57 @@ public class CasesApplicationService {
 
         List<CaseDetail.ProcessInstanceReference> instanceReferences = processInstances
                 .stream()
-                .map(historicProcessInstance -> {
-                    CaseDetail.ProcessInstanceReference reference = new CaseDetail.ProcessInstanceReference();
-                    reference.setId(historicProcessInstance.getId());
-                    reference.setDefinitionId(historicProcessInstance.getProcessDefinitionId());
-                    reference.setName(historicProcessInstance.getProcessDefinitionName());
-                    reference.setKey(historicProcessInstance.getProcessDefinitionKey());
-                    reference.setStartDate(historicProcessInstance.getStartTime());
-                    reference.setEndDate(historicProcessInstance.getEndTime());
-                    reference.setFormReferences(setFormReferences(byProcessDefinitionIds,
-                            historicProcessInstance.getProcessDefinitionId()));
-                    return reference;
-
-                }).collect(Collectors.toList());
+                .map(historicProcessInstance ->
+                        toCaseReference(byProcessDefinitionIds, historicProcessInstance))
+                .collect(toList());
 
         caseDetail.setProcessInstances(instanceReferences);
 
+        caseDetail.setActions(availableActions(caseDetail, platformUser));
+
         log.info("Returning case details to '{}' with business key '{}'", platformUser.getEmail(), businessKey);
         return caseDetail;
+    }
+
+    private CaseDetail.ProcessInstanceReference toCaseReference(Map<String, List<ObjectMetadata>> byProcessDefinitionIds,
+                                                                HistoricProcessInstance historicProcessInstance) {
+        CaseDetail.ProcessInstanceReference reference = new CaseDetail.ProcessInstanceReference();
+        reference.setId(historicProcessInstance.getId());
+        reference.setDefinitionId(historicProcessInstance.getProcessDefinitionId());
+        reference.setName(historicProcessInstance.getProcessDefinitionName());
+        reference.setKey(historicProcessInstance.getProcessDefinitionKey());
+        reference.setStartDate(historicProcessInstance.getStartTime());
+        reference.setEndDate(historicProcessInstance.getEndTime());
+        reference.setFormReferences(setFormReferences(byProcessDefinitionIds,
+                historicProcessInstance.getProcessDefinitionId()));
+        return reference;
+    }
+
+    /**
+     * Actions that can be performed on a case. Ideally this will be derived from a DMN
+     * @param caseDetail
+     * @param platformUser
+     * @return list of actions that can be performed on the case
+     */
+    private List<CaseDetail.Action> availableActions(CaseDetail caseDetail, PlatformUser platformUser) {
+        return new ArrayList<>();
+    }
+
+
+    private CaseDetail.FormReference toFormReference(ObjectMetadata metadata) {
+        CaseDetail.FormReference formReference = new CaseDetail.FormReference();
+        formReference.setVersionId(metadata.getUserMetaDataOf("formversionid"));
+        formReference.setName(metadata.getUserMetaDataOf("name"));
+        formReference.setTitle(metadata.getUserMetaDataOf("title"));
+        formReference.setDataPath(metadata.getUserMetaDataOf("key"));
+        formReference.setSubmissionDate(metadata.getUserMetaDataOf("submissiondate"));
+        Optional.ofNullable(metadata.getUserMetaDataOf("submittedby"))
+                .ifPresent(user -> formReference.setSubmittedBy(
+                        URLDecoder.decode(metadata.getUserMetaDataOf("submittedby"),
+                                Charset.forName("UTF-8"))));
+
+        return formReference;
+
     }
 
     private List<CaseDetail.FormReference> setFormReferences(Map<String, List<ObjectMetadata>> byProcessDefinitionIds,
@@ -135,21 +178,7 @@ public class CasesApplicationService {
 
         List<CaseDetail.FormReference> references = new ArrayList<>();
         List<ObjectMetadata> metadataByProcessDefinition = byProcessDefinitionIds.get(processDefinitionId);
-
-        references.addAll(metadataByProcessDefinition.stream().map(metadata -> {
-            CaseDetail.FormReference formReference = new CaseDetail.FormReference();
-            formReference.setVersionId(metadata.getUserMetaDataOf("formversionid"));
-            formReference.setName(metadata.getUserMetaDataOf("name"));
-            formReference.setTitle(metadata.getUserMetaDataOf("title"));
-            formReference.setDataPath(metadata.getUserMetaDataOf("key"));
-            formReference.setSubmissionDate(metadata.getUserMetaDataOf("submissiondate"));
-            if (metadata.getUserMetaDataOf("submittedby") != null) {
-                formReference.setSubmittedBy(URLDecoder.decode(metadata.getUserMetaDataOf("submittedby"),
-                        Charset.forName("UTF-8")));
-            }
-            return formReference;
-        }).collect(Collectors.toList()));
-
+        references.addAll(metadataByProcessDefinition.stream().map(this::toFormReference).collect(toList()));
         return references;
     }
 
