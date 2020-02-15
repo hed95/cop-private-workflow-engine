@@ -51,6 +51,7 @@ public class CasesApplicationService {
     /**
      * Query for cases that match a key. Each case is a collection of process instance pointers. No internal data
      * is returned.
+     *
      * @param businessKeyQuery
      * @param pageable
      * @param platformUser
@@ -141,13 +142,19 @@ public class CasesApplicationService {
         reference.setKey(historicProcessInstance.getProcessDefinitionKey());
         reference.setStartDate(historicProcessInstance.getStartTime());
         reference.setEndDate(historicProcessInstance.getEndTime());
-        reference.setFormReferences(setFormReferences(byProcessDefinitionIds,
-                historicProcessInstance.getProcessDefinitionId()));
+
+        List<ObjectMetadata> metadataByProcessDefinition = byProcessDefinitionIds.get(historicProcessInstance.getProcessDefinitionId());
+        if (metadataByProcessDefinition != null) {
+            reference.setFormReferences(
+                    metadataByProcessDefinition.stream().map(this::toFormReference).collect(toList())
+            );
+        }
         return reference;
     }
 
     /**
      * Actions that can be performed on a case. Ideally this will be derived from a DMN
+     *
      * @param caseDetail
      * @param platformUser
      * @return list of actions that can be performed on the case
@@ -157,8 +164,8 @@ public class CasesApplicationService {
     }
 
 
-    private CaseDetail.FormReference toFormReference(ObjectMetadata metadata) {
-        CaseDetail.FormReference formReference = new CaseDetail.FormReference();
+    private CaseDetail.FormReference toFormReference(final ObjectMetadata metadata) {
+        final CaseDetail.FormReference formReference = new CaseDetail.FormReference();
         formReference.setVersionId(metadata.getUserMetaDataOf("formversionid"));
         formReference.setName(metadata.getUserMetaDataOf("name"));
         formReference.setTitle(metadata.getUserMetaDataOf("title"));
@@ -173,14 +180,6 @@ public class CasesApplicationService {
 
     }
 
-    private List<CaseDetail.FormReference> setFormReferences(Map<String, List<ObjectMetadata>> byProcessDefinitionIds,
-                                                             String processDefinitionId) {
-
-        List<CaseDetail.FormReference> references = new ArrayList<>();
-        List<ObjectMetadata> metadataByProcessDefinition = byProcessDefinitionIds.get(processDefinitionId);
-        references.addAll(metadataByProcessDefinition.stream().map(this::toFormReference).collect(toList()));
-        return references;
-    }
 
     @AuditableCaseEvent
     @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
