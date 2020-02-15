@@ -82,9 +82,6 @@ public class CasesApplicationService {
     public CaseDetail getByKey(String businessKey, PlatformUser platformUser) {
 
         log.info("Beginning case detail fetch");
-        StopWatch stopWatch = new StopWatch();
-
-        stopWatch.start();
         CaseDetail caseDetail = new CaseDetail();
         caseDetail.setBusinessKey(businessKey);
 
@@ -128,12 +125,6 @@ public class CasesApplicationService {
                 }).collect(Collectors.toList());
 
         caseDetail.setProcessInstances(instanceReferences);
-
-        stopWatch.stop();
-
-        log.info("Total time taken to get case details for '{}' was '{}' seconds", businessKey,
-                stopWatch.getTotalTimeSeconds());
-
 
         log.info("Returning case details to '{}' with business key '{}'", platformUser.getEmail(), businessKey);
         return caseDetail;
