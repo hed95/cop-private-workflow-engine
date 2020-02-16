@@ -72,7 +72,7 @@ public class CasesApplicationService {
         Map<String, List<HistoricProcessInstance>> groupedByBusinessKey = historicProcessInstances
                 .stream().collect(Collectors.groupingBy(HistoricProcessInstance::getBusinessKey));
 
-        List<Case> cases = groupedByBusinessKey.keySet().stream().map((key) -> {
+        List<Case> cases = groupedByBusinessKey.keySet().stream().map(key -> {
             Case caseDto = new Case();
             caseDto.setBusinessKey(key);
             List<HistoricProcessInstance> instances = groupedByBusinessKey.get(key);
@@ -184,7 +184,6 @@ public class CasesApplicationService {
     @AuditableCaseEvent
     @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
     public SpinJsonNode getSubmissionData(String businessKey, String submissionDataKey, PlatformUser platformUser) {
-
         S3Object object = amazonS3Client.getObject(awsConfig.getCaseBucketName(), submissionDataKey);
         try {
             String asJsonString = IOUtils.toString(object.getObjectContent(), "UTF-8");
