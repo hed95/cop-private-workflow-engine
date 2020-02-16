@@ -28,7 +28,7 @@ public class CaseApiController {
 
     @GetMapping
     public PagedResources<Case> getCases(Pageable pageable,
-                                         @RequestParam String businessKeyQuery,
+                                         @RequestParam("businessKeyQuery") String businessKeyQuery,
                                          PlatformUser platformUser) {
 
         Page<Case> cases = casesApplicationService.queryByKey(businessKeyQuery, pageable, platformUser);
