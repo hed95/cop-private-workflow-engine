@@ -45,6 +45,7 @@ public class CasesApplicationService {
     private HistoryService historyService;
     private AmazonS3 amazonS3Client;
     private AWSConfig awsConfig;
+    private CaseActionService caseActionService;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
@@ -127,7 +128,7 @@ public class CasesApplicationService {
 
         caseDetail.setProcessInstances(instanceReferences);
 
-        caseDetail.setActions(availableActions(caseDetail, platformUser));
+        caseDetail.setActions(caseActionService.getAvailableActions(caseDetail, platformUser));
 
         log.info("Returning case details to '{}' with business key '{}'", platformUser.getEmail(), businessKey);
         return caseDetail;
@@ -152,16 +153,7 @@ public class CasesApplicationService {
         return reference;
     }
 
-    /**
-     * Actions that can be performed on a case. Ideally this will be derived from a DMN
-     *
-     * @param caseDetail
-     * @param platformUser
-     * @return list of actions that can be performed on the case
-     */
-    private List<CaseDetail.Action> availableActions(CaseDetail caseDetail, PlatformUser platformUser) {
-        return new ArrayList<>();
-    }
+
 
 
     private CaseDetail.FormReference toFormReference(final ObjectMetadata metadata) {

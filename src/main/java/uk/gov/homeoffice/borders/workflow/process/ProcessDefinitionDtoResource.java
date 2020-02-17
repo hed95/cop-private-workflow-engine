@@ -10,7 +10,7 @@ import org.springframework.hateoas.core.Relation;
 @Data
 @Relation(collectionRelation = "process-definitions")
 @EqualsAndHashCode(callSuper = false)
-class ProcessDefinitionDtoResource extends ResourceSupport {
+public class ProcessDefinitionDtoResource extends ResourceSupport {
 
     @JsonProperty("process-definition")
     private ProcessDefinitionDto processDefinitionDto;

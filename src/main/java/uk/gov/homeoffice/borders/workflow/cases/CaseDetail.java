@@ -2,6 +2,8 @@ package uk.gov.homeoffice.borders.workflow.cases;
 
 
 import lombok.Data;
+import org.camunda.bpm.engine.history.HistoricActivityInstance;
+import uk.gov.homeoffice.borders.workflow.process.ProcessDefinitionDtoResource;
 
 import java.util.*;
 
@@ -15,10 +17,13 @@ public class CaseDetail {
 
     @Data
     public static class Action {
-        private String id;
-        private String name;
-        private String url;
+        private ProcessDefinitionDtoResource process;
+        private String completionMessage;
         private Map<String, Object> extensionData = new HashMap<>();
+
+        public void addExtensionData(String name, Object value) {
+            this.extensionData.put(name, value);
+        }
     }
 
     @Data
@@ -30,6 +35,7 @@ public class CaseDetail {
         private List<FormReference> formReferences;
         private Date startDate;
         private Date endDate;
+        private List<HistoricActivityInstance> openTasks = new ArrayList<>();
     }
 
     @Data
