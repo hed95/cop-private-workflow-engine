@@ -38,6 +38,31 @@ class CaseApiControllerSpec extends BaseSpec {
         }
     }
 
+    def 'can query cases'() {
+        given:
+        def user = logInUser()
+        def processStartDto = new ProcessStartDto()
+        processStartDto.processKey = 'encryption'
+        processStartDto.variableName = 'collectionOfData'
+        processStartDto.setBusinessKey('BF-20200120-555')
+        def data = new Data()
+        data.candidateGroup = "teamA"
+        data.name = "test 0"
+        data.description = "test 0"
+        processStartDto.data = [data]
+        processStartDto
+
+        and:
+        applicationService.createInstance(processStartDto, user)._1()
+
+        when:
+        def result = mvc.perform(get("/api/workflow/cases?businessKeyQuery=BF-20200120%"))
+
+        then:
+        result.andReturn().response.contentAsString != ''
+
+
+    }
 
     def 'can get submission data for form'() {
         given:

@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 import uk.gov.homeoffice.borders.workflow.exception.ForbiddenException;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
@@ -20,8 +21,8 @@ public class CaseAuditAspect {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
-    @Around("@annotation(auditableCaseEvent)")
-    public Object audit(ProceedingJoinPoint joinPoint, AuditableCaseEvent auditableCaseEvent) throws Throwable {
+    @Around("@annotation(AuditableCaseEvent)")
+    public Object audit(ProceedingJoinPoint joinPoint) throws Throwable {
 
         Object[] args = Arrays.stream(joinPoint.getArgs()).filter( arg -> !(arg instanceof PlatformUser)).toArray();
 
@@ -34,9 +35,16 @@ public class CaseAuditAspect {
                 args,
                 platformUser,
                 joinPoint.getSignature().toShortString());
+        StopWatch stopWatch = new StopWatch();
         try {
+            stopWatch.start();
             return joinPoint.proceed();
         } finally {
+            stopWatch.stop();
+            log.info("Total time taken for '{}' was '{}' seconds",
+                    joinPoint.getSignature().toShortString(),
+                    stopWatch.getTotalTimeSeconds());
+
             applicationEventPublisher.publishEvent(caseAudit);
         }
     }
