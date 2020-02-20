@@ -33,25 +33,25 @@ public class WebHookController {
     @PostMapping(value = "/{businessKey}/message/{messageKey}", consumes = "application/json")
     @ApiOperation(value = "Web hook notification endpoint. Converts payload into a Spin object for Camunda",
             httpMethod = "POST")
-    public void handleMessage(@PathVariable
-                              @ApiParam(required = true,
-                                      name = "businessKey",
-                                      value = "Unique reference for a given process instance." +
-                                              "Note the businessKey is not the same as the process instance id")
-                                      String businessKey,
-                              @PathVariable
-                              @ApiParam(required = true,
-                                      value = "The message that is defined in the process definition",
-                                      name = "messageKey") String messageKey,
-                              @RequestParam()
-                              @ApiParam(required = true,
-                                      value = "Variable name that is required by Camunda." +
-                                              " The payload is wrapped with the variable name",
-                                      name = "variableName") String variableName,
-                              @RequestBody @NotEmpty()
-                              @ApiParam(required = true,
-                                      name = "payload",
-                                      value = "The event as JSON string") String payload) {
+    public void handleBusinessKeyMessage(@PathVariable
+                                         @ApiParam(required = true,
+                                                 name = "businessKey",
+                                                 value = "Unique reference for a given process instance." +
+                                                         "Note the businessKey is not the same as the process instance id")
+                                                 String businessKey,
+                                         @PathVariable
+                                         @ApiParam(required = true,
+                                                 value = "The message that is defined in the process definition",
+                                                 name = "messageKey") String messageKey,
+                                         @RequestParam()
+                                         @ApiParam(required = true,
+                                                 value = "Variable name that is required by Camunda." +
+                                                         " The payload is wrapped with the variable name",
+                                                 name = "variableName") String variableName,
+                                         @RequestBody @NotEmpty()
+                                         @ApiParam(required = true,
+                                                 name = "payload",
+                                                 value = "The event as JSON string") String payload) {
 
         log.info("Received web-hook message notification for '{}' and message key '{}'", businessKey, messageKey);
 
@@ -63,14 +63,54 @@ public class WebHookController {
             throw new ResourceNotFound(format("Process instance with business key '%s' does not exist", businessKey));
         }
 
-        Map<String, Object> variables = Collections.singletonMap(variableName, S(payload, formatter));
+        correlate(processInstance, messageKey, Collections.singletonMap(variableName, S(payload, formatter)));
+    }
 
+    @PostMapping(value = "/processInstance/{processInstanceId}/message/{messageKey}", consumes = "application/json")
+    @ApiOperation(value = "Web hook notification endpoint. Converts payload into a Spin object for Camunda",
+            httpMethod = "POST")
+    public void handleProcessInstanceMessage(@PathVariable
+                                             @ApiParam(required = true,
+                                                     name = "processInstanceId",
+                                                     value = "Unique reference for a given process instance." +
+                                                             "Note the businessKey is not the same as the process instance id")
+                                                     String processInstanceId,
+                                             @PathVariable
+                                             @ApiParam(required = true,
+                                                     value = "The message that is defined in the process definition",
+                                                     name = "messageKey") String messageKey,
+                                             @RequestParam()
+                                             @ApiParam(required = true,
+                                                     value = "Variable name that is required by Camunda." +
+                                                             " The payload is wrapped with the variable name",
+                                                     name = "variableName") String variableName,
+                                             @RequestBody @NotEmpty()
+                                             @ApiParam(required = true,
+                                                     name = "payload",
+                                                     value = "The event as JSON string") String payload) {
+
+        log.info("Received web-hook message notification for '{}' and message key '{}'", processInstanceId, messageKey);
+
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+
+        if (processInstance == null) {
+            throw new ResourceNotFound(format("Process instance with processInstanceId id '%s' does not exist", processInstanceId));
+        }
+
+        correlate(processInstance, messageKey, Collections.singletonMap(variableName, S(payload, formatter)));
+
+    }
+
+
+    private void correlate(ProcessInstance processInstance, String messageKey, Map<String, Object> variables) {
         MessageCorrelationResult result = runtimeService
                 .createMessageCorrelation(messageKey)
                 .processInstanceId(processInstance.getProcessInstanceId())
                 .setVariables(variables).correlateWithResult();
-        log.info("Performed web-hook message correlation for {} with key and result {}", businessKey, messageKey,
+        log.info("Performed web-hook message correlation for {} with key and result {}", processInstance.getId(), messageKey,
                 result.getResultType());
-    }
 
+    }
 }

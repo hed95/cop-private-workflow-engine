@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.cases;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.DecisionService;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -23,6 +24,12 @@ public class CaseActionService {
     private FormService formService;
 
     public List<CaseDetail.Action> getAvailableActions(CaseDetail caseDetail, PlatformUser platformUser) {
+
+        return Lists.newArrayList(defaultPdfAction(caseDetail, platformUser));
+    }
+
+
+    private CaseDetail.Action defaultPdfAction(CaseDetail caseDetail, PlatformUser platformUser) {
         CaseDetail.Action pdf = new CaseDetail.Action();
         pdf.setCompletionMessage("Your pdf will be sent to your email.");
 
@@ -42,6 +49,6 @@ public class CaseActionService {
 
         dtoResource.setProcessDefinitionDto(ProcessDefinitionDto.fromProcessDefinition(processDefinition));
         pdf.setProcess(dtoResource);
-        return Lists.newArrayList(pdf);
+        return pdf;
     }
 }
