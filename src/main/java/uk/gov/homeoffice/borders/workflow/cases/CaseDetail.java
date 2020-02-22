@@ -53,9 +53,9 @@ public class CaseDetail {
     public static class CaseMetrics {
         private Long noOfRunningProcessInstances;
         private Long noOfCompletedProcessInstances;
-        private Long overallTimeInMillis;
+        private Long overallTimeInSeconds;
         private Long noOfCompletedUserTasks;
         private Long noOfOpenUserTasks;
-        private Long averageTimeToCompleteProcessInMillis;
+        private Long averageTimeToCompleteProcessInSeconds;
     }
 }

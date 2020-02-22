@@ -182,22 +182,22 @@ public class CasesApplicationService {
         metrics.setNoOfCompletedUserTasks(totalCompletedUserTasks);
 
 
-        long overallTimeInMillis = completedProcessInstances.stream()
+        long overallTimeInSeconds = completedProcessInstances.stream()
                 .map(p -> {
                     long difference = Duration.between(p.getStartDate().toInstant(),
-                            p.getEndDate().toInstant()).toMillis();
+                            p.getEndDate().toInstant()).toSeconds();
                     return Math.abs(difference);
                 })
                 .mapToLong(Long::longValue).sum();
 
-        metrics.setOverallTimeInMillis(overallTimeInMillis);
+        metrics.setOverallTimeInSeconds(overallTimeInSeconds);
 
-        if (overallTimeInMillis != 0) {
-            long averageTimeForCompletedInstances = overallTimeInMillis /
+        if (overallTimeInSeconds != 0) {
+            long averageTimeForCompletedInstances = overallTimeInSeconds /
                     metrics.getNoOfCompletedProcessInstances();
-            metrics.setAverageTimeToCompleteProcessInMillis(averageTimeForCompletedInstances);
+            metrics.setAverageTimeToCompleteProcessInSeconds(averageTimeForCompletedInstances);
         } else {
-            metrics.setAverageTimeToCompleteProcessInMillis(0L);
+            metrics.setAverageTimeToCompleteProcessInSeconds(0L);
         }
 
         return metrics;
