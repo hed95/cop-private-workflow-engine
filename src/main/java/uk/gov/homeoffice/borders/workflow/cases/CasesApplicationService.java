@@ -196,6 +196,8 @@ public class CasesApplicationService {
             long averageTimeForCompletedInstances = overallTimeInMillis /
                     metrics.getNoOfCompletedProcessInstances();
             metrics.setAverageTimeToCompleteProcessInMillis(averageTimeForCompletedInstances);
+        } else {
+            metrics.setAverageTimeToCompleteProcessInMillis(0L);
         }
 
         return metrics;
