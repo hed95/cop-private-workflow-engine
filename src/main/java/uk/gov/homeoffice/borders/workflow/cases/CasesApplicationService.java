@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
@@ -28,11 +29,13 @@ import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -130,9 +133,74 @@ public class CasesApplicationService {
 
         caseDetail.setActions(caseActionService.getAvailableActions(caseDetail, platformUser));
 
+        try {
+            CaseDetail.CaseMetrics metrics = createMetrics(caseDetail);
+            caseDetail.setMetrics(metrics);
+        } catch (Exception e) {
+            log.error("Failed to build metrics", e);
+        }
+
         log.info("Returning case details to '{}' with business key '{}'", platformUser.getEmail(), businessKey);
         return caseDetail;
     }
+
+    private CaseDetail.CaseMetrics createMetrics(CaseDetail caseDetail) {
+
+        CaseDetail.CaseMetrics metrics = new CaseDetail.CaseMetrics();
+
+        List<CaseDetail.ProcessInstanceReference> completedProcessInstances = caseDetail.getProcessInstances().stream()
+                .filter(p -> p.getEndDate() != null).collect(toList());
+
+        metrics.setNoOfCompletedProcessInstances((long) completedProcessInstances.size());
+
+        metrics.setNoOfRunningProcessInstances(caseDetail.getProcessInstances().stream()
+                .filter(p -> p.getEndDate() == null).count());
+
+
+        List<String> processInstanceIds = caseDetail.getProcessInstances()
+                .stream()
+                .map(CaseDetail.ProcessInstanceReference::getId).collect(toList());
+
+        Long totalOpenUserTasks = processInstanceIds
+                .stream().map(id -> historyService
+                        .createHistoricActivityInstanceQuery()
+                        .processInstanceId(id)
+                        .activityType(ActivityTypes.TASK_USER_TASK)
+                        .unfinished()
+                        .count()).mapToLong(Long::longValue).sum();
+
+        metrics.setNoOfOpenUserTasks(totalOpenUserTasks);
+
+        Long totalCompletedUserTasks = processInstanceIds
+                .stream().map(id -> historyService
+                        .createHistoricActivityInstanceQuery()
+                        .processInstanceId(id)
+                        .activityType(ActivityTypes.TASK_USER_TASK)
+                        .finished()
+                        .count()).mapToLong(Long::longValue).sum();
+
+        metrics.setNoOfCompletedUserTasks(totalCompletedUserTasks);
+
+
+        long overallTimeInMillis = completedProcessInstances.stream()
+                .map(p -> {
+                    long difference = Duration.between(p.getStartDate().toInstant(),
+                            p.getEndDate().toInstant()).toMillis();
+                    return Math.abs(difference);
+                })
+                .mapToLong(Long::longValue).sum();
+
+        metrics.setOverallTimeInMillis(overallTimeInMillis);
+
+        if (overallTimeInMillis != 0) {
+            long averageTimeForCompletedInstances = overallTimeInMillis /
+                    metrics.getNoOfCompletedProcessInstances();
+            metrics.setAverageTimeToCompleteProcessInMillis(averageTimeForCompletedInstances);
+        }
+
+        return metrics;
+    }
+
 
     private CaseDetail.ProcessInstanceReference toCaseReference(Map<String, List<ObjectMetadata>> byProcessDefinitionIds,
                                                                 HistoricProcessInstance historicProcessInstance) {
@@ -152,8 +220,6 @@ public class CasesApplicationService {
         }
         return reference;
     }
-
-
 
 
     private CaseDetail.FormReference toFormReference(final ObjectMetadata metadata) {

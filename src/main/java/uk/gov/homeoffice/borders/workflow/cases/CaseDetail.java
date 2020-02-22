@@ -13,6 +13,7 @@ public class CaseDetail {
     private String businessKey;
     private List<ProcessInstanceReference> processInstances = new ArrayList<>();
     private List<Action> actions = new ArrayList<>();
+    private CaseMetrics metrics;
 
 
     @Data
@@ -46,5 +47,15 @@ public class CaseDetail {
         private String dataPath;
         private String submissionDate;
         private String submittedBy;
+    }
+
+    @Data
+    public static class CaseMetrics {
+        private Long noOfRunningProcessInstances;
+        private Long noOfCompletedProcessInstances;
+        private Long overallTimeInMillis;
+        private Long noOfCompletedUserTasks;
+        private Long noOfOpenUserTasks;
+        private Long averageTimeToCompleteProcessInMillis;
     }
 }
