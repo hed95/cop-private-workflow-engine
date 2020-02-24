@@ -253,6 +253,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         caseDetails
         caseDetails.getProcessInstances().size() != 0
         caseDetails.getBusinessKey() == 'BF-20200120-555'
+        caseDetails.getActions().size() != 0
         caseDetails.getMetrics() != null
 
         when:

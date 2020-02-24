@@ -131,7 +131,9 @@ public class CasesApplicationService {
         caseDetail.setProcessInstances(instanceReferences);
 
         try {
+            log.info("Adding actions to case details");
             caseDetail.setActions(caseActionService.getAvailableActions(caseDetail, platformUser));
+            log.info("No of actions for case '{}'", caseDetail.getActions().size());
         } catch (Exception e) {
             log.error("Failed to build actions", e);
         }
