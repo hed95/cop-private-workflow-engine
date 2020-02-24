@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -131,7 +130,11 @@ public class CasesApplicationService {
 
         caseDetail.setProcessInstances(instanceReferences);
 
-        caseDetail.setActions(caseActionService.getAvailableActions(caseDetail, platformUser));
+        try {
+            caseDetail.setActions(caseActionService.getAvailableActions(caseDetail, platformUser));
+        } catch (Exception e) {
+            log.error("Failed to build actions", e);
+        }
 
         try {
             CaseDetail.CaseMetrics metrics = createMetrics(caseDetail);
