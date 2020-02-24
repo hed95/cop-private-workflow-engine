@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
@@ -28,6 +29,7 @@ import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,7 @@ public class CasesApplicationService {
     private HistoryService historyService;
     private AmazonS3 amazonS3Client;
     private AWSConfig awsConfig;
+    private CaseActionService caseActionService;
 
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
@@ -127,11 +130,82 @@ public class CasesApplicationService {
 
         caseDetail.setProcessInstances(instanceReferences);
 
-        caseDetail.setActions(availableActions(caseDetail, platformUser));
+        try {
+            caseDetail.setActions(caseActionService.getAvailableActions(caseDetail, platformUser));
+        } catch (Exception e) {
+            log.error("Failed to build actions", e);
+        }
+
+        try {
+            CaseDetail.CaseMetrics metrics = createMetrics(caseDetail);
+            caseDetail.setMetrics(metrics);
+        } catch (Exception e) {
+            log.error("Failed to build metrics", e);
+        }
 
         log.info("Returning case details to '{}' with business key '{}'", platformUser.getEmail(), businessKey);
         return caseDetail;
     }
+
+    private CaseDetail.CaseMetrics createMetrics(CaseDetail caseDetail) {
+
+        CaseDetail.CaseMetrics metrics = new CaseDetail.CaseMetrics();
+
+        List<CaseDetail.ProcessInstanceReference> completedProcessInstances = caseDetail.getProcessInstances().stream()
+                .filter(p -> p.getEndDate() != null).collect(toList());
+
+        metrics.setNoOfCompletedProcessInstances((long) completedProcessInstances.size());
+
+        metrics.setNoOfRunningProcessInstances(caseDetail.getProcessInstances().stream()
+                .filter(p -> p.getEndDate() == null).count());
+
+
+        List<String> processInstanceIds = caseDetail.getProcessInstances()
+                .stream()
+                .map(CaseDetail.ProcessInstanceReference::getId).collect(toList());
+
+        Long totalOpenUserTasks = processInstanceIds
+                .stream().map(id -> historyService
+                        .createHistoricActivityInstanceQuery()
+                        .processInstanceId(id)
+                        .activityType(ActivityTypes.TASK_USER_TASK)
+                        .unfinished()
+                        .count()).mapToLong(Long::longValue).sum();
+
+        metrics.setNoOfOpenUserTasks(totalOpenUserTasks);
+
+        Long totalCompletedUserTasks = processInstanceIds
+                .stream().map(id -> historyService
+                        .createHistoricActivityInstanceQuery()
+                        .processInstanceId(id)
+                        .activityType(ActivityTypes.TASK_USER_TASK)
+                        .finished()
+                        .count()).mapToLong(Long::longValue).sum();
+
+        metrics.setNoOfCompletedUserTasks(totalCompletedUserTasks);
+
+
+        long overallTimeInSeconds = completedProcessInstances.stream()
+                .map(p -> {
+                    long difference = Duration.between(p.getStartDate().toInstant(),
+                            p.getEndDate().toInstant()).toSeconds();
+                    return Math.abs(difference);
+                })
+                .mapToLong(Long::longValue).sum();
+
+        metrics.setOverallTimeInSeconds(overallTimeInSeconds);
+
+        if (overallTimeInSeconds != 0) {
+            long averageTimeForCompletedInstances = overallTimeInSeconds /
+                    metrics.getNoOfCompletedProcessInstances();
+            metrics.setAverageTimeToCompleteProcessInSeconds(averageTimeForCompletedInstances);
+        } else {
+            metrics.setAverageTimeToCompleteProcessInSeconds(0L);
+        }
+
+        return metrics;
+    }
+
 
     private CaseDetail.ProcessInstanceReference toCaseReference(Map<String, List<ObjectMetadata>> byProcessDefinitionIds,
                                                                 HistoricProcessInstance historicProcessInstance) {
@@ -150,17 +224,6 @@ public class CasesApplicationService {
             );
         }
         return reference;
-    }
-
-    /**
-     * Actions that can be performed on a case. Ideally this will be derived from a DMN
-     *
-     * @param caseDetail
-     * @param platformUser
-     * @return list of actions that can be performed on the case
-     */
-    private List<CaseDetail.Action> availableActions(CaseDetail caseDetail, PlatformUser platformUser) {
-        return new ArrayList<>();
     }
 
 

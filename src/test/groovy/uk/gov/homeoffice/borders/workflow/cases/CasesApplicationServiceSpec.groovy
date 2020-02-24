@@ -194,12 +194,15 @@ class CasesApplicationServiceSpec extends BaseSpec {
         def data = new Data()
         data.candidateGroup = "teamA"
         data.name = "test 0"
+        data.assignee ="test"
         data.description = "test 0"
         processStartDto.data = [data]
         processStartDto
 
         and:
-        def processInstance = applicationService.createInstance(processStartDto, user)._1()
+        def result = applicationService.createInstance(processStartDto, user)
+        def task = result._2().first()
+        def processInstance = result._1()
         def definition = processInstance.getProcessDefinitionId()
 
         ObjectMetadata metadata = new ObjectMetadata()
@@ -240,6 +243,9 @@ class CasesApplicationServiceSpec extends BaseSpec {
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 
+        taskService.complete(task.id)
+        runtimeService.createMessageCorrelation('waiting').processInstanceId(processInstance.id).correlate()
+
         when:
         def caseDetails = service.getByKey('BF-20200120-555', user)
 
@@ -247,6 +253,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         caseDetails
         caseDetails.getProcessInstances().size() != 0
         caseDetails.getBusinessKey() == 'BF-20200120-555'
+        caseDetails.getMetrics() != null
 
         when:
         SpinJsonNode submissionData = service

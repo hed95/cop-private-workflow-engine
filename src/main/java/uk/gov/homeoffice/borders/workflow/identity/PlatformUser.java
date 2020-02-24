@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.identity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -65,6 +66,7 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
     }
 
     @Override
+    @JsonIgnore
     public String getPassword() {
         throw new UnsupportedOperationException("Not supported in this implementation");
     }

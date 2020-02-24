@@ -127,9 +127,9 @@ class CaseApiControllerSpec extends BaseSpec {
 
         then:
         result.andExpect(status().is2xxSuccessful())
-        def caseDetail = Spin.JSON(result.andReturn().response.contentAsString).mapTo(CaseDetail.class)
+        def caseDetail = Spin.JSON(result.andReturn().response.contentAsString);
 
-        caseDetail.getBusinessKey() == "BF-20200120-555"
+        caseDetail.prop('businessKey').stringValue() == "BF-20200120-555"
 
         when:
         def submissionData = mvc.perform(get("/api/workflow/cases/BF-20200120-555/submission?key=BF-20200120-555/journeyEaB/20120101-xx@x.com.json"))
