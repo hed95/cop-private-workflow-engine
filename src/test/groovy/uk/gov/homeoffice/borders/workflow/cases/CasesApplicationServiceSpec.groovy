@@ -190,7 +190,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         def processStartDto = new ProcessStartDto()
         processStartDto.processKey = 'encryption'
         processStartDto.variableName = 'collectionOfData'
-        processStartDto.setBusinessKey('BF-20200120-555')
+        processStartDto.setBusinessKey('BF-20200120-000')
         def data = new Data()
         data.candidateGroup = "teamA"
         data.name = "test 0"
@@ -208,38 +208,42 @@ class CasesApplicationServiceSpec extends BaseSpec {
         ObjectMetadata metadata = new ObjectMetadata()
         metadata.addUserMetadata('name', 'formNameA')
         metadata.addUserMetadata('title', 'formNameA')
-        metadata.addUserMetadata('formVersionId', 'formNameA')
-        metadata.addUserMetadata('processDefinitionId', definition)
+        metadata.addUserMetadata('formversionid', 'formNameA')
+        metadata.addUserMetadata('processdefinitionid', definition)
+        metadata.addUserMetadata('processinstanceid', processInstance.id)
 
-        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/eventAtBorder/20120101-xx@x.com.json",
+        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-000/eventAtBorder/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 
         metadata = new ObjectMetadata()
         metadata.addUserMetadata('name', 'formNameB')
         metadata.addUserMetadata('title', 'formNameB')
-        metadata.addUserMetadata('formVersionId', 'formNameB')
-        metadata.addUserMetadata('processDefinitionId', definition)
+        metadata.addUserMetadata('formversionid', 'formNameB')
+        metadata.addUserMetadata('processdefinitionid', definition)
+        metadata.addUserMetadata('processinstanceid', processInstance.id)
 
-        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/peopleEaB/20120101-xx@x.com.json",
+        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-000/peopleEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 
         metadata = new ObjectMetadata()
         metadata.addUserMetadata('name', 'formNameC')
         metadata.addUserMetadata('title', 'formNameC')
-        metadata.addUserMetadata('formVersionId', 'formNameC')
-        metadata.addUserMetadata('processDefinitionId', definition)
-        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/itemsEaB/20120101-xx@x.com.json",
+        metadata.addUserMetadata('formversionid', 'formNameC')
+        metadata.addUserMetadata('processdefinitionid', definition)
+        metadata.addUserMetadata('processinstanceid', 'processinstanceidB')
+        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-000/itemsEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 
         metadata = new ObjectMetadata()
         metadata.addUserMetadata('name', 'formNameD')
         metadata.addUserMetadata('title', 'formNameD')
-        metadata.addUserMetadata('formVersionId', 'formNameD')
-        metadata.addUserMetadata('processDefinitionId', definition)
-        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/journeyEaB/20120101-xx@x.com.json",
+        metadata.addUserMetadata('formversionid', 'formNameD')
+        metadata.addUserMetadata('processdefinitionid', definition)
+        metadata.addUserMetadata('processinstanceid', 'processinstanceidB')
+        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-000/journeyEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 
@@ -247,18 +251,19 @@ class CasesApplicationServiceSpec extends BaseSpec {
         runtimeService.createMessageCorrelation('waiting').processInstanceId(processInstance.id).correlate()
 
         when:
-        def caseDetails = service.getByKey('BF-20200120-555', user)
+        def caseDetails = service.getByKey('BF-20200120-000', user)
 
         then:
         caseDetails
         caseDetails.getProcessInstances().size() != 0
-        caseDetails.getBusinessKey() == 'BF-20200120-555'
+        caseDetails.getProcessInstances().first().getFormReferences().size() == 2
+        caseDetails.getBusinessKey() == 'BF-20200120-000'
         caseDetails.getActions().size() != 0
         caseDetails.getMetrics() != null
 
         when:
         SpinJsonNode submissionData = service
-                .getSubmissionData('BF-20200120-555', "BF-20200120-555/journeyEaB/20120101-xx@x.com.json", user)
+                .getSubmissionData('BF-20200120-000', "BF-20200120-000/journeyEaB/20120101-xx@x.com.json", user)
 
         then:
         def asSpin = Spin.JSON(IOUtils.toString(new ClassPathResource("data.json").getInputStream(), "UTF-8"))
