@@ -25,11 +25,11 @@ public class TaskDtoResource extends ResourceSupport {
 
     @JsonProperty("task")
     private TaskDto taskDto;
-    @JsonProperty("candidateGroups")
     private List<String> candidateGroups;
     private Map<String, VariableValueDto> variables;
     @JsonProperty("process-definition")
     private ProcessDefinitionDto processDefinition;
     private Map<String,String> extensionData = new HashMap<>();
+    private String businessKey;
 
 }

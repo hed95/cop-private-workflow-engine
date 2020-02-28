@@ -84,6 +84,7 @@ public class TaskApplicationService {
         if (pageable.getSort() != null) {
             taskSortExecutor.applySort(taskQuery, pageable.getSort());
         }
+
         List<Task> tasks = taskQuery
                 .listPage(PAGE_HELPER.calculatePageNumber(pageable), pageable.getPageSize());
         return new PageImpl<>(tasks, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
