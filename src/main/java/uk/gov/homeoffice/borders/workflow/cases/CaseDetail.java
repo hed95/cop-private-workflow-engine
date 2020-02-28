@@ -33,7 +33,7 @@ public class CaseDetail {
         private String key;
         private String name;
         private String definitionId;
-        private List<FormReference> formReferences;
+        private List<FormReference> formReferences = new ArrayList<>();
         private Date startDate;
         private Date endDate;
         private List<HistoricActivityInstance> openTasks = new ArrayList<>();

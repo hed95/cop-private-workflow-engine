@@ -76,12 +76,15 @@ class CaseApiControllerSpec extends BaseSpec {
         def data = new Data()
         data.candidateGroup = "teamA"
         data.name = "test 0"
+        data.assignee ="test"
         data.description = "test 0"
         processStartDto.data = [data]
         processStartDto
 
         and:
-        def processInstance = applicationService.createInstance(processStartDto, user)._1()
+        def response = applicationService.createInstance(processStartDto, user)
+        def task = response._2().first()
+        def processInstance = response._1()
         def definition = processInstance.getProcessDefinitionId()
 
         ObjectMetadata metadata = new ObjectMetadata()
@@ -89,6 +92,7 @@ class CaseApiControllerSpec extends BaseSpec {
         metadata.addUserMetadata('title', 'formNameA')
         metadata.addUserMetadata('formversionid', 'formNameA')
         metadata.addUserMetadata('processdefinitionid', definition)
+        metadata.addUserMetadata('processinstanceid', processInstance.id)
 
         amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/eventAtBorder/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
@@ -99,6 +103,7 @@ class CaseApiControllerSpec extends BaseSpec {
         metadata.addUserMetadata('title', 'formNameB')
         metadata.addUserMetadata('formversionid', 'formNameB')
         metadata.addUserMetadata('processdefinitionid', definition)
+        metadata.addUserMetadata('processinstanceid', processInstance.id)
 
         amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/peopleEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
@@ -109,6 +114,7 @@ class CaseApiControllerSpec extends BaseSpec {
         metadata.addUserMetadata('title', 'formNameC')
         metadata.addUserMetadata('formversionid', 'formNameC')
         metadata.addUserMetadata('processdefinitionid', definition)
+        metadata.addUserMetadata('processinstanceid', 'processinstanceidB')
         amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/itemsEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
@@ -118,6 +124,7 @@ class CaseApiControllerSpec extends BaseSpec {
         metadata.addUserMetadata('title', 'formNameD')
         metadata.addUserMetadata('formversionid', 'formNameD')
         metadata.addUserMetadata('processdefinitionid', definition)
+        metadata.addUserMetadata('processinstanceid', 'processinstanceidB')
         amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-555/journeyEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 

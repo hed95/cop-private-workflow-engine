@@ -114,9 +114,9 @@ public class CasesApplicationService {
         });
 
 
-        Map<String, List<ObjectMetadata>> byProcessDefinitionIds = metadata
+        Map<String, List<ObjectMetadata>> byProcessInstanceId = metadata
                 .stream()
-                .collect(Collectors.groupingBy(meta -> meta.getUserMetaDataOf("processdefinitionid")));
+                .collect(Collectors.groupingBy(meta -> meta.getUserMetaDataOf("processinstanceid")));
 
 
         List<HistoricProcessInstance> processInstances = historyService.createHistoricProcessInstanceQuery()
@@ -125,7 +125,7 @@ public class CasesApplicationService {
         List<CaseDetail.ProcessInstanceReference> instanceReferences = processInstances
                 .stream()
                 .map(historicProcessInstance ->
-                        toCaseReference(byProcessDefinitionIds, historicProcessInstance))
+                        toCaseReference(byProcessInstanceId, historicProcessInstance))
                 .collect(toList());
 
         caseDetail.setProcessInstances(instanceReferences);
@@ -209,7 +209,7 @@ public class CasesApplicationService {
     }
 
 
-    private CaseDetail.ProcessInstanceReference toCaseReference(Map<String, List<ObjectMetadata>> byProcessDefinitionIds,
+    private CaseDetail.ProcessInstanceReference toCaseReference(Map<String, List<ObjectMetadata>> byProcessInstanceId,
                                                                 HistoricProcessInstance historicProcessInstance) {
         CaseDetail.ProcessInstanceReference reference = new CaseDetail.ProcessInstanceReference();
         reference.setId(historicProcessInstance.getId());
@@ -219,7 +219,7 @@ public class CasesApplicationService {
         reference.setStartDate(historicProcessInstance.getStartTime());
         reference.setEndDate(historicProcessInstance.getEndTime());
 
-        List<ObjectMetadata> metadataByProcessDefinition = byProcessDefinitionIds.get(historicProcessInstance.getProcessDefinitionId());
+        List<ObjectMetadata> metadataByProcessDefinition = byProcessInstanceId.get(historicProcessInstance.getId());
         if (metadataByProcessDefinition != null) {
             reference.setFormReferences(
                     metadataByProcessDefinition.stream().map(this::toFormReference).collect(toList())
