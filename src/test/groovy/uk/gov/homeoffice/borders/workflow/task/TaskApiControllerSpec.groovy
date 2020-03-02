@@ -305,7 +305,7 @@ class TaskApiControllerSpec extends BaseSpec {
                 .contentType(MediaType.APPLICATION_JSON))
 
         then:
-        def taskLoaded = result.andReturn().asyncResult
+        TaskDtoResource taskLoaded = result.andReturn().asyncResult
         taskLoaded.taskDto.assignee == user.email
     }
 

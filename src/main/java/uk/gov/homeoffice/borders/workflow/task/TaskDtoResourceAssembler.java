@@ -2,9 +2,11 @@ package uk.gov.homeoffice.borders.workflow.task;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
 import org.camunda.bpm.engine.rest.dto.task.TaskDto;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
@@ -31,6 +33,8 @@ public class TaskDtoResourceAssembler implements ResourceAssembler<Task, TaskDto
     @Autowired
     private ProcessEngineConfigurationImpl processEngineConfiguration;
 
+    @Autowired
+    private RuntimeService runtimeService;
 
     @Override
     public TaskDtoResource toResource(Task task) {
@@ -39,6 +43,14 @@ public class TaskDtoResourceAssembler implements ResourceAssembler<Task, TaskDto
         TaskDto taskDto = TaskDto.fromEntity(entity);
         TaskDtoResource resource = new TaskDtoResource();
         resource.setTaskDto(taskDto);
+
+        if (task.getProcessInstanceId() != null) {
+            ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
+                    .processInstanceId(task.getProcessInstanceId()).singleResult();
+            resource.setBusinessKey(processInstance.getBusinessKey());
+        }
+
+
 
         resource.setExtensionData(ofNullable(entity.getProcessDefinitionId())
                 .map(definition -> extensionFrom(entity))
@@ -66,16 +78,16 @@ public class TaskDtoResourceAssembler implements ResourceAssembler<Task, TaskDto
     }
 
     private Map<String, String> extract(ExtensionElements extensionElements) {
-        final Map<String,String> properties = new HashMap<>();
-         extensionElements.getElementsQuery()
+        final Map<String, String> properties = new HashMap<>();
+        extensionElements.getElementsQuery()
                 .filterByType(CamundaProperties.class)
                 .list().forEach(camundaProperties -> {
-                 Map<String, String> props = camundaProperties.getCamundaProperties().stream()
-                     .collect(Collectors.toMap(CamundaProperty::getCamundaName,
-                             CamundaProperty::getCamundaValue));
+            Map<String, String> props = camundaProperties.getCamundaProperties().stream()
+                    .collect(Collectors.toMap(CamundaProperty::getCamundaName,
+                            CamundaProperty::getCamundaValue));
 
-             properties.putAll(props);
-         });
+            properties.putAll(props);
+        });
         return properties;
 
     }
