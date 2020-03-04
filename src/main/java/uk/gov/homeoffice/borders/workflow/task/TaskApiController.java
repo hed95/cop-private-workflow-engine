@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.rest.dto.VariableValueDto;
 import org.camunda.bpm.engine.rest.dto.repository.ProcessDefinitionDto;
@@ -51,6 +52,7 @@ public class TaskApiController {
     private PagedResourcesAssembler<Task> pagedResourcesAssembler;
     private ObjectMapper objectMapper;
     private ProcessApplicationService processApplicationService;
+    private RepositoryService repositoryService;
 
     @GetMapping
     @ApiOperation("Get all tasks for the current user.")
@@ -91,7 +93,15 @@ public class TaskApiController {
                     .map(VariableValueDto::fromVariableMap)
                     .subscribeOn(Schedulers.elastic());
             return Mono.zip(Arrays.asList(task, identities, variableMap), (Object[] args) -> {
-                TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource((Task) args[0]);
+                Task taskLoaded = (Task) args[0];
+                TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(taskLoaded);
+                if (taskLoaded.getProcessDefinitionId() !=null) {
+                    ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                            .processDefinitionId(taskLoaded.getProcessDefinitionId())
+                            .singleResult();
+                    taskDtoResource.setProcessDefinition(ProcessDefinitionDto.fromProcessDefinition(processDefinition));
+
+                }
                 taskDtoResource.setCandidateGroups((List<String>) args[1]);
                 taskDtoResource.setVariables((Map<String, VariableValueDto>) args[2]);
                 return taskDtoResource;
@@ -101,6 +111,13 @@ public class TaskApiController {
             Task taskFromMono = (Task) args[0];
             TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(taskFromMono);
             taskDtoResource.setCandidateGroups((List<String>) args[1]);
+
+            if (taskFromMono.getProcessDefinitionId() !=null) {
+                ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                        .processDefinitionId(taskFromMono.getProcessDefinitionId())
+                        .singleResult();
+                taskDtoResource.setProcessDefinition(ProcessDefinitionDto.fromProcessDefinition(processDefinition));
+            }
 
             return taskDtoResource;
         }).subscribeOn(Schedulers.elastic()).toFuture();
