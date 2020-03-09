@@ -141,9 +141,9 @@ public class ApplicationConfiguration {
 
             Arrays.stream(corsPaths).forEach(p -> registry.addMapping(p + "/**")
             .allowedOrigins(corsOrigins)
-            .allowedMethods("HEAD", "GET", "POST", "DELETE"));
+            .allowedMethods("HEAD", "GET", "POST", "DELETE", "PUT"));
 
-        
+
         }
     }
 }
