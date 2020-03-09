@@ -65,17 +65,6 @@ pipeline:
     when:
       event: push
 
-  vulnerability-scan:
-    image: quay.io/ukhomeofficedigital/anchore-submission:latest
-    dockerfile: Dockerfile
-    image_name: cop-private-workflow-engine:${DRONE_COMMIT_SHA}
-    local_image: true
-    tolerate: low
-    fail_on_detection: false
-    when:
-      branch: master
-      event: push
-
   image_to_quay:
     image: quay.io/ukhomeofficedigital/drone-docker
     secrets:
@@ -203,6 +192,17 @@ pipeline:
       - kd --insecure-skip-tls-verify -f kube/certs-configmap.yml
       - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
       - kd --insecure-skip-tls-verify -f kube/ingress.yml
+    when:
+      branch: master
+      event: push
+
+  vulnerability-scan:
+    image: quay.io/ukhomeofficedigital/anchore-submission:latest
+    dockerfile: Dockerfile
+    image_name: cop-private-workflow-engine:${DRONE_COMMIT_SHA}
+    local_image: true
+    tolerate: low
+    fail_on_detection: false
     when:
       branch: master
       event: push
