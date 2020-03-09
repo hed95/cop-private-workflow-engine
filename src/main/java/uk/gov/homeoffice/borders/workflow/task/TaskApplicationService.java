@@ -382,6 +382,9 @@ public class TaskApplicationService {
         if (taskDto.getDue() != null && taskDto.getDue() != task.getDueDate()) {
             task.setDueDate(taskDto.getDue());
         }
+        if (taskDto.getPriority() != task.getPriority()) {
+            task.setPriority(taskDto.getPriority());
+        }
         taskService.saveTask(task);
     }
 }
