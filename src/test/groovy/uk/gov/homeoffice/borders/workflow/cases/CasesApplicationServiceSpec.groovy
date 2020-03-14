@@ -178,6 +178,44 @@ class CasesApplicationServiceSpec extends BaseSpec {
 
     }
 
+
+    def 'get case does not return process instance if user is not candidateGroup role'() {
+        given:
+        amazonS3Client.createBucket("events")
+
+        def user = logInUser()
+        user.roles = ['different_role']
+        user.shiftDetails.roles = ['different_role']
+
+        def token = new TestingAuthenticationToken(user, "test")
+        token.setAuthenticated(true)
+        SecurityContextHolder.setContext(new SecurityContextImpl(token))
+
+        def processStartDto = new ProcessStartDto()
+        processStartDto.processKey = 'encryption'
+        processStartDto.variableName = 'collectionOfData'
+        processStartDto.setBusinessKey('BF-20200120-001')
+        def data = new Data()
+        data.candidateGroup = "teamA"
+        data.name = "test 0"
+        data.assignee ="test"
+        data.description = "test 0"
+        processStartDto.data = [data]
+        processStartDto
+
+        and:
+        def result = applicationService.createInstance(processStartDto, user)
+
+
+        when:
+        def caseDetails = service.getByKey('BF-20200120-001', user)
+
+        then:
+        caseDetails
+        caseDetails.getProcessInstances().size() == 0
+
+    }
+
     def 'get case'() {
         given:
         amazonS3Client.createBucket("events")
