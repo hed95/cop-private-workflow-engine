@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.IdentityService;
+import org.camunda.bpm.engine.impl.identity.Authentication;
 import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceWithVariablesDto;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
@@ -17,6 +19,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser.ShiftDetails;
+import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication;
 
 import javax.validation.Valid;
 
@@ -39,6 +42,7 @@ import static java.util.Optional.ofNullable;
 public class ShiftApiController {
 
     private ShiftApplicationService shiftApplicationService;
+    private IdentityService identityService;
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -47,6 +51,10 @@ public class ShiftApiController {
 
         String email = shiftInfo.getEmail();
         log.info("Request to create shift for '{}'", email);
+
+        WorkflowAuthentication currentAuthentication = (WorkflowAuthentication) identityService.getCurrentAuthentication();
+        shiftInfo.setRoles(currentAuthentication.getUser().getRoles());
+
         ProcessInstance shiftInstance = shiftApplicationService.startShift(shiftInfo);
         log.info("Shift created '{}' for '{}'", shiftInstance.getProcessInstanceId(), email);
         UriComponents uriComponents =

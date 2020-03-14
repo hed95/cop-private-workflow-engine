@@ -61,6 +61,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         deleteShift()
 
         when:
+        logInUser()
         def result = mvc.perform(post('/api/workflow/shift')
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(shift))
@@ -121,7 +122,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         def shift = createActiveShift()
         and:
         deleteShift()
-        logInUser()
+
 
         and:
         wireMockStub.stub {
@@ -163,6 +164,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         }
 
         and:
+        logInUser()
         mvc.perform(post('/api/workflow/shift')
                 .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(shift)).header("nginxId", "correlationId"))
 
@@ -297,6 +299,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         deleteShift()
 
         and:
+        logInUser()
         mvc.perform(post('/api/workflow/shift')
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(shift))
@@ -309,6 +312,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         runtimeService.setVariable(instance.processInstanceId, "shiftHistoryId", "xxxxx")
 
         when:
+        logInUser()
         def result = mvc.perform(delete('/api/workflow/shift/testEmail?deletedReason=notNeeded')
                 .header("nginxId", "correlationId"))
 
@@ -424,6 +428,7 @@ class ShiftApiControllerSpec extends BaseSpec {
         user.teams = []
         team.code = 'teamA'
         user.teams << team
+        user.setRoles(['test'])
         identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
         user
     }

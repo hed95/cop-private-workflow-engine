@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
@@ -52,7 +53,7 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
         WorkflowAuthentication workflowAuthentication = serviceRole.map(role -> {
             log.debug("Service account user...'{}'", userId);
             return createServiceRoleAuthentication(userId);
-        }).orElseGet(() -> ofNullable(toUser(userId)).map(WorkflowAuthentication::new).
+        }).orElseGet(() -> ofNullable(toUser(userId, keycloakSecurityContext)).map(WorkflowAuthentication::new).
                 orElse(new WorkflowAuthentication(userId, new ArrayList<>())));
 
         identityService.setAuthentication(workflowAuthentication);
@@ -72,6 +73,7 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
         team.setType(SERVICE_ROLE);
         team.setCode(SERVICE_ROLE);
         platformUser.setTeams(Collections.singletonList(team));
+        platformUser.setRoles(Collections.singletonList(SERVICE_ROLE));
         return new WorkflowAuthentication(platformUser);
     }
 
@@ -81,8 +83,16 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
                 .anyMatch(path -> antPathMatcher.match(path, request.getServletPath()));
     }
 
-    private PlatformUser toUser(String userId) {
-        return (PlatformUser) identityService.createUserQuery().userId(userId).singleResult();
+    private PlatformUser toUser(String userId, KeycloakSecurityContext keycloakSecurityContext) {
+        PlatformUser platformUser = (PlatformUser) identityService.createUserQuery().userId(userId).singleResult();
+        if (platformUser != null) {
+            ArrayList<String> roles = new ArrayList<>(keycloakSecurityContext.getToken().getRealmAccess().getRoles());
+            platformUser.setRoles(roles);
+            if (platformUser.getShiftDetails() != null) {
+                platformUser.getShiftDetails().setRoles(roles);
+            }
+        }
+        return platformUser;
     }
 
     private void configureMDC(final String userId, final HttpServletRequest request) {

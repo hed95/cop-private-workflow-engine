@@ -51,15 +51,6 @@ public class PlatformUser implements org.camunda.bpm.engine.identity.User {
     private String identityId;
     private ShiftDetails shiftDetails;
 
-
-    public boolean isServiceUser() {
-        Optional<Team> serviceRole = this.getTeams()
-                .stream()
-                .filter(t -> t.getCode().equalsIgnoreCase(WorkflowAuthentication.SERVICE_ROLE))
-                .findFirst();
-        return serviceRole.isPresent();
-    }
-
     @Override
     public void setPassword(String password) {
         throw new UnsupportedOperationException("Not supported in this implementation");
