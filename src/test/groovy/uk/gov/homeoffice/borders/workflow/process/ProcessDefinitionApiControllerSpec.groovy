@@ -1,11 +1,13 @@
 package uk.gov.homeoffice.borders.workflow.process
 
+import org.camunda.bpm.engine.authorization.Authorization
+import org.camunda.bpm.engine.authorization.Permissions
+import org.camunda.bpm.engine.authorization.Resources
 import org.springframework.hateoas.PagedResources
 import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 
-import static com.github.tomakehurst.wiremock.http.Response.response
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -15,6 +17,13 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
     def 'can get process definitions from /api/workflow/process-definitions'() {
         given:
         logInUser()
+        Authorization newAuthorization = authorizationService
+                .createNewAuthorization(Authorization.AUTH_TYPE_GRANT)
+        newAuthorization.setGroupId("custom_role")
+        newAuthorization.setResource(Resources.PROCESS_DEFINITION)
+        newAuthorization.setResourceId("candidateGroupsWorkflow")
+        newAuthorization.addPermission(Permissions.ACCESS)
+        authorizationService.saveAuthorization(newAuthorization)
 
         when:
         def result = mvc.perform(get('/api/workflow/process-definitions')
