@@ -85,12 +85,19 @@ public class ProcessEngineIdentityFilter extends OncePerRequestFilter {
 
     private PlatformUser toUser(String userId, KeycloakSecurityContext keycloakSecurityContext) {
         PlatformUser platformUser = (PlatformUser) identityService.createUserQuery().userId(userId).singleResult();
+        ArrayList<String> roles = new ArrayList<>(keycloakSecurityContext.getToken().getRealmAccess().getRoles());
         if (platformUser != null) {
-            ArrayList<String> roles = new ArrayList<>(keycloakSecurityContext.getToken().getRealmAccess().getRoles());
             platformUser.setRoles(roles);
             if (platformUser.getShiftDetails() != null) {
                 platformUser.getShiftDetails().setRoles(roles);
             }
+        } else {
+            platformUser = new PlatformUser();
+            platformUser.setEmail(userId);
+            platformUser.setFirstName(keycloakSecurityContext.getToken().getGivenName());
+            platformUser.setLastName(keycloakSecurityContext.getToken().getFamilyName());
+            platformUser.setRoles(roles);
+            platformUser.setTeams(new ArrayList<>());
         }
         return platformUser;
     }
