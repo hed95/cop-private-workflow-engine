@@ -1,11 +1,9 @@
 package uk.gov.homeoffice.borders.workflow.process;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.digitalpatterns.camunda.encryption.ProcessDefinitionEncryptionParser;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableEncryptor;
 import io.vavr.Tuple;
-import io.vavr.Tuple1;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,14 +15,12 @@ import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessInstanceWithVariablesImpl;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.impl.VariableMapImpl;
 import org.camunda.spin.Spin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -84,18 +80,20 @@ public class ProcessApplicationService {
                 .toArray(String[]::new);
 
         log.info("Process definitions based on authorizations {} ", asList(processDefinitionIds));
-
-        List<ProcessDefinition> definitions = repositoryService
-                .createProcessDefinitionQuery()
-                .processDefinitionKeysIn(processDefinitionIds)
-                .latestVersion()
-                .active()
-                .listPage(PAGE_HELPER.calculatePageNumber(pageable), pageable.getPageSize())
-                .stream()
-                .filter((p) -> StringUtils.isNotBlank(p.getName()))
-                .filter(ProcessDefinition::hasStartFormKey)
-                .sorted(Comparator.comparing(ProcessDefinition::getName))
-                .collect(Collectors.toList());
+        List<ProcessDefinition> definitions = new ArrayList<>();
+        if (processDefinitionIds.length != 0) {
+            definitions = repositoryService
+                    .createProcessDefinitionQuery()
+                    .processDefinitionKeysIn(processDefinitionIds)
+                    .latestVersion()
+                    .active()
+                    .listPage(PAGE_HELPER.calculatePageNumber(pageable), pageable.getPageSize())
+                    .stream()
+                    .filter((p) -> StringUtils.isNotBlank(p.getName()))
+                    .filter(ProcessDefinition::hasStartFormKey)
+                    .sorted(Comparator.comparing(ProcessDefinition::getName))
+                    .collect(Collectors.toList());
+        }
 
         return new PageImpl<>(definitions, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), definitions.size());
 
@@ -163,7 +161,7 @@ public class ProcessApplicationService {
 
         if (processInstances != null && !processInstances.isEmpty()) {
 
-            ExecutionEntity subProcessInstance = (ExecutionEntity)processInstances.get(0);
+            ExecutionEntity subProcessInstance = (ExecutionEntity) processInstances.get(0);
             VariableMap variableMap = new VariableMapImpl();
             runtimeService.createVariableInstanceQuery()
                     .processInstanceIdIn(subProcessInstance.getProcessInstanceId())
