@@ -10,11 +10,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
 import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
-import org.camunda.bpm.engine.impl.persistence.entity.IdentityLinkEntity;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.camunda.bpm.engine.authorization.Permissions.ACCESS;
 
@@ -31,48 +27,12 @@ public class ProcessInstanceAuthorizationListener implements ExecutionListener {
             ExpressionManager expressionManager = ((SpringProcessEngineConfiguration)
                     execution.getProcessEngine().getProcessEngineConfiguration()).getExpressionManager();
 
-            List<IdentityLinkEntity> identityLinks =
-                    ((ExecutionEntity) execution).getProcessDefinition().getIdentityLinks()
-                            .stream()
-                            .filter(i -> i.isUser() || i.isGroup()).collect(Collectors.toList());
-
-            if (!identityLinks.isEmpty()) {
-
-                for (IdentityLinkEntity identityLink : identityLinks) {
-                    String group = null;
-                    String user = null;
-                    if (identityLink.isGroup()) {
-                        group = expressionManager
-                                .createExpression(identityLink.getGroupId()).getValue(execution).toString();
-
-                        if (!"".equalsIgnoreCase(group)) {
-                            long authorization = authorizationService.createAuthorizationQuery()
-                                    .resourceType(Resources.PROCESS_INSTANCE)
-                                    .resourceId(execution.getProcessInstanceId())
-                                    .groupIdIn(group)
-                                    .count();
-                            if (authorization == 0) {
-                                Authorization newAuthorization = authorizationService
-                                        .createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
-                                newAuthorization.setResource(Resources.PROCESS_INSTANCE);
-                                newAuthorization.setGroupId(group);
-                                newAuthorization.setResourceId(execution.getProcessInstanceId());
-                                newAuthorization.addPermission(ACCESS);
-                                authorizationService.saveAuthorization(newAuthorization);
-                            }
-                        }
-
-                    }
-                    if (identityLink.isUser()) {
-                        user = expressionManager
-                                .createExpression(identityLink.getUserId()).getValue(execution).toString();
-                        if (!"".equalsIgnoreCase(user)) {
-                            long authorization = authorizationService.createAuthorizationQuery()
-                                    .resourceType(Resources.PROCESS_INSTANCE)
-                                    .resourceId(execution.getProcessInstanceId())
-                                    .userIdIn(user)
-                                    .count();
-                            if (authorization == 0) {
+            ((ExecutionEntity) execution).getProcessDefinition().getCandidateStarterUserIdExpressions()
+                    .forEach(expression -> {
+                        if (!"".equalsIgnoreCase(expression.getExpressionText())) {
+                            String user = expressionManager
+                                    .createExpression(expression.getExpressionText()).getValue(execution).toString();
+                            if (!"".equalsIgnoreCase(user)) {
                                 Authorization newAuthorization = authorizationService
                                         .createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
                                 newAuthorization.setResource(Resources.PROCESS_INSTANCE);
@@ -82,9 +42,26 @@ public class ProcessInstanceAuthorizationListener implements ExecutionListener {
                                 authorizationService.saveAuthorization(newAuthorization);
                             }
                         }
-                    }
-                }
-            }
+                    });
+
+            ((ExecutionEntity) execution).getProcessDefinition().getCandidateStarterGroupIdExpressions()
+                    .forEach(expression -> {
+                        if (!"".equalsIgnoreCase(expression.getExpressionText())) {
+                            String group = expressionManager
+                                    .createExpression(expression.getExpressionText()).getValue(execution).toString();
+                            if (!"".equalsIgnoreCase(group)) {
+                                Authorization newAuthorization = authorizationService
+                                        .createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
+                                newAuthorization.setResource(Resources.PROCESS_INSTANCE);
+                                newAuthorization.setGroupId(group);
+                                newAuthorization.setResourceId(execution.getProcessInstanceId());
+                                newAuthorization.addPermission(ACCESS);
+                                authorizationService.saveAuthorization(newAuthorization);
+                            }
+                        }
+                    });
+
+
         } catch (Exception e) {
             log.error("Failed to generate authorization for process instance", e);
         }
