@@ -45,26 +45,44 @@ public class ProcessInstanceAuthorizationListener implements ExecutionListener {
                         group = expressionManager
                                 .createExpression(identityLink.getGroupId()).getValue(execution).toString();
 
+                        if (!"".equalsIgnoreCase(group)) {
+                            long authorization = authorizationService.createAuthorizationQuery()
+                                    .resourceType(Resources.PROCESS_INSTANCE)
+                                    .resourceId(execution.getProcessInstanceId())
+                                    .groupIdIn(group)
+                                    .count();
+                            if (authorization == 0) {
+                                Authorization newAuthorization = authorizationService
+                                        .createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
+                                newAuthorization.setResource(Resources.PROCESS_INSTANCE);
+                                newAuthorization.setGroupId(group);
+                                newAuthorization.setResourceId(execution.getProcessInstanceId());
+                                newAuthorization.addPermission(ACCESS);
+                                authorizationService.saveAuthorization(newAuthorization);
+                            }
+                        }
+
                     }
                     if (identityLink.isUser()) {
                         user = expressionManager
                                 .createExpression(identityLink.getUserId()).getValue(execution).toString();
+                        if (!"".equalsIgnoreCase(user)) {
+                            long authorization = authorizationService.createAuthorizationQuery()
+                                    .resourceType(Resources.PROCESS_INSTANCE)
+                                    .resourceId(execution.getProcessInstanceId())
+                                    .userIdIn(user)
+                                    .count();
+                            if (authorization == 0) {
+                                Authorization newAuthorization = authorizationService
+                                        .createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
+                                newAuthorization.setResource(Resources.PROCESS_INSTANCE);
+                                newAuthorization.setUserId(user);
+                                newAuthorization.setResourceId(execution.getProcessInstanceId());
+                                newAuthorization.addPermission(ACCESS);
+                                authorizationService.saveAuthorization(newAuthorization);
+                            }
+                        }
                     }
-
-                    //ignore empty strings
-                    if ("".equalsIgnoreCase(user) && "".equalsIgnoreCase(group)) {
-                        continue;
-                    }
-
-                    Authorization newAuthorization = authorizationService
-                            .createNewAuthorization(Authorization.AUTH_TYPE_GRANT);
-                    newAuthorization.setResource(Resources.PROCESS_INSTANCE);
-                    newAuthorization.setUserId(user);
-                    newAuthorization.setGroupId(group);
-                    newAuthorization.setResourceId(execution.getProcessInstanceId());
-                    newAuthorization.addPermission(ACCESS);
-                    authorizationService.saveAuthorization(newAuthorization);
-
                 }
             }
         } catch (Exception e) {
