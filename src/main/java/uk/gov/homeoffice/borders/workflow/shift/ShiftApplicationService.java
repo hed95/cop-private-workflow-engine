@@ -62,7 +62,6 @@ public class ShiftApplicationService {
         String email = shiftInfo.getEmail();
 
         PlatformUser user = getStaff(shiftInfo.getStaffId());
-        shiftInfo.setRoles(user.getRoles());
         shiftInfo.setGradeId(user.getGradeId());
 
         log.info("Starting a request to start a shift for '{}'", email);

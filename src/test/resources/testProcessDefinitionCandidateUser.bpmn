@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="categoryA" exporter="Camunda Modeler" exporterVersion="3.3.4">
-  <bpmn:process id="test" name="Sample" isExecutable="true" camunda:candidateStarterGroups="testcandidate">
+  <bpmn:process id="testProcessCandidateUser" name="Sample A" isExecutable="true" camunda:candidateStarterUsers="${S(data).prop(&#34;assignee&#34;).stringValue()}">
     <bpmn:startEvent id="StartEvent_1" camunda:formKey="test">
       <bpmn:outgoing>SequenceFlow_1bt0m26</bpmn:outgoing>
     </bpmn:startEvent>
@@ -19,11 +19,10 @@
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1bt0m26</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1tpgry9</bpmn:outgoing>
-      <bpmn:multiInstanceLoopCharacteristics camunda:collection="${S(collectionOfData).elements()}" camunda:elementVariable="data" />
     </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="testProcessCandidateUser">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="193" y="103" width="36" height="36" />
         <bpmndi:BPMNLabel>

@@ -9,7 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.ActivityTypes;
+import org.camunda.bpm.engine.AuthorizationService;
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.authorization.Authorization;
+import org.camunda.bpm.engine.authorization.Resources;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.rest.dto.history.HistoricProcessInstanceDto;
@@ -30,10 +33,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -48,7 +48,7 @@ public class CasesApplicationService {
     private AmazonS3 amazonS3Client;
     private AWSConfig awsConfig;
     private CaseActionService caseActionService;
-
+    private AuthorizationService authorizationService;
     private static final PageHelper PAGE_HELPER = new PageHelper();
 
     /**
@@ -124,6 +124,7 @@ public class CasesApplicationService {
 
         List<CaseDetail.ProcessInstanceReference> instanceReferences = processInstances
                 .stream()
+                .filter(instance -> this.candidateGroupFilter(instance, platformUser))
                 .map(historicProcessInstance ->
                         toCaseReference(byProcessInstanceId, historicProcessInstance))
                 .collect(toList());
@@ -147,6 +148,43 @@ public class CasesApplicationService {
 
         log.info("Returning case details to '{}' with business key '{}'", platformUser.getEmail(), businessKey);
         return caseDetail;
+    }
+
+    /**
+     * Applies a filter. If there are no identity links for a process instance then the instance is returned.
+     * If there are identity links then the users roles are compared against the links. If any match then
+     * the instance is returned otherwise it is not.
+     *
+     * @param historicProcessInstance
+     * @param platformUser
+     * @return true/false
+     */
+    private boolean candidateGroupFilter(HistoricProcessInstance historicProcessInstance, PlatformUser platformUser) {
+
+        List<Authorization> authorizations = authorizationService.createAuthorizationQuery()
+                .resourceId(historicProcessInstance.getId())
+                .resourceType(Resources.PROCESS_INSTANCE)
+                .list();
+
+        if (authorizations.isEmpty()) {
+            return true;
+        }
+
+        List<String> candidateUsers =
+                authorizations.stream().map(Authorization::getUserId).filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+
+        if (!candidateUsers.isEmpty()) {
+            return candidateUsers.contains(platformUser.getEmail());
+        }
+        List<String> candidateGroups =
+                authorizations.stream().map(Authorization::getGroupId).filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+
+
+        List<String> roles = platformUser.getShiftDetails().getRoles();
+        return !roles.stream().filter(candidateGroups::contains).collect(Collectors.toList()).isEmpty();
+
     }
 
     private CaseDetail.CaseMetrics createMetrics(CaseDetail caseDetail) {

@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
+import org.camunda.bpm.engine.AuthorizationService
 import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
@@ -96,6 +97,9 @@ abstract class BaseSpec extends Specification {
 
     @Autowired
     public IdentityService identityService
+
+    @Autowired
+    public AuthorizationService authorizationService;
 
 
     def static wmPort = 8000

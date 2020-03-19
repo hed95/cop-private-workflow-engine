@@ -127,7 +127,7 @@ class ProcessEngineIdentityFilterSpec extends Specification {
         then:
         1 * identityService.setAuthentication(_)  >> { arguments -> authentication=arguments[0]}
         1 * identityService.clearAuthentication()
-        !authentication.user
+        authentication.user
         authentication.userId == 'email'
         authentication.getGroupIds().size() == 0
     }

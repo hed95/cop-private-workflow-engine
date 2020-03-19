@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_187q1dt" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.1">
-  <bpmn:process id="candidateGroupsWorkflow" name="candidateGroupsWorkflow" isExecutable="true" camunda:candidateStarterGroups="custom_role,custom_roleA">
+  <bpmn:process id="candidateGroupsWorkflow" name="candidateGroupsWorkflow" isExecutable="true" camunda:candidateStarterGroups="custom_role">
     <bpmn:startEvent id="StartEvent_1" camunda:formKey="sampleForm">
       <bpmn:outgoing>SequenceFlow_0thmity</bpmn:outgoing>
     </bpmn:startEvent>
