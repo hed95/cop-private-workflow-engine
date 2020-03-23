@@ -179,16 +179,16 @@ spec:
               secretKeyRef:
                 name: {{.ENGINE_NAME}}
                 key: engineDbPassword
-          - name: ENGINE_RO_AWS_ACCESS_KEY_ID
+          - name: ENGINE_AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
                 name: {{.ENGINE_NAME}}
-                key: roAwsAccessKeyId
-          - name: ENGINE_RO_AWS_SECRET_ACCESS_KEY
+                key: awsAccessKeyId
+          - name: ENGINE_AWS_SECRET_ACCESS_KEY
             valueFrom:
               secretKeyRef:
                 name: {{.ENGINE_NAME}}
-                key: roAwsSecretAccessKey
+                key: awsSecretAccessKey
       volumes:
       - name: certs
         secret:
