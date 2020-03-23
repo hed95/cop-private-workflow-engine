@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow.event;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import groovy.util.logging.Slf4j;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.lang.String.format;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
 @Slf4j
@@ -37,6 +39,7 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     private AmazonS3 amazonS3;
     private String productPrefix;
     private FormToS3PutRequestGenerator formToS3PutRequestGenerator;
+    static final String FAILED_TO_CREATE_S3_RECORD = "FAILED_TO_CREATE_S3_RECORD";
 
     static {
         VARIABLE_EVENT_TYPES.add(HistoryEventTypes.VARIABLE_INSTANCE_CREATE.getEventName());
@@ -79,7 +82,7 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
         @Override
         public void afterCompletion(int status) {
             super.afterCompletion(status);
-            try {
+             try {
                 HistoricVariableUpdateEventEntity variable = (HistoricVariableUpdateEventEntity) historyEvent;
                 String asJson = IOUtils.toString(variable.getByteValue(), "UTF-8");
                 List<String> forms = formObjectSplitter.split(asJson);
@@ -102,14 +105,25 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                             });
                     forms.forEach(form -> {
                         PutObjectRequest request = formToS3PutRequestGenerator.request(form, processInstance, product);
-                        amazonS3.putObject(request);
+                        try {
+                            amazonS3.putObject(request);
+                        } catch ( AmazonServiceException e) {
+                            runtimeService.createIncident(
+                                    FAILED_TO_CREATE_S3_RECORD,
+                                    historyEvent.getExecutionId(),
+                                    format("Failed to upload form data for %s",
+                                            request.getMetadata().getUserMetaDataOf("name")),
+                                    e.getMessage()
+
+                            );
+                        }
                     });
 
                 }
             } catch (Exception e) {
                 if (e instanceof IOException) {
                     runtimeService.createIncident(
-                            "FAILED_TO_CREATE_S3_RECORD",
+                            FAILED_TO_CREATE_S3_RECORD,
                             historyEvent.getExecutionId(),
                             "Failed to generate JSON from variable",
                             e.getMessage()
@@ -117,9 +131,9 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                     );
                 } else {
                     runtimeService.createIncident(
-                            "FAILED_TO_CREATE_S3_RECORD",
+                            FAILED_TO_CREATE_S3_RECORD,
                             historyEvent.getExecutionId(),
-                            "Could not upload to S3",
+                            "Failed to perform transaction sync",
                             e.getMessage()
 
                     );
