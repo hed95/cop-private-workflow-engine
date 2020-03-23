@@ -270,6 +270,12 @@ class CasesApplicationServiceSpec extends BaseSpec {
         data.name = "test 0"
         data.assignee ="test"
         data.description = "test 0"
+        data.form = '''{
+                        "test": "test",
+                        "form" : {
+                           "test": "test"
+                         } 
+                       }'''
         processStartDto.data = [data]
         processStartDto
 

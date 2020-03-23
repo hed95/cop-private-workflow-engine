@@ -48,6 +48,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
 @TestPropertySource(properties = ["GOV_NOTIFY_API_KEY = XXXX",
         "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX",
         "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
+        "PRODUCT_PREFIX=bfdev",
         "API_COP_URI = http://localhost:8000",
         "API_REF_URI = http://localhost:8000",
         "API_FORM_URI = http://localhost:8000",
@@ -168,6 +169,7 @@ abstract class BaseSpec extends Specification {
         String name
         String description
         String candidateUser
+        String form
 
     }
 
