@@ -16,7 +16,7 @@ import uk.gov.homeoffice.borders.workflow.event.FormVariableS3PersistListener;
 @Slf4j
 public class HistoryConfiguration extends AbstractCamundaConfiguration {
 
-    @Value("#{environment.PRODUCT_PREFIX}")
+    @Value("#{environment.BUCKET_NAME_PREFIX}")
     private String productPrefix;
 
     private final AmazonS3 amazonS3;
