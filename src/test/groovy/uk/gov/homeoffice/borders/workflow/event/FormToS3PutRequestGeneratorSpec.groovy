@@ -10,7 +10,6 @@ class FormToS3PutRequestGeneratorSpec extends Specification {
     def 'can generate request'() {
         given: 'a form'
         def form = '''{
-                       "testForm": {
                             "submit": true,
                             "test": "apples",
                             "shiftDetailsContext" : {
@@ -26,7 +25,7 @@ class FormToS3PutRequestGeneratorSpec extends Specification {
                                   
                                }
                             }
-                        }
+                        
                       }'''
         and: 'process instance'
         ProcessInstance processInstance = Mock()

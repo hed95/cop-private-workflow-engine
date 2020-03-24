@@ -3,8 +3,10 @@ package uk.gov.homeoffice.borders.workflow.event;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import groovy.util.logging.Slf4j;
 import lombok.AllArgsConstructor;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -18,9 +20,11 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.String.format;
@@ -75,6 +79,7 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     }
 
     @AllArgsConstructor
+    @Slf4j
     public  class VariableS3TransactionSynchronisation extends TransactionSynchronizationAdapter {
         private HistoryEvent historyEvent;
 
@@ -105,9 +110,17 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                             });
                     forms.forEach(form -> {
                         PutObjectRequest request = formToS3PutRequestGenerator.request(form, processInstance, product);
+                        File scratchFile = null;
+
                         try {
+                            scratchFile
+                                    = File.createTempFile(UUID.randomUUID().toString(), ".json");
+                            FileUtils.copyInputStreamToFile(IOUtils.toInputStream(form, "UTF-8"), scratchFile);
+                            request.setFile(scratchFile);
                             amazonS3.putObject(request);
-                        } catch ( AmazonServiceException e) {
+                        } catch ( IOException | AmazonServiceException e) {
+
+                            e.printStackTrace();
                             runtimeService.createIncident(
                                     FAILED_TO_CREATE_S3_RECORD,
                                     historyEvent.getExecutionId(),
@@ -116,11 +129,16 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                                     e.getMessage()
 
                             );
+                        } finally {
+                            if (scratchFile != null && scratchFile.exists()) {
+                                scratchFile.delete();
+                            }
                         }
                     });
 
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 if (e instanceof IOException) {
                     runtimeService.createIncident(
                             FAILED_TO_CREATE_S3_RECORD,
