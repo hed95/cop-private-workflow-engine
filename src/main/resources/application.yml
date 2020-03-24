@@ -61,7 +61,6 @@ camunda:
     - classpath*:**/*.cmmn
     - classpath*:**/*.cmmn10.xml
     - classpath*:**/*.cmmn11.xml
-    - file:///Users/markolliver/GIT/cop/process-models/models/**/*.*mn
 
 spring:
   datasource:
