@@ -23,7 +23,11 @@ public class FormObjectSplitter {
             }
             if (value instanceof JSONArray) {
                 JSONArray array = (JSONArray)value;
-                array.forEach(item -> forms.addAll(split(item.toString())));
+                array.forEach(item -> {
+                    if (item instanceof JSONObject) {
+                        forms.addAll(split(item.toString()));
+                    }
+                });
             }
         }
 
