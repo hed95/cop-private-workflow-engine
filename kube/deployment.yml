@@ -109,6 +109,8 @@ spec:
             value: "{{.ENGINE_NAME}}"
           - name: ENGINE_S3_CASE_BUCKET_NAME
             value: "{{.ENGINE_S3_CASE_BUCKET_NAME}}"
+          - name: ENGINE_S3_BUCKET_NAME_PREFIX
+            value: "{{.ENGINE_S3_BUCKET_NAME_PREFIX}}"
           - name: ENGINE_CORS
             value: "{{.ENGINE_CORS}}"
           - name: ENGINE_PORT
