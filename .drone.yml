@@ -182,6 +182,8 @@ pipeline:
       target: ENGINE_AWS_SECRET_ACCESS_KEY
     - source: DEV_ENGINE_S3_CASE_BUCKET_NAME
       target: ENGINE_S3_CASE_BUCKET_NAME
+    - source: DEV_ENGINE_S3_BUCKET_NAME_PREFIX
+      target: ENGINE_S3_BUCKET_NAME_PREFIX
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
@@ -310,6 +312,8 @@ pipeline:
       target: ENGINE_AWS_SECRET_ACCESS_KEY
     - source: STAGING_ENGINE_S3_CASE_BUCKET_NAME
       target: ENGINE_S3_CASE_BUCKET_NAME
+    - source: STAGING_ENGINE_S3_BUCKET_NAME_PREFIX
+      target: ENGINE_S3_BUCKET_NAME_PREFIX
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml
@@ -427,6 +431,8 @@ pipeline:
       target: ENGINE_AWS_SECRET_ACCESS_KEY
     - source: PRODUCTION_ENGINE_S3_CASE_BUCKET_NAME
       target: ENGINE_S3_CASE_BUCKET_NAME
+    - source: PRODUCTION_ENGINE_S3_BUCKET_NAME_PREFIX
+      target: ENGINE_S3_BUCKET_NAME_PREFIX
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml

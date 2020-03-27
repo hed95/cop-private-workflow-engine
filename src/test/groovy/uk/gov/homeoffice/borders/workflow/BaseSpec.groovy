@@ -71,7 +71,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
         "ENGINE_CORS=http://localhost:8000",
         "KEYCLOAK_URI=http://localhost:9000/auth",
         "KEYCLOAK_REALM=myRealm",
-        "BUCKET_NAME_PREFIX=test",
+        "ENGINE_S3_BUCKET_NAME_PREFIX=test",
         "ENGINE_S3_REGION=eu-west-2",
         "ENGINE_AWS_ACCESS_KEY_ID=accessKey",
         "ENGINE_AWS_SECRET_ACCESS_KEY=secretAccessKey",
