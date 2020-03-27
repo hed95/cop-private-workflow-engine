@@ -2,6 +2,7 @@ package uk.gov.homeoffice.borders.workflow.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.bpm.engine.rest.*;
@@ -60,6 +61,8 @@ public class ApplicationConfiguration {
     public PlatformDataUrlBuilder platformDataQueryBuilder() {
         return new PlatformDataUrlBuilder(platformDataBean);
     }
+
+
 
     @Bean
     @Order(Ordering.DEFAULT_ORDER - 1)
