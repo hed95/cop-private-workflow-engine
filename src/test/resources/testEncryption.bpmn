@@ -4,6 +4,7 @@
     <bpmn:extensionElements>
       <camunda:properties>
         <camunda:property name="encryptVariables" value="true" />
+        <camunda:property name="disableExplicitFormDataS3Save" value="true" />
       </camunda:properties>
     </bpmn:extensionElements>
     <bpmn:startEvent id="StartEvent_1" camunda:formKey="test">

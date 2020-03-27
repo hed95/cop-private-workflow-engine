@@ -1,22 +1,30 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
+import com.amazonaws.services.s3.AmazonS3;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.impl.history.HistoryLevel;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.history.handler.CompositeDbHistoryEventHandler;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import uk.gov.homeoffice.borders.workflow.event.CustomHistoryEventHandler;
-import uk.gov.homeoffice.borders.workflow.event.CustomHistoryEventLevel;
-
-import java.util.ArrayList;
-import java.util.List;
+import uk.gov.homeoffice.borders.workflow.event.FormObjectSplitter;
+import uk.gov.homeoffice.borders.workflow.event.FormToS3Uploader;
+import uk.gov.homeoffice.borders.workflow.event.FormVariableS3PersistListener;
 
 
 @Component
 @Slf4j
 public class HistoryConfiguration extends AbstractCamundaConfiguration {
 
+    @Value("#{environment.BUCKET_NAME_PREFIX}")
+    private String productPrefix;
+
+    private final AmazonS3 amazonS3;
+
+    public HistoryConfiguration(AmazonS3 amazonS3) {
+        this.amazonS3 = amazonS3;
+    }
 
     @Override
     public void preInit(SpringProcessEngineConfiguration processEngineConfiguration) {
@@ -25,14 +33,13 @@ public class HistoryConfiguration extends AbstractCamundaConfiguration {
         processEngineConfiguration.setHistoryCleanupBatchWindowStartTime("03:00");
         processEngineConfiguration.setHistoryCleanupBatchWindowEndTime("05:00");
 
-        List<HistoryLevel> customHistoryLevels = processEngineConfiguration.getCustomHistoryLevels();
-        if (customHistoryLevels == null) {
-            customHistoryLevels = new ArrayList<>();
-            processEngineConfiguration.setCustomHistoryLevels(customHistoryLevels);
-        }
-        customHistoryLevels.add(CustomHistoryEventLevel.getInstance());
-        processEngineConfiguration.setCustomHistoryLevels(customHistoryLevels);
-        processEngineConfiguration.setHistoryEventHandler(new CompositeDbHistoryEventHandler(new CustomHistoryEventHandler()));
+        final RuntimeService runtimeService = processEngineConfiguration.getRuntimeService();
+        processEngineConfiguration.setHistoryEventHandler(
+                new CompositeDbHistoryEventHandler(
+                        new FormVariableS3PersistListener(runtimeService,
+                                processEngineConfiguration.getRepositoryService(), new FormObjectSplitter(),
+                                 productPrefix, new FormToS3Uploader(runtimeService, amazonS3)
+                        )));
         log.info("History configured");
     }
 

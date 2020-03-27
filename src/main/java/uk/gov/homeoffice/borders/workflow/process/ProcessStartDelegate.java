@@ -23,7 +23,9 @@ public class ProcessStartDelegate implements JavaDelegate {
                     .getRuntimeService()
                     .createProcessInstanceByKey(processKey)
                     .businessKey(businessKey)
-                    .setVariable(variableName, payload).execute();
+                    .setVariable("type", "non-notification")
+                    .setVariable(variableName, payload)
+                    .execute();
 
         } catch (Exception e) {
             log.error("Failed to start workflow", e);

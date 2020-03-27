@@ -181,7 +181,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
 
     def 'get case does not return process instance if user is not candidateGroup role'() {
         given:
-        amazonS3Client.createBucket("events")
+        amazonS3Client.createBucket("test-events")
 
         def user = logInUser()
         user.roles = ['different_role']
@@ -200,6 +200,17 @@ class CasesApplicationServiceSpec extends BaseSpec {
         data.name = "test 0"
         data.assignee ="test"
         data.description = "test 0"
+        data.form ='''{
+            "shiftDetailsContext": {
+              "email" : "email
+            },
+            "form": {
+               "name": "name",
+               "title" : "title",
+               "formVersionId": "formVersionId"
+            }
+            
+        }'''
         processStartDto.data = [data]
         processStartDto
 
@@ -217,7 +228,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
     }
     def 'get case returns process instance if user is candidateUser'() {
         given:
-        amazonS3Client.createBucket("events")
+        amazonS3Client.createBucket("test-events")
 
         def user = logInUser()
         user.roles = ['different_role']
@@ -254,7 +265,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
 
     def 'get case'() {
         given:
-        amazonS3Client.createBucket("events")
+        amazonS3Client.createBucket("test-events")
 
         def user = logInUser()
         def token = new TestingAuthenticationToken(user, "test")
@@ -270,6 +281,12 @@ class CasesApplicationServiceSpec extends BaseSpec {
         data.name = "test 0"
         data.assignee ="test"
         data.description = "test 0"
+        data.form = '''{
+                        "test": "test",
+                        "form" : {
+                           "test": "test"
+                         } 
+                       }'''
         processStartDto.data = [data]
         processStartDto
 
@@ -286,7 +303,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         metadata.addUserMetadata('processdefinitionid', definition)
         metadata.addUserMetadata('processinstanceid', processInstance.id)
 
-        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-000/eventAtBorder/20120101-xx@x.com.json",
+        amazonS3Client.putObject(new PutObjectRequest("test-events", "BF-20200120-000/eventAtBorder/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 
@@ -297,7 +314,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         metadata.addUserMetadata('processdefinitionid', definition)
         metadata.addUserMetadata('processinstanceid', processInstance.id)
 
-        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-000/peopleEaB/20120101-xx@x.com.json",
+        amazonS3Client.putObject(new PutObjectRequest("test-events", "BF-20200120-000/peopleEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 
@@ -307,7 +324,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         metadata.addUserMetadata('formversionid', 'formNameC')
         metadata.addUserMetadata('processdefinitionid', definition)
         metadata.addUserMetadata('processinstanceid', 'processinstanceidB')
-        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-000/itemsEaB/20120101-xx@x.com.json",
+        amazonS3Client.putObject(new PutObjectRequest("test-events", "BF-20200120-000/itemsEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 
@@ -317,7 +334,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         metadata.addUserMetadata('formversionid', 'formNameD')
         metadata.addUserMetadata('processdefinitionid', definition)
         metadata.addUserMetadata('processinstanceid', 'processinstanceidB')
-        amazonS3Client.putObject(new PutObjectRequest("events", "BF-20200120-000/journeyEaB/20120101-xx@x.com.json",
+        amazonS3Client.putObject(new PutObjectRequest("test-events", "BF-20200120-000/journeyEaB/20120101-xx@x.com.json",
                 new ClassPathResource("data.json").getInputStream(), metadata))
 
 

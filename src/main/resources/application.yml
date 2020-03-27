@@ -35,7 +35,7 @@ api-cop:
 
 aws:
   region: ${ENGINE_S3_REGION:eu-west-2}
-  case-bucket-name: ${ENGINE_S3_CASE_BUCKET_NAME}
+  case-bucket-name: ${BUCKET_NAME_PREFIX}-${ENGINE_S3_CASE_BUCKET_NAME}
   credentials:
     access-key: ${ENGINE_AWS_ACCESS_KEY_ID}
     secret-Key: ${ENGINE_AWS_SECRET_ACCESS_KEY}
@@ -61,7 +61,6 @@ camunda:
     - classpath*:**/*.cmmn
     - classpath*:**/*.cmmn10.xml
     - classpath*:**/*.cmmn11.xml
-    - file:///models/*.*mn
 
 spring:
   datasource:

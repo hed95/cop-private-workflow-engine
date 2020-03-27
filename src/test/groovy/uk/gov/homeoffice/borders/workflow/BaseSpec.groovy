@@ -48,6 +48,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
 @TestPropertySource(properties = ["GOV_NOTIFY_API_KEY = XXXX",
         "GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID = XXXX",
         "GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID = XXXX",
+        "PRODUCT_PREFIX=bfdev",
         "API_COP_URI = http://localhost:8000",
         "API_REF_URI = http://localhost:8000",
         "API_FORM_URI = http://localhost:8000",
@@ -70,6 +71,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
         "ENGINE_CORS=http://localhost:8000",
         "KEYCLOAK_URI=http://localhost:9000/auth",
         "KEYCLOAK_REALM=myRealm",
+        "BUCKET_NAME_PREFIX=test",
         "ENGINE_S3_REGION=eu-west-2",
         "ENGINE_AWS_ACCESS_KEY_ID=accessKey",
         "ENGINE_AWS_SECRET_ACCESS_KEY=secretAccessKey",
@@ -168,6 +170,7 @@ abstract class BaseSpec extends Specification {
         String name
         String description
         String candidateUser
+        String form
 
     }
 
