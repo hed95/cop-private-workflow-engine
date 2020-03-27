@@ -37,8 +37,8 @@ aws:
   region: ${ENGINE_S3_REGION:eu-west-2}
   case-bucket-name: ${BUCKET_NAME_PREFIX}-${ENGINE_S3_CASE_BUCKET_NAME}
   credentials:
-    access-key: ${ENGINE_RO_AWS_ACCESS_KEY_ID}
-    secret-Key: ${ENGINE_RO_AWS_SECRET_ACCESS_KEY}
+    access-key: ${ENGINE_AWS_ACCESS_KEY_ID}
+    secret-Key: ${ENGINE_AWS_SECRET_ACCESS_KEY}
 
 gov:
   notify:
