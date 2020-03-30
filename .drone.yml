@@ -86,102 +86,26 @@ pipeline:
       target: KUBE_SERVER
     - source: DEV_KUBE_TOKEN
       target: KUBE_TOKEN
-    - source: DEV_WHITELIST
-      target: WHITELIST
-    - source: DEV_KEYCLOAK_URL
-      target: KEYCLOAK_URL
-    - source: DEV_KEYCLOAK_REALM
-      target: KEYCLOAK_REALM
-    - source: PROTOCOL_HTTPS
-      target: KEYCLOAK_PROTOCOL
+    - source: DEV_KUBE_NAMESPACE_PRIVATE_COP
+      target: KUBE_NAMESPACE
     - source: NGINX_IMAGE
       target: NGINX_IMAGE
     - source: NGINX_TAG
       target: NGINX_TAG
-    - source: DEV_REDIS_URL
-      target: REDIS_URL
-    - source: DEV_REDIS_TOKEN
-      target: REDIS_TOKEN
-    - source: DEV_REDIS_SSL
-      target: REDIS_SSL
-    - source: DEV_GOV_NOTIFY_API_KEY
-      target: GOV_NOTIFY_API_KEY
-    - source: DEV_GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
-      target: GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
-    - source: DEV_GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
-      target: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
-    - source: DEV_WWW_URL
-      target: WWW_URL
-    - source: PROTOCOL_HTTPS
-      target: WWW_PROTOCOL
-    - source: PROTOCOL_HTTPS
-      target: WWW_UI_PROTOCOL
-    - source: PROTOCOL_AWBS
-      target: WWW_UI_TXT_PROTOCOL
-    - source: PROTOCOL_HTTPS
-      target: API_COP_PROTOCOL
-    - source: DEV_API_COP_URL
-      target: API_COP_URL
-    - source: PROTOCOL_HTTPS
-      target: API_FORM_PROTOCOL
-    - source: DEV_API_FORM_URL
-      target: API_FORM_URL
-    - source: PROTOCOL_HTTPS
-      target: API_REF_PROTOCOL
-    - source: DEV_API_REF_URL
-      target: API_REF_URL
-    - source: PROTOCOL_POSTGRES
-      target: DB_ENGINE_PROTOCOL
-    - source: PROTOCOL_JDBC
-      target: DB_ENGINE_JDBC_PROTOCOL
-    - source: DEV_DB_ENGINE_PORT
-      target: DB_ENGINE_PORT
-    - source: DEV_DB_ENGINE_HOSTNAME
-      target: DB_ENGINE_HOSTNAME
-    - source: DEV_DB_ENGINE_OPTIONS
-      target: DB_ENGINE_OPTIONS
-    - source: DEV_DB_ENGINE_DRIVER
-      target: DB_ENGINE_DRIVER
-    - source: DEV_DB_ENGINE_TYPE
-      target: DB_ENGINE_TYPE
-    - source: DEV_DB_ENGINE_JDBC_OPTIONS
-      target: DB_ENGINE_JDBC_OPTIONS
-    - source: DEV_DB_ENGINE_DEFAULT_USERNAME
-      target: DB_ENGINE_DEFAULT_USERNAME
-    - source: DEV_DB_ENGINE_DEFAULT_DBNAME
-      target: DB_ENGINE_DEFAULT_DBNAME
-    - source: DEV_DB_ENGINE_DEFAULT_PASSWORD
-      target: DB_ENGINE_DEFAULT_PASSWORD
     - source: DEV_ENGINE_NAME
       target: ENGINE_NAME
     - source: DEV_ENGINE_URL
       target: ENGINE_URL
     - source: DEV_ENGINE_IMAGE
       target: ENGINE_IMAGE
-    - source: DEV_ENGINE_KEYCLOAK_CLIENT_ID
-      target: ENGINE_KEYCLOAK_CLIENT_ID
-    - source: DEV_ENGINE_KEYCLOAK_CLIENT_SECRET
-      target: ENGINE_KEYCLOAK_CLIENT_SECRET
     - source: DEV_ENGINE_SPRING_PROFILES_ACTIVE
       target: ENGINE_SPRING_PROFILES_ACTIVE
-    - source: DEV_KUBE_NAMESPACE_PRIVATE_COP
-      target: KUBE_NAMESPACE
-    - source: ENGINE_PORT
-      target: ENGINE_PORT
-    - source: DEV_ENGINE_JAVA_OPTS
-      target: ENGINE_JAVA_OPTS
-    - source: DEV_ENGINE_CORS
-      target: ENGINE_CORS
-    - source: DEV_ENGINE_ENCRYPTION_PASSPHRASE
-      target: ENGINE_ENCRYPTION_PASSPHRASE
-    - source: DEV_ENGINE_ENCRYPTION_SALT
-      target: ENGINE_ENCRYPTION_SALT
     - source: DEV_ENGINE_AWS_ACCESS_KEY_ID
       target: ENGINE_AWS_ACCESS_KEY_ID
     - source: DEV_ENGINE_AWS_SECRET_ACCESS_KEY
       target: ENGINE_AWS_SECRET_ACCESS_KEY
-    - source: DEV_ENGINE_S3_CASE_BUCKET_NAME
-      target: ENGINE_S3_CASE_BUCKET_NAME
+    - source: DEV_ENGINE_AWS_SECRETS_MANAGER_ENABLED
+      target: ENGINE_AWS_SECRETS_MANAGER_ENABLED
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml

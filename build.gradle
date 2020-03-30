@@ -106,6 +106,9 @@ dependencies {
     compile 'com.amazonaws:aws-java-sdk-s3:1.11.714'
     compile 'com.amazonaws:aws-java-sdk-core:1.11.714'
 
+    compile 'org.springframework.cloud:spring-cloud-context:2.2.2.RELEASE'
+    compile 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:2.2.1.RELEASE'
+
     testCompile ('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
     }
