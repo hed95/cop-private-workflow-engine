@@ -51,7 +51,7 @@ public class GovNotifyConfiguration {
 
 
     @Configuration
-    @Profile({"local", "test"})
+    @Profile({"test"})
     public static class LocalGovNotifyConfiguration {
 
         public static class StubGovNotifyClient implements NotificationClientApi {
@@ -125,7 +125,7 @@ public class GovNotifyConfiguration {
     }
 
     @Configuration
-    @Profile({"!local", "!test"})
+    @Profile({ "!test"})
     public static class NonLocalGovNotifyConfiguration {
         @Value("${gov.notify.api.key}")
         private String notificationApiKey;
