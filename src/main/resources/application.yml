@@ -35,7 +35,7 @@ api-cop:
 
 aws:
   region: ${aws.region:eu-west-2}
-  case-bucket-name: ${aws.bucket-name-prefix}-${ws.case-bucket-name}
+  case-bucket-name: ${aws.case-bucket-name}
   credentials:
     access-key: ${aws.credentials.access-key}
     secret-Key: ${aws.credentials.secret-key}
@@ -75,7 +75,7 @@ spring:
         prepStmtCacheSqlLimit: 2048
         prepStmtCacheSize: 250
   autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration,
   http:
     converters:
       preferred-json-mapper: jackson
@@ -97,7 +97,7 @@ logging:
   pattern:
     level: "%X{mdcData}%5p"
   level:
-    org.springframework.web.socket: ${logging.level.org.springframework.web.socket}
+    org.springframework.web.socket: ERROR
 
 
 server:

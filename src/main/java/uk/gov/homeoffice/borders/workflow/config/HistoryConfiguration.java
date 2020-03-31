@@ -17,7 +17,7 @@ import uk.gov.homeoffice.borders.workflow.event.FormVariableS3PersistListener;
 @Slf4j
 public class HistoryConfiguration extends AbstractCamundaConfiguration {
 
-    @Value("#{environment.BUCKET_NAME_PREFIX}")
+    @Value("${aws.bucket-name-prefix}")
     private String productPrefix;
 
     private final AmazonS3 amazonS3;
