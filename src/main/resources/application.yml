@@ -104,6 +104,6 @@ server:
   error:
     whitelabel:
       enabled: false
-  port: ${server-port}
+  port: ${server.port}
 
 
