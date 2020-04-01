@@ -12,6 +12,15 @@ public class AWSConfig {
     private String region;
     private String caseBucketName;
     private Credentials credentials;
+    private AWSElasticSearch awsElasticSearch;
+
+
+    @Data
+    public static class AWSElasticSearch {
+        private String region;
+        private String url;
+        private Credentials credentials;
+    }
 
     @Data
     public static class Credentials {
