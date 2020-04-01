@@ -104,8 +104,6 @@ pipeline:
       target: ENGINE_AWS_ACCESS_KEY_ID
     - source: DEV_ENGINE_AWS_SECRET_ACCESS_KEY
       target: ENGINE_AWS_SECRET_ACCESS_KEY
-    - source: DEV_ENGINE_AWS_SECRETS_MANAGER_ENABLED
-      target: ENGINE_AWS_SECRETS_MANAGER_ENABLED
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
       - kd --insecure-skip-tls-verify -f kube/cert.yml

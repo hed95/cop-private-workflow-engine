@@ -120,7 +120,7 @@ spec:
                 name: {{.ENGINE_NAME}}
                 key: awsSecretAccessKey
           - name: AWS_SECRETS_MANAGER_ENABLED
-            value: "{{.ENGINE_AWS_SECRETS_MANAGER_ENABLED}}"
+            value: "true"
       volumes:
       - name: certs
         secret:
