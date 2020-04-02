@@ -1,8 +1,10 @@
 package uk.gov.homeoffice.borders.workflow.event;
 
 import groovy.util.logging.Slf4j;
+import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -11,14 +13,15 @@ import org.camunda.bpm.engine.impl.history.event.HistoricVariableUpdateEventEnti
 import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
 import org.camunda.bpm.engine.impl.history.event.HistoryEventTypes;
 import org.camunda.bpm.engine.impl.history.handler.HistoryEventHandler;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.camunda.spin.Spin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import javax.crypto.SealedObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +39,7 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     private RuntimeService runtimeService;
     private RepositoryService repositoryService;
     private HistoryService historyService;
+    private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
     private FormObjectSplitter formObjectSplitter;
     private String productPrefix;
     private FormToS3Uploader formToS3Uploader;
@@ -51,25 +55,21 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
         if (historyEvent instanceof HistoricVariableUpdateEventEntity &&
                 VARIABLE_EVENT_TYPES.contains(historyEvent.getEventType())) {
             HistoricVariableUpdateEventEntity variable = (HistoricVariableUpdateEventEntity) historyEvent;
-            if (variable.getSerializerName().equalsIgnoreCase("json")) {
+            Boolean disableExplicitS3Save = S3_SAVE_CHECK.computeIfAbsent(variable.getProcessDefinitionId(), id -> {
+                BpmnModelInstance model = Bpmn.
+                        readModelFromStream(this.repositoryService.getProcessModel(id));
 
-                Boolean disableExplicitS3Save = S3_SAVE_CHECK.computeIfAbsent(variable.getProcessDefinitionId(), id -> {
-                    BpmnModelInstance model = Bpmn.
-                            readModelFromStream(this.repositoryService.getProcessModel(id));
+                return model.getModelElementsByType(CamundaProperty.class)
+                        .stream()
+                        .filter(p -> p.getCamundaName().equalsIgnoreCase("disableExplicitFormDataS3Save"))
+                        .findAny()
+                        .map(CamundaProperty::getCamundaValue)
+                        .map(Boolean::valueOf)
+                        .orElse(Boolean.FALSE);
+            });
 
-                    return model.getModelElementsByType(CamundaProperty.class)
-                            .stream()
-                            .filter(p -> p.getCamundaName().equalsIgnoreCase("disableExplicitFormDataS3Save"))
-                            .findAny()
-                            .map(CamundaProperty::getCamundaValue)
-                            .map(Boolean::valueOf)
-                            .orElse(Boolean.FALSE);
-                });
-
-
-                if (!disableExplicitS3Save) {
-                    registerSynchronization(new VariableS3TransactionSynchronisation(historyEvent));
-                }
+            if (!disableExplicitS3Save) {
+                registerSynchronization(new VariableS3TransactionSynchronisation(historyEvent));
             }
         }
     }
@@ -85,29 +85,40 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                 try {
                     log.info("Initiating save of form data");
                     HistoricVariableUpdateEventEntity variable = (HistoricVariableUpdateEventEntity) historyEvent;
-                    String asJson = IOUtils.toString(variable.getByteValue(), "UTF-8");
-                    List<String> forms = formObjectSplitter.split(asJson);
-                    HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
-                            .processInstanceId(variable.getProcessInstanceId()).singleResult();
-                    if (!forms.isEmpty()) {
-                        String product =
-                                productPrefix + "-" + S3_PRODUCT.computeIfAbsent(variable.getProcessDefinitionId(), id -> {
-                                    BpmnModelInstance model = Bpmn.
-                                            readModelFromStream(repositoryService
-                                                    .getProcessModel(variable.getProcessDefinitionId()));
+                    String asJson = null;
+                    if ("javax.crypto.SealedObject".equalsIgnoreCase(variable.getTextValue2())) {
+                        final SealedObject sealedObject = SerializationUtils.deserialize(variable.getByteValue());
+                        final Spin<?> spin = processInstanceSpinVariableDecryptor.decrypt(sealedObject);
+                        asJson = spin.toString();
+                    } else {
+                        if (variable.getSerializerName().equalsIgnoreCase("json")) {
+                            asJson = IOUtils.toString(variable.getByteValue(), "UTF-8");
+                        }
+                    }
+                    if (asJson != null) {
+                        HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
+                                .processInstanceId(variable.getProcessInstanceId()).singleResult();
+                        List<String> forms = formObjectSplitter.split(asJson);
+                        if (!forms.isEmpty()) {
+                            String product =
+                                    productPrefix + "-" + S3_PRODUCT.computeIfAbsent(variable.getProcessDefinitionId(), id -> {
+                                        BpmnModelInstance model = Bpmn.
+                                                readModelFromStream(repositoryService
+                                                        .getProcessModel(variable.getProcessDefinitionId()));
 
-                                    return model.getModelElementsByType(CamundaProperty.class)
-                                            .stream()
-                                            .filter(p -> p.getCamundaName().equalsIgnoreCase("product"))
-                                            .findAny()
-                                            .map(CamundaProperty::getCamundaValue)
-                                            .orElse("cop-case");
+                                        return model.getModelElementsByType(CamundaProperty.class)
+                                                .stream()
+                                                .filter(p -> p.getCamundaName().equalsIgnoreCase("product"))
+                                                .findAny()
+                                                .map(CamundaProperty::getCamundaValue)
+                                                .orElse("cop-case");
 
-                                });
-                        forms.forEach(form ->
-                                formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product));
-                        log.info("Data saved");
+                                    });
+                            forms.forEach(form ->
+                                    formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product));
+                            log.info("Data saved");
 
+                        }
                     }
                 } catch (Exception e) {
                     log.error("Failed to save to S3 '{}'", e.getMessage());
