@@ -41,7 +41,9 @@ public class HistoryConfiguration extends AbstractCamundaConfiguration {
         processEngineConfiguration.setHistoryEventHandler(
                 new CompositeDbHistoryEventHandler(
                         new FormVariableS3PersistListener(runtimeService,
-                                processEngineConfiguration.getRepositoryService(), new FormObjectSplitter(),
+                                processEngineConfiguration.getHistoryService(),
+                                processEngineConfiguration.getRepositoryService(),
+                                new FormObjectSplitter(),
                                 productPrefix, new FormToS3Uploader(runtimeService, amazonS3),
                                 new FormToAWSESUploader(restHighLevelClient, runtimeService)
                         )));

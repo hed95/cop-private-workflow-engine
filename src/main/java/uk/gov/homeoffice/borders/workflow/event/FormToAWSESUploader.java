@@ -2,6 +2,7 @@ package uk.gov.homeoffice.borders.workflow.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -27,7 +28,7 @@ public class FormToAWSESUploader {
     }
     public void upload(String form,
                        String key,
-                       ProcessInstance processInstance,
+                       HistoricProcessInstance processInstance,
                        String executionId) {
 
 

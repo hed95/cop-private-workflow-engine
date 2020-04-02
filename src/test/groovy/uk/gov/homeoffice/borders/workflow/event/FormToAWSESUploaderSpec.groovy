@@ -7,6 +7,7 @@ import com.google.common.base.Supplier
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.camunda.bpm.engine.RuntimeService
+import org.camunda.bpm.engine.history.HistoricProcessInstance
 import org.camunda.bpm.engine.runtime.ProcessInstance
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestClientBuilder
@@ -73,7 +74,7 @@ class FormToAWSESUploaderSpec extends Specification {
                         "test": "test" 
                       }'''
 
-        ProcessInstance processInstance = Mock()
+        HistoricProcessInstance processInstance = Mock()
         processInstance.getBusinessKey() >> 'businessKey'
 
         and:

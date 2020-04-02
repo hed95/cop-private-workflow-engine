@@ -3,6 +3,7 @@ package uk.gov.homeoffice.borders.workflow.event
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.PutObjectResult
 import org.camunda.bpm.engine.RuntimeService
+import org.camunda.bpm.engine.history.HistoricProcessInstance
 import org.camunda.bpm.engine.runtime.ProcessInstance
 import spock.lang.Specification
 
@@ -35,7 +36,7 @@ class FormToS3UploaderSpec extends Specification {
                         
                       }'''
         and: 'process instance'
-        ProcessInstance processInstance = Mock()
+        HistoricProcessInstance processInstance = Mock()
         processInstance.getId() >> "processInstance"
         processInstance.getProcessDefinitionId() >> "processdefinitionid"
         processInstance.getBusinessKey() >> "businessKey"
