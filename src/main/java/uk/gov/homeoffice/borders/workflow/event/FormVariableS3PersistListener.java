@@ -3,8 +3,10 @@ package uk.gov.homeoffice.borders.workflow.event;
 import groovy.util.logging.Slf4j;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.IOUtils;
+import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.impl.history.event.HistoricVariableUpdateEventEntity;
 import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
 import org.camunda.bpm.engine.impl.history.event.HistoryEventTypes;
@@ -13,6 +15,8 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.IOException;
@@ -31,6 +35,7 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
 
     private RuntimeService runtimeService;
     private RepositoryService repositoryService;
+    private HistoryService historyService;
     private FormObjectSplitter formObjectSplitter;
     private String productPrefix;
     private FormToS3Uploader formToS3Uploader;
@@ -70,56 +75,59 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     }
 
     @AllArgsConstructor
-    @Slf4j
     public class VariableS3TransactionSynchronisation extends TransactionSynchronizationAdapter {
         private HistoryEvent historyEvent;
-
+        private final Logger log = LoggerFactory.getLogger(VariableS3TransactionSynchronisation.class);
         @Override
         public void afterCompletion(int status) {
             super.afterCompletion(status);
-            try {
-                HistoricVariableUpdateEventEntity variable = (HistoricVariableUpdateEventEntity) historyEvent;
-                String asJson = IOUtils.toString(variable.getByteValue(), "UTF-8");
-                List<String> forms = formObjectSplitter.split(asJson);
-                ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
-                        .processInstanceId(variable.getProcessInstanceId()).singleResult();
-                if (!forms.isEmpty()) {
-                    String product =
-                            productPrefix + "-" + S3_PRODUCT.computeIfAbsent(variable.getProcessDefinitionId(), id -> {
-                                BpmnModelInstance model = Bpmn.
-                                        readModelFromStream(repositoryService
-                                                .getProcessModel(variable.getProcessDefinitionId()));
+            if (status == STATUS_COMMITTED) {
+                try {
+                    log.info("Initiating save of form data");
+                    HistoricVariableUpdateEventEntity variable = (HistoricVariableUpdateEventEntity) historyEvent;
+                    String asJson = IOUtils.toString(variable.getByteValue(), "UTF-8");
+                    List<String> forms = formObjectSplitter.split(asJson);
+                    HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
+                            .processInstanceId(variable.getProcessInstanceId()).singleResult();
+                    if (!forms.isEmpty()) {
+                        String product =
+                                productPrefix + "-" + S3_PRODUCT.computeIfAbsent(variable.getProcessDefinitionId(), id -> {
+                                    BpmnModelInstance model = Bpmn.
+                                            readModelFromStream(repositoryService
+                                                    .getProcessModel(variable.getProcessDefinitionId()));
 
-                                return model.getModelElementsByType(CamundaProperty.class)
-                                        .stream()
-                                        .filter(p -> p.getCamundaName().equalsIgnoreCase("product"))
-                                        .findAny()
-                                        .map(CamundaProperty::getCamundaValue)
-                                        .orElse("cop-case");
+                                    return model.getModelElementsByType(CamundaProperty.class)
+                                            .stream()
+                                            .filter(p -> p.getCamundaName().equalsIgnoreCase("product"))
+                                            .findAny()
+                                            .map(CamundaProperty::getCamundaValue)
+                                            .orElse("cop-case");
 
-                            });
-                    forms.forEach(form ->
-                            formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product));
+                                });
+                        forms.forEach(form ->
+                                formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product));
+                        log.info("Data saved");
 
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (e instanceof IOException) {
-                    runtimeService.createIncident(
-                            FAILED_TO_CREATE_S3_RECORD,
-                            historyEvent.getExecutionId(),
-                            "Failed to generate JSON from variable",
-                            e.getMessage()
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to save to S3 '{}'", e.getMessage());
+                    if (e instanceof IOException) {
+                        runtimeService.createIncident(
+                                FAILED_TO_CREATE_S3_RECORD,
+                                historyEvent.getExecutionId(),
+                                "Failed to generate JSON from variable",
+                                e.getMessage()
 
-                    );
-                } else {
-                    runtimeService.createIncident(
-                            FAILED_TO_CREATE_S3_RECORD,
-                            historyEvent.getExecutionId(),
-                            "Failed to perform transaction sync",
-                            e.getMessage()
+                        );
+                    } else {
+                        runtimeService.createIncident(
+                                FAILED_TO_CREATE_S3_RECORD,
+                                historyEvent.getExecutionId(),
+                                "Failed to perform transaction sync",
+                                e.getMessage()
 
-                    );
+                        );
+                    }
                 }
             }
         }
