@@ -20,6 +20,7 @@ public class CustomIdentityProviderPlugin extends AbstractCamundaConfiguration {
     public void preInit(SpringProcessEngineConfiguration springProcessEngineConfiguration) {
         log.info("Enabling custom identity service....");
         springProcessEngineConfiguration.setIdentityProviderSessionFactory(factory);
+        springProcessEngineConfiguration.setJavaSerializationFormatEnabled(true);
         log.info("Custom identity service enabled.");
     }
 
