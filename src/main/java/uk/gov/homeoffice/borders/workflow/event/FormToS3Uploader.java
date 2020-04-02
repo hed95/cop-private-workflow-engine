@@ -32,7 +32,7 @@ public class FormToS3Uploader {
 
     }
 
-    public void upload(String form,
+    public String upload(String form,
                                   ProcessInstance processInstance,
                                   String executionId,
                                   String product) {
@@ -63,10 +63,12 @@ public class FormToS3Uploader {
                     = File.createTempFile(UUID.randomUUID().toString(), ".json");
             FileUtils.copyInputStreamToFile(IOUtils.toInputStream(form, "UTF-8"), scratchFile);
 
-            request = new PutObjectRequest(product, this.key(businessKey, formName, submittedBy), scratchFile);
+            final String key = this.key(businessKey, formName, submittedBy);
+            request = new PutObjectRequest(product, key, scratchFile);
             request.setMetadata(metadata);
             final PutObjectResult putObjectResult = amazonS3.putObject(request);
             log.debug("Uploaded to S3 '{}'", putObjectResult.getETag());
+            return key;
         } catch (IOException | AmazonServiceException e) {
             log.error("Failed to upload", e);
             runtimeService.createIncident(
@@ -83,6 +85,7 @@ public class FormToS3Uploader {
                 scratchFile.delete();
             }
         }
+        return null;
     }
 
     private String key(String businessKey, String formName, String email) {

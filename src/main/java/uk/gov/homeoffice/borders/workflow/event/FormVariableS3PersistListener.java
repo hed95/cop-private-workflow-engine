@@ -13,6 +13,8 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.IOException;
@@ -34,7 +36,9 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     private FormObjectSplitter formObjectSplitter;
     private String productPrefix;
     private FormToS3Uploader formToS3Uploader;
+    private FormToAWSESUploader formToAWSESUploader;
     public static final String FAILED_TO_CREATE_S3_RECORD = "FAILED_TO_CREATE_S3_RECORD";
+    public static final String FAILED_TO_CREATE_ES_RECORD = "FAILED_TO_CREATE_ES_RECORD";
 
     static {
         VARIABLE_EVENT_TYPES.add(HistoryEventTypes.VARIABLE_INSTANCE_CREATE.getEventName());
@@ -70,9 +74,10 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     }
 
     @AllArgsConstructor
-    @Slf4j
     public class VariableS3TransactionSynchronisation extends TransactionSynchronizationAdapter {
         private HistoryEvent historyEvent;
+
+        private final Logger log = LoggerFactory.getLogger(VariableS3TransactionSynchronisation.class);
 
         @Override
         public void afterCompletion(int status) {
@@ -99,11 +104,18 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
 
                             });
                     forms.forEach(form ->
-                            formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product));
-
+                            {
+                                log.info("Upload form to S3");
+                                String key = formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product);
+                                if (key != null) {
+                                    log.info("Upload form to ES");
+                                    formToAWSESUploader.upload(form, key, processInstance, variable.getExecutionId());
+                                }
+                            }
+                    );
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Failed to upload '{}'", e.getMessage());
                 if (e instanceof IOException) {
                     runtimeService.createIncident(
                             FAILED_TO_CREATE_S3_RECORD,

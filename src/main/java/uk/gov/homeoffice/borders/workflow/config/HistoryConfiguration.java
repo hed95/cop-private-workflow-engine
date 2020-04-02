@@ -6,9 +6,11 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.history.handler.CompositeDbHistoryEventHandler;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.camunda.bpm.spring.boot.starter.configuration.impl.AbstractCamundaConfiguration;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.homeoffice.borders.workflow.event.FormObjectSplitter;
+import uk.gov.homeoffice.borders.workflow.event.FormToAWSESUploader;
 import uk.gov.homeoffice.borders.workflow.event.FormToS3Uploader;
 import uk.gov.homeoffice.borders.workflow.event.FormVariableS3PersistListener;
 
@@ -21,9 +23,11 @@ public class HistoryConfiguration extends AbstractCamundaConfiguration {
     private String productPrefix;
 
     private final AmazonS3 amazonS3;
+    private final RestHighLevelClient restHighLevelClient;
 
-    public HistoryConfiguration(AmazonS3 amazonS3) {
+    public HistoryConfiguration(AmazonS3 amazonS3, RestHighLevelClient restHighLevelClient) {
         this.amazonS3 = amazonS3;
+        this.restHighLevelClient = restHighLevelClient;
     }
 
     @Override
@@ -38,7 +42,8 @@ public class HistoryConfiguration extends AbstractCamundaConfiguration {
                 new CompositeDbHistoryEventHandler(
                         new FormVariableS3PersistListener(runtimeService,
                                 processEngineConfiguration.getRepositoryService(), new FormObjectSplitter(),
-                                 productPrefix, new FormToS3Uploader(runtimeService, amazonS3)
+                                productPrefix, new FormToS3Uploader(runtimeService, amazonS3),
+                                new FormToAWSESUploader(restHighLevelClient, runtimeService)
                         )));
         log.info("History configured");
     }
