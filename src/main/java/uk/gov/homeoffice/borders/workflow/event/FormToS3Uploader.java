@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.spin.Spin;
 import org.camunda.spin.json.SpinJsonNode;
@@ -33,7 +34,7 @@ public class FormToS3Uploader {
     }
 
     public void upload(String form,
-                                  ProcessInstance processInstance,
+                                  HistoricProcessInstance processInstance,
                                   String executionId,
                                   String product) {
 
