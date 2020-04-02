@@ -3,7 +3,6 @@ package uk.gov.homeoffice.borders.workflow.event
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.github.tomakehurst.wiremock.junit.WireMockRule
-import com.github.tomjankes.wiremock.WireMockGroovy
 import com.google.common.base.Supplier
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
@@ -20,11 +19,7 @@ import vc.inreach.aws.request.AWSSigningRequestInterceptor
 
 import java.time.LocalDateTime
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson
-import static com.github.tomakehurst.wiremock.client.WireMock.put
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor
+import static com.github.tomakehurst.wiremock.client.WireMock.*
 import static java.time.LocalDateTime.now
 
 class FormToAWSESUploaderSpec extends Specification {
