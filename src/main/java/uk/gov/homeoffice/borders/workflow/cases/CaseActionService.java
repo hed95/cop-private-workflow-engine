@@ -24,7 +24,6 @@ public class CaseActionService {
     private FormService formService;
 
     public List<CaseDetail.Action> getAvailableActions(CaseDetail caseDetail, PlatformUser platformUser) {
-
         return Lists.newArrayList(defaultPdfAction(caseDetail, platformUser));
     }
 

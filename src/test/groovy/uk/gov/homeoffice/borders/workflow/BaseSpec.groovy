@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow
 
+import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.client.builder.AwsClientBuilder
@@ -8,11 +9,17 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
+import com.google.common.base.Supplier
+import org.apache.http.HttpHost
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.camunda.bpm.engine.AuthorizationService
 import org.camunda.bpm.engine.IdentityService
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.TaskService
 import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.elasticsearch.client.RestClient
+import org.elasticsearch.client.RestClientBuilder
+import org.elasticsearch.client.RestHighLevelClient
 import org.junit.ClassRule
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,8 +45,13 @@ import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.service.notify.NotificationClient
+import vc.inreach.aws.request.AWSSigner
+import vc.inreach.aws.request.AWSSigningRequestInterceptor
+
+import java.time.LocalDateTime
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
+import static java.time.LocalDateTime.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = ["keycloak.enabled=false", "spring.datasource.name=testdbB", "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"])
@@ -249,6 +261,32 @@ abstract class BaseSpec extends Specification {
             return amazonS3
         }
 
+        @Bean(destroyMethod = "close")
+        @Primary
+        RestHighLevelClient client() {
+
+            final BasicAWSCredentials credentials = new BasicAWSCredentials("accessKey", "secretAccessKey")
+
+            final AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials)
+            AWSSigner signer = new AWSSigner(credentialsProvider, 'eu-west-2', "workflow-engine",
+                   new Supplier<LocalDateTime>() {
+                       @Override
+                       LocalDateTime get() {
+                           return  now()
+                       }
+                   })
+
+            return new RestHighLevelClient(
+                    RestClient.builder(HttpHost.create(
+                           "http://127.0.01:8000"
+                    )).setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                        @Override
+                        HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                            return httpClientBuilder.addInterceptorLast(new AWSSigningRequestInterceptor(signer))
+                        }
+                    }))
+
+        }
 
         @Bean
         @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)

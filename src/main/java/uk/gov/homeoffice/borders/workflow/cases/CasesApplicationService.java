@@ -22,6 +22,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,6 +45,7 @@ import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -68,7 +70,7 @@ public class CasesApplicationService {
      * @return a list of cases.
      */
     @AuditableCaseEvent
-    public Page<Case> queryByKey(String query, Pageable pageable, PlatformUser platformUser) {
+    public Page<Case> query(String query, Pageable pageable, PlatformUser platformUser) {
         log.info("Performing search by {}", platformUser.getEmail());
 
         final SearchRequest searchRequest = new SearchRequest();
@@ -77,14 +79,14 @@ public class CasesApplicationService {
         sourceBuilder.query(QueryBuilders.simpleQueryStringQuery(query));
         sourceBuilder.from(pageable.getPageNumber());
         sourceBuilder.size(pageable.getPageSize());
-        sourceBuilder.fetchSource(new String[]{"businessKey"}, null);
+        sourceBuilder.fetchSource(false);
         searchRequest.source(sourceBuilder);
 
         try {
             final SearchResponse results = elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT);
 
-            final List<String> keys = StreamSupport.stream(results.getHits().spliterator(), false)
-                    .map(r -> r.getField("businessKey").getValue().toString()).collect(toList());
+            final Set<String> keys = StreamSupport.stream(results.getHits().spliterator(), false)
+                    .map(SearchHit::getIndex).collect(toSet());
 
             List<HistoricProcessInstance> historicProcessInstances = new ArrayList<>();
             if (!keys.isEmpty()) {
@@ -105,7 +107,7 @@ public class CasesApplicationService {
                 return caseDto;
             }).collect(toList());
 
-            final long totalHits = results.getHits().getTotalHits();
+            final long totalHits = results.getHits().getTotalHits().value;
             log.info("Number of cases returned for '{}' is '{}'", query, totalHits);
             return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalHits);
 

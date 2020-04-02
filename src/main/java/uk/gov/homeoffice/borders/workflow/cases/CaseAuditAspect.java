@@ -18,8 +18,11 @@ import java.util.Arrays;
 @Slf4j
 public class CaseAuditAspect {
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    public CaseAuditAspect(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
 
     @Around("@annotation(AuditableCaseEvent)")
     public Object audit(ProceedingJoinPoint joinPoint) throws Throwable {

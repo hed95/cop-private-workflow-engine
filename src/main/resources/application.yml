@@ -98,6 +98,7 @@ logging:
     level: "%X{mdcData}%5p"
   level:
     org.springframework.web.socket: ERROR
+    com.amazonaws.util.EC2MetadataUtils: ERROR
 
 
 server:
