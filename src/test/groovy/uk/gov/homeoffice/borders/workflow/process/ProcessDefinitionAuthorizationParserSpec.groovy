@@ -55,7 +55,7 @@ class ProcessDefinitionAuthorizationParserSpec extends Specification {
         authorizationService.createAuthorizationQuery() >> query
         query.resourceId('processDefinitionKey') >> query
         query.resourceType(Resources.PROCESS_DEFINITION) >> query
-        query.singleResult() >> previousAuthorization
+        query.list() >> [previousAuthorization]
 
         and:
         def authorization = new AuthorizationEntity(Authorization.AUTH_TYPE_GRANT)
