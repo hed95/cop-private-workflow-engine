@@ -74,19 +74,21 @@ public class CasesApplicationService {
         log.info("Performing search by {}", platformUser.getEmail());
 
         final SearchRequest searchRequest = new SearchRequest();
-
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.queryStringQuery(query));
         sourceBuilder.from(pageable.getPageNumber());
         sourceBuilder.size(pageable.getPageSize());
         sourceBuilder.fetchSource(false);
+
+
         searchRequest.source(sourceBuilder);
 
         try {
-            final SearchResponse results = elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT);
+            final SearchResponse results = elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT.toBuilder()
+            .addHeader("Content-Type", "application/json").build());
 
             final Set<String> keys = StreamSupport.stream(results.getHits().spliterator(), false)
-                    .map(SearchHit::getIndex).collect(toSet());
+                    .map(s -> s.getIndex().toUpperCase()).collect(toSet());
 
             List<HistoricProcessInstance> historicProcessInstances = new ArrayList<>();
             if (!keys.isEmpty()) {
@@ -113,7 +115,7 @@ public class CasesApplicationService {
             return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalHits);
 
         } catch (Exception e) {
-            log.error("Failed to perform search '{}'", e.getMessage());
+            log.error("Failed to perform search", e);
             return new PageImpl<>(new ArrayList<>(), PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
                     0);
         }

@@ -32,10 +32,11 @@ public class FormToAWSESUploader {
                        String executionId) {
 
 
-        IndexRequest indexRequest = new IndexRequest(processInstance.getBusinessKey()).id(key);
+        IndexRequest indexRequest = new IndexRequest(processInstance.getBusinessKey().toLowerCase()).id(key);
         indexRequest.source(form, XContentType.JSON);
         try {
-            final IndexResponse index = elasticsearchClient.index(indexRequest, RequestOptions.DEFAULT);
+            final IndexResponse index = elasticsearchClient.index(indexRequest, RequestOptions.DEFAULT.toBuilder()
+                    .addHeader("Content-Type", "application/json").build());
             log.info("Document uploaded result response'{}'", index.getResult().getLowercase());
         } catch (IOException e) {
             log.error("Failed to create a document in ES due to '{}'", e.getMessage());
