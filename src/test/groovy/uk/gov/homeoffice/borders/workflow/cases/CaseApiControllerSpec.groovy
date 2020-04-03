@@ -63,21 +63,26 @@ class CaseApiControllerSpec extends BaseSpec {
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {
-                                            "from":0,
-                                            "size":20,
-                                            "query": {
-                                                "simple_query_string":{
-                                                    "query":"BF-20200120*",
-                                                    "flags":-1,
-                                                    "default_operator":"or",
-                                                    "analyze_wildcard":false,
-                                                    "auto_generate_synonyms_phrase_query":true,
-                                                    "fuzzy_prefix_length":0,
-                                                    "fuzzy_max_expansions":50,
-                                                    "fuzzy_transpositions":true,
-                                                    "boost":1.0
-                                                 }
-                                             },
+                                              "from" : 0,
+                                              "size" : 20,
+                                              "query" : {
+                                                "query_string" : {
+                                                  "query" : "BF-20200120*",
+                                                  "fields" : [ ],
+                                                  "type" : "best_fields",
+                                                  "default_operator" : "or",
+                                                  "max_determinized_states" : 10000,
+                                                  "enable_position_increments" : true,
+                                                  "fuzziness" : "AUTO",
+                                                  "fuzzy_prefix_length" : 0,
+                                                  "fuzzy_max_expansions" : 50,
+                                                  "phrase_slop" : 0,
+                                                  "escape" : false,
+                                                  "auto_generate_synonyms_phrase_query" : true,
+                                                  "fuzzy_transpositions" : true,
+                                                  "boost" : 1.0
+                                                }
+                                              },
                                               "_source" : false
                                             }
                                             ''', true, true))

@@ -40,8 +40,8 @@ aws:
     access-key: ${aws.credentials.access-key}
     secret-Key: ${aws.credentials.secret-key}
   elastic-search:
-    region: ${aws.elastic-search.region:eu-west-2}
-    url:  ${aws.elastic-search.url:}
+    region: ${aws.elastic.search.region:eu-west-2}
+    url:  ${aws.elastic.search.url:}
     credentials:
       access-key: ${aws.credentials.access-key:}
       secret-key: ${aws.credentials.access-key:}
