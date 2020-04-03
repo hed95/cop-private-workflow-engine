@@ -14,7 +14,6 @@ public class BordersWorkflowEngineApplication {
         try {
             SpringApplication.run(BordersWorkflowEngineApplication.class, args);
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("Failed to start context", e);
         }
     }
