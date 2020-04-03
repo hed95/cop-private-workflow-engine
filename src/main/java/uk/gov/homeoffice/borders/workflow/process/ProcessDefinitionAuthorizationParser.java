@@ -13,6 +13,7 @@ import org.camunda.bpm.engine.impl.util.xml.Element;
 import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 public class ProcessDefinitionAuthorizationParser {
@@ -29,13 +30,17 @@ public class ProcessDefinitionAuthorizationParser {
             throw new InternalWorkflowException("Process definition " + processDefinition.getName() + " does not have a key");
         }
 
-        Authorization auth = authorizationService.createAuthorizationQuery()
+        List<Authorization> auth = authorizationService.createAuthorizationQuery()
                 .resourceId(processDefinition.getKey())
-                .singleResult();
+                .list();
 
-        if (auth != null) {
-            authorizationService.deleteAuthorization(auth.getId());
-            log.info("Deleted authorization for {}", processDefinition.getKey());
+        if (auth != null &&auth.size() > 0 ) {
+
+                auth.forEach(a -> {
+                    authorizationService.deleteAuthorization(a.getId());
+                    log.info("Deleted authorization for {}", processDefinition.getKey());
+                });
+
         }
 
         if (processDefinition.getCandidateStarterGroupIdExpressions().isEmpty()) {

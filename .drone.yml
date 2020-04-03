@@ -98,14 +98,13 @@ pipeline:
       target: ENGINE_URL
     - source: DEV_ENGINE_IMAGE
       target: ENGINE_IMAGE
-    - source: DEV_ENGINE_SPRING_PROFILES_ACTIVE
-      target: ENGINE_SPRING_PROFILES_ACTIVE
     - source: DEV_ENGINE_AWS_ACCESS_KEY_ID
       target: ENGINE_AWS_ACCESS_KEY_ID
     - source: DEV_ENGINE_AWS_SECRET_ACCESS_KEY
       target: ENGINE_AWS_SECRET_ACCESS_KEY
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
+      - export ENGINE_SPRING_PROFILES_ACTIVE="dev"
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
@@ -136,104 +135,25 @@ pipeline:
       target: KUBE_SERVER
     - source: STAGING_KUBE_TOKEN
       target: KUBE_TOKEN
-    - source: STAGING_WHITELIST
-      target: WHITELIST
-    - source: STAGING_KEYCLOAK_URL
-      target: KEYCLOAK_URL
-    - source: STAGING_KEYCLOAK_REALM
-      target: KEYCLOAK_REALM
-    - source: PROTOCOL_HTTPS
-      target: KEYCLOAK_PROTOCOL
+    - source: STAGING_KUBE_NAMESPACE_PRIVATE_COP
+      target: KUBE_NAMESPACE
     - source: NGINX_IMAGE
       target: NGINX_IMAGE
     - source: NGINX_TAG
       target: NGINX_TAG
-    - source: STAGING_REDIS_URL
-      target: REDIS_URL
-    - source: STAGING_REDIS_TOKEN
-      target: REDIS_TOKEN
-    - source: STAGING_REDIS_SSL
-      target: REDIS_SSL
-    - source: STAGING_GOV_NOTIFY_API_KEY
-      target: GOV_NOTIFY_API_KEY
-    - source: STAGING_GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
-      target: GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
-    - source: STAGING_GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
-      target: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
-    - source: STAGING_WWW_URL
-      target: WWW_URL
-    - source: PROTOCOL_HTTPS
-      target: WWW_PROTOCOL
-    - source: PROTOCOL_HTTPS
-      target: WWW_UI_PROTOCOL
-    - source: PROTOCOL_AWBS
-      target: WWW_UI_TXT_PROTOCOL
-    - source: PROTOCOL_HTTPS
-      target: API_COP_PROTOCOL
-    - source: STAGING_API_COP_URL
-      target: API_COP_URL
-    - source: PROTOCOL_HTTPS
-      target: API_FORM_PROTOCOL
-    - source: STAGING_API_FORM_URL
-      target: API_FORM_URL
-    - source: PROTOCOL_HTTPS
-      target: API_REF_PROTOCOL
-    - source: STAGING_API_REF_URL
-      target: API_REF_URL
-    - source: PROTOCOL_POSTGRES
-      target: DB_ENGINE_PROTOCOL
-    - source: PROTOCOL_JDBC
-      target: DB_ENGINE_JDBC_PROTOCOL
-    - source: STAGING_DB_ENGINE_PORT
-      target: DB_ENGINE_PORT
-    - source: STAGING_DB_ENGINE_HOSTNAME
-      target: DB_ENGINE_HOSTNAME
-    - source: STAGING_DB_ENGINE_OPTIONS
-      target: DB_ENGINE_OPTIONS
-    - source: STAGING_DB_ENGINE_DRIVER
-      target: DB_ENGINE_DRIVER
-    - source: STAGING_DB_ENGINE_TYPE
-      target: DB_ENGINE_TYPE
-    - source: STAGING_DB_ENGINE_JDBC_OPTIONS
-      target: DB_ENGINE_JDBC_OPTIONS
-    - source: STAGING_DB_ENGINE_DEFAULT_USERNAME
-      target: DB_ENGINE_DEFAULT_USERNAME
-    - source: STAGING_DB_ENGINE_DEFAULT_DBNAME
-      target: DB_ENGINE_DEFAULT_DBNAME
-    - source: STAGING_DB_ENGINE_DEFAULT_PASSWORD
-      target: DB_ENGINE_DEFAULT_PASSWORD
     - source: STAGING_ENGINE_NAME
       target: ENGINE_NAME
     - source: STAGING_ENGINE_URL
       target: ENGINE_URL
     - source: STAGING_ENGINE_IMAGE
       target: ENGINE_IMAGE
-    - source: STAGING_ENGINE_KEYCLOAK_CLIENT_ID
-      target: ENGINE_KEYCLOAK_CLIENT_ID
-    - source: STAGING_ENGINE_KEYCLOAK_CLIENT_SECRET
-      target: ENGINE_KEYCLOAK_CLIENT_SECRET
-    - source: STAGING_ENGINE_SPRING_PROFILES_ACTIVE
-      target: ENGINE_SPRING_PROFILES_ACTIVE
-    - source: STAGING_KUBE_NAMESPACE_PRIVATE_COP
-      target: KUBE_NAMESPACE
-    - source: ENGINE_PORT
-      target: ENGINE_PORT
-    - source: STAGING_ENGINE_JAVA_OPTS
-      target: ENGINE_JAVA_OPTS
-    - source: STAGING_ENGINE_CORS
-      target: ENGINE_CORS
-    - source: STAGING_ENGINE_ENCRYPTION_PASSPHRASE
-      target: ENGINE_ENCRYPTION_PASSPHRASE
-    - source: STAGING_ENGINE_ENCRYPTION_SALT
-      target: ENGINE_ENCRYPTION_SALT
     - source: STAGING_ENGINE_AWS_ACCESS_KEY_ID
       target: ENGINE_AWS_ACCESS_KEY_ID
     - source: STAGING_ENGINE_AWS_SECRET_ACCESS_KEY
       target: ENGINE_AWS_SECRET_ACCESS_KEY
-    - source: STAGING_ENGINE_S3_CASE_BUCKET_NAME
-      target: ENGINE_S3_CASE_BUCKET_NAME
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
+      - export ENGINE_SPRING_PROFILES_ACTIVE="staging"
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
@@ -253,104 +173,25 @@ pipeline:
       target: KUBE_SERVER
     - source: PRODUCTION_KUBE_TOKEN
       target: KUBE_TOKEN
-    - source: PRODUCTION_WHITELIST
-      target: WHITELIST
-    - source: PRODUCTION_KEYCLOAK_URL
-      target: KEYCLOAK_URL
-    - source: PRODUCTION_KEYCLOAK_REALM
-      target: KEYCLOAK_REALM
-    - source: PROTOCOL_HTTPS
-      target: KEYCLOAK_PROTOCOL
+    - source: PRODUCTION_KUBE_NAMESPACE_PRIVATE_COP
+      target: KUBE_NAMESPACE
     - source: NGINX_IMAGE
       target: NGINX_IMAGE
     - source: NGINX_TAG
       target: NGINX_TAG
-    - source: PRODUCTION_REDIS_URL
-      target: REDIS_URL
-    - source: PRODUCTION_REDIS_TOKEN
-      target: REDIS_TOKEN
-    - source: PRODUCTION_REDIS_SSL
-      target: REDIS_SSL
-    - source: PRODUCTION_GOV_NOTIFY_API_KEY
-      target: GOV_NOTIFY_API_KEY
-    - source: PRODUCTION_GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
-      target: GOV_NOTIFY_NOTIFICATION_EMAIL_TEMPLATE_ID
-    - source: PRODUCTION_GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
-      target: GOV_NOTIFY_NOTIFICATION_SMS_TEMPLATE_ID
-    - source: PRODUCTION_WWW_URL
-      target: WWW_URL
-    - source: PROTOCOL_HTTPS
-      target: WWW_PROTOCOL
-    - source: PROTOCOL_HTTPS
-      target: WWW_UI_PROTOCOL
-    - source: PROTOCOL_AWBS
-      target: WWW_UI_TXT_PROTOCOL
-    - source: PROTOCOL_HTTPS
-      target: API_COP_PROTOCOL
-    - source: PRODUCTION_API_COP_URL
-      target: API_COP_URL
-    - source: PROTOCOL_HTTPS
-      target: API_FORM_PROTOCOL
-    - source: PRODUCTION_API_FORM_URL
-      target: API_FORM_URL
-    - source: PROTOCOL_HTTPS
-      target: API_REF_PROTOCOL
-    - source: PRODUCTION_API_REF_URL
-      target: API_REF_URL
-    - source: PROTOCOL_POSTGRES
-      target: DB_ENGINE_PROTOCOL
-    - source: PROTOCOL_JDBC
-      target: DB_ENGINE_JDBC_PROTOCOL
-    - source: PRODUCTION_DB_ENGINE_PORT
-      target: DB_ENGINE_PORT
-    - source: PRODUCTION_DB_ENGINE_HOSTNAME
-      target: DB_ENGINE_HOSTNAME
-    - source: PRODUCTION_DB_ENGINE_OPTIONS
-      target: DB_ENGINE_OPTIONS
-    - source: PRODUCTION_DB_ENGINE_DRIVER
-      target: DB_ENGINE_DRIVER
-    - source: PRODUCTION_DB_ENGINE_TYPE
-      target: DB_ENGINE_TYPE
-    - source: PRODUCTION_DB_ENGINE_JDBC_OPTIONS
-      target: DB_ENGINE_JDBC_OPTIONS
-    - source: PRODUCTION_DB_ENGINE_DEFAULT_USERNAME
-      target: DB_ENGINE_DEFAULT_USERNAME
-    - source: PRODUCTION_DB_ENGINE_DEFAULT_DBNAME
-      target: DB_ENGINE_DEFAULT_DBNAME
-    - source: PRODUCTION_DB_ENGINE_DEFAULT_PASSWORD
-      target: DB_ENGINE_DEFAULT_PASSWORD
     - source: PRODUCTION_ENGINE_NAME
       target: ENGINE_NAME
     - source: PRODUCTION_ENGINE_URL
       target: ENGINE_URL
     - source: PRODUCTION_ENGINE_IMAGE
       target: ENGINE_IMAGE
-    - source: PRODUCTION_ENGINE_KEYCLOAK_CLIENT_ID
-      target: ENGINE_KEYCLOAK_CLIENT_ID
-    - source: PRODUCTION_ENGINE_KEYCLOAK_CLIENT_SECRET
-      target: ENGINE_KEYCLOAK_CLIENT_SECRET
-    - source: PRODUCTION_ENGINE_SPRING_PROFILES_ACTIVE
-      target: ENGINE_SPRING_PROFILES_ACTIVE
-    - source: PRODUCTION_KUBE_NAMESPACE_PRIVATE_COP
-      target: KUBE_NAMESPACE
-    - source: ENGINE_PORT
-      target: ENGINE_PORT
-    - source: PRODUCTION_ENGINE_JAVA_OPTS
-      target: ENGINE_JAVA_OPTS
-    - source: PRODUCTION_ENGINE_CORS
-      target: ENGINE_CORS
-    - source: PRODUCTION_ENGINE_ENCRYPTION_PASSPHRASE
-      target: ENGINE_ENCRYPTION_PASSPHRASE
-    - source: PRODUCTION_ENGINE_ENCRYPTION_SALT
-      target: ENGINE_ENCRYPTION_SALT
     - source: PRODUCTION_ENGINE_AWS_ACCESS_KEY_ID
       target: ENGINE_AWS_ACCESS_KEY_ID
     - source: PRODUCTION_ENGINE_AWS_SECRET_ACCESS_KEY
       target: ENGINE_AWS_SECRET_ACCESS_KEY
-    - source: PRODUCTION_ENGINE_S3_CASE_BUCKET_NAME
-      target: ENGINE_S3_CASE_BUCKET_NAME
     commands:
       - export ENGINE_TAG=$${DRONE_COMMIT_SHA}
+      - export ENGINE_SPRING_PROFILES_ACTIVE="production"
       - kd --insecure-skip-tls-verify -f kube/cert.yml
       - kd --insecure-skip-tls-verify -f kube/secret.yml
       - kd --insecure-skip-tls-verify -f kube/network-policy.yml
