@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.spin.Spin;
 import org.camunda.spin.json.SpinJsonNode;
 import org.joda.time.DateTime;
@@ -71,7 +70,7 @@ public class FormToS3Uploader {
             log.debug("Uploaded to S3 '{}'", putObjectResult.getETag());
             return key;
         } catch (IOException | AmazonServiceException e) {
-            log.error("Failed to upload", e);
+            log.error("Failed to upload to S3 due to '{}'", e.getMessage());
             runtimeService.createIncident(
                     FormVariableS3PersistListener.FAILED_TO_CREATE_S3_RECORD,
                     executionId,

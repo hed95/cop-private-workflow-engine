@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 import com.amazonaws.services.s3.AmazonS3;
+import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.history.handler.CompositeDbHistoryEventHandler;
@@ -23,11 +24,14 @@ public class HistoryConfiguration extends AbstractCamundaConfiguration {
     private String productPrefix;
 
     private final AmazonS3 amazonS3;
+    private final ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
     private final RestHighLevelClient restHighLevelClient;
 
-    public HistoryConfiguration(AmazonS3 amazonS3, RestHighLevelClient restHighLevelClient) {
+    public HistoryConfiguration(AmazonS3 amazonS3, RestHighLevelClient restHighLevelClient,
+                                ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor) {
         this.amazonS3 = amazonS3;
         this.restHighLevelClient = restHighLevelClient;
+        this.processInstanceSpinVariableDecryptor = processInstanceSpinVariableDecryptor;
     }
 
     @Override
@@ -41,11 +45,12 @@ public class HistoryConfiguration extends AbstractCamundaConfiguration {
         processEngineConfiguration.setHistoryEventHandler(
                 new CompositeDbHistoryEventHandler(
                         new FormVariableS3PersistListener(runtimeService,
-                                processEngineConfiguration.getHistoryService(),
                                 processEngineConfiguration.getRepositoryService(),
+                                processEngineConfiguration.getHistoryService(),
                                 new FormObjectSplitter(),
-                                productPrefix, new FormToS3Uploader(runtimeService, amazonS3),
-                                new FormToAWSESUploader(restHighLevelClient, runtimeService)
+                                 productPrefix, new FormToS3Uploader(runtimeService, amazonS3),
+                                new FormToAWSESUploader(restHighLevelClient, runtimeService),
+                                processInstanceSpinVariableDecryptor
                         )));
         log.info("History configured");
     }

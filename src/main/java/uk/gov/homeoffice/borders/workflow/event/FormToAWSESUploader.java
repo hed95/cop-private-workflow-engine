@@ -22,9 +22,9 @@ public class FormToAWSESUploader {
 
 
     public FormToAWSESUploader(RestHighLevelClient elasticsearchClient,
-                               RuntimeService runtimeService1) {
+                               RuntimeService runtimeService) {
         this.elasticsearchClient = elasticsearchClient;
-        this.runtimeService = runtimeService1;
+        this.runtimeService = runtimeService;
     }
     public void upload(String form,
                        String key,
@@ -38,6 +38,7 @@ public class FormToAWSESUploader {
             final IndexResponse index = elasticsearchClient.index(indexRequest, RequestOptions.DEFAULT);
             log.info("Document uploaded result response'{}'", index.getResult().getLowercase());
         } catch (IOException e) {
+            log.error("Failed to create a document in ES due to '{}'", e.getMessage());
             runtimeService.createIncident(
                     FormVariableS3PersistListener.FAILED_TO_CREATE_ES_RECORD,
                     executionId,

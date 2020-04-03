@@ -39,6 +39,12 @@ aws:
   credentials:
     access-key: ${aws.credentials.access-key}
     secret-Key: ${aws.credentials.secret-key}
+  aws-elastic-search:
+    region: ${aws.es.region:eu-west-2}
+    url:  ${aws.es.url:}
+    credentials:
+      access-key: ${aws.es.access-key:}
+      secret-key: ${aws.es.secret-key:}
 
 gov:
   notify:
@@ -105,6 +111,6 @@ server:
   error:
     whitelabel:
       enabled: false
-  port: ${server.port}
+  port: ${server.port:8080}
 
 
