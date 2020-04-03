@@ -76,7 +76,7 @@ public class CasesApplicationService {
         final SearchRequest searchRequest = new SearchRequest();
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.simpleQueryStringQuery(query));
+        sourceBuilder.query(QueryBuilders.queryStringQuery(query));
         sourceBuilder.from(pageable.getPageNumber());
         sourceBuilder.size(pageable.getPageSize());
         sourceBuilder.fetchSource(false);

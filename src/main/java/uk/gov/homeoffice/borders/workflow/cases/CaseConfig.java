@@ -46,12 +46,12 @@ public class CaseConfig {
                 , awsConfig.getCredentials().getSecretKey());
 
         final AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
-        AWSSigner signer = new AWSSigner(credentialsProvider, awsConfig.getAwsElasticSearch().getRegion(),
+        AWSSigner signer = new AWSSigner(credentialsProvider, awsConfig.getElasticSearch().getRegion(),
                 "workflow-engine", LocalDateTime::now);
 
         return new RestHighLevelClient(
                 RestClient.builder(new HttpHost(
-                        awsConfig.getAwsElasticSearch().getUrl()
+                        awsConfig.getElasticSearch().getUrl()
                 )).setHttpClientConfigCallback(httpClientBuilder ->
                         httpClientBuilder.addInterceptorLast(new AWSSigningRequestInterceptor(signer))));
 
