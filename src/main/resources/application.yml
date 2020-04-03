@@ -41,7 +41,7 @@ aws:
     secret-Key: ${aws.credentials.secret-key}
   elastic-search:
     region: ${aws.elastic.search.region:eu-west-2}
-    url:  ${aws.elastic.search.url:}
+    endpoint:  ${aws.elastic.search.endpoint:}
     credentials:
       access-key: ${aws.credentials.access-key:}
       secret-key: ${aws.credentials.access-key:}

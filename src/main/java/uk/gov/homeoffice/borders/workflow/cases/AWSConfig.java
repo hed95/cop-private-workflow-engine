@@ -18,7 +18,7 @@ public class AWSConfig {
     @Data
     public static class ElasticSearch {
         private String region;
-        private String url;
+        private String endpoint;
         private Credentials credentials;
     }
 

@@ -51,7 +51,7 @@ public class CaseConfig {
 
         return new RestHighLevelClient(
                 RestClient.builder(new HttpHost(
-                        awsConfig.getElasticSearch().getUrl()
+                        awsConfig.getElasticSearch().getEndpoint()
                 )).setHttpClientConfigCallback(httpClientBuilder ->
                         httpClientBuilder.addInterceptorLast(new AWSSigningRequestInterceptor(signer))));
 
