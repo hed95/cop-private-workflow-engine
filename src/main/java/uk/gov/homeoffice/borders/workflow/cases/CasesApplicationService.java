@@ -97,6 +97,7 @@ public class CasesApplicationService {
             }
             Map<String, List<HistoricProcessInstance>> groupedByBusinessKey = historicProcessInstances
                     .stream().collect(Collectors.groupingBy(HistoricProcessInstance::getBusinessKey));
+
             List<Case> cases = groupedByBusinessKey.keySet().stream().map(key -> {
                 Case caseDto = new Case();
                 caseDto.setBusinessKey(key);
