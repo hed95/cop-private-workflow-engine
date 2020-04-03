@@ -1,27 +1,23 @@
 package uk.gov.homeoffice.borders.workflow.event
 
+import com.amazonaws.auth.AWS4Signer
+import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
 import com.github.tomakehurst.wiremock.junit.WireMockRule
-import com.google.common.base.Supplier
 import org.apache.http.HttpHost
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.history.HistoricProcessInstance
-import org.camunda.bpm.engine.runtime.ProcessInstance
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestClientBuilder
 import org.elasticsearch.client.RestHighLevelClient
 import org.junit.ClassRule
 import spock.lang.Shared
 import spock.lang.Specification
-import vc.inreach.aws.request.AWSSigner
-import vc.inreach.aws.request.AWSSigningRequestInterceptor
-
-import java.time.LocalDateTime
+import uk.gov.homeoffice.borders.workflow.cases.AWSRequestSigningApacheInterceptor
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*
-import static java.time.LocalDateTime.now
 
 class FormToAWSESUploaderSpec extends Specification {
 
@@ -37,26 +33,26 @@ class FormToAWSESUploaderSpec extends Specification {
 
     def setup() {
         runtimeService = Mock()
-        final BasicAWSCredentials credentials = new BasicAWSCredentials("accessKey", "secretAccessKey")
+        AWSCredentials credentials = new BasicAWSCredentials('accessKey','secretAccessKey')
+        final AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+        AWS4Signer signer = new AWS4Signer()
+        signer.setRegionName('eu-west-2')
+        signer.setServiceName('es');
 
-        final AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials)
-        AWSSigner signer = new AWSSigner(credentialsProvider, 'eu-west-2', "workflow-engine",
-                new Supplier<LocalDateTime>() {
-                    @Override
-                    LocalDateTime get() {
-                        return now()
-                    }
-                })
 
-        restHighLevelClient = new RestHighLevelClient(
-                RestClient.builder(HttpHost.create(
-                        "http://127.0.01:8010"
+        RestHighLevelClient restHighLevelClient = new RestHighLevelClient(
+                RestClient.builder(new HttpHost(
+                        '127.0.0.1', 8010, 'http'
                 )).setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                        return httpClientBuilder.addInterceptorLast(new AWSSigningRequestInterceptor(signer))
+                        return httpClientBuilder
+                                .addInterceptorFirst(new AWSRequestSigningApacheInterceptor('es',
+                                        signer, credentialsProvider)
+                                )
                     }
                 }))
+
 
         uploader = new FormToAWSESUploader(restHighLevelClient, runtimeService)
     }
@@ -78,7 +74,7 @@ class FormToAWSESUploaderSpec extends Specification {
         processInstance.getBusinessKey() >> 'businessKey'
 
         and:
-        stubFor(put("/businessKey/_doc/%2FbusinessKey%2FtestForm%2Femail%2F29129121.json?timeout=1m")
+        stubFor(put("/businesskey/_doc/%2FbusinessKey%2FtestForm%2Femail%2F29129121.json?timeout=1m")
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {

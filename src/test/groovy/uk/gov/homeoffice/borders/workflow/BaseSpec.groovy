@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.borders.workflow
 
+import com.amazonaws.auth.AWS4Signer
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
@@ -40,81 +41,77 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
+import uk.gov.homeoffice.borders.workflow.cases.AWSRequestSigningApacheInterceptor
 import uk.gov.homeoffice.borders.workflow.config.CorrelationIdInterceptor
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.service.notify.NotificationClient
-import vc.inreach.aws.request.AWSSigner
-import vc.inreach.aws.request.AWSSigningRequestInterceptor
-
-import java.time.LocalDateTime
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*
-import static java.time.LocalDateTime.*
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = ["keycloak.enabled=false", "spring.datasource.name=testdbB", "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"])
-@ActiveProfiles("test,local")
+        properties = ['keycloak.enabled=false', 'spring.datasource.name=testdbB', 'spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration'])
+@ActiveProfiles('test,local')
 @AutoConfigureMockMvc
 @TestPropertySource(properties = [
-        "keycloak.auth-server-url=http://localhost:9000/auth",
-        "keycloak.public-client=false",
-        "keycloak.realm=myRealm",
-        "keycloak.resource=client_id",
-        "keycloak.bearer-only=true",
-        "keycloak.ssl-required=external",
-        "keycloak.use-resource-role-mappings=true",
-        "keycloak.principal-attribute=preferred_username",
-        "keycloak.enable-basic-auth=true",
-        "keycloak.credentials.secret=very_secret",
-        "camunda.bpm.process-engine-name=borders",
-        "camunda.bpm.database.type=h2",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.password=",
-        "spring.datasource.username=sa",
-        "spring.datasource.url=jdbc:h2:mem:testdbB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false",
-        "logging.level.org.springframework.web.socket=ERROR",
-        "server.port=8080",
-        "encryption.passphrase=secret",
-        "encryption.salt=a9v5n38s",
-        "redis.url=localhost",
-        "redis.port=6379",
-        "redis.token=token",
-        "public-ui.cop-url=http://localhost:8080",
-        "public-ui.protocol=http://",
-        "public-ui.text-protocol=awb://",
-        "cors.origins=*",
-        "api-ref.url=http://localhost:8000",
-        "form-api.url=http://localhost:8000",
-        "api-cop.url=http://localhost:8000",
-        "api-cop.connect-timeout=5000",
-        "api-cop.read-timeout=5000",
-        "aws.region=eu-west-2",
-        "aws.case-bucket-name=test-events",
-        "aws.bucket-name-prefix=test",
-        "aws.credentials.access-key=accessKey",
-        "aws.credentials.secret-key=secretAccessKeyo",
-        "gov.notify.api.key=XXXX",
-        "gov.notify.api.notification.email-template-id=XXXX",
-        "gov.notify.api.notification.sms-template-id=XXXX",
-        "gov.notify.template.enhance.mah-fast-parcel=a6dddd77-2dac-4e84-9fb7-8b1a8b44c6ce",
-        "gov.notify.template.enhance.bfnih=a7c8bfea-f0bf-468d-8221-82ec3e1cba14",
-        "gov.notify.template.enhance.intel-referral=ad1f65c9-be3e-460e-9554-9f23a24859f3",
-        "gov.notify.template.role.review=dbcfb612-a56e-4bab-ad4a-8f7df2cdb1de",
-        "gov.notify.template.role.rejected=9debbbd8-810d-47ae-98c9-0254eefe3cf8",
-        "gov.notify.template.role.approved=aa377bde-6182-4a68-b420-bea8ffbfd620",
-        "gov.notify.template.cash=70053053-04f4-4038-944a-b332e15a8b93",
-        "gov.notify.template.ien=92d322b7-0587-4b50-bd92-bb6b1456dcd7",
-        "gov.notify.template.sams=4862f857-deb2-4071-b637-e6cbdd26b9b3",
-        "gov.notify.template.national-security=742019ac-11b4-470b-9e2f-194f3d486d53",
-        "gov.notify.template.national-security-outcomes=8003ec6c-d68d-49d6-83e6-1c2790d6a676",
-        "gov.notify.emails.enhance.bfnih=test@localhost.com",
-        "gov.notify.emails.enhance.mah-fast-parcel=test@localhost.com",
-        "gov.notify.emails.sams=test@localhost.com",
-        "gov.notify.emails.national-security=test@localhost.com",
-        "teams.enhance.bfnih=TEST",
-        "teams.enhance.mah-fast-parcel=TEST"])
+        'keycloak.auth-server-url=http://localhost:9000/auth',
+        'keycloak.public-client=false',
+        'keycloak.realm=myRealm',
+        'keycloak.resource=client_id',
+        'keycloak.bearer-only=true',
+        'keycloak.ssl-required=external',
+        'keycloak.use-resource-role-mappings=true',
+        'keycloak.principal-attribute=preferred_username',
+        'keycloak.enable-basic-auth=true',
+        'keycloak.credentials.secret=very_secret',
+        'camunda.bpm.process-engine-name=borders',
+        'camunda.bpm.database.type=h2',
+        'spring.datasource.driver-class-name=org.h2.Driver',
+        'spring.datasource.password=',
+        'spring.datasource.username=sa',
+        'spring.datasource.url=jdbc:h2:mem:testdbB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false',
+        'logging.level.org.springframework.web.socket=ERROR',
+        'server.port=8080',
+        'encryption.passphrase=secret',
+        'encryption.salt=a9v5n38s',
+        'redis.url=localhost',
+        'redis.port=6379',
+        'redis.token=token',
+        'public-ui.cop-url=http://localhost:8080',
+        'public-ui.protocol=http://',
+        'public-ui.text-protocol=awb://',
+        'cors.origins=*',
+        'api-ref.url=http://localhost:8000',
+        'form-api.url=http://localhost:8000',
+        'api-cop.url=http://localhost:8000',
+        'api-cop.connect-timeout=5000',
+        'api-cop.read-timeout=5000',
+        'aws.region=eu-west-2',
+        'aws.case-bucket-name=test-events',
+        'aws.bucket-name-prefix=test',
+        'aws.credentials.access-key=accessKey',
+        'aws.credentials.secret-key=secretAccessKeyo',
+        'gov.notify.api.key=XXXX',
+        'gov.notify.api.notification.email-template-id=XXXX',
+        'gov.notify.api.notification.sms-template-id=XXXX',
+        'gov.notify.template.enhance.mah-fast-parcel=a6dddd77-2dac-4e84-9fb7-8b1a8b44c6ce',
+        'gov.notify.template.enhance.bfnih=a7c8bfea-f0bf-468d-8221-82ec3e1cba14',
+        'gov.notify.template.enhance.intel-referral=ad1f65c9-be3e-460e-9554-9f23a24859f3',
+        'gov.notify.template.role.review=dbcfb612-a56e-4bab-ad4a-8f7df2cdb1de',
+        'gov.notify.template.role.rejected=9debbbd8-810d-47ae-98c9-0254eefe3cf8',
+        'gov.notify.template.role.approved=aa377bde-6182-4a68-b420-bea8ffbfd620',
+        'gov.notify.template.cash=70053053-04f4-4038-944a-b332e15a8b93',
+        'gov.notify.template.ien=92d322b7-0587-4b50-bd92-bb6b1456dcd7',
+        'gov.notify.template.sams=4862f857-deb2-4071-b637-e6cbdd26b9b3',
+        'gov.notify.template.national-security=742019ac-11b4-470b-9e2f-194f3d486d53',
+        'gov.notify.template.national-security-outcomes=8003ec6c-d68d-49d6-83e6-1c2790d6a676',
+        'gov.notify.emails.enhance.bfnih=test@localhost.com',
+        'gov.notify.emails.enhance.mah-fast-parcel=test@localhost.com',
+        'gov.notify.emails.sams=test@localhost.com',
+        'gov.notify.emails.national-security=test@localhost.com',
+        'teams.enhance.bfnih=TEST',
+        'teams.enhance.mah-fast-parcel=TEST'])
 abstract class BaseSpec extends Specification {
 
     @Autowired
@@ -149,15 +146,15 @@ abstract class BaseSpec extends Specification {
 
 
     def stubKeycloak() {
-        stubFor(post("/realms/myRealm/protocol/openid-connect/token")
-                .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded;charset=UTF-8"))
-                .withHeader("Authorization", equalTo("Basic Y2xpZW50X2lkOnZlcnlfc2VjcmV0"))
-                .withRequestBody(equalTo("grant_type=client_credentials"))
+        stubFor(post('/realms/myRealm/protocol/openid-connect/token')
+                .withHeader('Content-Type', equalTo('application/x-www-form-urlencoded;charset=UTF-8'))
+                .withHeader('Authorization', equalTo('Basic Y2xpZW50X2lkOnZlcnlfc2VjcmV0'))
+                .withRequestBody(equalTo('grant_type=client_credentials'))
                 .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
+                .withHeader('Content-Type', 'application/json')
                 .withBody("""
                                         {
-                                            "access_token": "MY_SECRET_TOKEN"
+                                            'access_token': 'MY_SECRET_TOKEN'
                                         }
                                         """)))
     }
@@ -174,7 +171,7 @@ abstract class BaseSpec extends Specification {
             it ->
                 it.processInstanceId
                 if (runtimeService.createProcessInstanceQuery().processInstanceId(it.processInstanceId).count() != 0) {
-                    runtimeService.deleteProcessInstance(it.processInstanceId, "testclean", false, true)
+                    runtimeService.deleteProcessInstance(it.processInstanceId, 'testclean', false, true)
                 }
         }
 
@@ -249,11 +246,11 @@ abstract class BaseSpec extends Specification {
         @Bean
         @Primary
         AmazonS3 awsS3Client() {
-            final BasicAWSCredentials credentials = new BasicAWSCredentials("accessKey", "secretAccessKey")
+            final BasicAWSCredentials credentials = new BasicAWSCredentials('accessKey', 'secretAccessKey')
 
             def amazonS3 = AmazonS3ClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:8323",
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration('http://localhost:8323',
                     'eu-west-2'))
                     .enablePathStyleAccess()
                     .build()
@@ -261,31 +258,31 @@ abstract class BaseSpec extends Specification {
             return amazonS3
         }
 
-        @Bean(destroyMethod = "close")
+
+
+        @Bean(destroyMethod = 'close')
         @Primary
         RestHighLevelClient client() {
+            AWSCredentials credentials = new BasicAWSCredentials('accessKey','secretAccessKey')
+            final AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+            AWS4Signer signer = new AWS4Signer()
+            signer.setRegionName('eu-west-2')
+            signer.setServiceName('es');
 
-            final BasicAWSCredentials credentials = new BasicAWSCredentials("accessKey", "secretAccessKey")
 
-            final AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials)
-            AWSSigner signer = new AWSSigner(credentialsProvider, 'eu-west-2', "workflow-engine",
-                   new Supplier<LocalDateTime>() {
-                       @Override
-                       LocalDateTime get() {
-                           return  now()
-                       }
-                   })
-
-            return new RestHighLevelClient(
-                    RestClient.builder(HttpHost.create(
-                           "http://127.0.01:8000"
+            RestHighLevelClient restHighLevelClient = new RestHighLevelClient(
+                    RestClient.builder(new HttpHost(
+                            '127.0.0.1', 8000, 'http'
                     )).setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                         @Override
                         HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                            return httpClientBuilder.addInterceptorLast(new AWSSigningRequestInterceptor(signer))
+                            return httpClientBuilder
+                                    .addInterceptorFirst(new AWSRequestSigningApacheInterceptor('es',
+                                            signer, credentialsProvider)
+                                    )
                         }
                     }))
-
+            return restHighLevelClient;
         }
 
         @Bean

@@ -65,7 +65,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
         def processStartDto = new ProcessStartDto()
         processStartDto.processKey = 'encryption'
         processStartDto.variableName = 'collectionOfData'
-        processStartDto.setBusinessKey('businessKey')
+        processStartDto.setBusinessKey('BF-20120012-222')
         def data = new Data()
         data.candidateGroup = "teamA"
         data.name = "test 0"
@@ -142,12 +142,12 @@ class CasesApplicationServiceSpec extends BaseSpec {
                                             "max_score" : 1.3862942,
                                             "hits" : [
                                               {
-                                                "_index" : "businessKey",
+                                                "_index" : "bf-20120012-222",
                                                 "_type" : "_doc",
                                                 "_id" : "0",
                                                 "_score" : 1.3862942,
                                                 "_source" : {
-                                                  "businessKey" : "businessKey"
+                                                  "businessKey" : "bf-20120012-222"
                                                 }
                                               }
                                             ]

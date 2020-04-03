@@ -4,8 +4,8 @@ import groovy.util.logging.Slf4j;
 import io.digitalpatterns.camunda.encryption.ProcessInstanceSpinVariableDecryptor;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.IOUtils;
-import org.camunda.bpm.engine.HistoryService;
 import org.apache.commons.lang3.SerializationUtils;
+import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import javax.crypto.SealedObject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
