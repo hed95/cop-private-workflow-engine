@@ -14,10 +14,16 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.authorization.Authorization;
 import org.camunda.bpm.engine.authorization.Resources;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
-import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.rest.dto.history.HistoricProcessInstanceDto;
 import org.camunda.spin.Spin;
 import org.camunda.spin.json.SpinJsonNode;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,9 +41,11 @@ import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -46,6 +54,7 @@ public class CasesApplicationService {
 
     private HistoryService historyService;
     private AmazonS3 amazonS3Client;
+    private RestHighLevelClient elasticsearchClient;
     private AWSConfig awsConfig;
     private CaseActionService caseActionService;
     private AuthorizationService authorizationService;
@@ -55,39 +64,61 @@ public class CasesApplicationService {
      * Query for cases that match a key. Each case is a collection of process instance pointers. No internal data
      * is returned.
      *
-     * @param businessKeyQuery
+     * @param query
      * @param pageable
      * @param platformUser
      * @return a list of cases.
      */
     @AuditableCaseEvent
-    public Page<Case> queryByKey(String businessKeyQuery, Pageable pageable, PlatformUser platformUser) {
+    public Page<Case> query(String query, Pageable pageable, PlatformUser platformUser) {
         log.info("Performing search by {}", platformUser.getEmail());
-        HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery()
-                .processInstanceBusinessKeyLike(businessKeyQuery);
 
-        long totalResults = query.count();
+        final SearchRequest searchRequest = new SearchRequest();
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.queryStringQuery(query));
+        sourceBuilder.from(pageable.getPageNumber());
+        sourceBuilder.size(pageable.getPageSize());
+        sourceBuilder.fetchSource(false);
 
-        List<HistoricProcessInstance> historicProcessInstances = query
-                .listPage(PAGE_HELPER.calculatePageNumber(pageable)
-                        , pageable.getPageSize());
 
-        Map<String, List<HistoricProcessInstance>> groupedByBusinessKey = historicProcessInstances
-                .stream().collect(Collectors.groupingBy(HistoricProcessInstance::getBusinessKey));
+        searchRequest.source(sourceBuilder);
 
-        List<Case> cases = groupedByBusinessKey.keySet().stream().map(key -> {
-            Case caseDto = new Case();
-            caseDto.setBusinessKey(key);
-            List<HistoricProcessInstance> instances = groupedByBusinessKey.get(key);
-            caseDto.setProcessInstances(instances
-                    .stream()
-                    .map(HistoricProcessInstanceDto::fromHistoricProcessInstance).collect(toList()));
-            return caseDto;
-        }).collect(toList());
+        try {
+            final SearchResponse results = elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT.toBuilder()
+            .addHeader("Content-Type", "application/json").build());
 
-        log.info("Number of cases returned for '{}' is '{}'", businessKeyQuery, totalResults);
-        return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalResults);
+            final Set<String> keys = StreamSupport.stream(results.getHits().spliterator(), false)
+                    .map(s -> s.getIndex().toUpperCase()).collect(toSet());
 
+            List<HistoricProcessInstance> historicProcessInstances = new ArrayList<>();
+            if (!keys.isEmpty()) {
+                final List<HistoricProcessInstance> instances = keys.stream()
+                        .map(key -> historyService.createHistoricProcessInstanceQuery()
+                                .processInstanceBusinessKey(key).list()).flatMap(List::stream).collect(toList());
+                historicProcessInstances.addAll(instances);
+            }
+            Map<String, List<HistoricProcessInstance>> groupedByBusinessKey = historicProcessInstances
+                    .stream().collect(Collectors.groupingBy(HistoricProcessInstance::getBusinessKey));
+
+            List<Case> cases = groupedByBusinessKey.keySet().stream().map(key -> {
+                Case caseDto = new Case();
+                caseDto.setBusinessKey(key);
+                List<HistoricProcessInstance> instances = groupedByBusinessKey.get(key);
+                caseDto.setProcessInstances(instances
+                        .stream()
+                        .map(HistoricProcessInstanceDto::fromHistoricProcessInstance).collect(toList()));
+                return caseDto;
+            }).collect(toList());
+
+            final long totalHits = results.getHits().getTotalHits().value;
+            log.info("Number of cases returned for '{}' is '{}'", query, totalHits);
+            return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalHits);
+
+        } catch (Exception e) {
+            log.error("Failed to perform search", e);
+            return new PageImpl<>(new ArrayList<>(), PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()),
+                    0);
+        }
     }
 
 

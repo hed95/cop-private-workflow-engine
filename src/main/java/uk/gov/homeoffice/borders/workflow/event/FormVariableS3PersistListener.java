@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import javax.crypto.SealedObject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,20 +34,23 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     protected static final List<String> VARIABLE_EVENT_TYPES = new ArrayList<>();
     private static final ConcurrentHashMap<String, Boolean> S3_SAVE_CHECK = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> S3_PRODUCT = new ConcurrentHashMap<>();
-
-    private RuntimeService runtimeService;
-    private RepositoryService repositoryService;
-    private HistoryService historyService;
-    private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
-    private FormObjectSplitter formObjectSplitter;
-    private String productPrefix;
-    private FormToS3Uploader formToS3Uploader;
     public static final String FAILED_TO_CREATE_S3_RECORD = "FAILED_TO_CREATE_S3_RECORD";
+    public static final String FAILED_TO_CREATE_ES_RECORD = "FAILED_TO_CREATE_ES_RECORD";
 
     static {
         VARIABLE_EVENT_TYPES.add(HistoryEventTypes.VARIABLE_INSTANCE_CREATE.getEventName());
         VARIABLE_EVENT_TYPES.add(HistoryEventTypes.VARIABLE_INSTANCE_UPDATE.getEventName());
     }
+
+    private RuntimeService runtimeService;
+    private RepositoryService repositoryService;
+    private HistoryService historyService;
+    private FormObjectSplitter formObjectSplitter;
+    private String productPrefix;
+    private FormToS3Uploader formToS3Uploader;
+    private FormToAWSESUploader formToAWSESUploader;
+    private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
+
 
     @Override
     public void handleEvent(HistoryEvent historyEvent) {
@@ -115,30 +117,27 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
 
                                     });
                             forms.forEach(form ->
-                                    formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product));
-                            log.info("Data saved");
+                                    {
+                                        log.info("Upload form to S3");
+                                        String key = formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product);
+                                        if (key != null) {
+                                            log.info("Upload form to ES");
+                                            formToAWSESUploader.upload(form, key, processInstance, variable.getExecutionId());
+                                        }
+                                    }
+                            );
 
                         }
                     }
                 } catch (Exception e) {
                     log.error("Failed to save to S3 '{}'", e.getMessage());
-                    if (e instanceof IOException) {
-                        runtimeService.createIncident(
-                                FAILED_TO_CREATE_S3_RECORD,
-                                historyEvent.getExecutionId(),
-                                "Failed to generate JSON from variable",
-                                e.getMessage()
+                    runtimeService.createIncident(
+                            FAILED_TO_CREATE_S3_RECORD,
+                            historyEvent.getExecutionId(),
+                            "Failed perform post transaction activity",
+                            e.getMessage()
 
-                        );
-                    } else {
-                        runtimeService.createIncident(
-                                FAILED_TO_CREATE_S3_RECORD,
-                                historyEvent.getExecutionId(),
-                                "Failed to perform transaction sync",
-                                e.getMessage()
-
-                        );
-                    }
+                    );
                 }
             }
         }

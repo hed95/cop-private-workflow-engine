@@ -39,6 +39,12 @@ aws:
   credentials:
     access-key: ${aws.credentials.access-key}
     secret-Key: ${aws.credentials.secret-key}
+  elastic-search:
+    region: ${aws.elastic.search.region:eu-west-2}
+    endpoint:  ${aws.elastic.search.endpoint:}
+    credentials:
+      access-key: ${aws.credentials.access-key:}
+      secret-key: ${aws.credentials.access-key:}
 
 gov:
   notify:
@@ -98,12 +104,13 @@ logging:
     level: "%X{mdcData}%5p"
   level:
     org.springframework.web.socket: ERROR
+    com.amazonaws.util.EC2MetadataUtils: ERROR
 
 
 server:
   error:
     whitelabel:
       enabled: false
-  port: ${server.port}
+  port: ${server.port:8080}
 
 

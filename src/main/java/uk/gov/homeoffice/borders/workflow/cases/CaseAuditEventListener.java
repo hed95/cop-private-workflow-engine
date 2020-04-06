@@ -5,5 +5,5 @@ import org.springframework.context.event.EventListener;
 public interface CaseAuditEventListener {
 
     @EventListener
-    public void handle(CaseAudit caseAudit);
+    void handle(CaseAudit caseAudit);
 }

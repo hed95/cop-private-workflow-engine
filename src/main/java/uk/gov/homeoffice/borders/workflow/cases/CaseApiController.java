@@ -28,10 +28,10 @@ public class CaseApiController {
 
     @GetMapping
     public PagedResources<Case> getCases(Pageable pageable,
-                                         @RequestParam("businessKeyQuery") String businessKeyQuery,
+                                         @RequestParam("query") String query,
                                          PlatformUser platformUser) {
 
-        Page<Case> cases = casesApplicationService.queryByKey(businessKeyQuery, pageable, platformUser);
+        Page<Case> cases = casesApplicationService.query(query, pageable, platformUser);
         return pagedResourcesAssembler.toResource(cases, entity -> entity);
     }
 

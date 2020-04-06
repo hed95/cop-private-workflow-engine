@@ -102,7 +102,8 @@ dependencies {
     compile 'org.apache.httpcomponents:httpclient:4.5.9'
     compile 'com.amazonaws:aws-java-sdk-s3:1.11.714'
     compile 'com.amazonaws:aws-java-sdk-core:1.11.714'
-
+    compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.6.1'
+    compile 'org.elasticsearch:elasticsearch:7.6.1'
     compile 'org.springframework.cloud:spring-cloud-context:2.0.2.RELEASE'
     compile 'org.springframework.cloud:spring-cloud-starter-aws-secrets-manager-config:2.0.2.RELEASE'
 
