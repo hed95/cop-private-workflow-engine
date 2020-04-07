@@ -34,13 +34,11 @@ public class ProcessDefinitionAuthorizationParser {
                 .resourceId(processDefinition.getKey())
                 .list();
 
-        if (auth != null &&auth.size() > 0 ) {
-
+        if (auth != null && auth.size() > 0 ) {
                 auth.forEach(a -> {
                     authorizationService.deleteAuthorization(a.getId());
                     log.info("Deleted authorization for {}", processDefinition.getKey());
                 });
-
         }
 
         if (processDefinition.getCandidateStarterGroupIdExpressions().isEmpty()) {

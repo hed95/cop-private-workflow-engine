@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.rest.*;
 import org.camunda.bpm.engine.rest.history.HistoryRestService;
 import org.camunda.bpm.engine.rest.impl.AbstractProcessEngineRestServiceImpl;
@@ -20,8 +21,12 @@ import java.net.URI;
 @Slf4j
 public class JerseyConfig extends CamundaJerseyResourceConfig {
 
-    @Autowired
-    private CustomCamundaRestApiService customCamundaRestApiService;
+    private final CustomCamundaRestApiService customCamundaRestApiService;
+
+    public JerseyConfig(CustomCamundaRestApiService customCamundaRestApiService) {
+        this.customCamundaRestApiService = customCamundaRestApiService;
+    }
+
 
     @Override
     protected void registerCamundaRestResources() {
@@ -40,6 +45,11 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
         @Value("${camunda.bpm.process-engine-name}")
         private String processEngineName;
 
+        private final ProcessEngine processEngine;
+
+        public CustomCamundaRestApiService(ProcessEngine processEngine) {
+            this.processEngine = processEngine;
+        }
 
         @Path(ExternalTaskRestService.PATH)
         public ExternalTaskRestService getExternalTaskRestService() {
@@ -63,11 +73,11 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
 
         @Path(DeploymentRestService.PATH)
         public DeploymentRestService getDeploymentRestService() {
-            String rootResourcePath = getRelativeEngineUri(processEngineName).toASCIIString();
-            CustomDeploymentRestService subResource
-                    = new CustomDeploymentRestService(processEngineName, getObjectMapper());
-            subResource.setRelativeRootResourceUri(rootResourcePath);
-            return subResource;
+            DeploymentRestService deploymentRestService = super.getDeploymentRestService(processEngineName);
+            return new CustomDeploymentRestService(
+                    deploymentRestService,
+                    processEngine
+            );
         }
 
         @Path(JobDefinitionRestService.PATH)

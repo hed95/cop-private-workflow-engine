@@ -7,3 +7,4 @@ dist/
 jgiven-reports/
 .DS_Store
 workflow-resources
+src/main/resources/application.x.yml
