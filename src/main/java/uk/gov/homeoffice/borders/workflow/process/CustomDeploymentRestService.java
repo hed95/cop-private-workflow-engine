@@ -24,21 +24,17 @@ public class CustomDeploymentRestService extends DeploymentRestServiceImpl {
     @Override
     public DeploymentWithDefinitionsDto createDeployment(UriInfo uriInfo, MultipartFormData payload) {
         DeploymentWithDefinitionsDto deployment = super.createDeployment(uriInfo, payload);
-        log.info("Deployment count '{}'", deployment.getDeployedCaseDefinitions().size());
+        log.info("Deployment id '{}'", deployment.getId());
         try {
-            deployment.getDeployedProcessDefinitions().entrySet().stream()
-                    .findFirst().ifPresent(entry -> {
-                        ProcessDefinitionEntity processDefinitionEntity =
-                                (ProcessDefinitionEntity) getProcessEngine()
-                                        .getRepositoryService().createProcessDefinitionQuery()
-                                        .processDefinitionId(entry.getKey()).singleResult();
-                        processDefinitionAuthorizationParser.parseProcess(
-                                processDefinitionEntity
-                        );
-
-                    }
-
-            );
+            ProcessDefinitionEntity processDefinitionEntity =
+                    (ProcessDefinitionEntity) getProcessEngine()
+                            .getRepositoryService().createProcessDefinitionQuery()
+                            .deploymentId(deployment.getId()).singleResult();
+            if (processDefinitionEntity != null) {
+                processDefinitionAuthorizationParser.parseProcess(
+                        processDefinitionEntity
+                );
+            }
         } catch (Exception e) {
             log.error("Failed to create authorization for process definition '{}'", e.getMessage());
         }

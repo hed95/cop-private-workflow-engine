@@ -67,7 +67,7 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
             CustomDeploymentRestService subResource
                     = new CustomDeploymentRestService(processEngineName, getObjectMapper());
             subResource.setRelativeRootResourceUri(rootResourcePath);
-            return super.getDeploymentRestService(processEngineName);
+            return subResource;
         }
 
         @Path(JobDefinitionRestService.PATH)
