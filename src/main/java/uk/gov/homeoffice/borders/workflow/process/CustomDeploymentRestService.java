@@ -24,7 +24,7 @@ public class CustomDeploymentRestService extends DeploymentRestServiceImpl {
     @Override
     public DeploymentWithDefinitionsDto createDeployment(UriInfo uriInfo, MultipartFormData payload) {
         DeploymentWithDefinitionsDto deployment = super.createDeployment(uriInfo, payload);
-
+        log.info("Deployment count '{}'", deployment.getDeployedCaseDefinitions().size());
         try {
             deployment.getDeployedProcessDefinitions().entrySet().stream()
                     .findFirst().ifPresent(entry -> {
