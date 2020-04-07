@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.rest.*;
 import org.camunda.bpm.engine.rest.history.HistoryRestService;
 import org.camunda.bpm.engine.rest.impl.AbstractProcessEngineRestServiceImpl;
@@ -9,6 +10,7 @@ import org.camunda.bpm.spring.boot.starter.rest.CamundaJerseyResourceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.homeoffice.borders.workflow.process.CustomDeploymentRestService;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Path;
@@ -19,8 +21,12 @@ import java.net.URI;
 @Slf4j
 public class JerseyConfig extends CamundaJerseyResourceConfig {
 
-    @Autowired
-    private CustomCamundaRestApiService customCamundaRestApiService;
+    private final CustomCamundaRestApiService customCamundaRestApiService;
+
+    public JerseyConfig(CustomCamundaRestApiService customCamundaRestApiService) {
+        this.customCamundaRestApiService = customCamundaRestApiService;
+    }
+
 
     @Override
     protected void registerCamundaRestResources() {
@@ -39,6 +45,11 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
         @Value("${camunda.bpm.process-engine-name}")
         private String processEngineName;
 
+        private final ProcessEngine processEngine;
+
+        public CustomCamundaRestApiService(ProcessEngine processEngine) {
+            this.processEngine = processEngine;
+        }
 
         @Path(ExternalTaskRestService.PATH)
         public ExternalTaskRestService getExternalTaskRestService() {
@@ -62,7 +73,11 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
 
         @Path(DeploymentRestService.PATH)
         public DeploymentRestService getDeploymentRestService() {
-            return super.getDeploymentRestService(processEngineName);
+            DeploymentRestService deploymentRestService = super.getDeploymentRestService(processEngineName);
+            return new CustomDeploymentRestService(
+                    deploymentRestService,
+                    processEngine
+            );
         }
 
         @Path(JobDefinitionRestService.PATH)

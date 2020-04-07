@@ -26,14 +26,18 @@ import static java.util.Optional.ofNullable;
 public class RedisConfig {
 
 
-    @Value("${redis.url:'localhost'}")
+    @Value("${redis.url:localhost}")
     public String redisHostName;
     @Value("${redis.port?:6379}")
     public int redisPort;
     @Value("${redis.token}")
     private String redisAuthToken;
-    @Autowired
-    Environment env;
+
+    private final Environment env;
+
+    public RedisConfig(Environment env) {
+        this.env = env;
+    }
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
