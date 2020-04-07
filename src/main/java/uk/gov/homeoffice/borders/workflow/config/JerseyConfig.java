@@ -9,6 +9,7 @@ import org.camunda.bpm.spring.boot.starter.rest.CamundaJerseyResourceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.homeoffice.borders.workflow.process.CustomDeploymentRestService;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Path;
@@ -62,6 +63,10 @@ public class JerseyConfig extends CamundaJerseyResourceConfig {
 
         @Path(DeploymentRestService.PATH)
         public DeploymentRestService getDeploymentRestService() {
+            String rootResourcePath = getRelativeEngineUri(processEngineName).toASCIIString();
+            CustomDeploymentRestService subResource
+                    = new CustomDeploymentRestService(processEngineName, getObjectMapper());
+            subResource.setRelativeRootResourceUri(rootResourcePath);
             return super.getDeploymentRestService(processEngineName);
         }
 
