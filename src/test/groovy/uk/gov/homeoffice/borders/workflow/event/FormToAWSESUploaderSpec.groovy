@@ -71,14 +71,15 @@ class FormToAWSESUploaderSpec extends Specification {
                       }'''
 
         HistoricProcessInstance processInstance = Mock()
-        processInstance.getBusinessKey() >> 'businessKey'
+        processInstance.getBusinessKey() >> 'DEV-20200804-2222'
 
         and:
-        stubFor(put("/businesskey/_doc/%2FbusinessKey%2FtestForm%2Femail%2F29129121.json?timeout=1m")
+        stubFor(put("/20200408/_doc/%2FDEV-20200804-2222%2FtestForm%2Femail%2F29129121.json?timeout=1m")
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {
-                                             "test": "test"
+                                             "test": "test",
+                                              "businessKey" : "DEV-20200804-2222"
                                             }
                                             ''', true, true))
 
@@ -88,7 +89,7 @@ class FormToAWSESUploaderSpec extends Specification {
                                         {
                                           "_index" : "businessKey",
                                           "_type" : "_doc",
-                                          "_id" : "/businessKey/testForm/email/29129121.json",
+                                          "_id" : "/DEV-20200804-2222/testForm/email/29129121.json",
                                           "_version" : 1,
                                           "result" : "created",
                                           "_shards" : {
@@ -102,7 +103,7 @@ class FormToAWSESUploaderSpec extends Specification {
                                         """)))
 
         when:
-        uploader.upload(form, "/businessKey/testForm/email/29129121.json", processInstance, 'executionId')
+        uploader.upload(form, "/DEV-20200804-2222/testForm/email/29129121.json", processInstance, 'executionId')
 
         then:
         true
