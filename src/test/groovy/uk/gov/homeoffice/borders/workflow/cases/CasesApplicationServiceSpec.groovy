@@ -118,7 +118,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
                                                   "boost" : 1.0
                                                 }
                                               },
-                                              "_source" : false
+                                              "_source":{"includes":["businessKey"],"excludes":[]}}
                                             }
                                                 ''', true, true))
 
@@ -147,7 +147,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
                                                 "_id" : "0",
                                                 "_score" : 1.3862942,
                                                 "_source" : {
-                                                  "businessKey" : "bf-20120012-222"
+                                                  "businessKey" : "BF-20120012-222"
                                                 }
                                               }
                                             ]
@@ -222,7 +222,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
                                                       "boost" : 1.0
                                                     }
                                                   },
-                                                  "_source" : false
+                                                   "_source":{"includes":["businessKey"],"excludes":[]}}
                                                 }
                                             ''', true, true))
                 .willReturn(aResponse()
@@ -296,7 +296,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
                                                       "boost" : 1.0
                                                     }
                                                   },
-                                                  "_source" : false
+                                                   "_source":{"includes":["businessKey"],"excludes":[]}}
                                                 }
                                             ''', true, true))
 
@@ -399,7 +399,7 @@ class CasesApplicationServiceSpec extends BaseSpec {
                                                       "boost" : 1.0
                                                     }
                                                   },
-                                                  "_source" : false
+                                                   "_source":{"includes":["businessKey"],"excludes":[]}}
                                                 }
                                             ''', true, true))
 

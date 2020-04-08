@@ -9,8 +9,11 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static java.lang.String.format;
 
@@ -26,14 +29,28 @@ public class FormToAWSESUploader {
         this.elasticsearchClient = elasticsearchClient;
         this.runtimeService = runtimeService;
     }
+
     public void upload(String form,
                        String key,
                        HistoricProcessInstance processInstance,
                        String executionId) {
 
 
-        IndexRequest indexRequest = new IndexRequest(processInstance.getBusinessKey().toLowerCase()).id(key);
-        indexRequest.source(form, XContentType.JSON);
+        String indexKey;
+        if (processInstance.getBusinessKey() != null && processInstance.getBusinessKey().split("-").length == 3) {
+            indexKey = processInstance.getBusinessKey().split("-")[1];
+        } else {
+            indexKey = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        }
+
+        IndexRequest indexRequest = new IndexRequest(indexKey).id(key);
+        JSONObject object = new JSONObject(form);
+
+        if (!object.has("businessKey")) {
+            object.put("businessKey", processInstance.getBusinessKey());
+        }
+
+        indexRequest.source(object.toString(), XContentType.JSON);
         try {
             final IndexResponse index = elasticsearchClient.index(indexRequest, RequestOptions.DEFAULT.toBuilder()
                     .addHeader("Content-Type", "application/json").build());

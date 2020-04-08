@@ -78,7 +78,7 @@ public class CasesApplicationService {
         sourceBuilder.query(QueryBuilders.queryStringQuery(query));
         sourceBuilder.from(pageable.getPageNumber());
         sourceBuilder.size(pageable.getPageSize());
-        sourceBuilder.fetchSource(false);
+        sourceBuilder.fetchSource(new String[]{"businessKey"}, null);
 
 
         searchRequest.source(sourceBuilder);
@@ -88,7 +88,7 @@ public class CasesApplicationService {
             .addHeader("Content-Type", "application/json").build());
 
             final Set<String> keys = StreamSupport.stream(results.getHits().spliterator(), false)
-                    .map(s -> s.getIndex().toUpperCase()).collect(toSet());
+                    .map(s -> s.getSourceAsMap().get("businessKey").toString()).collect(toSet());
 
             List<HistoricProcessInstance> historicProcessInstances = new ArrayList<>();
             if (!keys.isEmpty()) {

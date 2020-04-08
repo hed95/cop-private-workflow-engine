@@ -83,7 +83,7 @@ class CaseApiControllerSpec extends BaseSpec {
                                                   "boost" : 1.0
                                                 }
                                               },
-                                              "_source" : false
+                                             "_source":{"includes":["businessKey"],"excludes":[]}}
                                             }
                                             ''', true, true))
 
