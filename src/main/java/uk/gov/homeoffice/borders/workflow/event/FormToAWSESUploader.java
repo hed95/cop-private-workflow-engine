@@ -37,7 +37,7 @@ public class FormToAWSESUploader {
 
 
         String indexKey;
-        if (processInstance.getBusinessKey() != null && processInstance.getBusinessKey().split("-").length > 3) {
+        if (processInstance.getBusinessKey() != null && processInstance.getBusinessKey().split("-").length == 3) {
             indexKey = processInstance.getBusinessKey().split("-")[1];
         } else {
             indexKey = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
