@@ -74,7 +74,7 @@ class FormToAWSESUploaderSpec extends Specification {
         processInstance.getBusinessKey() >> 'DEV-20200804-2222'
 
         and:
-        stubFor(put("/20200408/_doc/%2FDEV-20200804-2222%2FtestForm%2Femail%2F29129121.json?timeout=1m")
+        stubFor(put("/20200804/_doc/%2FDEV-20200804-2222%2FtestForm%2Femail%2F29129121.json?timeout=1m")
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {
