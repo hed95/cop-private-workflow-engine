@@ -38,6 +38,7 @@ import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -58,7 +59,6 @@ public class CasesApplicationService {
     private AWSConfig awsConfig;
     private CaseActionService caseActionService;
     private AuthorizationService authorizationService;
-    private static final PageHelper PAGE_HELPER = new PageHelper();
 
     /**
      * Query for cases that match a key. Each case is a collection of process instance pointers. No internal data
@@ -111,8 +111,9 @@ public class CasesApplicationService {
             }).collect(toList());
 
             final long totalHits = results.getHits().getTotalHits().value;
-            log.info("Number of cases returned for '{}' is '{}'", query, totalHits);
-            return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalHits);
+            log.info("Number of cases returned from ES '{}' is '{}'", query, totalHits);
+            log.info("Number of process instances returned for '{}' is '{}'", query, cases.size());
+            return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), cases.size() == 0 ? 0 : totalHits);
 
         } catch (Exception e) {
             log.error("Failed to perform search", e);
@@ -208,13 +209,14 @@ public class CasesApplicationService {
         if (!candidateUsers.isEmpty()) {
             return candidateUsers.contains(platformUser.getEmail());
         }
+
         List<String> candidateGroups =
                 authorizations.stream().map(Authorization::getGroupId).filter(Objects::nonNull)
                         .collect(Collectors.toList());
 
 
         List<String> roles = platformUser.getShiftDetails().getRoles();
-        return !roles.stream().filter(candidateGroups::contains).collect(Collectors.toList()).isEmpty();
+        return roles.stream().anyMatch(candidateGroups::contains);
 
     }
 
@@ -308,7 +310,7 @@ public class CasesApplicationService {
         Optional.ofNullable(metadata.getUserMetaDataOf("submittedby"))
                 .ifPresent(user -> formReference.setSubmittedBy(
                         URLDecoder.decode(metadata.getUserMetaDataOf("submittedby"),
-                                Charset.forName("UTF-8"))));
+                                StandardCharsets.UTF_8)));
 
         return formReference;
 
@@ -320,7 +322,7 @@ public class CasesApplicationService {
     public SpinJsonNode getSubmissionData(String businessKey, String submissionDataKey, PlatformUser platformUser) {
         S3Object object = amazonS3Client.getObject(awsConfig.getCaseBucketName(), submissionDataKey);
         try {
-            String asJsonString = IOUtils.toString(object.getObjectContent(), "UTF-8");
+            String asJsonString = IOUtils.toString(object.getObjectContent(), StandardCharsets.UTF_8);
             return Spin.JSON(asJsonString);
         } catch (IOException e) {
             throw new InternalWorkflowException(e);
