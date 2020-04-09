@@ -30,6 +30,18 @@ public class CaseReIndexer {
     private final  AmazonS3 amazonS3;
     private final AWSConfig awsConfig;
 
+    public static final ActionListener<BulkResponse> DEFAULT_LISTENER = new ActionListener<>() {
+        @Override
+        public void onResponse(BulkResponse bulkItemResponses) {
+            log.info("Bulk index completed '{}'", bulkItemResponses.getItems().length);
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            log.error("Failed to perform bulk index '{}'", e.getMessage());
+        }
+    };
+
     public CaseReIndexer(RestHighLevelClient elasticsearchClient, AmazonS3 amazonS3, AWSConfig awsConfig) {
         this.elasticsearchClient = elasticsearchClient;
         this.amazonS3 = amazonS3;
@@ -38,7 +50,7 @@ public class CaseReIndexer {
 
 
     @Async
-    public void reindex(String caseId, Optional<ActionListener<BulkResponse>> listener) {
+    public void reindex(String caseId, ActionListener<BulkResponse> actionListener) {
         ObjectListing objectListing = amazonS3.listObjects(awsConfig.getCaseBucketName(),
                 format("%s/", caseId));
         BulkRequest bulkRequest = new BulkRequest();
@@ -59,19 +71,13 @@ public class CaseReIndexer {
                     }
                 }
         ).filter(Objects::nonNull).forEach(bulkRequest::add);
+
+        Optional<ActionListener<BulkResponse>> listener =
+                Optional.ofNullable(actionListener);
+
         elasticsearchClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT.toBuilder()
                 .addHeader("Content-Type", "application/json").build(),
-                    listener.orElseGet(() -> new ActionListener<>() {
-                         @Override
-                         public void onResponse(BulkResponse bulkItemResponses) {
-                             log.info("Bulk index completed '{}'", bulkItemResponses.getItems().length);
-                         }
-
-                         @Override
-                         public void onFailure(Exception e) {
-                             log.error("Failed to perform bulk index '{}'", e.getMessage());
-                         }
-                     })
+                    listener.orElseGet(() -> DEFAULT_LISTENER)
                 );
 
 

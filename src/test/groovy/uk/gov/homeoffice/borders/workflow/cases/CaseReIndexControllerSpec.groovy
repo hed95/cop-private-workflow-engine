@@ -17,6 +17,6 @@ class CaseReIndexControllerSpec extends Specification {
         controller.reindex("caseId")
 
         then:
-        1 * reIndexer.reindex("caseId", Optional.empty())
+        1 * reIndexer.reindex("caseId", CaseReIndexer.DEFAULT_LISTENER)
     }
 }

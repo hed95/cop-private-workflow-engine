@@ -159,7 +159,7 @@ class CaseReIndexerSpec extends BaseSpec {
                 }
             }
         }
-        caseReIndexer.reindex("BF-20200120-124", Optional.of(listener))
+        caseReIndexer.reindex("BF-20200120-124", listener)
 
         then:
         conds.await(20)

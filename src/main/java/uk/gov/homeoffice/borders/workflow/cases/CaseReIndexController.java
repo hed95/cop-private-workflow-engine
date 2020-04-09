@@ -22,7 +22,7 @@ public class CaseReIndexController {
     @PostMapping(path = "/caseId")
     @PreAuthorize("@caseReIndexAuthorizationChecker.isAuthorized(authentication)")
     public ResponseEntity<?> reindex(@PathVariable String caseId) {
-        caseReindexer.reindex(caseId, Optional.empty());
+        caseReindexer.reindex(caseId, CaseReIndexer.DEFAULT_LISTENER);
         log.info("Request to index accepted");
         return ResponseEntity.accepted().build();
     }
