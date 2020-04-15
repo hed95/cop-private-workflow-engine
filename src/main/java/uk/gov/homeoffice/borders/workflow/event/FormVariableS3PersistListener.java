@@ -25,6 +25,8 @@ import javax.crypto.SealedObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
@@ -34,6 +36,7 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     protected static final List<String> VARIABLE_EVENT_TYPES = new ArrayList<>();
     private static final ConcurrentHashMap<String, Boolean> S3_SAVE_CHECK = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, String> S3_PRODUCT = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Boolean> ES_SAVE_CHECK = new ConcurrentHashMap<>();
     public static final String FAILED_TO_CREATE_S3_RECORD = "FAILED_TO_CREATE_S3_RECORD";
     public static final String FAILED_TO_CREATE_ES_RECORD = "FAILED_TO_CREATE_ES_RECORD";
 
@@ -57,28 +60,47 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
         if (historyEvent instanceof HistoricVariableUpdateEventEntity &&
                 VARIABLE_EVENT_TYPES.contains(historyEvent.getEventType())) {
             HistoricVariableUpdateEventEntity variable = (HistoricVariableUpdateEventEntity) historyEvent;
-            Boolean disableExplicitS3Save = S3_SAVE_CHECK.computeIfAbsent(variable.getProcessDefinitionId(), id -> {
-                BpmnModelInstance model = Bpmn.
-                        readModelFromStream(this.repositoryService.getProcessModel(id));
 
-                return model.getModelElementsByType(CamundaProperty.class)
-                        .stream()
-                        .filter(p -> p.getCamundaName().equalsIgnoreCase("disableExplicitFormDataS3Save"))
-                        .findAny()
-                        .map(CamundaProperty::getCamundaValue)
-                        .map(Boolean::valueOf)
-                        .orElse(Boolean.FALSE);
-            });
+            String processDefinitionId = variable.getProcessDefinitionId();
+            BpmnModelInstance model = Bpmn.
+                    readModelFromStream(this.repositoryService.getProcessModel(processDefinitionId));
+
+
+            Boolean disableExplicitS3Save = S3_SAVE_CHECK
+                    .computeIfAbsent(processDefinitionId, id ->
+                            getAttribute(model,
+                                    "disableExplicitFormDataS3Save", Boolean::valueOf,
+                                    Boolean.FALSE));
+
+            Boolean disableExplicitESave = ES_SAVE_CHECK.computeIfAbsent(processDefinitionId, id ->
+                    getAttribute(model, "disableExplicitESave", Boolean::valueOf,
+                            Boolean.FALSE));
 
             if (!disableExplicitS3Save) {
-                registerSynchronization(new VariableS3TransactionSynchronisation(historyEvent));
+                registerSynchronization(new VariableS3TransactionSynchronisation(historyEvent,
+                        disableExplicitESave, model));
             }
         }
+    }
+
+    private  <TO> TO getAttribute(BpmnModelInstance model, String key,
+                               Function<String,TO> converter,
+                                        TO defaultValue) {
+        return model.getModelElementsByType(CamundaProperty.class)
+                .stream()
+                .filter(p -> p.getCamundaName().equalsIgnoreCase(key))
+                .findAny()
+                .map(CamundaProperty::getCamundaValue)
+                .map(converter)
+                .orElse(defaultValue);
     }
 
     @AllArgsConstructor
     public class VariableS3TransactionSynchronisation extends TransactionSynchronizationAdapter {
         private HistoryEvent historyEvent;
+        private Boolean disableExplicitESave;
+        private BpmnModelInstance model;
+
         private final Logger log = LoggerFactory.getLogger(VariableS3TransactionSynchronisation.class);
         @Override
         public void afterCompletion(int status) {
@@ -103,26 +125,21 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                         List<String> forms = formObjectSplitter.split(asJson);
                         if (!forms.isEmpty()) {
                             String product =
-                                    productPrefix + "-" + S3_PRODUCT.computeIfAbsent(variable.getProcessDefinitionId(), id -> {
-                                        BpmnModelInstance model = Bpmn.
-                                                readModelFromStream(repositoryService
-                                                        .getProcessModel(variable.getProcessDefinitionId()));
-
-                                        return model.getModelElementsByType(CamundaProperty.class)
-                                                .stream()
-                                                .filter(p -> p.getCamundaName().equalsIgnoreCase("product"))
-                                                .findAny()
-                                                .map(CamundaProperty::getCamundaValue)
-                                                .orElse("cop-case");
-
-                                    });
+                                    productPrefix + "-" + S3_PRODUCT.computeIfAbsent(variable.getProcessDefinitionId(),
+                                             id -> getAttribute(
+                                                     model, "product",
+                                                     s -> s,
+                                                     "cop-case"
+                                             ));
                             forms.forEach(form ->
                                     {
                                         log.info("Upload form to S3");
                                         String key = formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product);
-                                        if (key != null) {
-                                            log.info("Upload form to ES");
-                                            formToAWSESUploader.upload(form, key, processInstance, variable.getExecutionId());
+                                        if (!disableExplicitESave) {
+                                            if (key != null) {
+                                                log.info("Upload form to ES");
+                                                formToAWSESUploader.upload(form, key, processInstance, variable.getExecutionId());
+                                            }
                                         }
                                     }
                             );
