@@ -73,7 +73,7 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                                     Boolean.FALSE));
 
             Boolean disableExplicitESave = ES_SAVE_CHECK.computeIfAbsent(processDefinitionId, id ->
-                    getAttribute(model, "disableExplicitESave", Boolean::valueOf,
+                    getAttribute(model, "disableExplicitESSave", Boolean::valueOf,
                             Boolean.FALSE));
 
             if (!disableExplicitS3Save) {
