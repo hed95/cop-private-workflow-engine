@@ -65,7 +65,7 @@ public class FormToAWSESUploader {
         indexSource.put("submittedBy", submittedBy);
         indexSource.put("formName", formName);
         indexSource.put("data", json.toString());
-        System.out.println(indexSource.toString());
+
         indexRequest.source(indexSource.toString(), XContentType.JSON);
         try {
             final IndexResponse index = elasticsearchClient.index(indexRequest, RequestOptions.DEFAULT.toBuilder()
