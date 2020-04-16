@@ -4,17 +4,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.spin.Spin;
+import org.camunda.spin.json.SpinJsonNode;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.joda.time.DateTime;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.StreamSupport;
 
+import static java.lang.String.*;
 import static java.lang.String.format;
 
 @Slf4j
@@ -44,13 +50,23 @@ public class FormToAWSESUploader {
         }
 
         IndexRequest indexRequest = new IndexRequest(indexKey).id(key);
-        JSONObject object = new JSONObject(form);
+
 
         JSONObject indexSource = new JSONObject();
         indexSource.put("businessKey", processInstance.getBusinessKey());
-        indexSource.put(((JSONObject)object.get("form")).getString("name"), object);
-        indexRequest.source(indexSource.toString(), XContentType.JSON);
 
+        SpinJsonNode json = Spin.JSON(stringify(new JSONObject(form)).toString());
+        String submittedBy = json.jsonPath("$.shiftDetailsContext.email").stringValue();
+        String submissionDate = json.jsonPath("$.form.submissionDate").stringValue();
+        String formName = json.jsonPath("$.form.name").stringValue();
+        String timeStamp = DateTime.parse(submissionDate).toString("YYYYMMDD'T'HHmmss");
+
+        indexSource.put("submissionDate", timeStamp);
+        indexSource.put("submittedBy", submittedBy);
+        indexSource.put("formName", formName);
+        indexSource.put("data", json.toString());
+
+        indexRequest.source(indexSource.toString(), XContentType.JSON);
         try {
             final IndexResponse index = elasticsearchClient.index(indexRequest, RequestOptions.DEFAULT.toBuilder()
                     .addHeader("Content-Type", "application/json").build());
@@ -65,5 +81,28 @@ public class FormToAWSESUploader {
                     e.getMessage()
             );
         }
+    }
+
+    private JSONObject stringify(JSONObject o) {
+        for (String key : o.keySet()) {
+            Object json = o.get(key);
+            if (json instanceof JSONObject) {
+                stringify((JSONObject)json);
+            } else if (json instanceof JSONArray) {
+                JSONArray array = (JSONArray)json;
+
+                for (int i =0; i < array.length(); i++) {
+                    Object aObj = array.get(i);
+                    if (aObj instanceof JSONObject) {
+                        stringify((JSONObject)aObj);
+                    } else {
+                        array.put(i, String.valueOf(aObj));
+                    }
+                }
+            } else {
+                o.put(key, valueOf(json));
+            }
+        }
+        return o;
     }
 }

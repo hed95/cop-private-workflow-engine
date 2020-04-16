@@ -68,8 +68,24 @@ class FormToAWSESUploaderSpec extends Specification {
         given: 'form data'
         def form = '''{
                         "test": "test" ,
+                        "conversionRate": 1,
+                          "conversionRate2": "1.00",
+                          "conversionRate3" : 2.400,
+                          "nested": {
+                             "conversionRate3" : 2.400
+                          },
+                          "array2": [134, 1.00, 233.33],
+                          "array": [
+                          {
+                              "conversionRate3" : 2.400
+                          }
+                          ],
+                          "shiftDetailsContext" : {
+                            "email" : "test"
+                          },
                         "form": {
-                          "name": "testEaB"
+                          "name": "testEaB",
+                          "submissionDate" : "2020-04-16T07:38:19.384Z"
                         }
                       }'''
 
@@ -81,14 +97,13 @@ class FormToAWSESUploaderSpec extends Specification {
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {
-                                              "businessKey" : "DEV-20200804-2222",
-                                              "testEaB": {
-                                                 "test": "test",
-                                                  "form" : {
-                                                    "name" : "testEaB"
-                                                  }
-                                              }
-                                            }
+                                                  "submittedBy": "test",
+                                                  "data": "{\\"test\\":\\"test\\",\\"shiftDetailsContext\\":{\\"email\\":\\"test\\"},\\"form\\":{\\"name\\":\\"testEaB\\",\\"submissionDate\\":\\"2020-04-16T07:38:19.384Z\\"},\\"array\\":[{\\"conversionRate3\\":\\"2.4\\"}],\\"conversionRate3\\":\\"2.4\\",\\"array2\\":[\\"134\\",\\"1.0\\",\\"233.33\\"],\\"conversionRate2\\":\\"1.00\\",\\"conversionRate\\":\\"1\\",\\"nested\\":{\\"conversionRate3\\":\\"2.4\\"}}",
+                                                  "formName": "testEaB",
+                                                  "businessKey": "DEV-20200804-2222",
+                                                  "submissionDate": "202004107T073819"
+                                                }
+
                                             ''', true, true))
 
                 .willReturn(aResponse()
