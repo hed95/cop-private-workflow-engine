@@ -68,8 +68,20 @@ class FormToAWSESUploaderSpec extends Specification {
         given: 'form data'
         def form = '''{
                         "test": "test" ,
+                        "conversionRate": 1,
+                          "conversionRate2": "1.00",
+                          "conversionRate3" : 2.400,
+                          "nested": {
+                             "conversionRate3" : 2.400
+                          },
+                          "array2": [134, 1.00, 233.33],
+                          "array": [
+                          {
+                              "conversionRate3" : 2.400
+                          }
+                          ],
                         "form": {
-                          "name": "testEaB"
+                          "name": "testEaB",
                         }
                       }'''
 
@@ -81,14 +93,30 @@ class FormToAWSESUploaderSpec extends Specification {
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {
-                                              "businessKey" : "DEV-20200804-2222",
-                                              "testEaB": {
-                                                 "test": "test",
-                                                  "form" : {
-                                                    "name" : "testEaB"
-                                                  }
-                                              }
-                                            }
+                                                  "testEaB": {
+                                                    "test": "test",
+                                                    "form": {
+                                                      "name": "testEaB"
+                                                    },
+                                                    "array": [
+                                                      {
+                                                        "conversionRate3": "2.4"
+                                                      }
+                                                    ],
+                                                    "conversionRate3": "2.4",
+                                                    "array2": [
+                                                      "134",
+                                                      "1.0",
+                                                      "233.33"
+                                                    ],
+                                                    "conversionRate2": "1.00",
+                                                    "conversionRate": "1",
+                                                    "nested": {
+                                                      "conversionRate3": "2.4"
+                                                    }
+                                                  },
+                                                  "businessKey": "DEV-20200804-2222"
+                                                }
                                             ''', true, true))
 
                 .willReturn(aResponse()

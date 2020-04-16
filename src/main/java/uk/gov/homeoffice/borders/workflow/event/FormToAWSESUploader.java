@@ -9,12 +9,15 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.StreamSupport;
 
+import static java.lang.String.*;
 import static java.lang.String.format;
 
 @Slf4j
@@ -44,7 +47,7 @@ public class FormToAWSESUploader {
         }
 
         IndexRequest indexRequest = new IndexRequest(indexKey).id(key);
-        JSONObject object = new JSONObject(form);
+        JSONObject object = stringify(new JSONObject(form));
 
         JSONObject indexSource = new JSONObject();
         indexSource.put("businessKey", processInstance.getBusinessKey());
@@ -65,5 +68,28 @@ public class FormToAWSESUploader {
                     e.getMessage()
             );
         }
+    }
+
+    private JSONObject stringify(JSONObject o) {
+        for (String key : o.keySet()) {
+            Object json = o.get(key);
+            if (json instanceof JSONObject) {
+                stringify((JSONObject)json);
+            } else if (json instanceof JSONArray) {
+                JSONArray array = (JSONArray)json;
+
+                for (int i =0; i < array.length(); i++) {
+                    Object aObj = array.get(i);
+                    if (aObj instanceof JSONObject) {
+                        stringify((JSONObject)aObj);
+                    } else {
+                        array.put(i, String.valueOf(aObj));
+                    }
+                }
+            } else {
+                o.put(key, valueOf(json));
+            }
+        }
+        return o;
     }
 }
