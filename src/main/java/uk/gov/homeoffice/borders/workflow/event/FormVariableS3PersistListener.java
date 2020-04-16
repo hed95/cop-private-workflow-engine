@@ -107,7 +107,6 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
             super.afterCompletion(status);
             if (status == STATUS_COMMITTED) {
                 try {
-                    log.info("Initiating save of form data");
                     HistoricVariableUpdateEventEntity variable = (HistoricVariableUpdateEventEntity) historyEvent;
                     String asJson = null;
                     if ("javax.crypto.SealedObject".equalsIgnoreCase(variable.getTextValue2())) {
@@ -133,12 +132,15 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                                              ));
                             forms.forEach(form ->
                                     {
-                                        log.info("Upload form to S3");
+                                        log.info("Initiating save of form data");
                                         String key = formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product);
+                                        log.info("Form data saved to S3 {}", key);
                                         if (!disableExplicitESave) {
                                             if (key != null) {
-                                                log.info("Upload form to ES");
-                                                formToAWSESUploader.upload(form, key, processInstance, variable.getExecutionId());
+                                                log.info("Uploading form to ES");
+                                                formToAWSESUploader.upload(form, key
+                                                        , processInstance, variable.getExecutionId());
+                                                log.info("Uploaded form to ES");
                                             }
                                         }
                                     }
