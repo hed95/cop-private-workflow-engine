@@ -4,11 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.spin.Spin;
+import org.camunda.spin.json.SpinJsonNode;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -47,13 +50,23 @@ public class FormToAWSESUploader {
         }
 
         IndexRequest indexRequest = new IndexRequest(indexKey).id(key);
-        JSONObject object = stringify(new JSONObject(form));
+
 
         JSONObject indexSource = new JSONObject();
         indexSource.put("businessKey", processInstance.getBusinessKey());
-        indexSource.put(((JSONObject)object.get("form")).getString("name"), object);
-        indexRequest.source(indexSource.toString(), XContentType.JSON);
 
+        SpinJsonNode json = Spin.JSON(stringify(new JSONObject(form)).toString());
+        String submittedBy = json.jsonPath("$.shiftDetailsContext.email").stringValue();
+        String submissionDate = json.jsonPath("$.form.submissionDate").stringValue();
+        String formName = json.jsonPath("$.form.name").stringValue();
+        String timeStamp = DateTime.parse(submissionDate).toString("YYYYMMDD'T'HHmmss");
+
+        indexSource.put("submissionDate", timeStamp);
+        indexSource.put("submittedBy", submittedBy);
+        indexSource.put("formName", formName);
+        indexSource.put("data", json.toString());
+        System.out.println(indexSource.toString());
+        indexRequest.source(indexSource.toString(), XContentType.JSON);
         try {
             final IndexResponse index = elasticsearchClient.index(indexRequest, RequestOptions.DEFAULT.toBuilder()
                     .addHeader("Content-Type", "application/json").build());

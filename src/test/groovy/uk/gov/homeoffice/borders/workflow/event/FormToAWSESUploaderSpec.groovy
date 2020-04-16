@@ -80,8 +80,12 @@ class FormToAWSESUploaderSpec extends Specification {
                               "conversionRate3" : 2.400
                           }
                           ],
+                          "shiftDetailsContext" : {
+                            "email" : "test"
+                          },
                         "form": {
                           "name": "testEaB",
+                          "submissionDate" : "2020-04-16T07:38:19.384Z"
                         }
                       }'''
 
@@ -93,30 +97,13 @@ class FormToAWSESUploaderSpec extends Specification {
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {
-                                                  "testEaB": {
-                                                    "test": "test",
-                                                    "form": {
-                                                      "name": "testEaB"
-                                                    },
-                                                    "array": [
-                                                      {
-                                                        "conversionRate3": "2.4"
-                                                      }
-                                                    ],
-                                                    "conversionRate3": "2.4",
-                                                    "array2": [
-                                                      "134",
-                                                      "1.0",
-                                                      "233.33"
-                                                    ],
-                                                    "conversionRate2": "1.00",
-                                                    "conversionRate": "1",
-                                                    "nested": {
-                                                      "conversionRate3": "2.4"
-                                                    }
-                                                  },
-                                                  "businessKey": "DEV-20200804-2222"
+                                                  "submittedBy": "test",
+                                                  "data": "{\\"test\\":\\"test\\",\\"shiftDetailsContext\\":{\\"email\\":\\"test\\"},\\"form\\":{\\"name\\":\\"testEaB\\",\\"submissionDate\\":\\"2020-04-16T07:38:19.384Z\\"},\\"array\\":[{\\"conversionRate3\\":\\"2.4\\"}],\\"conversionRate3\\":\\"2.4\\",\\"array2\\":[\\"134\\",\\"1.0\\",\\"233.33\\"],\\"conversionRate2\\":\\"1.00\\",\\"conversionRate\\":\\"1\\",\\"nested\\":{\\"conversionRate3\\":\\"2.4\\"}}",
+                                                  "formName": "testEaB",
+                                                  "businessKey": "DEV-20200804-2222",
+                                                  "submissionDate": "202004107T073819"
                                                 }
+
                                             ''', true, true))
 
                 .willReturn(aResponse()
