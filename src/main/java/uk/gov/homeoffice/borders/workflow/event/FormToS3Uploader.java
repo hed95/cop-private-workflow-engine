@@ -64,11 +64,18 @@ public class FormToS3Uploader {
             FileUtils.copyInputStreamToFile(IOUtils.toInputStream(form, "UTF-8"), scratchFile);
 
             final String key = this.key(businessKey, formName, submittedBy);
-            request = new PutObjectRequest(product, key, scratchFile);
-            request.setMetadata(metadata);
-            final PutObjectResult putObjectResult = amazonS3.putObject(request);
-            log.debug("Uploaded to S3 '{}'", putObjectResult.getETag());
-            return key;
+
+            boolean dataExists = amazonS3.doesObjectExist(product, key);
+            if (!dataExists) {
+                request = new PutObjectRequest(product, key, scratchFile);
+                request.setMetadata(metadata);
+                final PutObjectResult putObjectResult = amazonS3.putObject(request);
+                log.debug("Uploaded to S3 '{}'", putObjectResult.getETag());
+                return key;
+            } else {
+                log.info("Key already exists...so not uploading");
+                return null;
+            }
         } catch (IOException | AmazonServiceException e) {
             log.error("Failed to upload to S3 due to '{}'", e.getMessage());
             runtimeService.createIncident(
