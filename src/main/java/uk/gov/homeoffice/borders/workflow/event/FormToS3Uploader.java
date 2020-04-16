@@ -63,7 +63,7 @@ public class FormToS3Uploader {
                     = File.createTempFile(UUID.randomUUID().toString(), ".json");
             FileUtils.copyInputStreamToFile(IOUtils.toInputStream(form, "UTF-8"), scratchFile);
 
-            final String key = this.key(businessKey, formName, submittedBy);
+            final String key = this.key(businessKey, formName, submittedBy, submissionDate);
 
             boolean dataExists = amazonS3.doesObjectExist(product, key);
             if (!dataExists) {
@@ -95,9 +95,9 @@ public class FormToS3Uploader {
         return null;
     }
 
-    private String key(String businessKey, String formName, String email) {
+    private static String key(String businessKey, String formName, String email, String submissionDate) {
         StringBuilder keyBuilder = new StringBuilder();
-        String timeStamp = DateTime.now().toString("YYYYMMDD'T'HHmmss");
+        String timeStamp = DateTime.parse(submissionDate).toString("YYYYMMDD'T'HHmmss");
 
         return keyBuilder.append(businessKey)
                 .append("/").append(formName).append("/").append(email).append("-").append(timeStamp).append(".json")
