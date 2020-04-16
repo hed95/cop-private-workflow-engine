@@ -67,7 +67,10 @@ class FormToAWSESUploaderSpec extends Specification {
     def 'can upload to ES'() {
         given: 'form data'
         def form = '''{
-                        "test": "test" 
+                        "test": "test" ,
+                        "form": {
+                          "name": "testEaB"
+                        }
                       }'''
 
         HistoricProcessInstance processInstance = Mock()
@@ -78,8 +81,13 @@ class FormToAWSESUploaderSpec extends Specification {
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {
-                                             "test": "test",
-                                              "businessKey" : "DEV-20200804-2222"
+                                              "businessKey" : "DEV-20200804-2222",
+                                              "testEaB": {
+                                                 "test": "test",
+                                                  "form" : {
+                                                    "name" : "testEaB"
+                                                  }
+                                              }
                                             }
                                             ''', true, true))
 

@@ -39,43 +39,48 @@ public class FormToS3Uploader {
 
 
         File scratchFile = null;
-        PutObjectRequest request = null;
-
-        try {
+        String formName = "";
+               try {
             String businessKey = processInstance.getBusinessKey();
             SpinJsonNode json = Spin.JSON(form);
             String submittedBy = json.jsonPath("$.shiftDetailsContext.email").stringValue();
-            String formName = json.jsonPath("$.form.name").stringValue();
+            formName = json.jsonPath("$.form.name").stringValue();
             String formVersionId = json.jsonPath("$.form.formVersionId").stringValue();
             String title = json.jsonPath("$.form.title").stringValue();
             String submissionDate = json.jsonPath("$.form.submissionDate").stringValue();
 
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.addUserMetadata("processinstanceid", processInstance.getId());
-            metadata.addUserMetadata("processdefinitionid", processInstance.getProcessDefinitionId());
-            metadata.addUserMetadata("formversionid", formVersionId);
-            metadata.addUserMetadata("name", formName);
-            metadata.addUserMetadata("title", title);
-            metadata.addUserMetadata("submittedby", submittedBy);
-            metadata.addUserMetadata("submissiondate", submissionDate);
+            final String key = this.key(businessKey, formName, submittedBy, submissionDate);
 
-            scratchFile
-                    = File.createTempFile(UUID.randomUUID().toString(), ".json");
-            FileUtils.copyInputStreamToFile(IOUtils.toInputStream(form, "UTF-8"), scratchFile);
+            boolean dataExists = amazonS3.doesObjectExist(product, key);
+            if (!dataExists) {
+                scratchFile
+                        = File.createTempFile(UUID.randomUUID().toString(), ".json");
+                FileUtils.copyInputStreamToFile(IOUtils.toInputStream(form, "UTF-8"), scratchFile);
 
-            final String key = this.key(businessKey, formName, submittedBy);
-            request = new PutObjectRequest(product, key, scratchFile);
-            request.setMetadata(metadata);
-            final PutObjectResult putObjectResult = amazonS3.putObject(request);
-            log.debug("Uploaded to S3 '{}'", putObjectResult.getETag());
-            return key;
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.addUserMetadata("processinstanceid", processInstance.getId());
+                metadata.addUserMetadata("processdefinitionid", processInstance.getProcessDefinitionId());
+                metadata.addUserMetadata("formversionid", formVersionId);
+                metadata.addUserMetadata("name", formName);
+                metadata.addUserMetadata("title", title);
+                metadata.addUserMetadata("submittedby", submittedBy);
+                metadata.addUserMetadata("submissiondate", submissionDate);
+
+                PutObjectRequest request = new PutObjectRequest(product, key, scratchFile);
+                request.setMetadata(metadata);
+                final PutObjectResult putObjectResult = amazonS3.putObject(request);
+                log.debug("Uploaded to S3 '{}'", putObjectResult.getETag());
+                return key;
+            } else {
+                log.info("Key already exists...so not uploading");
+                return null;
+            }
         } catch (IOException | AmazonServiceException e) {
             log.error("Failed to upload to S3 due to '{}'", e.getMessage());
             runtimeService.createIncident(
                     FormVariableS3PersistListener.FAILED_TO_CREATE_S3_RECORD,
                     executionId,
-                    format("Failed to upload form data for %s",
-                            request.getMetadata().getUserMetaDataOf("name")),
+                    format("Failed to upload form data for %s", formName),
                     e.getMessage()
 
             );
@@ -88,9 +93,9 @@ public class FormToS3Uploader {
         return null;
     }
 
-    private String key(String businessKey, String formName, String email) {
+    private String key(String businessKey, String formName, String email, String submissionDate) {
         StringBuilder keyBuilder = new StringBuilder();
-        String timeStamp = DateTime.now().toString("YYYYMMDD'T'HHmmss");
+        String timeStamp = DateTime.parse(submissionDate).toString("YYYYMMDD'T'HHmmss");
 
         return keyBuilder.append(businessKey)
                 .append("/").append(formName).append("/").append(email).append("-").append(timeStamp).append(".json")
