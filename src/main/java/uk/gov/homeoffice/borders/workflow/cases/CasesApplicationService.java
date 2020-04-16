@@ -110,7 +110,7 @@ public class CasesApplicationService {
                 return caseDto;
             }).collect(toList());
 
-            final long totalHits = results.getHits().getTotalHits().value;
+            final long totalHits = cases.size() == 0 ? 0 :results.getHits().getTotalHits().value;
             log.info("Number of cases returned for '{}' is '{}'", query, totalHits);
             return new PageImpl<>(cases, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalHits);
 
