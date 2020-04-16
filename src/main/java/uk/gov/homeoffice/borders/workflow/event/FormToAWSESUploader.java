@@ -46,11 +46,11 @@ public class FormToAWSESUploader {
         IndexRequest indexRequest = new IndexRequest(indexKey).id(key);
         JSONObject object = new JSONObject(form);
 
-        if (!object.has("businessKey")) {
-            object.put("businessKey", processInstance.getBusinessKey());
-        }
+        JSONObject indexSource = new JSONObject();
+        indexSource.put("businessKey", processInstance.getBusinessKey());
+        indexSource.put(((JSONObject)object.get("form")).getString("name"), object);
+        indexRequest.source(indexSource.toString(), XContentType.JSON);
 
-        indexRequest.source(object.toString(), XContentType.JSON);
         try {
             final IndexResponse index = elasticsearchClient.index(indexRequest, RequestOptions.DEFAULT.toBuilder()
                     .addHeader("Content-Type", "application/json").build());
