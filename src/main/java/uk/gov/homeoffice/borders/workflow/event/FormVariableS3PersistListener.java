@@ -134,9 +134,9 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                                     {
                                         log.info("Initiating save of form data");
                                         String key = formToS3Uploader.upload(form, processInstance, variable.getExecutionId(), product);
-                                        log.info("Form data saved to S3 {}", key);
                                         if (!disableExplicitESave) {
                                             if (key != null) {
+                                                log.info("Form data saved to S3 {}", key);
                                                 log.info("Uploading form to ES");
                                                 formToAWSESUploader.upload(form, key
                                                         , processInstance, variable.getExecutionId());
