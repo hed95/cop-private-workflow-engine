@@ -22,7 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import javax.crypto.SealedObject;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -53,6 +58,17 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     private FormToS3Uploader formToS3Uploader;
     private FormToAWSESUploader formToAWSESUploader;
     private ProcessInstanceSpinVariableDecryptor processInstanceSpinVariableDecryptor;
+    //THIS IS TO PREVENT PREVIOUS BPMNS THAT CAN'T BE AUTOSAVED
+    //THIS WILL BE REMOVED ONCE THOSE PROCESS INSTANCES HAVE COMPLETED
+    private static Date AUTO_SAVE_ALLOW_DATE;
+
+    static {
+        try {
+            AUTO_SAVE_ALLOW_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2020-04-17T10:00:00");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     @Override
@@ -76,9 +92,15 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                     getAttribute(model, "disableExplicitESSave", Boolean::valueOf,
                             Boolean.FALSE));
 
-            if (!disableExplicitS3Save) {
-                registerSynchronization(new VariableS3TransactionSynchronisation(historyEvent,
-                        disableExplicitESave, model));
+            HistoricProcessInstance historicProcessInstance = historyService
+                    .createHistoricProcessInstanceQuery().processInstanceId(variable.getProcessInstanceId())
+                    .singleResult();
+
+            if (historicProcessInstance == null || historicProcessInstance.getStartTime().after(AUTO_SAVE_ALLOW_DATE)) {
+                if (!disableExplicitS3Save) {
+                    registerSynchronization(new VariableS3TransactionSynchronisation(historyEvent,
+                            disableExplicitESave, model));
+                }
             }
         }
     }
@@ -166,4 +188,5 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
     public void handleEvents(List<HistoryEvent> historyEvents) {
         historyEvents.forEach(this::handleEvent);
     }
+
 }
