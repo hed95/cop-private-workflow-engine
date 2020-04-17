@@ -96,7 +96,7 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
                     .createHistoricProcessInstanceQuery().processInstanceId(variable.getProcessInstanceId())
                     .singleResult();
 
-            if (historicProcessInstance != null && historicProcessInstance.getStartTime().after(AUTO_SAVE_ALLOW_DATE)) {
+            if (historicProcessInstance == null || historicProcessInstance.getStartTime().after(AUTO_SAVE_ALLOW_DATE)) {
                 if (!disableExplicitS3Save) {
                     registerSynchronization(new VariableS3TransactionSynchronisation(historyEvent,
                             disableExplicitESave, model));
