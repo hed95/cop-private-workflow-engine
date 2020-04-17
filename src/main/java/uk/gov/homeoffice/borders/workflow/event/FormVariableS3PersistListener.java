@@ -189,9 +189,4 @@ public class FormVariableS3PersistListener implements HistoryEventHandler {
         historyEvents.forEach(this::handleEvent);
     }
 
-    public static void main (String[] args) throws Exception {
-        String format = "2020-04-17T10:00:00";
-        SimpleDateFormat s = ;
-        System.out.println(s.parse(format));
-    }
 }
