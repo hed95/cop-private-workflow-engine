@@ -14,6 +14,7 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.authorization.Authorization;
 import org.camunda.bpm.engine.authorization.Resources;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.rest.dto.history.HistoricProcessInstanceDto;
 import org.camunda.spin.Spin;
 import org.camunda.spin.json.SpinJsonNode;
@@ -124,7 +125,7 @@ public class CasesApplicationService {
 
     @AuditableCaseEvent
     @PostAuthorize(value = "@caseAuthorizationEvaluator.isAuthorized(returnObject, #platformUser)")
-    public CaseDetail getByKey(String businessKey, PlatformUser platformUser) {
+    public CaseDetail getByKey(String businessKey, List<String> excludeProcessKeys, PlatformUser platformUser) {
 
         log.info("Beginning case detail fetch");
         CaseDetail caseDetail = new CaseDetail();
@@ -149,8 +150,13 @@ public class CasesApplicationService {
                 .stream()
                 .collect(Collectors.groupingBy(meta -> meta.getUserMetaDataOf("processinstanceid")));
 
+        final HistoricProcessInstanceQuery historicProcessInstanceQuery =
+                historyService.createHistoricProcessInstanceQuery();
 
-        List<HistoricProcessInstance> processInstances = historyService.createHistoricProcessInstanceQuery()
+        if (excludeProcessKeys.size() != 0) {
+            historicProcessInstanceQuery.processDefinitionKeyNotIn(excludeProcessKeys);
+        }
+        List<HistoricProcessInstance> processInstances = historicProcessInstanceQuery
                 .processInstanceBusinessKey(businessKey).list();
 
         List<CaseDetail.ProcessInstanceReference> instanceReferences = processInstances
