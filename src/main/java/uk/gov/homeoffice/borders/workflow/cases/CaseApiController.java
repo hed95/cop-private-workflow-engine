@@ -13,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static uk.gov.homeoffice.borders.workflow.cases.CasesApiPaths.*;
 
 
@@ -37,8 +41,12 @@ public class CaseApiController {
 
     @GetMapping(path = GET_CASE)
     public ResponseEntity<CaseDetail> getCaseDetails(@PathVariable String businessKey,
+                                                     @RequestParam(required = false, defaultValue = "")
+                                                     String excludes,
                                                      PlatformUser platformUser) {
-        CaseDetail caseDetail = casesApplicationService.getByKey(businessKey, platformUser);
+        List<String> excludeProcessKeys = excludes.equalsIgnoreCase("") ? new ArrayList<>()
+                : Arrays.asList(excludes.split(","));
+        CaseDetail caseDetail = casesApplicationService.getByKey(businessKey, excludeProcessKeys, platformUser);
         return ResponseEntity.ok(caseDetail);
     }
 
