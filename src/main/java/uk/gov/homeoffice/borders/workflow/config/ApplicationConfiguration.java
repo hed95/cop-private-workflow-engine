@@ -8,6 +8,7 @@ import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.bpm.engine.rest.*;
 import org.camunda.bpm.engine.rest.history.HistoryRestService;
 import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
+import org.camunda.feel.CamundaFeelEnginePlugin;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.slf4j.MDC;
@@ -43,8 +44,11 @@ import java.util.concurrent.Executor;
 @EnableConfigurationProperties(PlatformDataBean.class)
 public class ApplicationConfiguration {
 
-    @Autowired
-    private PlatformDataBean platformDataBean;
+    private final PlatformDataBean platformDataBean;
+
+    public ApplicationConfiguration(PlatformDataBean platformDataBean) {
+        this.platformDataBean = platformDataBean;
+    }
 
     @Bean
     public JacksonJsonDataFormat formatter(ObjectMapper objectMapper) {
@@ -63,6 +67,10 @@ public class ApplicationConfiguration {
     }
 
 
+    @Bean
+    public CamundaFeelEnginePlugin camundaFeelEnginePlugin() {
+        return new CamundaFeelEnginePlugin();
+    }
 
     @Bean
     @Order(Ordering.DEFAULT_ORDER - 1)

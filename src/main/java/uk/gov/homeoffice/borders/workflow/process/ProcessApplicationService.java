@@ -84,6 +84,7 @@ public class ProcessApplicationService {
         if (processDefinitionIds.length != 0) {
             definitions = repositoryService
                     .createProcessDefinitionQuery()
+                    .startableInTasklist()
                     .processDefinitionKeysIn(processDefinitionIds)
                     .latestVersion()
                     .active()
