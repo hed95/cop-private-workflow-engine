@@ -56,6 +56,7 @@ dependencies {
     compile('org.camunda.bpm.extension.reactor:camunda-bpm-reactor-spring-starter:2.1.1')
     compile('org.camunda.spin:camunda-spin-dataformat-json-jackson')
     compile('org.camunda.bpm:camunda-engine-plugin-spin')
+    compile 'org.camunda.bpm.extension.feel.scala:feel-engine-plugin:1.7.0'
     compile('org.camunda.connect:camunda-connect-connectors-all:1.0.7')
     compile('org.camunda.connect:camunda-connect-core:1.0.7')
     compile('org.camunda.bpm:camunda-engine-plugin-connect:7.10.0')

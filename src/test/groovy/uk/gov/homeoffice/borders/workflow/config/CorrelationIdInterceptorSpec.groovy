@@ -9,7 +9,7 @@ import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
 
-class CorrelationIdInterceptorTest extends Specification {
+class CorrelationIdInterceptorSpec extends Specification {
     def request = Mock(HttpServletRequest)
     def clientRequest = Mock(HttpRequest)
     def execution = Mock(ClientHttpRequestExecution)

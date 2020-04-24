@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.borders.workflow.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.spin.impl.json.jackson.format.JacksonJsonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -131,8 +132,11 @@ public class GovNotifyConfiguration {
         private String notificationApiKey;
 
         @Bean
-        public NotificationClientApi notificationClient() {
-            return new NotificationClient(notificationApiKey);
+        public NotificationClientApi notificationClient(RuntimeService runtimeService) {
+            return new EngineNotificationClientApi(
+                    new NotificationClient(notificationApiKey),
+                    runtimeService
+            );
         }
 
     }
