@@ -1,7 +1,12 @@
 package uk.gov.homeoffice.borders.workflow.process
 
+import org.camunda.bpm.engine.AuthorizationService
 import org.camunda.bpm.engine.HistoryService
+import org.camunda.bpm.engine.authorization.Authorization
+import org.camunda.bpm.engine.authorization.Permissions
+import org.camunda.bpm.engine.authorization.Resources
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.exception.DuplicateBusinessKeyException
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
@@ -17,6 +22,47 @@ class ProcessApplicationServiceSpec extends BaseSpec {
 
     @Autowired
     HistoryService historyService
+
+    @Autowired
+    AuthorizationService authorizationService
+
+    def 'returns process definition if startableInTaskList'() {
+        given:
+        Authorization newAuthorization = authorizationService
+                .createNewAuthorization(Authorization.AUTH_TYPE_GRANT)
+        newAuthorization.setGroupId('testcandidate')
+        newAuthorization.setResource(Resources.PROCESS_DEFINITION)
+        newAuthorization.setResourceId('testRoleAndStartable')
+        newAuthorization.addPermission(Permissions.ACCESS)
+        authorizationService.saveAuthorization(newAuthorization)
+
+        newAuthorization = authorizationService
+                .createNewAuthorization(Authorization.AUTH_TYPE_GRANT)
+        newAuthorization.setGroupId('testcandidate')
+        newAuthorization.setResource(Resources.PROCESS_DEFINITION)
+        newAuthorization.setResourceId('testRoleAndStartable2')
+        newAuthorization.addPermission(Permissions.ACCESS)
+        authorizationService.saveAuthorization(newAuthorization)
+
+        when:
+        def user = new PlatformUser()
+        user.id = 'assigneeOneTwoThree'
+        user.email = 'assigneeOneTwoThree'
+
+        def shift = new PlatformUser.ShiftDetails()
+        shift.roles = ['testcandidate']
+        user.shiftDetails = shift
+        def team = new Team()
+        user.teams = []
+        team.code = 'teamA'
+        user.teams << team
+        user.roles = ['testcandidate']
+        identityService.getCurrentAuthentication() >> new WorkflowAuthentication(user)
+        def result = applicationService.processDefinitions(user, PageRequest.of(0, 10))
+
+        then:
+        result.totalElements == 1
+    }
 
     def 'prevent duplicate process started for business key, user and process key'() {
         given:
