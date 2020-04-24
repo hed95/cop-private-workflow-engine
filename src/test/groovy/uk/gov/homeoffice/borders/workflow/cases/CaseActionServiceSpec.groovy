@@ -65,4 +65,21 @@ class CaseActionServiceSpec extends BaseSpec {
         result.size() == 1
         result.first().process.processDefinitionDto.key == 'generate-case-pdf'
     }
+
+    def 'returns default action if service fails to evaluate rules'() {
+        given: 'a user and case'
+        def platformUser = new PlatformUser()
+        platformUser.roles = ['special-role']
+
+        and: 'case process instances are null'
+        def caseDetails = new CaseDetail()
+        caseDetails.processInstances = null
+
+        when: 'action invoked'
+        def result = caseActionService.getAvailableActions(caseDetails, platformUser)
+
+        then: 'there should be 1 actions'
+        result.size() == 1
+        result.first().process.processDefinitionDto.key == 'generate-case-pdf'
+    }
 }
