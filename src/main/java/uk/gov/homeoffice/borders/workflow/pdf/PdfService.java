@@ -7,14 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.runtime.Execution;
 import org.json.JSONObject;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.event.FormToS3Uploader;
-import uk.gov.homeoffice.borders.workflow.exception.InternalWorkflowException;
 
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
