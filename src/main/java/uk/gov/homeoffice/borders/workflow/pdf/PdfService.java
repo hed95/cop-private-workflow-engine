@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.Execution;
 import org.json.JSONObject;
@@ -106,7 +107,7 @@ public class PdfService {
             } catch (Exception rex) {
                 log.error("Failed to create incident {}", rex.getMessage());
             }
-            throw new InternalWorkflowException(e);
+            throw new ProcessEngineException(e);
         }
 
     }

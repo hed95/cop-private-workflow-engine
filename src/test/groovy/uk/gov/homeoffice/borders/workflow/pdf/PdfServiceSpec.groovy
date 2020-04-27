@@ -3,7 +3,9 @@ package uk.gov.homeoffice.borders.workflow.pdf
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
+import com.github.tomakehurst.wiremock.client.WireMock
 import io.findify.s3mock.S3Mock
+import org.camunda.bpm.engine.ProcessEngineException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -13,6 +15,7 @@ import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.process.ProcessApplicationService
 import uk.gov.homeoffice.borders.workflow.process.ProcessStartDto
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import static com.github.tomakehurst.wiremock.http.Response.response
 
 class PdfServiceSpec extends BaseSpec {
@@ -93,5 +96,46 @@ class PdfServiceSpec extends BaseSpec {
         result
 
 
+    }
+
+    def 'raises an incident if pdf request fails'() {
+        given:
+        amazonS3Client.createBucket("test-cop-case")
+
+        def user = logInUser()
+        def token = new TestingAuthenticationToken(user, "test")
+        token.setAuthenticated(true)
+        SecurityContextHolder.setContext(new SecurityContextImpl(token))
+
+        and:
+        amazonS3Client.putObject(new PutObjectRequest("test-cop-case", "BF-20200120-000/formEaB/xx@x.com-20200128T083155.json",
+                new ClassPathResource("data.json").getInputStream(), new ObjectMetadata()))
+
+
+        and:
+        wireMockRule.stubFor(WireMock.post(WireMock.urlMatching("/pdf")).willReturn(
+                aResponse().withStatus(500))
+        )
+
+        when:
+        def processDto = new ProcessStartDto()
+        processDto.setBusinessKey("BF-20200120-000")
+        processDto.setProcessKey("generatePDFExample")
+        processDto.setVariableName("exampleForm")
+        processDto.setData('''{
+            "test" : "test",
+            "businessKey": "BF-20200120-000",
+            "form" : {
+               "name" : "formEaB",
+               "submittedBy": "xx@x.com",
+               "submissionDate": "2020-01-28T08:31:55.297Z",
+               "versionId": "formVersionId"
+            }
+        }''')
+        applicationService.createInstance(processDto, user)
+
+        then:
+        ProcessEngineException exception = thrown()
+        exception
     }
 }
