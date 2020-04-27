@@ -43,6 +43,13 @@ public class PdfService {
 
     public void requestPdfGeneration(@NotNull String form,
                                      @NotNull String businessKey,
+                                     @NotNull String processInstanceId) {
+        requestPdfGeneration(form, businessKey, null, processInstanceId);
+    }
+
+
+    public void requestPdfGeneration(@NotNull String form,
+                                     @NotNull String businessKey,
                                      String product,
                                      @NotNull String processInstanceId) {
         requestPdfGeneration(form, businessKey, product, processInstanceId, null);
