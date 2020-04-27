@@ -49,7 +49,7 @@ public class FormToS3Uploader {
             String title = json.jsonPath("$.form.title").stringValue();
             String submissionDate = json.jsonPath("$.form.submissionDate").stringValue();
 
-            final String key = this.key(businessKey, formName, submittedBy, submissionDate);
+            final String key = key(businessKey, formName, submittedBy, submissionDate);
 
             boolean dataExists = amazonS3.doesObjectExist(product, key);
             if (!dataExists) {
@@ -93,7 +93,7 @@ public class FormToS3Uploader {
         return null;
     }
 
-    private String key(String businessKey, String formName, String email, String submissionDate) {
+    public static String key(String businessKey, String formName, String email, String submissionDate) {
         StringBuilder keyBuilder = new StringBuilder();
         String timeStamp = DateTime.parse(submissionDate).toString("YYYYMMDD'T'HHmmss");
 
