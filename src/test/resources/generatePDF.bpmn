@@ -14,7 +14,7 @@
       <bpmn:incoming>SequenceFlow_0njc0fr</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0njc0fr" sourceRef="Task_0slh9i2" targetRef="EndEvent_02743ye" />
-    <bpmn:serviceTask id="Task_0slh9i2" name="Generate PDF" camunda:expression="${pdfService.requestPdfGeneration(form, businessKey, product, execution.getProcessInstanceId())}">
+    <bpmn:serviceTask id="Task_0slh9i2" name="Generate PDF" camunda:asyncBefore="true" camunda:expression="${pdfService.requestPdfGeneration(form, businessKey, product, execution.getProcessInstanceId())}">
       <bpmn:extensionElements>
         <camunda:inputOutput>
           <camunda:inputParameter name="form">${exampleForm.prop('form').toString()}</camunda:inputParameter>

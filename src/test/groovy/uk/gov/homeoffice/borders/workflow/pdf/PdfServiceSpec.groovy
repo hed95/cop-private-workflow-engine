@@ -5,12 +5,17 @@ import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.github.tomakehurst.wiremock.client.WireMock
 import io.findify.s3mock.S3Mock
-import org.camunda.bpm.engine.ProcessEngineException
+import io.vavr.Tuple2
+import org.camunda.bpm.engine.HistoryService
+import org.camunda.bpm.engine.RuntimeService
+import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.camunda.bpm.engine.task.Task
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.context.SecurityContextImpl
+import spock.util.concurrent.PollingConditions
 import uk.gov.homeoffice.borders.workflow.BaseSpec
 import uk.gov.homeoffice.borders.workflow.process.ProcessApplicationService
 import uk.gov.homeoffice.borders.workflow.process.ProcessStartDto
@@ -29,6 +34,12 @@ class PdfServiceSpec extends BaseSpec {
     @Autowired
     ProcessApplicationService applicationService
 
+    @Autowired
+    RuntimeService runtimeService
+
+    @Autowired
+    HistoryService historyService
+
     static S3Mock api = new S3Mock.Builder().withPort(8323).withInMemoryBackend().build()
 
 
@@ -46,6 +57,8 @@ class PdfServiceSpec extends BaseSpec {
 
 
     def 'can make a request to generate pdf'() {
+        def conditions = new PollingConditions(timeout: 10, initialDelay: 1.5, factor: 1.25)
+
         given:
         amazonS3Client.createBucket("test-cop-case")
 
@@ -89,16 +102,19 @@ class PdfServiceSpec extends BaseSpec {
                "versionId": "formVersionId"
             }
         }''')
-
-        def result = applicationService.createInstance(processDto, user)
+        Tuple2<ProcessInstance, List<Task>> result = applicationService.createInstance(processDto, user)
 
         then:
-        result
-
+        conditions.eventually {
+            def instance = historyService.createHistoricProcessInstanceQuery()
+                    .processInstanceId(result._1().id).singleResult()
+            assert instance.getEndTime() != null
+        }
 
     }
 
     def 'raises an incident if pdf request fails'() {
+        def conditions = new PollingConditions(timeout: 10, initialDelay: 1.5, factor: 1.25)
         given:
         amazonS3Client.createBucket("test-cop-case")
 
@@ -132,10 +148,13 @@ class PdfServiceSpec extends BaseSpec {
                "versionId": "formVersionId"
             }
         }''')
-        applicationService.createInstance(processDto, user)
+        Tuple2<ProcessInstance, List<Task>> result = applicationService.createInstance(processDto, user)
 
         then:
-        ProcessEngineException exception = thrown()
-        exception
+        conditions.eventually {
+            def incidents = runtimeService.createIncidentQuery()
+            .processInstanceId(result._1().id).list()
+            assert incidents.size() != 0
+        }
     }
 }
