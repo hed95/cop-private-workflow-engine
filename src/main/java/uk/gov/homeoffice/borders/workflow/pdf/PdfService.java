@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.spin.json.SpinJsonNode;
 import org.json.JSONObject;
 import org.springframework.core.env.Environment;
@@ -135,7 +136,7 @@ public class PdfService {
             } catch (Exception rex) {
                 log.error("Failed to create incident {}", rex.getMessage());
             }
-            throw new ProcessEngineException(e);
+            throw new BpmnError("failedToGeneratePDF", e.getMessage());
         }
 
     }
