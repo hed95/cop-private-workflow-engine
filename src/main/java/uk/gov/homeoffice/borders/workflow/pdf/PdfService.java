@@ -3,9 +3,9 @@ package uk.gov.homeoffice.borders.workflow.pdf;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
+import com.amazonaws.services.simpleemail.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.spin.json.SpinJsonNode;
@@ -16,10 +16,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.homeoffice.borders.workflow.event.FormToS3Uploader;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.*;
+import javax.mail.Message;
+import javax.mail.internet.*;
+import javax.mail.util.ByteArrayDataSource;
 import javax.validation.constraints.NotNull;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -131,6 +139,73 @@ public class PdfService {
                                 "bucketName", bucket,
                                 "exception", e.getMessage()
 
+                        )).toString()
+                );
+            } catch (Exception rex) {
+                log.error("Failed to create incident {}", rex.getMessage());
+            }
+            throw new BpmnError("failedToGeneratePDF", e.getMessage());
+        }
+
+    }
+
+
+    public void sendPDFs(String senderAddress, List<String> recipients, String body, String subject,
+                         List<String> attachmentIds, String processInstanceId) {
+        try {
+
+            Session session = Session.getDefaultInstance(new Properties());
+            MimeMessage mimeMessage = new MimeMessage(session);
+
+            mimeMessage.setSubject(subject, "UTF-8");
+            mimeMessage.setFrom(senderAddress);
+            mimeMessage.setRecipients(Message.RecipientType.TO, recipients.stream()
+            .map(recipient -> {
+                Address address = null;
+                try {
+                    address = new InternetAddress(recipient);
+                } catch (AddressException e) {
+                    log.error("Faile to resolve to address {} {}", recipient, e.getMessage());
+                }
+                return address;
+            }).toArray(Address[]::new));
+
+            MimeMultipart mp = new MimeMultipart();
+            BodyPart part = new MimeBodyPart();
+            part.setText(body);
+            mp.addBodyPart(part);
+
+            attachmentIds.forEach(id -> {
+                S3Object object = amazonS3.getObject(environment.getProperty("pdf.generator.aws.s3.pdf.bucketname"), id);
+                try {
+                    String asJsonString = IOUtils.toString(object.getObjectContent(),
+                            StandardCharsets.UTF_8);
+                    MimeBodyPart attachment = new MimeBodyPart();
+                    DataSource dataSource = new ByteArrayDataSource(asJsonString, "application/pdf");
+                    attachment.setDataHandler(new DataHandler(dataSource));
+                    attachment.setFileName(id);
+                    attachment.setHeader("Content-ID", "<" + UUID.randomUUID().toString() + ">");
+                    mp.addBodyPart(attachment);
+                } catch (IOException | MessagingException e) {
+                    log.error("Failed to get data from S3 {}", e.getMessage());
+                }
+            });
+
+            mimeMessage.setContent(mp);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            mimeMessage.writeTo(outputStream);
+            RawMessage rawMessage = new RawMessage(ByteBuffer.wrap(outputStream.toByteArray()));
+            SendRawEmailRequest sendEmailRequest = new SendRawEmailRequest(rawMessage);
+            SendRawEmailResult result = amazonSimpleEmailService.sendRawEmail(sendEmailRequest);
+
+            log.info("SES send result {}", result.getMessageId());
+        } catch (Exception e) {
+            try {
+                runtimeService.createIncident(
+                        "FAILED_TO_SEND_SES",
+                        processInstanceId,
+                        new JSONObject(Map.of(
+                                "exception", e.getMessage()
                         )).toString()
                 );
             } catch (Exception rex) {
