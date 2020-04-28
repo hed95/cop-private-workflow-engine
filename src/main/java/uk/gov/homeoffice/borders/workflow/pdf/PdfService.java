@@ -43,6 +43,22 @@ public class PdfService {
 
 
     public void requestPdfGeneration(@NotNull SpinJsonNode form,
+                                     @NotNull SpinJsonNode formData,
+                                     @NotNull String businessKey,
+                                     @NotNull String processInstanceId,
+                                     String message) {
+        requestPdfGeneration(
+                form,
+                businessKey,
+                null,
+                processInstanceId,
+                message,
+                formData
+        );
+
+    }
+
+    public void requestPdfGeneration(@NotNull SpinJsonNode form,
                                      @NotNull String businessKey,
                                      @NotNull String processInstanceId) {
         requestPdfGeneration(form, businessKey, null, processInstanceId);
@@ -53,14 +69,15 @@ public class PdfService {
                                      @NotNull String businessKey,
                                      String product,
                                      @NotNull String processInstanceId) {
-        requestPdfGeneration(form, businessKey, product, processInstanceId, null);
+        requestPdfGeneration(form, businessKey, product, processInstanceId, null, null);
     }
 
     public void requestPdfGeneration(@NotNull SpinJsonNode form,
                                      @NotNull String businessKey,
                                      String product,
                                      @NotNull String processInstanceId,
-                                     String callbackMessage) {
+                                     String callbackMessage,
+                                     SpinJsonNode formData) {
 
         JSONObject formAsJson = new JSONObject(form.toString());
 
@@ -72,18 +89,23 @@ public class PdfService {
         String message = Optional.ofNullable(callbackMessage)
                 .orElse(format("pdfGenerated_%s_%s", formName, formAsJson.getString("submissionDate")));
         String key = generateKey(formAsJson, businessKey);
+        JSONObject payload = new JSONObject();
 
         try {
-            S3Object object = amazonS3.getObject(bucket, key);
-            String asJsonString = IOUtils.toString(object.getObjectContent(),
-                    StandardCharsets.UTF_8);
+            if (formData == null) {
+                S3Object object = amazonS3.getObject(bucket, key);
+                String asJsonString = IOUtils.toString(object.getObjectContent(),
+                        StandardCharsets.UTF_8);
+                payload.put("submission", new JSONObject().put("data", asJsonString).toString());
+            } else {
+                payload.put("submission",  new JSONObject().put("data", formData.toString()).toString());
+            }
 
-            JSONObject payload = new JSONObject();
+
             payload.put("webhookUrl", format("%s/v1/api/workflow/web-hook/processInstance/%s/message/%s?variableName=%s",
                     environment.getProperty("engine.webhook.url"), processInstanceId, message,
                     formName));
             payload.put("formUrl", format("%s/form/version/%s", formApiUrl, formAsJson.getString("versionId")));
-            payload.put("submission", asJsonString);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
