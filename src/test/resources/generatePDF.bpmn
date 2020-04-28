@@ -17,7 +17,7 @@
     <bpmn:serviceTask id="Task_0slh9i2" name="Generate PDF" camunda:asyncBefore="true" camunda:expression="${pdfService.requestPdfGeneration(form, businessKey, product, execution.getProcessInstanceId())}">
       <bpmn:extensionElements>
         <camunda:inputOutput>
-          <camunda:inputParameter name="form">${exampleForm.prop('form').toString()}</camunda:inputParameter>
+          <camunda:inputParameter name="form">${exampleForm.prop('form')}</camunda:inputParameter>
           <camunda:inputParameter name="product">cop-case</camunda:inputParameter>
           <camunda:inputParameter name="businessKey">${exampleForm.prop('businessKey').stringValue()}
 </camunda:inputParameter>

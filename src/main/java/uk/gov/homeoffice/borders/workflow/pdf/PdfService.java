@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.spin.json.SpinJsonNode;
 import org.json.JSONObject;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
@@ -41,27 +42,27 @@ public class PdfService {
     }
 
 
-    public void requestPdfGeneration(@NotNull String form,
+    public void requestPdfGeneration(@NotNull SpinJsonNode form,
                                      @NotNull String businessKey,
                                      @NotNull String processInstanceId) {
         requestPdfGeneration(form, businessKey, null, processInstanceId);
     }
 
 
-    public void requestPdfGeneration(@NotNull String form,
+    public void requestPdfGeneration(@NotNull SpinJsonNode form,
                                      @NotNull String businessKey,
                                      String product,
                                      @NotNull String processInstanceId) {
         requestPdfGeneration(form, businessKey, product, processInstanceId, null);
     }
 
-    public void requestPdfGeneration(@NotNull String form,
+    public void requestPdfGeneration(@NotNull SpinJsonNode form,
                                      @NotNull String businessKey,
                                      String product,
                                      @NotNull String processInstanceId,
                                      String callbackMessage) {
 
-        JSONObject formAsJson = new JSONObject(form);
+        JSONObject formAsJson = new JSONObject(form.toString());
 
         String productPrefix = environment.getProperty("aws.bucket-name-prefix");
         String bucket = productPrefix + "-" + Optional.ofNullable(product).orElse("cop-case");
