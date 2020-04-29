@@ -212,7 +212,7 @@ public class PdfService {
             } catch (Exception rex) {
                 log.error("Failed to create incident {}", rex.getMessage());
             }
-            throw new BpmnError("failedToGeneratePDF", e.getMessage());
+            throw new BpmnError("failedToSendEmail", e.getMessage());
         }
 
     }
