@@ -99,7 +99,7 @@ class PdfServiceSpec extends BaseSpec {
                "name" : "formEaB",
                "submittedBy": "xx@x.com",
                "submissionDate": "2020-01-28T08:31:55.297Z",
-               "versionId": "formVersionId"
+               "formVersionId": "formVersionId"
             }
         }''')
         Tuple2<ProcessInstance, List<Task>> result = applicationService.createInstance(processDto, user)

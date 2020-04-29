@@ -115,7 +115,7 @@ public class PdfService {
             payload.put("webhookUrl", format("%s/v1/api/workflow/web-hook/processInstance/%s/message/%s?variableName=%s",
                     environment.getProperty("engine.webhook.url"), processInstanceId, message,
                     formName));
-            payload.put("formUrl", format("%s/form/version/%s", formApiUrl, formAsJson.getString("versionId")));
+            payload.put("formUrl", format("%s/form/version/%s", formApiUrl, formAsJson.getString("formVersionId")));
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -130,6 +130,7 @@ public class PdfService {
 
             log.info("PDF request submitted response status '{}'", response.getStatusCodeValue());
         } catch (Exception e) {
+            log.error("Failed to send PDF", e);
             try {
                 runtimeService.createIncident(
                         "FAILED_TO_REQUEST_PDF_GENERATION",
@@ -179,10 +180,8 @@ public class PdfService {
             attachmentIds.forEach(id -> {
                 S3Object object = amazonS3.getObject(environment.getProperty("pdf.generator.aws.s3.pdf.bucketname"), id);
                 try {
-                    String asJsonString = IOUtils.toString(object.getObjectContent(),
-                            StandardCharsets.UTF_8);
                     MimeBodyPart attachment = new MimeBodyPart();
-                    DataSource dataSource = new ByteArrayDataSource(asJsonString, "application/pdf");
+                    DataSource dataSource = new ByteArrayDataSource(object.getObjectContent(), "application/pdf");
                     attachment.setDataHandler(new DataHandler(dataSource));
                     attachment.setFileName(id);
                     attachment.setHeader("Content-ID", "<" + UUID.randomUUID().toString() + ">");
@@ -212,6 +211,7 @@ public class PdfService {
             } catch (Exception rex) {
                 log.error("Failed to create incident {}", rex.getMessage());
             }
+            log.error("Failed to send SES", e);
             throw new BpmnError("failedToSendEmail", e.getMessage());
         }
 
