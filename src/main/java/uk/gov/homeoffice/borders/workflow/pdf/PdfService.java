@@ -173,7 +173,7 @@ public class PdfService {
 
             MimeMultipart mp = new MimeMultipart();
             BodyPart part = new MimeBodyPart();
-            part.setText(body);
+            part.setContent(body, "text/html");
             mp.addBodyPart(part);
 
             attachmentIds.forEach(id -> {
