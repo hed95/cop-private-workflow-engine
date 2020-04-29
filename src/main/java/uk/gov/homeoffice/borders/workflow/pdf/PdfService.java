@@ -115,7 +115,7 @@ public class PdfService {
             payload.put("webhookUrl", format("%s/v1/api/workflow/web-hook/processInstance/%s/message/%s?variableName=%s",
                     environment.getProperty("engine.webhook.url"), processInstanceId, message,
                     formName));
-            payload.put("formUrl", format("%s/form/version/%s", formApiUrl, formAsJson.getString("versionId")));
+            payload.put("formUrl", format("%s/form/version/%s", formApiUrl, formAsJson.getString("formVersionId")));
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
