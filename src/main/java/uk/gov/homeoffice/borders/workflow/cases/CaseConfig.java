@@ -27,16 +27,6 @@ public class CaseConfig {
     }
 
 
-    @Bean
-    @Primary
-    public AmazonS3 awsS3Client() {
-        BasicAWSCredentials credentials = new BasicAWSCredentials(awsConfig.getCredentials().getAccessKey()
-                , awsConfig.getCredentials().getSecretKey());
-        return AmazonS3ClientBuilder.standard().withRegion(Regions.fromName(awsConfig.getRegion()))
-                .withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
-    }
-
-
     @Bean(destroyMethod = "close")
     public RestHighLevelClient client() {
 
