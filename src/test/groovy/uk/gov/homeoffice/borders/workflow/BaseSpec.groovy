@@ -7,6 +7,7 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.junit.WireMockRule
 import com.github.tomjankes.wiremock.WireMockGroovy
@@ -41,6 +42,7 @@ import org.springframework.web.client.RestTemplate
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
+import spock.mock.MockingApi
 import uk.gov.homeoffice.borders.workflow.cases.AWSRequestSigningApacheInterceptor
 import uk.gov.homeoffice.borders.workflow.config.CorrelationIdInterceptor
 import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
@@ -110,6 +112,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*
         'gov.notify.emails.enhance.mah-fast-parcel=test@localhost.com',
         'gov.notify.emails.sams=test@localhost.com',
         'gov.notify.emails.national-security=test@localhost.com',
+        'pdf.generator.aws.s3.pdf.bucketname=pdf-attachments',
         'teams.enhance.bfnih=TEST',
         'teams.enhance.mah-fast-parcel=TEST'])
 abstract class BaseSpec extends Specification {
@@ -245,6 +248,12 @@ abstract class BaseSpec extends Specification {
 
         @Bean
         @Primary
+        AmazonSimpleEmailService amazonSimpleEmailService() {
+            return  new DetachedMockFactory().Mock(AmazonSimpleEmailService)
+        }
+
+        @Bean
+        @Primary
         AmazonS3 awsS3Client() {
             final BasicAWSCredentials credentials = new BasicAWSCredentials('accessKey', 'secretAccessKey')
 
@@ -257,7 +266,6 @@ abstract class BaseSpec extends Specification {
 
             return amazonS3
         }
-
 
 
         @Bean(destroyMethod = 'close')
