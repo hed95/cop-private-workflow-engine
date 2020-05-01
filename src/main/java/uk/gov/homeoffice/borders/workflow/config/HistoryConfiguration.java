@@ -38,9 +38,6 @@ public class HistoryConfiguration extends AbstractCamundaConfiguration {
     public void preInit(SpringProcessEngineConfiguration processEngineConfiguration) {
         log.info("Configuring history");
 
-        processEngineConfiguration.setHistoryCleanupBatchWindowStartTime("03:00");
-        processEngineConfiguration.setHistoryCleanupBatchWindowEndTime("05:00");
-
         final RuntimeService runtimeService = processEngineConfiguration.getRuntimeService();
         processEngineConfiguration.setHistoryEventHandler(
                 new CompositeDbHistoryEventHandler(
