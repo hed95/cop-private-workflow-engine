@@ -30,6 +30,9 @@ public class WebHookController {
     private RuntimeService runtimeService;
     private JacksonJsonDataFormat formatter;
 
+    @Deprecated(forRemoval = true,
+            since = "As business keys are not unique between process instances " +
+                    "you need to use the process instance to signal the BPMN")
     @PostMapping(value = "/{businessKey}/message/{messageKey}", consumes = "application/json")
     @ApiOperation(value = "Web hook notification endpoint. Converts payload into a Spin object for Camunda",
             httpMethod = "POST")
@@ -109,7 +112,7 @@ public class WebHookController {
                 .createMessageCorrelation(messageKey)
                 .processInstanceId(processInstance.getProcessInstanceId())
                 .setVariables(variables).correlateWithResult();
-        log.info("Performed web-hook message correlation for {} with key and result {}", processInstance.getId(), messageKey,
+        log.info("Performed web-hook message correlation for {} with key {} and result {}", processInstance.getId(), messageKey,
                 result.getResultType());
 
     }
