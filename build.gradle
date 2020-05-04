@@ -129,9 +129,6 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.9.1'
     testCompile group: 'com.tngtech.java', name: 'junit-dataprovider', version: '1.13.1'
     testCompile group: 'com.github.tomakehurst', name: 'wiremock-standalone', version: '2.17.0'
-    testCompile group: 'org.scala-lang', name: 'scala-library', version: '2.13.2'
-    testCompile group: 'com.adobe.testing', name: 's3mock-junit4', version:'2.1.19'
-    testCompile "org.testcontainers:spock:1.14.1"
     testCompile "org.testcontainers:localstack:1.14.1"
 
 }
