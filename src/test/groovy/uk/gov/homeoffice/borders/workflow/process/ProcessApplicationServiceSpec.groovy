@@ -33,7 +33,7 @@ class ProcessApplicationServiceSpec extends BaseSpec {
         newAuthorization.setGroupId('testcandidate')
         newAuthorization.setResource(Resources.PROCESS_DEFINITION)
         newAuthorization.setResourceId('testRoleAndStartable')
-        newAuthorization.addPermission(Permissions.ACCESS)
+        newAuthorization.addPermission(Permissions.CREATE_INSTANCE)
         authorizationService.saveAuthorization(newAuthorization)
 
         newAuthorization = authorizationService
@@ -41,7 +41,7 @@ class ProcessApplicationServiceSpec extends BaseSpec {
         newAuthorization.setGroupId('testcandidate')
         newAuthorization.setResource(Resources.PROCESS_DEFINITION)
         newAuthorization.setResourceId('testRoleAndStartable2')
-        newAuthorization.addPermission(Permissions.ACCESS)
+        newAuthorization.addPermission(Permissions.CREATE_INSTANCE)
         authorizationService.saveAuthorization(newAuthorization)
 
         when:

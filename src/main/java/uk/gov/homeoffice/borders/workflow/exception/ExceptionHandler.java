@@ -11,7 +11,6 @@ import uk.gov.homeoffice.borders.workflow.task.notifications.Notification;
 import static uk.gov.homeoffice.borders.workflow.exception.ErrorCodes.GOV_NOTIFY_ERROR_CODE;
 
 @Slf4j
-@Component
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class ExceptionHandler {
 

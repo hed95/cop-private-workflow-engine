@@ -83,6 +83,6 @@ public class ProcessInstanceApiController {
     public Map<String, VariableValueDto> variables(@PathVariable String processInstanceId,
                                                    PlatformUser platformUser) {
         VariableMap variables = processApplicationService.variables(processInstanceId, platformUser);
-        return VariableValueDto.fromVariableMap(variables);
+        return VariableValueDto.fromMap(variables);
     }
 }

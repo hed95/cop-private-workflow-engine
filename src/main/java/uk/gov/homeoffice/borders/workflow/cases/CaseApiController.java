@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,12 +31,12 @@ public class CaseApiController {
     private PagedResourcesAssembler<Case> pagedResourcesAssembler;
 
     @GetMapping
-    public PagedResources<Case> getCases(Pageable pageable,
-                                         @RequestParam("query") String query,
-                                         PlatformUser platformUser) {
+    public PagedModel<Case> getCases(Pageable pageable,
+                                     @RequestParam("query") String query,
+                                     PlatformUser platformUser) {
 
         Page<Case> cases = casesApplicationService.query(query, pageable, platformUser);
-        return pagedResourcesAssembler.toResource(cases, entity -> entity);
+        return pagedResourcesAssembler.toModel(cases, entity -> entity);
     }
 
     @GetMapping(path = GET_CASE)

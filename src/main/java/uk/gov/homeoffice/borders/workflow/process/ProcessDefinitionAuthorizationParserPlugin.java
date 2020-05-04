@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
 @Slf4j
 public class ProcessDefinitionAuthorizationParserPlugin extends AbstractCamundaConfiguration {
 
