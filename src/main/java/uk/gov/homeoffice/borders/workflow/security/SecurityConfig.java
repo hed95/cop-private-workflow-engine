@@ -67,11 +67,18 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
             Arrays.asList(ArrayUtils.addAll(SWAGGER_WHITELIST, ENGINE, ACTUATOR_HEALTH, ACTUATOR_METRICS, WEB_SOCKET_TASKS))
     );
 
-    @Autowired
-    public KeycloakClientRequestFactory keycloakClientRequestFactory;
+    public final KeycloakClientRequestFactory keycloakClientRequestFactory;
 
-    @Autowired
-    public RedisConnectionFactory redisConnectionFactory;
+    public final RedisConnectionFactory redisConnectionFactory;
+
+    public final FindByIndexNameSessionRepository sessionRepository;
+
+    public SecurityConfig(KeycloakClientRequestFactory keycloakClientRequestFactory, RedisConnectionFactory redisConnectionFactory,
+                          FindByIndexNameSessionRepository sessionRepository) {
+        this.keycloakClientRequestFactory = keycloakClientRequestFactory;
+        this.redisConnectionFactory = redisConnectionFactory;
+        this.sessionRepository = sessionRepository;
+    }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
@@ -117,13 +124,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     @Bean
     @SuppressWarnings("unchecked")
     public SessionRegistry springSessionBackedRegistry() {
-        return new SpringSessionBackedSessionRegistry<Session>(sessionRepository());
-    }
-
-    @Bean
-    @SuppressWarnings("unchecked")
-    public FindByIndexNameSessionRepository sessionRepository() {
-        return new RedisOperationsSessionRepository((RedisTemplate) redisTemplate());
+        return new SpringSessionBackedSessionRegistry<Session>(sessionRepository);
     }
 
 
