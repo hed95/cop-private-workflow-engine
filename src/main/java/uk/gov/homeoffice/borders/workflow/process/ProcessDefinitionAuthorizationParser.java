@@ -60,7 +60,7 @@ public class ProcessDefinitionAuthorizationParser {
                     newAuthorization.setGroupId(code);
                     newAuthorization.setResource(Resources.PROCESS_DEFINITION);
                     newAuthorization.setResourceId(processDefinition.getKey());
-                    newAuthorization.addPermission(Permissions.ACCESS);
+                    newAuthorization.addPermission(Permissions.READ);
                     log.info("Authorization for {} = {}", processDefinition.getKey(), code);
                     return newAuthorization;
                 }).forEach((authorization -> {
