@@ -43,7 +43,7 @@ public class CaseDetail {
     public static class FormReference {
         private String name;
         private String title;
-        private String versionId;
+        private String formVersionId;
         private String dataPath;
         private String submissionDate;
         private String submittedBy;
