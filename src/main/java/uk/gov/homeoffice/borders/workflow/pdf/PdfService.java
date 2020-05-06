@@ -6,6 +6,7 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.spin.json.SpinJsonNode;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -153,6 +155,14 @@ public class PdfService {
 
     public void sendPDFs(String senderAddress, List<String> recipients, String body, String subject,
                          List<String> attachmentIds, String processInstanceId) {
+
+        if (recipients.isEmpty()) {
+            log.warn("No recipients defined so not sending email");
+            return;
+        }
+
+        List<String> filteredRecipients = recipients.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+
         try {
 
             Session session = Session.getDefaultInstance(new Properties());
@@ -160,7 +170,7 @@ public class PdfService {
 
             mimeMessage.setSubject(subject, "UTF-8");
             mimeMessage.setFrom(senderAddress);
-            mimeMessage.setRecipients(Message.RecipientType.TO, recipients.stream()
+            mimeMessage.setRecipients(Message.RecipientType.TO, filteredRecipients.stream()
             .map(recipient -> {
                 Address address = null;
                 try {
