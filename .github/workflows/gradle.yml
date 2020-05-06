@@ -22,4 +22,4 @@ jobs:
             -v "$PWD:$PWD" \
             -w "$PWD" \
             openjdk:8-jdk-alpine \
-            ./gradlew test
+            ./gradlew clean test
