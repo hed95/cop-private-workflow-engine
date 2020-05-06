@@ -10,7 +10,6 @@ on:
     branches: [ camunda-7.13 ]
 
 jobs:
-  build:
   in-docker_test:
     runs-on: ubuntu-18.04
     steps:
