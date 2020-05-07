@@ -124,7 +124,7 @@ spec:
       volumes:
       - name: certs
         secret:
-          secretName: "{{.ENGINE_NAME}}-pod-tls"
+          secretName: "{{.ENGINE_NAME}}-pod-cmio"
       - name: trustedcerts
         configMap:
           name: {{.ENGINE_NAME}}-certs
