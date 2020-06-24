@@ -47,17 +47,17 @@ pipeline:
       environment: secrets
       event: deployment
 
-  test:
-    image: digitalpatterns/jdk:1
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-      - GRADLE_USER_HOME=~/.gradle
-    commands:
-      - ./gradlew test jacocoTestReport
-    when:
-      event:
-        - push
-        - pull_request
+  #test:
+  #  image: digitalpatterns/jdk:1
+  #  environment:
+  #    - DOCKER_HOST=tcp://172.17.0.1:2375
+  #    - GRADLE_USER_HOME=~/.gradle
+  #  commands:
+  #    - ./gradlew test jacocoTestReport
+  #  when:
+  #    event:
+  #      - push
+  #      - pull_request
 
   build:
     image: quay.io/ukhomeofficedigital/drone-docker
