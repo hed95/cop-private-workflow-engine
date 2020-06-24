@@ -156,7 +156,6 @@ public class PdfService {
     public void sendPDFs(String senderAddress, List<String> recipients, String body, String subject,
                          List<String> attachmentIds, String processInstanceId) {
 
-
         if (recipients.isEmpty()) {
             log.warn("No recipients defined so not sending email");
             return;
