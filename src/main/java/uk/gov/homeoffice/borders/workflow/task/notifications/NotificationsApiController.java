@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -74,11 +74,11 @@ public class NotificationsApiController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Gets notifications for the current user.")
-    public PagedResources<TaskDtoResource> notifications(Pageable pageable,
-                                                         @RequestParam(required = false, defaultValue = "false") boolean countOnly,
-                                                         PlatformUser platformUser) {
+    public PagedModel<TaskDtoResource> notifications(Pageable pageable,
+                                                     @RequestParam(required = false, defaultValue = "false") boolean countOnly,
+                                                     PlatformUser platformUser) {
         Page<Task> page = notificationService.getNotifications(platformUser, pageable, countOnly);
-        return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
+        return pagedResourcesAssembler.toModel(page, taskDtoResourceAssembler);
     }
 
 }

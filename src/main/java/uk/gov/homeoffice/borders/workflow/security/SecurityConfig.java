@@ -26,6 +26,7 @@ import org.springframework.security.web.authentication.session.RegisterSessionAu
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
@@ -49,6 +50,7 @@ import static org.springframework.web.util.TagUtils.SCOPE_REQUEST;
 @Profile("!test")
 @EnableRedisHttpSession
 @EnableScheduling
+@SuppressWarnings("unchecked")
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
 
@@ -63,15 +65,17 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
             "/webjars/**"
     };
 
-    static final List<String> NO_AUTH_URLS = Collections.unmodifiableList(
-            Arrays.asList(ArrayUtils.addAll(SWAGGER_WHITELIST, ENGINE, ACTUATOR_HEALTH, ACTUATOR_METRICS, WEB_SOCKET_TASKS))
-    );
+    static final List<String> NO_AUTH_URLS = List.of(ArrayUtils.addAll(SWAGGER_WHITELIST, ENGINE, ACTUATOR_HEALTH, ACTUATOR_METRICS, WEB_SOCKET_TASKS));
 
-    @Autowired
-    public KeycloakClientRequestFactory keycloakClientRequestFactory;
+    public final KeycloakClientRequestFactory keycloakClientRequestFactory;
 
-    @Autowired
-    public RedisConnectionFactory redisConnectionFactory;
+    public final RedisConnectionFactory redisConnectionFactory;
+
+
+    public SecurityConfig(KeycloakClientRequestFactory keycloakClientRequestFactory, RedisConnectionFactory redisConnectionFactory) {
+        this.keycloakClientRequestFactory = keycloakClientRequestFactory;
+        this.redisConnectionFactory = redisConnectionFactory;
+    }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
@@ -123,9 +127,8 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     @Bean
     @SuppressWarnings("unchecked")
     public FindByIndexNameSessionRepository sessionRepository() {
-        return new RedisOperationsSessionRepository((RedisTemplate) redisTemplate());
+        return new RedisIndexedSessionRepository((RedisTemplate) redisTemplate());
     }
-
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

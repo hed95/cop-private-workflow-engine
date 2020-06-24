@@ -84,8 +84,9 @@ public class CasesApplicationService {
         searchRequest.source(sourceBuilder);
 
         try {
-            final SearchResponse results = elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT.toBuilder()
-            .addHeader("Content-Type", "application/json").build());
+            RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
+            builder.addHeader("Content-Type", "application/json");
+            final SearchResponse results = elasticsearchClient.search(searchRequest, builder.build());
 
             final Set<String> keys = StreamSupport.stream(results.getHits().spliterator(), false)
                     .map(s -> s.getSourceAsMap().get("businessKey").toString()).collect(toSet());

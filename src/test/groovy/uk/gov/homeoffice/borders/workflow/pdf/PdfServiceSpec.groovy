@@ -6,11 +6,10 @@ import com.amazonaws.services.s3.model.PutObjectRequest
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService
 import com.amazonaws.services.simpleemail.model.SendRawEmailResult
 import com.github.tomakehurst.wiremock.client.WireMock
-import io.findify.s3mock.S3Mock
+
 import io.vavr.Tuple2
 import org.camunda.bpm.engine.HistoryService
 import org.camunda.bpm.engine.ManagementService
-import org.camunda.bpm.engine.OptimisticLockingException
 import org.camunda.bpm.engine.RuntimeService
 
 import org.camunda.bpm.engine.runtime.ProcessInstance
@@ -52,22 +51,6 @@ class PdfServiceSpec extends BaseSpec {
 
     @Autowired
     ManagementService managementService
-
-
-    static S3Mock api = new S3Mock.Builder().withPort(8323).withInMemoryBackend().build()
-
-
-    def setupSpec() {
-        if (api != null) {
-            api.start()
-        }
-    }
-
-    def cleanupSpec() {
-        if (api != null) {
-            api.shutdown()
-        }
-    }
 
 
     def 'can make a request to generate pdf'() {

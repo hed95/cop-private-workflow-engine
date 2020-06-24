@@ -1,0 +1,25 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ camunda-7.13 ]
+  pull_request:
+    branches: [ camunda-7.13 ]
+
+jobs:
+  in-docker_test:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build with Gradle
+        run: |
+          docker run -i --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$HOME:$HOME" \
+            -v "$PWD:$PWD" \
+            -w "$PWD" \
+            openjdk:13-jdk-alpine \
+            ./gradlew clean test

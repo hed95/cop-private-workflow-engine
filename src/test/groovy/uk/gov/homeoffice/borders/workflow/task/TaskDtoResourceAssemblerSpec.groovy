@@ -43,7 +43,7 @@ class TaskDtoResourceAssemblerSpec extends BaseSpec {
 
         when:
         def task = taskService.createTaskQuery().processInstanceId(processInstance.id).list().first()
-        def result = taskDtoResourceAssembler.toResource(task)
+        def result = taskDtoResourceAssembler.toModel(task)
 
         then:
         System.out.println(objectMapper.writeValueAsString(result))
@@ -75,7 +75,7 @@ class TaskDtoResourceAssemblerSpec extends BaseSpec {
 
         when:
         def task = taskService.createTaskQuery().processInstanceId(processInstance.id).list().first()
-        def result = taskDtoResourceAssembler.toResource(task)
+        def result = taskDtoResourceAssembler.toModel(task)
 
         then:
         result.extensionData.size() == 0

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,9 +35,9 @@ public class ProcessDefinitionApiController {
 
     @GetMapping(value = PROCESS_DEFINITION_ROOT_API, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Get the list of process definitions available to the current user.")
-    public PagedResources<ProcessDefinitionDtoResource> processDefinitions(Pageable pageable, PlatformUser platformUser) {
+    public PagedModel<ProcessDefinitionDtoResource> processDefinitions(Pageable pageable, PlatformUser platformUser) {
         Page<ProcessDefinition> page = processApplicationService.processDefinitions(platformUser, pageable);
-        return pagedResourcesAssembler.toResource(page, processDefinitionDtoResourceAssembler);
+        return pagedResourcesAssembler.toModel(page, processDefinitionDtoResourceAssembler);
     }
 
 

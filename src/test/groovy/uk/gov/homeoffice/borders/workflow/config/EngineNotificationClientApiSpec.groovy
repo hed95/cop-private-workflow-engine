@@ -48,7 +48,7 @@ class EngineNotificationClientApiSpec extends Specification {
 
         then:
         thrown(RuntimeException)
-        1 * runtimeService.createIncident('NOTIFICATION_FAILURE', 'failed', '{"data":{"exception":"failed","executionId":"executionId","emailAddress":"email","templateId":"templateId"}}')
+        1 * runtimeService.createIncident('NOTIFICATION_FAILURE', 'executionId','failed', '{"data":{"exception":"failed","executionId":"executionId","emailAddress":"email","templateId":"templateId"}}')
     }
 
     def 'can send sms'() {
@@ -82,6 +82,6 @@ class EngineNotificationClientApiSpec extends Specification {
 
         then:
         thrown(RuntimeException)
-        1 * runtimeService.createIncident('NOTIFICATION_FAILURE', 'failed', '{"data":{"exception":"failed","executionId":"executionId","phoneNumber":"phone","templateId":"templateId"}}')
+        1 * runtimeService.createIncident('NOTIFICATION_FAILURE', 'executionId', 'failed', '{"data":{"exception":"failed","executionId":"executionId","phoneNumber":"phone","templateId":"templateId"}}')
     }
 }

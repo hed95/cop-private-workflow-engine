@@ -75,13 +75,13 @@ spring:
     username: ${spring.datasource.username}
     url: ${spring.datasource.url}
     hikari:
-      maximum-pool-size: 30
+      maximum-pool-size: 2
       data-source-properties:
         cachePrepStmts: true
         prepStmtCacheSqlLimit: 2048
         prepStmtCacheSize: 250
   autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration,
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration,org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticSearchRestHealthContributorAutoConfiguration
   http:
     converters:
       preferred-json-mapper: jackson
@@ -89,7 +89,8 @@ spring:
     date-format: "yyyy-MM-dd'T'HH:mm:ss"
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
-
+  main:
+    allow-bean-definition-overriding: true
 management:
   endpoints:
     web:
@@ -112,5 +113,4 @@ server:
     whitelabel:
       enabled: false
   port: ${server.port:8080}
-
 

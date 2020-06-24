@@ -33,6 +33,7 @@ import uk.gov.homeoffice.borders.workflow.security.KeycloakClient;
 import uk.gov.homeoffice.borders.workflow.shift.ShiftUserMethodArgumentResolver;
 import uk.gov.homeoffice.borders.workflow.task.TaskFilterCriteriaMethodArgumentResolver;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -92,8 +93,8 @@ public class ApplicationConfiguration {
                                      CorrelationIdInterceptor correlationIdInterceptor) {
         KeycloakBearerTokenInterceptor keycloakBearerTokenInterceptor =
                 new KeycloakBearerTokenInterceptor(keycloakClient);
-        builder.setConnectTimeout(platformDataBean.getConnectTimeout());
-        builder.setReadTimeout(platformDataBean.getReadTimeout());
+        builder.setConnectTimeout(Duration.ofSeconds(platformDataBean.getConnectTimeout()));
+        builder.setReadTimeout(Duration.ofSeconds(platformDataBean.getReadTimeout()));
         RestTemplate restTemplate = builder.build();
         restTemplate.getInterceptors().add(keycloakBearerTokenInterceptor);
         restTemplate.getInterceptors().add(correlationIdInterceptor);

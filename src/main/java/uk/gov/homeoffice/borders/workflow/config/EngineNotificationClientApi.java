@@ -186,6 +186,7 @@ public class EngineNotificationClientApi implements NotificationClientApi {
             jsonObject.put("data", new JSONObject(personalisation));
             runtimeService.createIncident(
                     NOTIFICATION_FAILURE,
+                    personalisation.get("executionId").toString(),
                     e.getMessage(),
                     jsonObject.toString()
             );

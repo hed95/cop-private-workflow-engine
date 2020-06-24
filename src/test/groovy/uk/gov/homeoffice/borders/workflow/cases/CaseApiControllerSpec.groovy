@@ -3,7 +3,6 @@ package uk.gov.homeoffice.borders.workflow.cases
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
-import io.findify.s3mock.S3Mock
 import org.apache.commons.io.IOUtils
 import org.camunda.spin.Spin
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +16,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import static com.github.tomakehurst.wiremock.client.WireMock.post
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -27,21 +27,6 @@ class CaseApiControllerSpec extends BaseSpec {
 
     @Autowired
     AmazonS3 amazonS3Client
-
-    static S3Mock api = new S3Mock.Builder().withPort(8323).withInMemoryBackend().build()
-
-
-    def setupSpec() {
-        if (api != null) {
-            api.start()
-        }
-    }
-
-    def cleanupSpec() {
-        if (api != null) {
-            api.shutdown()
-        }
-    }
 
     def 'can query cases'() {
         given:
@@ -59,7 +44,7 @@ class CaseApiControllerSpec extends BaseSpec {
 
         and:
         applicationService.createInstance(processStartDto, user)._1()
-        stubFor(post("/_search?typed_keys=true&ignore_unavailable=false&expand_wildcards=open&allow_no_indices=true&ignore_throttled=true&search_type=query_then_fetch&batched_reduce_size=512&ccs_minimize_roundtrips=true")
+        stubFor(post(urlPathEqualTo("/_search"))
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(equalToJson('''
                                             {

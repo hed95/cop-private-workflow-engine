@@ -23,6 +23,7 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestClientBuilder
 import org.elasticsearch.client.RestHighLevelClient
 import org.junit.ClassRule
+import org.junit.Rule
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor
@@ -39,6 +40,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.client.RestTemplate
+import org.testcontainers.containers.localstack.LocalStackContainer
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
@@ -49,6 +51,10 @@ import uk.gov.homeoffice.borders.workflow.identity.PlatformUser
 import uk.gov.homeoffice.borders.workflow.identity.Team
 import uk.gov.homeoffice.borders.workflow.security.WorkflowAuthentication
 import uk.gov.service.notify.NotificationClient
+
+import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*
 
 
@@ -148,6 +154,9 @@ abstract class BaseSpec extends Specification {
     public wireMockStub = new WireMockGroovy(wmPort)
 
 
+
+
+
     def stubKeycloak() {
         stubFor(post('/realms/myRealm/protocol/openid-connect/token')
                 .withHeader('Content-Type', equalTo('application/x-www-form-urlencoded;charset=UTF-8'))
@@ -244,6 +253,17 @@ abstract class BaseSpec extends Specification {
             prePostEnabled = true
     )
     static class TestConfig extends WebSecurityConfigurerAdapter {
+        public LocalStackContainer localstack = new LocalStackContainer().withServices(LocalStackContainer.Service.S3)
+
+        @PostConstruct
+        void init() {
+            localstack.start()
+        }
+
+        @PreDestroy
+        void destroy() {
+            localstack.stop()
+        }
 
 
         @Bean
@@ -259,8 +279,7 @@ abstract class BaseSpec extends Specification {
 
             def amazonS3 = AmazonS3ClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration('http://localhost:8323',
-                    'eu-west-2'))
+                    .withEndpointConfiguration(localstack.getEndpointConfiguration(LocalStackContainer.Service.S3))
                     .enablePathStyleAccess()
                     .build()
 

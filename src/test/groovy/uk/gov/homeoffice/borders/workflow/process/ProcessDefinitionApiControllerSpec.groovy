@@ -3,7 +3,7 @@ package uk.gov.homeoffice.borders.workflow.process
 import org.camunda.bpm.engine.authorization.Authorization
 import org.camunda.bpm.engine.authorization.Permissions
 import org.camunda.bpm.engine.authorization.Resources
-import org.springframework.hateoas.PagedResources
+import org.springframework.hateoas.PagedModel
 import org.springframework.http.MediaType
 import spock.lang.Title
 import uk.gov.homeoffice.borders.workflow.BaseSpec
@@ -22,7 +22,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
         newAuthorization.setGroupId("custom_role")
         newAuthorization.setResource(Resources.PROCESS_DEFINITION)
         newAuthorization.setResourceId("candidateGroupsWorkflow")
-        newAuthorization.addPermission(Permissions.ACCESS)
+        newAuthorization.addPermission(Permissions.READ)
         authorizationService.saveAuthorization(newAuthorization)
 
         when:
@@ -32,7 +32,7 @@ class ProcessDefinitionApiControllerSpec extends BaseSpec {
 
         then:
         result.andExpect(status().is2xxSuccessful())
-        def pagedResources = objectMapper.readValue(result.andReturn().response.contentAsString, PagedResources)
+        def pagedResources = objectMapper.readValue(result.andReturn().response.contentAsString, PagedModel)
         pagedResources.metadata.totalElements != 0
     }
 

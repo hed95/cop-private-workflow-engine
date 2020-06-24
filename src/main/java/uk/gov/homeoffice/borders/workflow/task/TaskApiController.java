@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -56,15 +56,15 @@ public class TaskApiController {
 
     @GetMapping
     @ApiOperation("Get all tasks for the current user.")
-    public PagedResources<TaskDtoResource> tasks(TaskCriteria taskCriteria,
-                                                 Pageable pageable,
-                                                 PlatformUser platformUser) {
+    public PagedModel<TaskDtoResource> tasks(TaskCriteria taskCriteria,
+                                             Pageable pageable,
+                                             PlatformUser platformUser) {
         Page<Task> page = applicationService.tasks(platformUser, taskCriteria, pageable);
         List<String> processDefinitionIds = page.getContent().stream().map(Task::getProcessDefinitionId).collect(toList());
 
         List<ProcessDefinition> definitions = processApplicationService.getDefinitions(processDefinitionIds);
         Map<String, ProcessDefinition> definitionIdMaps = definitions.stream().collect(toMap(ProcessDefinition::getId, v -> v));
-        PagedResources<TaskDtoResource> resources = pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
+        PagedModel<TaskDtoResource> resources = pagedResourcesAssembler.toModel(page, taskDtoResourceAssembler);
         resources.forEach(dto -> Optional.ofNullable(definitionIdMaps.get(dto.getTaskDto().getProcessDefinitionId()))
                 .ifPresent(d -> dto.setProcessDefinition(ProcessDefinitionDto.fromProcessDefinition(d))));
 
@@ -90,11 +90,11 @@ public class TaskApiController {
         if (includeVariables) {
             Mono<Map<String, VariableValueDto>> variableMap = Mono.fromCallable(() ->
                     applicationService.getVariables(user, taskId))
-                    .map(VariableValueDto::fromVariableMap)
+                    .map(VariableValueDto::fromMap)
                     .subscribeOn(Schedulers.elastic());
             return Mono.zip(Arrays.asList(task, identities, variableMap), (Object[] args) -> {
                 Task taskLoaded = (Task) args[0];
-                TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(taskLoaded);
+                TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toModel(taskLoaded);
                 if (taskLoaded.getProcessDefinitionId() !=null) {
                     ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
                             .processDefinitionId(taskLoaded.getProcessDefinitionId())
@@ -109,7 +109,7 @@ public class TaskApiController {
         }
         return Mono.zip(Arrays.asList(task, identities), (Object[] args) -> {
             Task taskFromMono = (Task) args[0];
-            TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(taskFromMono);
+            TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toModel(taskFromMono);
             taskDtoResource.setCandidateGroups((List<String>) args[1]);
 
             if (taskFromMono.getProcessDefinitionId() !=null) {
@@ -129,14 +129,14 @@ public class TaskApiController {
     public Map<String, VariableValueDto> variables(@PathVariable String taskId,
                                                    PlatformUser platformUser) {
         VariableMap variables = applicationService.getVariables(platformUser, taskId);
-        return VariableValueDto.fromVariableMap(variables);
+        return VariableValueDto.fromMap(variables);
     }
 
     @PostMapping
     @ApiOperation("Query tasks for the current user.")
-    public PagedResources<TaskDtoResource> query(@RequestBody TaskQueryDto queryDto, Pageable pageable, PlatformUser platformUser) {
+    public PagedModel<TaskDtoResource> query(@RequestBody TaskQueryDto queryDto, Pageable pageable, PlatformUser platformUser) {
         Page<Task> page = applicationService.query(platformUser, queryDto, pageable);
-        return pagedResourcesAssembler.toResource(page, taskDtoResourceAssembler);
+        return pagedResourcesAssembler.toModel(page, taskDtoResourceAssembler);
 
     }
 
@@ -182,10 +182,10 @@ public class TaskApiController {
             return ResponseEntity.ok().build();
         }
         Task nextTask = tasks.get(0);
-        TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toResource(nextTask);
+        TaskDtoResource taskDtoResource = taskDtoResourceAssembler.toModel(nextTask);
         if (!CollectionUtils.isEmpty(tasks)) {
             VariableMap variables = applicationService.getVariables(user, nextTask.getId());
-            taskDtoResource.setVariables(VariableValueDto.fromVariableMap(variables));
+            taskDtoResource.setVariables(VariableValueDto.fromMap(variables));
         }
         return ResponseEntity.ok(taskDtoResource);
     }

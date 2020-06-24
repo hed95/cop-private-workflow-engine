@@ -100,6 +100,9 @@ public class CustomIdentityProvider implements ReadOnlyIdentityProvider {
     }
 
     public List<org.camunda.bpm.engine.identity.Group> findGroupByQueryCriteria(TeamQuery query) {
+        if (query.getUserId() != null) {
+            return new ArrayList<>();
+        }
         return teamService.findByQuery(query);
 
     }

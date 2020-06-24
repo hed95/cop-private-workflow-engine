@@ -13,8 +13,7 @@ import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.UserTask;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.ResourceAssembler;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -25,19 +24,22 @@ import static java.util.Optional.ofNullable;
 
 @Component
 @Slf4j
-public class TaskDtoResourceAssembler implements ResourceAssembler<Task, TaskDtoResource> {
+public class TaskDtoResourceAssembler implements RepresentationModelAssembler<Task, TaskDtoResource> {
 
-    @Autowired
-    private RepositoryService repositoryService;
+    private final RepositoryService repositoryService;
 
-    @Autowired
-    private ProcessEngineConfigurationImpl processEngineConfiguration;
+    private final ProcessEngineConfigurationImpl processEngineConfiguration;
 
-    @Autowired
-    private RuntimeService runtimeService;
+    private final RuntimeService runtimeService;
+
+    public TaskDtoResourceAssembler(RepositoryService repositoryService, ProcessEngineConfigurationImpl processEngineConfiguration, RuntimeService runtimeService) {
+        this.repositoryService = repositoryService;
+        this.processEngineConfiguration = processEngineConfiguration;
+        this.runtimeService = runtimeService;
+    }
 
     @Override
-    public TaskDtoResource toResource(Task task) {
+    public TaskDtoResource toModel(Task task) {
 
         TaskEntity entity = (TaskEntity) task;
         TaskDto taskDto = TaskDto.fromEntity(entity);
@@ -91,4 +93,5 @@ public class TaskDtoResourceAssembler implements ResourceAssembler<Task, TaskDto
         return properties;
 
     }
+
 }

@@ -2,8 +2,8 @@ package uk.gov.homeoffice.borders.workflow.task;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.camunda.bpm.engine.rest.mapper.JacksonConfigurator;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -51,10 +51,8 @@ public class TaskFilterCriteriaMethodArgumentResolver implements HandlerMethodAr
 
     private Date parseDate(String dateToParse) {
         try {
-            return DateUtils.parseDate(dateToParse, new String[]{
-                    JacksonConfigurator.DEFAULT_DATE_FORMAT,
-                    DateFormatUtils.ISO_DATE_FORMAT.getPattern()
-            });
+            return DateUtils.parseDate(dateToParse, JacksonConfigurator.DEFAULT_DATE_FORMAT,
+                    DateFormatUtils.ISO_8601_EXTENDED_DATE_FORMAT.getPattern());
         } catch (ParseException e) {
             log.error("Failed to parse date", e);
             return null;

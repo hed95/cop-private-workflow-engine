@@ -13,6 +13,7 @@ import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 
 import static org.camunda.bpm.engine.authorization.Permissions.ACCESS;
+import static org.camunda.bpm.engine.authorization.Permissions.READ;
 
 @Slf4j
 @AllArgsConstructor
@@ -38,7 +39,7 @@ public class ProcessInstanceAuthorizationListener implements ExecutionListener {
                                 newAuthorization.setResource(Resources.PROCESS_INSTANCE);
                                 newAuthorization.setUserId(user);
                                 newAuthorization.setResourceId(execution.getProcessInstanceId());
-                                newAuthorization.addPermission(ACCESS);
+                                newAuthorization.addPermission(READ);
                                 authorizationService.saveAuthorization(newAuthorization);
                             }
                         }
@@ -55,7 +56,7 @@ public class ProcessInstanceAuthorizationListener implements ExecutionListener {
                                 newAuthorization.setResource(Resources.PROCESS_INSTANCE);
                                 newAuthorization.setGroupId(group);
                                 newAuthorization.setResourceId(execution.getProcessInstanceId());
-                                newAuthorization.addPermission(ACCESS);
+                                newAuthorization.addPermission(READ);
                                 authorizationService.saveAuthorization(newAuthorization);
                             }
                         }
