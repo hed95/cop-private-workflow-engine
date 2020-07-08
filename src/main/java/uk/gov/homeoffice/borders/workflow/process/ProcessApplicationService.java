@@ -161,30 +161,25 @@ public class ProcessApplicationService {
                 .listPage(0, 1);
 
         if (processInstances != null && !processInstances.isEmpty()) {
-
             ExecutionEntity subProcessInstance = (ExecutionEntity) processInstances.get(0);
-            VariableMap variableMap = new VariableMapImpl();
-            runtimeService.createVariableInstanceQuery()
-                    .processInstanceIdIn(subProcessInstance.getProcessInstanceId())
-                    .list()
-                    .forEach(
-                            (v) -> variableMap.putValueTyped(v.getName(), v.getTypedValue())
-                    );
-
+            VariableMap decrypted = variables(subProcessInstance.getId(), user);
             ProcessInstanceWithVariablesImpl withVariables = new ProcessInstanceWithVariablesImpl(
-                    subProcessInstance, variableMap);
+                    subProcessInstance, decrypted);
             List<Task> tasks = taskService.createTaskQuery().processInstanceId(subProcessInstance.getId())
                     .taskAssignee(user.getEmail())
                     .initializeFormKeys().list();
             return Tuple.of(withVariables, tasks);
         }
 
+        VariableMap decrypted = variables(processInstance.getId(), user);
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstance.getId())
                 .taskAssignee(user.getEmail())
                 .initializeFormKeys().list();
 
-        return Tuple.of(processInstance, tasks);
-
+        return Tuple.of(new ProcessInstanceWithVariablesImpl(
+                ((ProcessInstanceWithVariablesImpl) processInstance).getExecutionEntity(),
+                decrypted
+        ), tasks);
 
     }
 
