@@ -171,16 +171,21 @@ public class ProcessApplicationService {
             return Tuple.of(withVariables, tasks);
         }
 
-        VariableMap decrypted = variables(processInstance.getId(), user);
+        if (!processInstance.isEnded()) {
+            VariableMap decrypted = variables(processInstance.getId(), user);
+            List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstance.getId())
+                    .taskAssignee(user.getEmail())
+                    .initializeFormKeys().list();
+
+            return Tuple.of(new ProcessInstanceWithVariablesImpl(
+                    ((ProcessInstanceWithVariablesImpl) processInstance).getExecutionEntity(),
+                    decrypted
+            ), tasks);
+        }
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstance.getId())
                 .taskAssignee(user.getEmail())
                 .initializeFormKeys().list();
-
-        return Tuple.of(new ProcessInstanceWithVariablesImpl(
-                ((ProcessInstanceWithVariablesImpl) processInstance).getExecutionEntity(),
-                decrypted
-        ), tasks);
-
+        return Tuple.of(processInstance, tasks);
     }
 
     ProcessInstance getProcessInstance(@NotNull String processInstanceId, @NotNull PlatformUser user) {
