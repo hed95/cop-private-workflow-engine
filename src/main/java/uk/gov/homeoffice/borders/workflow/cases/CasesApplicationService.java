@@ -24,6 +24,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -76,7 +77,7 @@ public class CasesApplicationService {
         final SearchRequest searchRequest = new SearchRequest();
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.queryStringQuery(query));
-        sourceBuilder.from(pageable.getPageNumber());
+        sourceBuilder.from(Math.toIntExact(pageable.getOffset()));
         sourceBuilder.size(pageable.getPageSize());
         sourceBuilder.fetchSource(new String[]{"businessKey"}, null);
 
